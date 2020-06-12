@@ -1,0 +1,821 @@
+﻿add_namespace = ww1_generic
+
+# election event (dummy)
+country_event = {
+	id = ww1_generic.1
+	title = ww1_generic.1.t
+	desc = ww1_generic.1.d
+	picture = GFX_report_event_generic_read_write
+
+	is_triggered_only = yes
+	option = {
+		name = ww1_generic.1.a
+	}
+}
+# Высокие потери в войне дестабилизируют страну
+country_event = {
+	id = ww1_generic.2
+	title = ww1_generic.2.t
+	desc = ww1_generic.2.d
+	picture = GFX_report_event_worker_protests
+
+	trigger = {
+		has_offensive_war = yes
+		casualties > 2500000
+		NOT = { has_government = communism }
+		NOT = { has_government = fascism }
+		NOT = { has_country_flag = high_casualties }
+	}
+	immediate = {
+		set_country_flag = high_casualties
+	}
+	mean_time_to_happen = {
+		days = 720
+		modifier = {
+			factor = 0.5
+			has_manpower < 10000
+		}	
+		modifier = {
+			factor = 0.5
+			has_war_support < 0.5
+		}
+		modifier = {
+			factor = 1.5
+			has_war_support > 0.75
+		}
+		modifier = {
+			factor = 1.5
+			has_stability > 0.5
+		}
+	}
+
+	option = {
+		name = ww1_generic.2.a
+		add_war_support = -0.05
+		# фашисты и коммунисты не не боятся пацифистов
+		if = {
+			limit = { has_government = neutrality }
+			add_popularity = {
+				ideology = communism
+				popularity = 0.02
+			}
+		}
+		if = {
+			limit = { has_government = democratic }
+			add_popularity = {
+				ideology = communism
+				popularity = 0.02
+			}
+		}
+		clr_country_flag = high_casualties
+		ai_chance = { factor = 100 }
+	}
+}
+# забастовка рабочих в мирное время
+country_event = {
+	id = ww1_generic.3
+	title = ww1_generic.3.t
+	desc = ww1_generic.3.d
+	picture = GFX_report_event_worker_protests
+	trigger = {
+		has_war = no	
+		num_of_factories > 10
+		NOT = { has_government = fascism }
+		NOT = { has_country_flag = crisis_in_progress }
+		NOT = { has_country_flag = workers_protest }
+		if = {
+			limit = { has_government = democratic }
+			democratic < 0.5
+		}
+		if = {
+			limit = { has_government = neutrality }
+			neutrality < 0.5
+		}
+		if = {
+			limit = { has_government = communism }
+			communism < 0.5
+		}
+	}
+	immediate = {
+		set_country_flag = workers_protest
+	}
+	mean_time_to_happen = {
+		days = 720
+		modifier = {
+			factor = 4
+			has_country_flag = labor_reform
+		}
+		modifier = {
+			factor = 1.5
+			has_stability > 0.35
+		}
+		modifier = {
+			factor = 1.5
+			has_idea = civilian_economy
+		}
+		modifier = {
+			factor = 0.75
+			has_idea = partial_economic_mobilisation
+		}
+		modifier = {
+			factor = 0.75
+			has_idea = war_economy
+		}
+		modifier = {
+			factor = 2
+			has_government = communism
+		}
+		modifier = {
+			factor = 0.75
+			NOT = { has_government = communism }
+			communism < 0.1
+		}
+	}
+	option = {
+		name = ww1_generic.3.a
+		if = {
+			limit = { has_government = neutrality }
+			add_popularity = {
+				ideology = communism
+				popularity = 0.02
+			}
+		}
+		if = {
+			limit = { has_government = democratic }
+			add_popularity = {
+				ideology = communism
+				popularity = 0.02
+			}
+		}
+		if = {
+			limit = { has_government = communism }
+			add_popularity = {
+				ideology = democratic
+				popularity = 0.02
+			}
+		}
+		clr_country_flag = workers_protest
+		ai_chance = { factor = 50 }
+	}
+	option = {
+		name = ww1_generic.3.b		
+		random_list = {
+			50 = { 
+				modifier = {
+					factor = 0.75
+					has_war_support < 0.5
+				}
+				country_event = ww1_generic.4 #забастовка разогнана
+			}
+			50 = { 
+				country_event = ww1_generic.5 #кровавое воскресенье
+			}
+		}
+		clr_country_flag = workers_protest
+		ai_chance = {
+			factor = 10
+			modifier = {
+				factor = 10
+				has_government = neutrality
+			}
+			modifier = {
+				factor = 10
+				has_government = communism
+			}
+		}
+	}
+	option = {
+		name = ww1_generic.3.c
+		if = {
+			limit = { has_country_flag = labor_reform }
+			add_political_power = -75
+			add_stability = 0.02
+		}
+		if = {
+			limit = { NOT = { has_country_flag = labor_reform } }
+			add_political_power = -100
+			set_country_flag = labor_reform
+		}
+		#трудовая реформа снизит риск забастовок
+		clr_country_flag = workers_protest
+		ai_chance = {
+			factor = 10
+			modifier = {
+				factor = 10
+				has_government = democratic
+			}
+			modifier = {
+				factor = 10
+				has_political_power > 100
+			}
+		}
+	}
+}
+# забастовка разогнана
+country_event = {
+	id = ww1_generic.4
+	title = ww1_generic.4.t
+	desc = ww1_generic.4.d
+	picture = GFX_report_event_generic_riot	
+
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_generic.4.a
+		if = {
+			limit = { has_government = neutrality }
+			add_popularity = {
+				ideology = communism
+				popularity = -0.02
+			}
+		}
+		if = {
+			limit = { has_government = democratic }
+			add_popularity = {
+				ideology = communism
+				popularity = -0.02
+			}
+		}
+		if = {
+			limit = { has_government = communism }
+			add_popularity = {
+				ideology = democratic
+				popularity = -0.02
+			}
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+# кровавый разгон демонстрации
+country_event = {
+	id = ww1_generic.5
+	title = ww1_generic.5.t
+	desc = ww1_generic.5.d
+	picture = GFX_report_event_worker_protests
+
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_generic.5.a
+		add_stability = -0.1
+		ai_chance = { factor = 100 }
+	}
+}
+#при высокой стабильности растет поддержка правящей идеологии
+country_event = {
+	id = ww1_generic.6
+	title = ww1_generic.6.t
+	desc = ww1_generic.6.d
+	picture = GFX_report_event_generic_parliament
+
+	trigger = {
+		has_war = no
+		has_stability > 0.5
+		NOT = { has_country_flag = high_party_support }
+		OR = {
+			AND = {
+				has_government = neutrality 
+				neutrality < 0.75
+			}
+			AND = {
+				has_government = democratic
+				democratic < 0.75
+			}
+		}
+	}
+	immediate = {
+		set_country_flag = high_party_support
+	}
+	mean_time_to_happen = {
+		days = 720
+		modifier = {
+			factor = 0.75
+			has_stability > 0.9
+		}
+		modifier = {
+			factor = 0.75
+			has_stability > 0.8
+		}
+		modifier = {
+			factor = 0.75
+			has_stability > 0.7
+		}
+	}
+
+	option = {
+		name = ww1_generic.6.a
+		# стабильность - фактор популярности только нейтралов и демократов
+		if = {
+			limit = { has_government = neutrality }
+			add_popularity = {
+				ideology = neutrality
+				popularity = 0.02
+			}
+		}
+		if = {
+			limit = { has_government = democratic }
+			add_popularity = {
+				ideology = democratic
+				popularity = 0.02
+			}
+		}
+		clr_country_flag = high_party_support
+		ai_chance = { factor = 100 }
+	}
+}
+#мирная экономика восстанавливает стабильность, уменьшая поддержку войны в случае низкой угрозы
+country_event = {
+	id = ww1_generic.7
+	title = ww1_generic.7.t
+	desc = ww1_generic.7.d
+	picture = GFX_report_event_generic_factory
+
+	trigger = {
+		has_war = no
+		has_stability < 0.5
+		threat < 0.1
+		OR = {
+			has_idea = undisturbed_isolation
+			has_idea = isolation
+			has_idea = civilian_economy
+		}
+		NOT = { has_country_flag = stable_economy }		
+		OR = {
+			has_government = democratic
+			has_government = neutrality
+		}
+	}
+	immediate = {
+		set_country_flag = stable_economy
+	}
+	mean_time_to_happen = {
+		days = 365
+		modifier = {
+			factor = 0.5
+			has_idea = civilian_economy
+		}
+		modifier = {
+			factor = 1.25
+			has_war_support > 0.75 #страна готова воевать
+		}
+	}
+
+	option = {
+		name = ww1_generic.7.a
+		# нам не угрожает война
+		add_stability = 0.02
+		add_war_support = -0.02
+		clr_country_flag = stable_economy
+		ai_chance = { factor = 100 }
+	}
+}
+# ИВЕНТ, ОТКЛЮЧАЮЩИЙ ВЕРСАЛЬСКУЮ КОНФЕРЕНЦИЮ В СИНГЛПЛЕЕРЕ
+country_event = {
+	id = ww1_generic.8
+	title = ww1_generic.8.t
+	desc = ww1_generic.8.d
+	picture = GFX_report_event_generic_sign_treaty1
+
+	#trigger = {
+		#ROOT = { is_ai = no }
+		#all_country = {
+		#	NOT = { tag = ROOT }
+		#	is_ai = yes
+		#}
+		#NOT = {
+		#	tag = FRA
+		#	tag = GER
+		#}
+		#FRA = { is_ai = yes }
+		#GER = { is_ai = yes }
+		#NOT = { has_global_flag = AI_conference }
+		#date > 1910.5.1
+	#}
+	#immediate = {
+	#	set_global_flag = AI_conference
+	#}
+	is_triggered_only = yes
+	#mean_time_to_happen = { days = 1 }
+	option = {
+		name = ww1_generic.8.a	
+		ai_chance = { factor = 10 }
+	}
+	option = {
+		name = ww1_generic.8.b
+		set_global_flag = AI_conference_off
+		ai_chance = { factor = 0 }
+	}
+}
+
+#SPANISH FLU: FIRST VICTIMS
+country_event = {
+	id = ww1_generic.9
+	title = ww1_generic.9.t
+	desc = ww1_generic.9.d
+	picture = GFX_report_event_spanish_flu
+
+	trigger = {
+		OR = {
+			AND = {
+				has_war = yes
+				casualties > 1000000
+			}
+			tag = SPR
+			has_country_flag = great_war_loser
+			has_country_flag = great_war_winner
+		}
+		has_global_flag = kis_war
+		date > 1918.1.1
+		NOT = { has_global_flag = spanish_flu }
+	}
+	immediate = {
+		set_global_flag = spanish_flu
+		set_country_flag = spanish_flu_spreads
+		hidden_effect = {
+			add_timed_idea = {
+				idea = idea_spanish_flu 
+				days = 720 
+			}
+		}
+	}
+	fire_only_once = yes
+	mean_time_to_happen = { days = 30 }
+	option = {
+		name = ww1_generic.9.a	
+		unlock_decision_category_tooltip = decision_influenza_pandemic
+		news_event = { id = ww1_generic.10 days = 5 }
+		ai_chance = { factor = 10 }
+	}
+}
+#SPANISH FLU SPREADS - NEWS
+news_event = {
+	id = ww1_generic.10
+	title = ww1_generic.10.t
+	desc = ww1_generic.10.d
+	picture = ww1_generic_1
+	
+	major = yes
+	is_triggered_only = yes
+	
+	option = {
+		name = ww1_generic.10.a
+		trigger = { NOT = { tag = RUS } }
+	}
+	option = {
+		name = ww1_generic.10.b
+		trigger = { tag = RUS }
+	}
+}
+#SPANISH FLU SPREADS
+country_event = {
+	id = ww1_generic.11
+	title = ww1_generic.9.t
+	desc = ww1_generic.9.d
+	picture = GFX_report_event_spanish_flu
+
+	trigger = {
+		OR = {
+			AND = {
+				has_war = yes
+				casualties > 1000000
+			}
+			tag = SPR
+			has_country_flag = great_war_loser
+			has_country_flag = great_war_winner
+			any_neighbor_country = {
+				has_country_flag = spanish_flu_spreads
+			}
+			tag = USA
+		}
+		date > 1918.1.1
+		date < 1919.1.1
+		has_global_flag = spanish_flu
+		NOT = { has_country_flag = spanish_flu_spreads }
+	}
+	immediate = {
+		set_country_flag = spanish_flu_spreads
+		hidden_effect = {
+			add_timed_idea = {
+				idea = idea_spanish_flu 
+				days = 720 
+			}
+		}
+	}
+	mean_time_to_happen = {
+		days = 90
+		modifier = {
+			factor = 0.5
+			has_stability < 0.5
+		}
+		modifier = {
+			factor = 1.25
+			has_stability > 0.5
+		}
+		modifier = {
+			factor = 1.5
+			has_war = no
+		}
+		modifier = {
+			factor = 0.5
+			has_war = yes
+		}
+	}
+	option = {
+		name = ww1_generic.9.a	
+		unlock_decision_category_tooltip = decision_influenza_pandemic
+		ai_chance = { factor = 10 }
+	}
+}
+# FAMINE
+country_event = {
+	id = ww1_generic.12
+	title = ww1_generic.12.t
+	desc = ww1_generic.12.d
+	picture = GFX_report_event_worker_protests
+	trigger = {
+		num_of_civilian_factories < 30
+		has_stability < 0.25
+		threat > 0.25
+		NOT = { has_government = democratic }
+		NOT = { has_country_flag = crisis_in_progress }
+		NOT = { has_idea = idea_famine }
+		NOT = { has_idea = SOV_idea_famine }
+		NOT = { has_idea = idea_spanish_flu }
+		date < 1928.1.1
+	}
+	immediate = {
+		hidden_effect = {
+			add_timed_idea = { idea = idea_famine days = 180 }
+		}
+	}
+	mean_time_to_happen = {
+		days = 720
+		modifier = {
+			factor = 0.2
+			has_stability < 0.1
+		}
+		modifier = {
+			factor = 0.3
+			has_stability < 0.2
+		}
+		modifier = {
+			factor = 0.75
+			has_idea = partial_economic_mobilisation
+		}
+		modifier = {
+			factor = 0.5
+			has_idea = war_economy
+		}
+		modifier = {
+			factor = 0.75
+			has_government = communism
+		}
+	}
+	option = {
+		name = ww1_generic.12.a
+		ai_chance = { factor = 50 }
+	}
+}
+
+# MARTIANS
+####################
+news_event = {
+	id = ww1_generic.13
+	title = ww1_generic.13.t
+	desc = ww1_generic.13.d
+	picture = GFX_news_event_047
+
+	major = yes
+	is_triggered_only = yes
+	
+	immediate = {
+		set_global_flag = great_martian_war
+	}
+	
+	option = {
+		name = ww1_generic.13.a
+		ai_chance = { factor = 100 }
+	}
+}
+
+news_event = {
+	id = ww1_generic.14
+	hidden = yes
+	
+	fire_only_once = yes
+	trigger = {
+		date > 1913.1.1
+		date < 1914.1.1
+		is_historical_focus_on = no
+		all_country = { has_war = no }
+	}
+	mean_time_to_happen = {
+		days = 60
+	}
+	
+	immediate = {
+		random_list = {
+			10000 = { }
+			1 = {
+				news_event = { id = ww1_generic.13 }
+			}
+		}
+	}
+}
+# Comet Sighted
+country_event = {
+	id = ww1_generic.15
+	title = ww1_generic.15.t
+	desc = ww1_generic.15.d
+	picture = GFX_report_event_airplane_factory
+	trigger = {
+		NOT = { has_country_flag = comet }
+		date > 1910.5.20
+	}
+	immediate = {
+		set_country_flag = comet
+	}
+	mean_time_to_happen = {
+		days = 60
+	}
+
+	option = {
+		name = ww1_generic.15.a
+		add_stability = 0.01
+		trigger = { 
+			NOT = { tag = QIN } 
+			NOT = { tag = MEX } 
+		}
+		ai_chance = { factor = 100 }
+	}
+	option = {
+		name = ww1_generic.15.b
+		add_stability = -0.01
+		trigger = { 
+			OR = {
+				tag = QIN 
+				tag = MEX
+			}
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+# FARM CRISIS 
+country_event = {
+	id = ww1_generic.16
+	title = ww1_generic.16.t
+	desc = ww1_generic.16.d
+	picture = GFX_report_event_crowd_in_prague
+
+	trigger = {
+		NOT = { has_country_flag = farm_crisis_after_war }
+		NOT = { has_idea = idea_farm_crisis }
+		OR = {
+			AND = {
+				date > 1920.3.1
+				GER = { has_war = no }
+				has_global_flag = kis_war
+				NOT = { 
+					any_country = { has_country_flag = great_war_loser }
+				}
+			}
+			AND = {
+				date > 1917.3.1
+				any_country = { has_country_flag = great_war_loser }
+			}
+		}
+		num_of_civilian_factories > 30
+		NOT = { has_government = communism }
+		NOT = { has_idea = closed_economy }
+	}
+	mean_time_to_happen = {
+		days = 60
+	}
+	immediate = { 
+		set_country_flag = farm_crisis_after_war 
+		add_timed_idea = { idea = idea_farm_crisis days = 360 } 
+	}
+	option = {
+		name = ww1_generic.16.a
+	}
+}
+# GREAT DEPRESSION
+##################################################################################################################################
+news_event = {
+	id = ww1_generic.17
+	title = ww1_generic.17.t
+	desc = ww1_generic.17.d
+	picture = GFX_news_event_064
+	
+	mean_time_to_happen = { days = 2 }
+	major = yes
+	
+	trigger = {
+		NOT = { has_global_flag = great_depression }
+		any_country = { has_idea = idea_great_depression }
+	}
+	immediate = {
+		set_global_flag = great_depression
+	}
+	option = {
+		name = ww1_generic.17.a
+		trigger = { NOT = { has_government = communism } }
+		ai_chance = { factor = 100 }
+	}
+	option = {
+		name = ww1_generic.17.b
+		trigger = { has_government = communism }
+		ai_chance = { factor = 100 }
+	}
+}
+country_event = {
+	id = ww1_generic.18
+	title = ww1_generic.18.t
+	desc = ww1_generic.18.d
+	picture = GFX_report_event_crowd_in_prague
+	trigger = {
+		NOT = { has_idea = idea_great_depression }
+		has_global_flag = great_depression
+		NOT = { has_government = communism }
+		NOT = { has_country_flag = great_depression_spreads }
+	}
+	immediate = {
+		set_country_flag = great_depression_spreads
+	}
+	mean_time_to_happen = { days = 7 }
+
+	option = {
+		name = ww1_generic.18.a
+		add_timed_idea = { idea = idea_great_depression days = 800 }
+		ai_chance = { factor = 100 }
+	}
+}
+# CIVIL FACTORY BANKCRUPTY
+################################
+country_event = {
+	id = ww1_generic.19
+	title = ww1_generic.19.t
+	desc = ww1_generic.19.d
+	picture = GFX_report_event_crowd_in_prague
+	trigger = {
+		has_idea = idea_great_depression
+		num_of_civilian_factories > 30
+		NOT = { has_government = communism }
+		NOT = { has_country_flag = factory_bankruptcy }
+	}
+	immediate = {
+		set_country_flag = factory_bankruptcy
+	}
+	mean_time_to_happen = {
+		days = 60
+		modifier = {
+			factor = 1.5
+			has_idea = civilian_economy
+		}
+		modifier = {
+			factor = 1.5
+			num_of_civilian_factories < 80
+		}
+		modifier = {
+			factor = 1.5
+			num_of_civilian_factories < 70
+		}
+		modifier = {
+			factor = 1.5
+			num_of_civilian_factories < 60
+		}
+		modifier = {
+			factor = 1.5
+			num_of_civilian_factories < 50
+		}
+		modifier = {
+			factor = 1.5
+			num_of_civilian_factories < 40
+		}
+	}
+
+	option = {
+		name = ww1_generic.19.a
+		random_owned_state = {
+			limit = { industrial_complex > 0 is_fully_controlled_by = ROOT }
+			remove_building = {
+				type = industrial_complex
+				level = 1
+			}
+		}
+		clr_country_flag = factory_bankruptcy
+		ai_chance = { factor = 30 }
+	}
+	option = {
+		name = ww1_generic.19.b
+		add_political_power = -50
+		clr_country_flag = factory_bankruptcy
+		ai_chance = { 
+			factor = 5 
+			modifier = {
+				factor = 0
+				has_political_power < 50
+			}
+		}
+	}
+}
