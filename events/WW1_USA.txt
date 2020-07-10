@@ -282,12 +282,12 @@ country_event = {
 		add_manpower = -1000
 		add_equipment_to_stockpile = {
 			type = infantry_equipment
-			amount = -1000
+			amount = -500
 		}
 		trigger = { 
 			has_manpower > 1000
 			has_equipment = {
-				infantry_equipment > 1000
+				infantry_equipment > 500
 			}
 		}
 		ai_chance = { factor = 25 }
@@ -328,12 +328,12 @@ country_event = {
 		add_manpower = -1000
 		add_equipment_to_stockpile = {
 			type = infantry_equipment
-			amount = -1000
+			amount = -500
 		}
 		trigger = { 
 			has_manpower > 1000
 			has_equipment = {
-				infantry_equipment > 1000
+				infantry_equipment > 500
 			}
 		}
 		ai_chance = { factor = 1 }
@@ -383,77 +383,199 @@ country_event = {
 		ai_chance = { factor = 100 }
 	}
 }
-# PRESIDENT ELECTIONS (1912)
-##############################
+# PRESIDENT ELECTIONS 1912 CAMPAIGN STARTS
+############################################
 country_event = {
-	id = ww1_usa.50
-	title = ww1_usa.50.t
-	desc = ww1_usa.50.d
-
-    mean_time_to_happen = {
-        days = 0
-    }
+	id = ww1_usa.13
+	title = ww1_usa.13.t
+	desc = ww1_usa.13.d
+	picture = GFX_report_event_election_vote
+	trigger = {
+		tag = USA
+		has_government = democratic
+		date > 1912.5.1
+		date < 1912.6.1
+	}
+	mean_time_to_happen = { days = 2 }
 	fire_only_once = yes
-    trigger = {
-    	tag = USA
-        date > 1912.11.4
-        USA = {
-	        has_government = democratic
-	        not = {
-	            has_country_flag = new_1913_president_usa
-	        }
-        }
-    }
-	
-	# Woodrow Wilson
+	immediate = {
+		set_country_flag = USA_elections_1912_start
+	}
 	option = {
-		name = ww1_usa.50.a
+		name = ww1_usa.13.a
+		hidden_effect = {
+			if = {
+				limit = { 
+					NOT = { has_completed_focus = USA_radicalism_era }
+					NOT = { has_completed_focus = USA_american_reactionism }
+				}
+				country_event = { id = ww1_usa.14 days = 20 }
+			}
+			if = {
+				limit = { 
+					has_completed_focus = USA_radicalism_era
+				}
+				country_event = { id = ww1_usa.17 days = 20 }
+			}
+			if = {
+				limit = { 
+					has_completed_focus = USA_american_reactionism
+				}
+				country_event = { id = ww1_usa.19 days = 20 }
+			}
+		}
 		ai_chance = { factor = 100 }
-		create_country_leader = {
-			name = "Woodrow Wilson"
-			desc = USA_woodrow_wilson_DESC 
-			picture = "gfx/leaders/USA/USA_woodrow_wilson.dds"
-			expire = "1935.1.1"
-			ideology = conservatism 
-			traits = {}
+	}
+}
+# PRESIDENT ELECTIONS 1912 CAMPAIGN REPUBLICAN CANDIDATE
+############################################
+country_event = {
+	id = ww1_usa.14
+	title = ww1_usa.14.t
+	desc = ww1_usa.14.d
+	picture = GFX_report_event_election_vote
+	
+	is_triggered_only = yes
+	immediate = {
+		set_country_flag = USA_elections_1912_2
+	}
+	option = {
+		name = ww1_usa.14.a
+		set_country_flag = taft_candidate
+		if = {
+			limit = {
+				NOT = { has_completed_focus = USA_gold_reserve }
+			}
+			hidden_effect = {
+				country_event = { id = ww1_usa.15 days = 10 } #Progressive Party
+			}
 		}
-		add_political_power = 75
-		set_country_flag = new_freedom
-		set_country_flag = new_1913_president_usa
-		set_party_name = {
-			ideology = democratic
-			long_name = USA_democratic_party
-			name = USA_democratic_party
+		if = {
+			limit = { has_completed_focus = USA_gold_reserve }
+			hidden_effect = {
+				country_event = { id = ww1_usa.16 days = 10 } #Single candidate
+			}
+		}
+		ai_chance = { factor = 35 }
+	}
+	option = {
+		name = ww1_usa.14.b
+		set_country_flag = roosevelt_candidate
+		if = {
+			limit = {
+				NOT = { has_completed_focus = USA_gold_reserve }
+			}
+			hidden_effect = {
+				country_event = { id = ww1_usa.15 days = 10 } #Progressive Party
+			}
+		}
+		if = {
+			limit = { has_completed_focus = USA_gold_reserve }
+			hidden_effect = {
+				country_event = { id = ww1_usa.16 days = 10 } #Single candidate
+			}
+		}
+		ai_chance = { 
+			modifier = {
+				is_historical_focus_on = yes
+				factor = 0
+			}
+			factor = 5 
 		}
 	}
+}
+# PRESIDENT ELECTIONS 1912 CAMPAIGN - PROGRESSIVE PARTY
+############################################
+country_event = {
+	id = ww1_usa.15
+	title = ww1_usa.15.t
+	desc = ww1_usa.15.d
+	picture = GFX_report_event_election_vote
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		set_country_flag = USA_elections_1912_3
+	}
+	option = {
+		name = ww1_usa.15.a
+		add_stability = -0.02
+		set_country_flag = progressive_party
+		hidden_effect = {
+			if = {
+				limit = { has_country_flag = debs_candidate }
+				country_event = { id = ww1_usa.21 days = 30 } #Coal Strikes agitation
+			}
+			if = {
+				limit = { has_country_flag = taft_candidate }
+				country_event = { id = ww1_usa.22 days = 30 } #Leave or not
+			}
+			if = {
+				limit = { has_country_flag = roosevelt_candidate }
+				country_event = { id = ww1_usa.23 days = 30 } #Leave or not
+			}
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+# PRESIDENT ELECTIONS 1912 CAMPAIGN - REPUBLICAN SINGLE CANDIDATE
+############################################
+country_event = {
+	id = ww1_usa.16
+	title = {
+		text = ww1_usa.16.taft_t
+		trigger = { has_country_flag = taft_candidate }
+	}
+	title = {
+		text = ww1_usa.16.roosevelt_t
+		trigger = { has_country_flag = roosevelt_candidate }
+	}
+	desc = {
+		text = ww1_usa.16.roosevelt_d
+		trigger = { has_country_flag = roosevelt_candidate }
+	}
+	desc = {
+		text = ww1_usa.16.taft_d
+		trigger = { has_country_flag = taft_candidate }
+	}
+	picture = GFX_report_event_election_vote
+	
+	is_triggered_only = yes
 
-	# Theodore Roosevelt
-	option = {
-		name = ww1_usa.50.b
-		ai_chance = { factor = 0 }
-		create_country_leader = {
-			name = "Theodore Roosevelt"
-			desc = USA_theodore_roosevelt_DESC 
-			picture = "gfx/leaders/USA/USA_theodore_roosevelt.dds"
-			expire = "1935.1.1"
-			ideology = liberalism 
-			traits = {}
-		}
-		set_party_name = { 
-			ideology = democratic
-			long_name = USA_progressive_party
-			name = USA_progressive_party
-		}
-		add_war_support = 0.05
-		set_country_flag = new_nationalism
-		set_country_flag = new_1913_president_usa
+	immediate = {
+		set_country_flag = USA_elections_1912_3
 	}
-	# William Taft
 	option = {
-		name = ww1_usa.50.c
-		ai_chance = { factor = 0 }
-		add_stability = 0.05
-		set_country_flag = new_1913_president_usa
+		name = ww1_usa.16.a
+		hidden_effect = {
+			country_event = { id = ww1_usa.25 days = 30 } #Debates
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+# PRESIDENT ELECTIONS 1912 CAMPAIGN SOCIALIST CANDIDATE
+############################################
+country_event = {
+	id = ww1_usa.17
+	title = ww1_usa.17.t
+	desc = ww1_usa.17.d
+	picture = GFX_report_event_election_vote
+	
+	is_triggered_only = yes
+	immediate = {
+		set_country_flag = USA_elections_1912_2
+	}
+	option = {
+		name = ww1_usa.17.a
+		set_country_flag = debs_candidate
+		add_popularity = {
+			ideology = communism
+			popularity = 0.05
+		}
+		hidden_effect = {
+			country_event = { id = ww1_usa.15 days = 10 } #Progressive Party
+		}
+		ai_chance = { factor = 25 }
 	}
 }
 
@@ -481,186 +603,1527 @@ news_event = {
 	}
 }
 
-#Eighteenth Amendment to the United States Constitution
-news_event = {
-	title=ww1_usa.30.t 
-	desc=ww1_usa.30.d
-	id=ww1_usa.30
-	picture=ww1_usa_30
-	fire_only_once=no
-	is_triggered_only=no
-	mean_time_to_happen={
-		days=1461 #4 years
-		modifier = {
-			factor = 0.001
-			NOT={USA={has_idea=prohibition_rejected}}
-		}
-	}
-		
-	trigger = {
-		tag=USA
-        date > 1917.12.18
-        USA = {
-	        has_government = democratic
-	        not = {
-	            has_country_flag = prohibition_repealed
-	        }
-			not = {
-	            has_idea = prohibition_accepted
-	        }
-        }
-    }
+# PRESIDENT ELECTIONS 1912 CAMPAIGN REACTIONIST CANDIDATE
+############################################
+country_event = {
+	id = ww1_usa.19
+	title = ww1_usa.19.t
+	desc = ww1_usa.19.d
+	picture = GFX_report_event_election_vote
 	
-	option = {
-        name = ww1_usa.30.a #Rid us of the scourge of alcohol!
-		ai_chance={
-			factor=100
-		}
-		USA = {
-			if={ 
-				limit={ 
-					has_idea=prohibition_rejected
-				} 
-				remove_ideas=prohibition_rejected
-			}
-		}
-        USA={
-			add_ideas=prohibition_accepted
-			}
-		USA={
-			add_political_power = -100
-		}
-		USA={ #Shut down some alcohol distilleries
-			random_owned_controlled_state = {
-				limit = {
-					free_building_slots = {
-						building = industrial_complex
-						size > 1
-						include_locked = yes
-					}
-				}
-				remove_building = {
-					type = industrial_complex
-					level = 1
-				}
-			}
-			random_owned_controlled_state = {
-				limit = {
-					free_building_slots = {
-						building = industrial_complex
-						size > 1
-						include_locked = yes
-					}
-				}
-				remove_building = {
-					type = industrial_complex
-					level = 1
-				}
-			}
-			random_owned_controlled_state = {
-				limit = {
-					free_building_slots = {
-						building = industrial_complex
-						size > 1
-						include_locked = yes
-					}
-				}
-				remove_building = {
-					type = industrial_complex
-					level = 1
-				}
-			}
-		}
+	is_triggered_only = yes
+	immediate = {
+		set_country_flag = USA_elections_1912_2
 	}
-	
 	option = {
-        name = ww1_usa.30.b #This assault on American liberty is unacceptable!
-        USA={
-			add_ideas=prohibition_rejected
-			}
-		USA={
-			add_political_power = -400
+		name = ww1_usa.19.a
+		set_country_flag = wilson_candidate
+		create_country_leader = {
+			name = "Woodrow Wilson"
+			desc = USA_woodrow_wilson_DESC 
+			picture = "gfx/leaders/USA/USA_woodrow_wilson.dds"
+			expire = "1935.1.1"
+			ideology = moderatism
+			traits = { prohibitionist }
 		}
-    }
+		hidden_effect = {
+			country_event = { id = ww1_usa.20 days = 10 } #Prohibition Party
+		}
+		ai_chance = { factor = 25 }
+	}
 }
-
-news_event = {
-	title=ww1_usa.31.t #Bootleggers
-	desc=ww1_usa.31.d #Prohibition's passage in no way lessened the American public's demand for alcohol, and since that demand can no longer be legally filled, a variety of criminal organizations have stepped into the void. The Italian-American mafia, in particular, has become well-known for its involvement in tbe alcohol trade, as well as its role in the violence that is taking place between groups of gangsters.
-	id=ww1_usa.31
-	picture=ww1_usa_31
-	fire_only_once=yes
-	is_triggered_only=no
-	mean_time_to_happen={
-		days=1000
-		}
-		
-	trigger = {
-		tag=USA
-        USA = {
-	        has_idea = prohibition_accepted
-        }
-    }
+# PRESIDENT ELECTIONS 1912 CAMPAIGN - PROHIBITION PARTY
+############################################
+country_event = {
+	id = ww1_usa.20
+	title = ww1_usa.20.t
+	desc = ww1_usa.20.d
+	picture = GFX_report_event_election_vote
 	
-	option = {
-        name = ww1_usa.31.a #These hoodlums and their violence have no place in a civilized society
-		USA = {
-			USA={
-				add_ideas=bootleggers
-			}
-		}
+	is_triggered_only = yes
+	
+	immediate = {
+		set_country_flag = USA_elections_1912_3
 	}
-	
-#	option = {
-#	    name = ww1_usa.XX.b#
-#   	USA={
-#			
-#		}
-#    }
+	option = {
+		name = ww1_usa.20.a
+		add_stability = -0.02
+		set_country_flag = prohibition_party
+		add_popularity = {
+			ideology = neutrality
+			popularity = 0.05
+		}
+		hidden_effect = {
+			country_event = { id = ww1_usa.24 days = 30 } #Prohibitionist Demonstrations
+		}
+		ai_chance = { factor = 100 }
+	}
 }
-
-news_event = {
-	title=ww1_usa.32.t #Repeal of Prohibition
-	desc=ww1_usa.32.d #Prohibition has been a disaster for its proponents. Alcohol is still being widely consumed, criminal organizations have grown wealthy and powerful supplying it, and the violence these gangasters are doing daily across America makes us question whether it is worth keeping prohibition in place. There is political momentum towards a new constitutional amendment to repeal Prohibition. Should we give it our support?
-	id=ww1_usa.32
-	picture=ww1_usa_32
-	fire_only_once=no
-	is_triggered_only=no
-	mean_time_to_happen={
-		days=365
-		}
-		
-	trigger = {
-		date > 1930.1.1
-		tag=USA
-        USA = {
-	        has_idea = bootleggers
-	        has_idea = prohibition_accepted
-        }
-    }
+# PRESIDENT ELECTIONS 1912 CAMPAIGN - COAL STRIKES AGITATION
+############################################
+country_event = {
+	id = ww1_usa.21
+	title = ww1_usa.21.t
+	desc = ww1_usa.21.d
+	picture = GFX_report_event_election_vote
 	
+	is_triggered_only = yes
+	
+	immediate = {
+		set_country_flag = USA_elections_1912_4
+	}
 	option = {
-		ai_chance={
-			factor=100
+		name = ww1_usa.21.a
+		add_stability = -0.02
+		add_popularity = { ideology = communism popularity = 0.05 }
+		hidden_effect = {
+			country_event = { id = ww1_usa.29 days = 30 } #General Strike
 		}
-        name = ww1_usa.32.a #Repeal!
-		USA = {
-			USA={
-				remove_ideas = prohibition_accepted
+		ai_chance = { factor = 100 }
+	}
+}
+# PRESIDENT ELECTIONS 1912 CAMPAIGN - TAFT LEAVE OR NOT
+############################################
+country_event = {
+	id = ww1_usa.22
+	title = ww1_usa.22.t
+	desc = ww1_usa.22.d
+	picture = GFX_report_event_election_vote
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		set_country_flag = USA_elections_1912_4
+	}
+	option = {
+		name = ww1_usa.22.a
+		hidden_effect = {
+			random_list = {
+				65 = {
+					modifier = {
+						has_stability > 0.65
+						factor = 1.25
+					}
+					country_event = { id = ww1_usa.31 days = 30 } #Roosevelt is shot
+				}
+				35 = { 
+					modifier = {
+						has_stability < 0.65
+						factor = 1.25
+					}
+					modifier = {
+						is_historical_focus_on = yes
+						factor = 0
+					}
+					country_event = { id = ww1_usa.32 days = 30 } #Roosevelt is dead
+				}
 			}
-			USA={
-				remove_ideas = bootleggers
-			}
-			USA={
-				set_country_flag = prohibition_repealed
+		}
+		ai_chance = { factor = 75 }
+	}
+	option = {
+		name = ww1_usa.22.b
+		custom_effect_tooltip = ww1_usa.22.tt
+		clr_country_flag = taft_candidate
+		set_country_flag = roosevelt_candidate
+		hidden_effect = {
+			country_event = { id = ww1_usa.25 days = 30 } #Debates
+		}
+		ai_chance = { 
+			factor = 25 
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
 			}
 		}
 	}
+}
+# PRESIDENT ELECTIONS 1912 CAMPAIGN - ROOSEVELT LEAVE OR NOT
+############################################
+country_event = {
+	id = ww1_usa.23
+	title = ww1_usa.23.t
+	desc = ww1_usa.23.d
+	picture = GFX_report_event_election_vote
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		set_country_flag = USA_elections_1912_4
+	}
+	option = {
+		name = ww1_usa.23.a
+		hidden_effect = {
+			random_list = {
+				65 = {
+					modifier = {
+						has_stability > 0.65
+						factor = 1.25
+					}
+					country_event = { id = ww1_usa.31 days = 30 } #Roosevelt is shot
+				}
+				35 = { 
+					modifier = {
+						has_stability < 0.65
+						factor = 1.25
+					}
+					modifier = {
+						is_historical_focus_on = yes
+						factor = 0
+					}
+					country_event = { id = ww1_usa.32 days = 30 } #Roosevelt is dead
+				}
+			}
+		}
+		ai_chance = { factor = 95 }
+	}
+	option = {
+		name = ww1_usa.23.b
+		custom_effect_tooltip = ww1_usa.23.tt
+		clr_country_flag = roosevelt_candidate
+		clr_country_flag = progressive_party
+		set_country_flag = taft_candidate
+		hidden_effect = {
+			country_event = { id = ww1_usa.25 days = 30 } #Debates
+		}
+		ai_chance = { factor = 5 }
+	}
+}
+# PRESIDENT ELECTIONS 1912 CAMPAIGN - REACTIONIST DEMONSTRATIONS
+############################################
+country_event = {
+	id = ww1_usa.24
+	title = ww1_usa.24.t
+	desc = ww1_usa.24.d
+	picture = GFX_report_event_election_vote
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		set_country_flag = USA_elections_1912_4
+	}
+	option = {
+		name = ww1_usa.24.a
+		add_stability = -0.02
+		add_popularity = { ideology = neutrality popularity = 0.02 }
+		add_popularity = { ideology = fascism popularity = 0.02 }
+		hidden_effect = {
+			country_event = { id = ww1_usa.30 days = 30 } #Senate Crisis
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+# PRESIDENT ELECTIONS 1912 CAMPAIGN - SINGLE CANDIDATE VS WILSON DEBATE
+############################################
+country_event = {
+	id = ww1_usa.25
+	title = ww1_usa.25.t
+	desc = ww1_usa.25.d
+	picture = GFX_report_event_election_vote
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		set_country_flag = USA_elections_1912_4
+	}
+	option = {
+		name = ww1_usa.25.a
+		random_list = {
+			35 = {
+				USA_congress_small_support = yes
+				country_event = { id = ww1_usa.26 days = 10 random_days = 5 } #Taft/Roosevelt wins
+			}
+			35 = {
+				USA_congress_small_opposition = yes
+				country_event = { id = ww1_usa.27 days = 10 random_days = 5 } #Wilson wins
+			}
+			30 = {
+				modifier = {
+					NOT = { has_completed_focus = USA_federal_reserve }
+					NOT = { has_completed_focus = USA_gold_reserve }
+					factor = 1.5
+				}
+				country_event = { id = ww1_usa.28 days = 10 random_days = 5 } #Nothing
+			}
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+# PRESIDENT ELECTIONS 1912 CAMPAIGN - TAFT/ROOSEVELT WON DEBATES
+############################################
+country_event = {
+	id = ww1_usa.26
+	title = {
+		text = ww1_usa.26.taft_t
+		trigger = { has_country_flag = taft_candidate }
+	}
+	title = {
+		text = ww1_usa.26.roosevelt_t
+		trigger = { has_country_flag = roosevelt_candidate }
+	}
+	desc = {
+		text = ww1_usa.26.roosevelt_d
+		trigger = { has_country_flag = roosevelt_candidate }
+	}
+	desc = {
+		text = ww1_usa.26.taft_d
+		trigger = { has_country_flag = taft_candidate }
+	}
+	picture = GFX_report_event_election_vote
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		set_country_flag = USA_elections_1912_5
+	}
+	option = {
+		name = ww1_usa.26.a
+		if = {
+			limit = { has_country_flag = taft_candidate }
+			set_country_flag = taft_won_debates
+		}
+		if = {
+			limit = { has_country_flag = roosevelt_candidate }
+			set_country_flag = roosevelt_won_debates
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+# PRESIDENT ELECTIONS 1912 CAMPAIGN - WILSON WON DEBATES
+############################################
+country_event = {
+	id = ww1_usa.27
+	title = ww1_usa.27.t
+	desc = ww1_usa.27.d
+	picture = GFX_report_event_election_vote
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		set_country_flag = USA_elections_1912_5
+	}
+	option = {
+		name = ww1_usa.27.a
+		set_country_flag = wilson_won_debates
+		ai_chance = { factor = 100 }
+	}
+}
+# PRESIDENT ELECTIONS 1912 CAMPAIGN - NEUTRAL DEBATES
+############################################
+country_event = {
+	id = ww1_usa.28
+	title = ww1_usa.28.t
+	desc = ww1_usa.28.d
+	picture = GFX_report_event_election_vote
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		set_country_flag = USA_elections_1912_5
+	}
+	option = {
+		name = ww1_usa.28.a
+		add_political_power = 50
+		ai_chance = { factor = 100 }
+	}
+}
+# PRESIDENT ELECTIONS 1912 CAMPAIGN - GENERAL STRIKE
+############################################
+country_event = {
+	id = ww1_usa.29
+	title = ww1_usa.29.t
+	desc = ww1_usa.29.d
+	picture = GFX_report_event_election_vote
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		set_country_flag = USA_elections_1912_5
+	}
+	option = {
+		name = ww1_usa.29.a
+		add_timed_idea = { idea = USA_idea_general_strike days = 180 }
+		ai_chance = { factor = 100 }
+	}
+}
+# PRESIDENT ELECTIONS 1912 CAMPAIGN - SENATE CRISIS
+############################################
+country_event = {
+	id = ww1_usa.30
+	title = ww1_usa.30.t
+	desc = ww1_usa.30.d
+	picture = GFX_report_event_election_vote
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		set_country_flag = USA_elections_1912_5
+	}
+	option = {
+		name = ww1_usa.30.a
+		USA_congress_large_opposition = yes
+		if = {
+			limit = { has_completed_focus = USA_historical_revision }
+			add_popularity = { ideology = fascism popularity = 0.05 }
+		}
+		if = {
+			limit = { NOT = { has_completed_focus = USA_historical_revision } }
+			add_popularity = { ideology = neutrality popularity = 0.05 }
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+# PRESIDENT ELECTIONS 1912 CAMPAIGN - ROOSEVELT IS SHOT
+############################################
+country_event = {
+	id = ww1_usa.31
+	title = ww1_usa.31.t
+	desc = ww1_usa.31.d
+	picture = GFX_report_event_election_vote
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		set_country_flag = USA_elections_1912_5
+		set_country_flag = roosevelt_is_alive
+	}
+	option = {
+		name = ww1_usa.31.a
+		hidden_effect = { news_event = ww1_usa.33 }
+		ai_chance = { factor = 100 }
+	}
+	option = {
+		name = ww1_usa.31.b
+		clr_country_flag = roosevelt_candidate
+		clr_country_flag = progressive_party
+		set_country_flag = taft_candidate
+		ai_chance = { factor = 1 }
+	}
+}
+# PRESIDENT ELECTIONS 1912 CAMPAIGN - ROOSEVELT IS KILLED
+############################################
+country_event = {
+	id = ww1_usa.32
+	title = ww1_usa.32.t
+	desc = ww1_usa.32.d
+	picture = GFX_report_event_election_vote
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		set_country_flag = USA_elections_1912_5
+		set_country_flag = roosevelt_is_dead
+	}
+	option = {
+		name = ww1_usa.32.a
+		add_stability = -0.05
+		if = {
+			limit = { has_country_flag = roosevelt_candidate }
+			clr_country_flag = roosevelt_candidate
+			clr_country_flag = progressive_party
+			set_country_flag = taft_candidate
+		}
+		hidden_effect = { news_event = ww1_usa.34 }
+		ai_chance = { factor = 100 }
+	}
+}
+news_event = {
+	title = ww1_usa.33.t
+	desc = ww1_usa.33.d
+	id = ww1_usa.33
+	picture = GFX_news_event_gathering_protest
+	
+	major = yes
+	is_triggered_only = yes
 	
 	option = {
-	    name = ww1_usa.32.b #Stay the course.
-		USA={
-			#Maybe do something here, but I think keeping the already major negatives is enough
-		}
+		name = ww1_usa.33.a
+		ai_chance = { factor = 1 }
+	}
+}
+news_event = {
+	title = ww1_usa.34.t
+	desc = ww1_usa.34.d
+	id = ww1_usa.34
+	picture = GFX_news_event_gathering_protest
+	
+	major = yes
+	is_triggered_only = yes
+	
+	option = {
+		name = ww1_usa.34.a
+		ai_chance = { factor = 1 }
+	}
+}
+# PRESIDENT ELECTIONS 1912 PROHIBITION PARTY VS DEMOCRATS
+##############################
+country_event = {
+	id = ww1_usa.35
+	title = ww1_usa.35.t
+	desc = ww1_usa.35.d
+
+    trigger = {
+    	tag = USA
+        date > 1912.11.4
+        has_government = democratic
+		has_country_flag = USA_elections_1912_5
+		has_country_flag = prohibition_party
+		NOT = { has_country_flag = USA_elections_1912_end }
     }
+	mean_time_to_happen = { days = 0 }
+	fire_only_once = yes
+	
+	# Woodrow Wilson
+	option = {
+		name = ww1_usa.35.a
+		ai_chance = { factor = 100 }
+		trigger = { neutrality > 0.5 }
+		set_country_flag = new_prohibition
+		set_politics = { ruling_party = neutrality elections_allowed = yes }
+		set_country_flag = USA_elections_1912_end
+	}
+	# Roosevelt/Taft
+	option = {
+		name = ww1_usa.35.b
+		ai_chance = { factor = 100 }
+		trigger = { neutrality < 0.5 }
+		random_list = {
+			47 = {
+				create_country_leader = { 
+					name = "William H. Taft" 
+					picture = "gfx/leaders/USA/USA_william_h_taft.dds" 
+					expire = "1935.1.1" 
+					ideology = conservatism 
+					traits = { } 
+				}
+			}
+			53 = { 
+				create_country_leader = {
+					name = "Theodore Roosevelt"
+					desc = USA_theodore_roosevelt_DESC 
+					picture = "gfx/leaders/USA/USA_theodore_roosevelt.dds"
+					expire = "1935.1.1"
+					ideology = socialism
+					traits = { bull_moose }
+				}
+				set_party_name = { 
+					ideology = democratic
+					long_name = USA_progressive_party
+					name = USA_progressive_party
+				}
+				set_country_flag = new_nationalism
+			}
+		}
+		set_country_flag = USA_elections_1912_end
+	}
+}
+# PRESIDENT ELECTIONS 1912 SOCIALIST PARTY VS DEMOCRATS
+##############################
+country_event = {
+	id = ww1_usa.36
+	title = ww1_usa.36.t
+	desc = ww1_usa.36.d
+
+    trigger = {
+    	tag = USA
+        date > 1912.11.4
+        has_government = democratic
+		has_country_flag = USA_elections_1912_5
+		has_country_flag = debs_candidate
+		NOT = { has_country_flag = USA_elections_1912_end }
+    }
+	mean_time_to_happen = { days = 0 }
+	fire_only_once = yes
+	
+	# Debs
+	option = {
+		name = ww1_usa.36.a
+		ai_chance = { factor = 100 }
+		trigger = { communism > 0.5 }
+		set_country_flag = new_socialism
+		set_politics = { ruling_party = communism elections_allowed = yes }
+		set_country_flag = USA_elections_1912_end
+	}
+	# Roosevelt/Taft/Wilson
+	option = {
+		name = ww1_usa.36.b
+		ai_chance = { factor = 100 }
+		trigger = { communism < 0.5 }
+		random_list = {
+			51 = {
+				create_country_leader = {
+					name = "Woodrow Wilson"
+					desc = USA_woodrow_wilson_DESC 
+					picture = "gfx/leaders/USA/USA_woodrow_wilson.dds"
+					expire = "1935.1.1"
+					ideology = conservatism
+					traits = { prohibitionist }
+				}
+				set_country_flag = new_freedom
+				set_party_name = { 
+					ideology = democratic
+					long_name = USA_democratic_party
+					name = USA_democratic_party
+				}
+			}
+			27 = { 
+				create_country_leader = {
+					name = "Theodore Roosevelt"
+					desc = USA_theodore_roosevelt_DESC 
+					picture = "gfx/leaders/USA/USA_theodore_roosevelt.dds"
+					expire = "1935.1.1"
+					ideology = socialism
+					traits = { bull_moose }
+				}
+				set_party_name = { 
+					ideology = democratic
+					long_name = USA_progressive_party
+					name = USA_progressive_party
+				}
+				set_country_flag = new_nationalism
+			}
+			22 = {
+				create_country_leader = { 
+					name = "William H. Taft" 
+					picture = "gfx/leaders/USA/USA_william_h_taft.dds" 
+					expire = "1935.1.1" 
+					ideology = conservatism 
+					traits = { } 
+				}
+				set_country_flag = new_conservatism
+			}
+		}
+		set_country_flag = USA_elections_1912_end
+	}
+}
+# PRESIDENT ELECTIONS 1912 TAFT VS WILSON
+##############################
+country_event = {
+	id = ww1_usa.37
+	title = ww1_usa.37.t
+	desc = ww1_usa.37.d
+
+    mean_time_to_happen = {
+        days = 0
+    }
+	fire_only_once = yes
+    trigger = {
+    	tag = USA
+        date > 1912.11.4
+        has_government = democratic
+		has_country_flag = USA_elections_1912_5
+		has_country_flag = taft_candidate
+    }
+	
+	# Woodrow Wilson
+	option = {
+		name = ww1_usa.37.a
+		ai_chance = { factor = 100 }
+		create_country_leader = {
+			name = "Woodrow Wilson"
+			desc = USA_woodrow_wilson_DESC 
+			picture = "gfx/leaders/USA/USA_woodrow_wilson.dds"
+			expire = "1935.1.1"
+			ideology = conservatism
+			traits = { prohibitionist }
+		}
+		set_country_flag = new_freedom
+		set_party_name = {
+			ideology = democratic
+			long_name = USA_democratic_party
+			name = USA_democratic_party
+		}
+		set_country_flag = USA_elections_1912_end
+	}
+	# William Taft
+	option = {
+		name = ww1_usa.37.b
+		ai_chance = { 
+			factor = 100 
+			modifier = {
+				is_historical_focus_on = yes
+				factor = 0
+			}
+		}
+		create_country_leader = { 
+			name = "William H. Taft" 
+			picture = "gfx/leaders/USA/USA_william_h_taft.dds" 
+			expire = "1935.1.1" 
+			ideology = conservatism 
+			traits = { } 
+		}
+		trigger = {
+			OR = {
+				has_country_flag = progressive_party
+				has_country_flag = taft_won_debates
+			}
+		}
+		set_country_flag = USA_elections_1912_end
+	}
+	
+}
+# PRESIDENT ELECTIONS 1912 ROOSEVELT VS WILSON
+##############################
+country_event = {
+	id = ww1_usa.38
+	title = ww1_usa.38.t
+	desc = ww1_usa.38.d
+
+    mean_time_to_happen = {
+        days = 0
+    }
+	fire_only_once = yes
+    trigger = {
+    	tag = USA
+        date > 1912.11.4
+        has_government = democratic
+		has_country_flag = USA_elections_1912_5
+		has_country_flag = roosevelt_candidate
+    }
+	
+	# Woodrow Wilson
+	option = {
+		name = ww1_usa.38.a
+		ai_chance = { factor = 100 }
+		create_country_leader = {
+			name = "Woodrow Wilson"
+			desc = USA_woodrow_wilson_DESC 
+			picture = "gfx/leaders/USA/USA_woodrow_wilson.dds"
+			expire = "1935.1.1"
+			ideology = conservatism
+			traits = { prohibitionist }
+		}
+		set_country_flag = new_freedom
+		set_party_name = {
+			ideology = democratic
+			long_name = USA_democratic_party
+			name = USA_democratic_party
+		}
+		set_country_flag = USA_elections_1912_end
+	}
+	# Roosevelt
+	option = {
+		name = ww1_usa.38.b
+		ai_chance = { factor = 100 }
+		create_country_leader = {
+			name = "Theodore Roosevelt"
+			desc = USA_theodore_roosevelt_DESC 
+			picture = "gfx/leaders/USA/USA_theodore_roosevelt.dds"
+			expire = "1935.1.1"
+			ideology = socialism
+			traits = { bull_moose }
+		}
+		if = {
+			limit = { has_country_flag = progressive_party }
+			set_party_name = { 
+				ideology = democratic
+				long_name = USA_progressive_party
+				name = USA_progressive_party
+			}
+		}
+		trigger = {
+			OR = {
+				has_country_flag = progressive_party
+				has_country_flag = roosevelt_won_debates
+			}
+		}
+		set_country_flag = new_nationalism
+		set_country_flag = USA_elections_1912_end
+	}
+}
+# COAL WARS 1912
+###########################
+country_event = {
+	title = ww1_usa.39.t
+	desc = ww1_usa.39.d
+	id = ww1_usa.39
+	picture = GFX_report_event_iww_demonstration
+
+	fire_only_once = yes
+	trigger = {
+		tag = USA
+		date > 1912.4.1
+		has_idea = USA_idea_union_activism
+	}
+	mean_time_to_happen = { days = 14 }
+	option = {
+		name = ww1_usa.39.a
+		add_stability = -0.05
+		add_manpower = -1000
+		add_equipment_to_stockpile = {
+			type = infantry_equipment
+			amount = -500
+		}
+		trigger = { 
+			has_manpower > 1000
+			has_equipment = {
+				infantry_equipment > 500
+			}
+		}
+		ai_chance = {
+			factor = 90
+		}
+	}
+	option = {
+		name = ww1_usa.39.b
+		add_stability = 0.02
+		add_popularity = { ideology = communism popularity = 0.05 }
+		ai_chance = {
+			factor = 10
+			modifier = {
+				is_in_faction = yes
+				factor = 0
+			}
+		}
+	}
+}
+# ANTI-REACTIONIST CIVIL WAR
+###########################
+country_event = {
+	title = ww1_usa.40.t
+	desc = ww1_usa.40.d
+	id = ww1_usa.40
+	picture = GFX_report_event_iww_demonstration
+
+	fire_only_once = yes
+	trigger = {
+		tag = USA
+		has_stability < 0.5
+		has_completed_focus = USA_american_reactionism
+		has_government = neutrality
+		has_country_flag = new_prohibition #нейтралы выиграли выборы
+		NOT = { has_global_flag = american_civil_war } #нейтралы не пришли к власти через гражданку
+	}
+	immediate = { set_global_flag = USA_anti_prohibition_cw }
+	mean_time_to_happen = { days = 14 }
+	option = {
+		name = ww1_usa.40.a
+		USA = { activate_mission = USA_civil_war_mission }
+		ai_chance = { factor = 10 }
+	}
+}
+# ANTI-REACTIONIST CIVIL WAR - START
+###########################
+country_event = {
+	title = ww1_usa.41.t
+	desc = ww1_usa.41.d
+	id = ww1_usa.41
+	picture = GFX_report_event_generic_battle
+
+	is_triggered_only = yes
+	
+	immediate = {
+		set_global_flag = american_civil_war
+		hidden_effect = {
+			every_owned_state = {
+				limit = {
+					NOT = { is_csa_state = yes }
+					NOT = { state = 361 }
+					NOT = { state = 374 }
+					NOT = { state = 369 }
+				}
+				USB = {
+					transfer_state = PREV	
+				}
+			}
+			every_state = {
+				limit = {
+					is_core_of = USA
+					is_owned_by = USB
+				}
+				add_core_of = USB			
+				USA = {
+					add_state_claim = PREV
+				}
+				remove_core_of = USA
+			}
+			USA = {
+				set_cosmetic_tag = USA_CSA_only_color
+				add_ideas = USA_idea_house_divided
+				add_popularity = {
+					ideology = democratic 
+					popularity = -0.25
+				}
+				add_popularity = { 
+					ideology = communism 
+					popularity = -0.25
+				}
+				transfer_units_fraction = {
+					target = USB
+					size = 0.5
+					stockpile_ratio = 0.45
+					army_ratio = 0.45
+					navy_ratio = 0.55
+					air_ratio = 0.1
+				}
+			}
+			USB = {
+				inherit_technology = USA
+				add_ideas = USA_idea_house_divided
+				set_cosmetic_tag = USA_REBEL
+				set_war_support = 0.7
+				set_stability = 0.6
+				add_political_power = 650
+				add_ideas = { 
+					limited_conscription
+					partial_economic_mobilisation 
+				}
+				set_politics = {
+					ruling_party = democratic
+					last_election = "1908.11.1"
+					election_frequency = 48
+					elections_allowed = yes
+				}
+				set_popularities = {
+					democratic = 54
+					fascism = 0
+					communism = 32
+					neutrality = 14
+				}
+				set_capital = 378
+				create_country_leader = { 
+					name = "William H. Taft" 
+					picture = "gfx/leaders/USA/USA_william_h_taft.dds" 
+					expire = "1935.1.1" 
+					ideology = conservatism 
+					traits = { } 
+				}
+			}
+		}
+	}
+
+	option = {
+		name = ww1_usa.41.a
+		USA = {
+			declare_war_on = { target = USB type = annex_everything } 
+		}
+		hidden_effect = { USB = { country_event = { id = ww1_usa.44 days = 180 } } }
+		ai_chance = { factor = 10 }
+	}
+}
+# ANTI-SOCIALIST CIVIL WAR
+###########################
+country_event = {
+	title = ww1_usa.42.t
+	desc = ww1_usa.42.d
+	id = ww1_usa.42
+	picture = GFX_report_event_iww_demonstration
+
+	fire_only_once = yes
+	trigger = {
+		tag = USA
+		has_stability < 0.5
+		has_completed_focus = USA_radicalism_era
+		has_government = communism
+		has_country_flag = new_socialism #комми выиграли выборы
+		NOT = { has_global_flag = american_civil_war } #комми не пришли к власти через гражданку
+	}
+	immediate = { set_global_flag = USA_anti_socialist_cw }
+	mean_time_to_happen = { days = 14 }
+	option = {
+		name = ww1_usa.42.a
+		USA = { activate_mission = USA_civil_war_mission }
+		ai_chance = { factor = 10 }
+	}
+}
+# ANTI-SOCIALIST CIVIL WAR - START
+#################################
+country_event = {
+	title = ww1_usa.43.t
+	desc = ww1_usa.43.d
+	id = ww1_usa.43
+	picture = GFX_report_event_generic_battle
+
+	is_triggered_only = yes
+	
+	immediate = { 
+		set_global_flag = american_civil_war
+		hidden_effect = {
+			CSA = { inherit_technology = USA }
+			USB = { inherit_technology = USA }
+			every_owned_state = {
+				limit = {
+					OR = {
+						is_csa_state = yes
+						state = 374
+					}
+				}
+				CSA = {
+					transfer_state = PREV
+				}
+			}
+			every_owned_state = {
+				limit = {
+					NOT = { is_usa_socialist_state = yes }
+					NOT = { is_usa_libertarian_state = yes }
+					NOT = { is_csa_state = yes }
+					NOT = {state = 374 }
+					NOT = {state = 369 }
+					NOT = {state = 361 }
+					NOT = {state = 359 }
+					NOT = {state = 360 }
+				}
+				USB = {
+					transfer_state = PREV
+				}
+			}
+			every_state = {
+				limit = {
+					is_core_of = USA
+					is_owned_by = CSA
+				}
+				add_core_of = CSA			
+				USA = {
+					add_state_claim = PREV
+				}
+				remove_core_of = USA
+			}
+			every_state = {
+				limit = {
+					is_core_of = USA
+					is_owned_by = USB
+				}
+				add_core_of = USB			
+				USA = {
+					add_state_claim = PREV
+				}
+				remove_core_of = USA
+			}
+			USA = { 
+				add_ideas = USA_idea_house_divided
+				set_cosmetic_tag = USA_socialist_color_only
+				transfer_units_fraction = {
+					target = CSA
+					size = 0.35
+					stockpile_ratio = 0.25
+					army_ratio = 0.35
+					navy_ratio = 0.15
+					air_ratio = 0.1
+				}
+				transfer_units_fraction = {
+					target = USB
+					size = 0.45
+					stockpile_ratio = 0.35
+					army_ratio = 0.45
+					navy_ratio = 0.15
+					air_ratio = 0.1
+				}
+			}
+			CSA = {
+				add_ideas = USA_idea_house_divided
+				set_war_support = 0.9
+				set_stability = 0.6
+				add_political_power = 650
+				add_ideas = { 
+					limited_conscription
+					partial_economic_mobilisation 
+				}
+				set_politics = {
+					ruling_party = fascism
+					last_election = "1908.11.1"
+					election_frequency = 48
+					elections_allowed = yes
+				}
+				set_popularities = {
+					democratic = 8
+					fascism = 42
+					communism = 0
+					neutrality = 50
+				}
+				set_capital = 362
+				create_country_leader = {
+					name = "Woodrow Wilson" 
+					picture = "gfx/leaders/USA/USA_woodrow_wilson.dds" 
+					expire = "1935.1.1" 
+					ideology = fascism_ideology
+					traits = { } 
+				}
+			}
+			USB = {
+				add_ideas = USA_idea_house_divided
+				set_war_support = 0.5
+				set_stability = 0.6
+				add_political_power = 650
+				add_ideas = { 
+					limited_conscription
+					partial_economic_mobilisation 
+				}
+				set_cosmetic_tag = USA_REBEL
+				set_politics = {
+					ruling_party = democratic
+					last_election = "1908.11.1"
+					election_frequency = 48
+					elections_allowed = yes
+				}
+				set_popularities = {
+					democratic = 77
+					fascism = 0
+					communism = 2
+					neutrality = 21
+				}
+				set_capital = 378
+				create_country_leader = { 
+					name = "William H. Taft" 
+					picture = "gfx/leaders/USA/USA_william_h_taft.dds" 
+					expire = "1935.1.1" 
+					ideology = conservatism 
+					traits = { } 
+				}
+				if = {
+					limit = { USA = { NOT = { has_country_flag = roosevelt_is_dead } } }
+					create_country_leader = {
+						name = "Theodore Roosevelt"
+						desc = USA_theodore_roosevelt_DESC 
+						picture = "gfx/leaders/USA/USA_theodore_roosevelt.dds"
+						expire = "1935.1.1"
+						ideology = socialism
+						traits = { bull_moose }
+					}
+				}
+			}
+		}
+	}
+	option = {
+		name = ww1_usa.43.a
+		USA = {
+			declare_war_on = { target = CSA type = annex_everything }
+			declare_war_on = { target = USB type = annex_everything }			
+		}
+		hidden_effect = { 
+			CSA = { declare_war_on = { target = USB type = annex_everything } }
+		}
+		ai_chance = { factor = 10 }
+	}
+}
+# ANTI-REACTIONIST CIVIL WAR - SOCIALIST UPRISING
+#################################
+country_event = {
+	id = ww1_usa.44
+	hidden = yes
+	is_triggered_only = yes
+	
+	immediate = { 
+		set_global_flag = american_civil_war_socialist_uprising
+		hidden_effect = {
+			every_owned_state = {
+				limit = {
+					is_usa_socialist_state = yes
+				}
+				set_state_flag = is_usa_socialist_state
+			}
+			start_civil_war = {
+				ideology = communism
+				size = 0.35
+				states = all
+				states_filter = {
+					has_state_flag = is_usa_socialist_state
+				}
+			}
+			random_other_country = {
+				limit = {
+					original_tag = USB
+					has_government = communism
+				}
+				declare_war_on = { target = USA type = annex_everything } 
+				set_capital = 395
+				set_cosmetic_tag = USB_socialist
+				create_country_leader = { 
+					name = "Eugene V. Debs" 
+					picture = "gfx/leaders/USA/USA_eugene_v_debs.dds" 
+					expire = "1935.1.1" 
+					ideology = marxism
+					traits = { } 
+				}
+			}
+		}
+	}
+}
+# ANTI-REACTIONIST CIVIL WAR - DESERET UPRISING
+#################################
+country_event = {
+	id = ww1_usa.45
+	hidden = yes
+	trigger = {
+		tag = CSA
+		has_government = fascism
+		has_civil_war = no
+		has_war_with = USA
+		has_full_control_of_state = 379
+		has_full_control_of_state = 380
+		has_full_control_of_state = 377
+		has_global_flag = USA_anti_socialist_cw
+	}
+	immediate = { 
+		set_global_flag = american_civil_war_deseret_uprising
+		hidden_effect = {
+			every_owned_state = {
+				limit = {
+					OR = {
+						state = 379
+						state = 380
+						state = 377 
+					}
+				}
+				set_state_flag = is_usa_theocratic_state
+			}
+			start_civil_war = {
+				ideology = neutrality
+				size = 0.25
+				states = all
+				states_filter = {
+					has_state_flag = is_usa_theocratic_state
+				}
+			}
+			random_other_country = {
+				limit = {
+					original_tag = CSA
+					has_government = neutrality
+				}
+				add_ideas = USA_idea_house_divided
+				declare_war_on = { target = USA type = annex_everything } 
+				set_capital = 380
+				set_cosmetic_tag = CSA_deseret
+				create_country_leader = { 
+					name = "Heber Wells" 
+					picture = "gfx/leaders/USA/USA_heber_wells.dds" 
+					expire = "1935.1.1" 
+					ideology = theocracy
+					traits = { } 
+				}
+			}
+		}
+	}
+}
+# SOCIALIST CIVIL WAR
+###########################
+country_event = {
+	title = ww1_usa.46.t
+	desc = ww1_usa.46.d
+	id = ww1_usa.46
+	picture = GFX_report_event_generic_battle
+
+	fire_only_once = yes
+	trigger = {
+		tag = USA
+		communism > 0.5
+		NOT = { has_government = communism }
+		NOT = { has_global_flag = american_civil_war }
+		has_completed_focus = USA_radicalism_era
+		NOT = { has_global_flag = USA_anti_socialist_cw }
+		NOT = { has_country_flag = new_socialism }
+		has_country_flag = USA_elections_1912_end
+	}
+	
+	immediate = { set_global_flag = USA_socialist_cw }
+	mean_time_to_happen = { days = 14 }
+	option = {
+		name = ww1_usa.46.a
+		USA = { activate_mission = USA_civil_war_mission }
+		ai_chance = { factor = 10 }
+	}
+}
+# SOCIALIST CIVIL WAR - START
+###########################
+country_event = {
+	title = ww1_usa.47.t
+	desc = ww1_usa.47.d
+	id = ww1_usa.47
+	picture = GFX_report_event_generic_battle
+
+	fire_only_once = yes
+	is_triggered_only = yes
+	
+	immediate = { 
+		set_global_flag = american_civil_war
+		hidden_effect = {
+			USB = { inherit_technology = USA }
+			every_owned_state = {
+				limit = {
+					NOT = { is_usa_socialist_state = yes }
+				}
+				USB = {
+					transfer_state = PREV
+				}
+			}
+			every_state = {
+				limit = {
+					is_core_of = USA
+					is_owned_by = USB
+				}
+				add_core_of = USB
+				USA = {
+					add_state_claim = PREV
+				}
+				remove_core_of = USA
+			}
+			USA = {
+				add_ideas = USA_idea_house_divided
+				set_cosmetic_tag = USA_socialist_color_only
+				set_capital = 395
+				transfer_units_fraction = {
+					target = USB
+					size = 0.40
+					stockpile_ratio = 0.65
+					army_ratio = 0.6
+					navy_ratio = 1.0
+					air_ratio = 0.35
+				}
+				set_politics = { ruling_party = communism elections_allowed = yes }
+				add_popularity = { ideology = communism ideology = 0.2 }
+			}
+			USB = {
+				add_ideas = USA_idea_house_divided
+				set_war_support = 0.5
+				set_stability = 0.6
+				add_political_power = 650
+				set_capital = 361
+				add_ideas = { 
+					limited_conscription
+					partial_economic_mobilisation 
+				}
+				set_cosmetic_tag = USA_REBEL
+				set_politics = {
+					ruling_party = democratic
+					last_election = "1908.11.1"
+					election_frequency = 48
+					elections_allowed = yes
+				}
+				set_popularities = {
+					democratic = 77
+					fascism = 2
+					communism = 0
+					neutrality = 21
+				}
+				if = {
+					limit = { USA = { has_country_flag = new_conservatism } }
+					create_country_leader = { 
+						name = "William H. Taft" 
+						picture = "gfx/leaders/USA/USA_william_h_taft.dds" 
+						expire = "1935.1.1" 
+						ideology = conservatism 
+						traits = { } 
+					}
+					add_popularity = { ideology = communism ideology = 0.1 }
+				}
+				if = {
+					limit = { USA = { has_country_flag = new_freedom } }
+					create_country_leader = {
+						name = "Woodrow Wilson" 
+						picture = "gfx/leaders/USA/USA_woodrow_wilson.dds" 
+						expire = "1935.1.1" 
+						ideology = conservatism
+						traits = { prohibitionist } 
+					}
+					add_popularity = { ideology = fascism ideology = 0.15 }
+					add_popularity = { ideology = neutrality ideology = 0.10 }
+					USB = { country_event = { id = ww1_usa.57 days = 180 } }
+				}
+				if = {
+					limit = { USA = { has_country_flag = new_nationalism } }
+					create_country_leader = {
+						name = "Theodore Roosevelt"
+						desc = USA_theodore_roosevelt_DESC 
+						picture = "gfx/leaders/USA/USA_theodore_roosevelt.dds"
+						expire = "1935.1.1"
+						ideology = socialism
+						traits = { bull_moose }
+					}
+					USB = { country_event = { id = ww1_usa.56 days = 180 } }
+				}
+			}
+		}
+	}
+	mean_time_to_happen = { days = 14 }
+	option = {
+		name = ww1_usa.47.a
+		set_global_flag = american_civil_war
+		USA = {
+			declare_war_on = { target = USB type = annex_everything }			
+		}
+		ai_chance = { factor = 10 }
+	}
+}
+# SOCIALIST CIVIL WAR - THEOCRATIC UPRISING
+#################################
+country_event = {
+	id = ww1_usa.56
+	hidden = yes
+	is_triggered_only = yes
+	
+	immediate = { 
+		set_global_flag = american_civil_war_socialist_uprising
+		hidden_effect = {
+			every_owned_state = {
+				limit = {
+					OR = {
+						state = 357
+						state = 358
+						state = 360
+						state = 359
+					}
+				}
+				set_state_flag = is_usa_theocratic_state
+			}
+			start_civil_war = {
+				ideology = neutrality
+				size = 0.35
+				states = all
+				states_filter = {
+					has_state_flag = is_usa_theocratic_state
+				}
+			}
+			random_other_country = {
+				limit = {
+					original_tag = USB
+					has_government = neutrality
+				}
+				add_ideas = USA_idea_house_divided
+				declare_war_on = { target = USA type = annex_everything } 
+				set_capital = 359 #Wilson is governor of NJ
+				set_cosmetic_tag = USA_theocratic
+				create_country_leader = {
+					name = "Woodrow Wilson" 
+					picture = "gfx/leaders/USA/USA_woodrow_wilson.dds" 
+					expire = "1935.1.1" 
+					ideology = theocracy
+					traits = { prohibitionist } 
+				}
+			}
+		}
+	}
+}
+# SOCIALIST CIVIL WAR - TEXAS NEUTRAL
+#################################
+country_event = {
+	id = ww1_usa.57
+	hidden = yes
+	is_triggered_only = yes
+	
+	immediate = { 
+		set_global_flag = american_civil_war_socialist_uprising
+		hidden_effect = {
+			CSA = { inherit_technology = USA }
+			every_owned_state = {
+				limit = {
+					state = 375
+				}
+				add_core_of = CSA
+				CSA = {
+					transfer_state = PREV
+				}
+			}
+			USB = {
+				transfer_units_fraction = {
+					target = CSA
+					size = 0.10
+					stockpile_ratio = 0.15
+					army_ratio = 0.25
+					navy_ratio = 0.1
+					air_ratio = 0.10
+				}
+			}
+			CSA = {
+				set_capital = 375
+				set_cosmetic_tag = CSA_texas
+				set_politics = {
+					ruling_party = democratic
+					last_election = "1908.11.1"
+					election_frequency = 48
+					elections_allowed = yes
+				}
+				set_popularities = {
+					democratic = 52
+					fascism = 23
+					communism = 0
+					neutrality = 25
+				}
+				create_country_leader = {
+					name = "Oscar Branch Colquitt" 
+					picture = "gfx/leaders/USA/USA_oscar_colqiutt.dds" 
+					expire = "1935.1.1" 
+					ideology = liberalism
+					traits = { } 
+				}
+			}
+		}
+	}
+}
+# ANTI-REACTIONIST CIVIL WAR - LIBERTARIAN UPRISING
+############################################
+country_event = {
+	id = ww1_usa.58
+	title = ww1_usa.58.t
+	desc = ww1_usa.58.d
+	picture = GFX_report_event_election_vote
+	
+	fire_only_once = yes
+	trigger = {
+		tag = USA
+		OR = {
+			has_government = neutrality
+			has_government = fascism
+		}
+		has_war_with = USB
+		has_global_flag = USA_anti_prohibition_cw
+		has_civil_war = no
+		has_full_control_of_state = 357
+		controls_state = 358
+		has_full_control_of_state = 359
+		has_full_control_of_state = 360
+		USB = { surrender_progress > 0.5 }
+	}	
+	immediate = {
+		set_global_flag = american_civil_war_libertarian_uprising
+		hidden_effect = {
+			every_state = {
+				limit = {
+					is_usa_libertarian_state = yes
+				}
+				USA = {
+					transfer_state = PREV
+					add_core_of = USA
+				}
+				set_state_flag = is_usa_libertarian_state
+			}
+			start_civil_war = {
+				ideology = democratic
+				size = 0.2
+				states = all
+				states_filter = {
+					has_state_flag = is_usa_libertarian_state
+				}
+			}
+			random_other_country = {
+				limit = {
+					original_tag = USA
+					has_government = democratic
+				}
+				set_party_name = { 
+					ideology = democratic
+					long_name = USA_1776_party
+					name = USA_1776_party
+				}
+				declare_war_on = { target = USB type = annex_everything } 
+				set_politics = {
+					ruling_party = democratic
+					election_frequency = 48
+					elections_allowed = yes
+				}
+				set_capital = 357 #Boston
+				set_cosmetic_tag = USA_ancap
+				add_ideas = USA_idea_house_divided
+				create_country_leader = {
+					name = "Third Continental Congress" 
+					picture = "gfx/leaders/USA/USA_congress.dds" 
+					expire = "1935.1.1" 
+					ideology = libertarianism
+					traits = { } 
+				}
+			}
+		}
+	}
+	option = {
+		name = ww1_usa.58.a
+		ai_chance = { factor = 100 }
+	}
 }
