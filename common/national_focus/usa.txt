@@ -46,7 +46,6 @@ focus_tree = {
 		x = 22
 		y = 0
 		available = {
-			#NOT = { has_country_leader = { name = "Theodor Roosvelt" ruling_only = yes } }
 		}
 		search_filters = {FOCUS_FILTER_POLITICAL}
 		completion_reward = {
@@ -61,6 +60,7 @@ focus_tree = {
 					long_name = USA_whig_party
 					name = USA_whig_party
 				}
+				country_event = ww1_usa.66 #random events
 			}
 			custom_effect_tooltip = USA_beware_cw
 			swap_ideas = { remove_idea = USA_idea_progressivism_era add_idea = USA_idea_reactionism_era }			
@@ -84,6 +84,9 @@ focus_tree = {
 		}
 		search_filters = {FOCUS_FILTER_POLITICAL}
 		completion_reward = {
+			hidden_effect = {
+				country_event = ww1_usa.70 #random events
+			}
 			custom_effect_tooltip = USA_beware_cw
 			swap_ideas = { remove_idea = USA_idea_progressivism_era add_idea = USA_idea_radicalism_era }			
 		}
@@ -115,7 +118,8 @@ focus_tree = {
 		cost = 10
 		x = 50
 		y = 0
-
+		completion_reward = { navy_experience = 20 }
+		search_filters = {FOCUS_FILTER_RESEARCH}
 	}
 	focus = {
 		id = USA_principle_of_workmens_compensation
@@ -128,6 +132,9 @@ focus_tree = {
 		x = 4
 		y = 1
 		search_filters = {FOCUS_FILTER_RESEARCH}
+		available = {
+			NOT = { has_completed_focus = USA_cult_of_the_american_nation }
+		}
 		completion_reward = {
 			add_tech_bonus = { 
 				name = USA_principle_of_workmens_compensation
@@ -146,8 +153,12 @@ focus_tree = {
 		}
 		x = 2
 		y = 2
+		available = {
+			NOT = { has_completed_focus = USA_reformist_progressivism }
+		}
 		completion_reward = {
 			USA_congress_medium_opposition = yes
+			
 		}
 		#если не принять до начала крупных забастовок, то их больше никогда не принять. Будет избран силовой путь.
 	}
@@ -160,7 +171,13 @@ focus_tree = {
 		}
 		x = 1
 		y = 3
-
+		search_filters = {FOCUS_FILTER_INDUSTRY}
+		completion_reward = {
+			if = {
+				limit = { NOT = { has_government = communism } }
+				add_stability = -0.05
+			}
+		}
 	}
 	focus = {
 		id = USA_luxary_tax
@@ -169,14 +186,19 @@ focus_tree = {
 		prerequisite = {
 			focus = USA_principle_of_workmens_compensation
 		}
-		mutually_exclusive = {
-			focus = USA_estate_tax
-		}
 		x = 4
 		y = 2
+		available = {
+			NOT = { has_completed_focus = USA_reformist_progressivism }
+		}
 		search_filters = {FOCUS_FILTER_POLITICAL}
 		completion_reward = {
 			custom_effect_tooltip = USA_modify_profit
+			custom_effect_tooltip = USA_luxary_tax_profit
+			if = {
+				limit = { NOT = { has_government = communism } }
+				add_stability = -0.05
+			}
 			add_popularity = { ideology = communism popularity = 0.05 }
 		}
 	}
@@ -194,6 +216,8 @@ focus_tree = {
 		y = 3
 		completion_reward = {
 			custom_effect_tooltip = USA_modify_profit
+			add_stability = 0.10
+			add_popularity = { ideology = communism popularity = 0.05 }
 		}
 	}
 	focus = {
@@ -205,7 +229,12 @@ focus_tree = {
 		}
 		x = 4
 		y = 4
-
+		available = {
+			communism > 0.5
+		}
+		completion_reward = {
+			
+		}
 	}
 	focus = {
 		id = USA_congress_of_workers_and_unions
@@ -242,12 +271,18 @@ focus_tree = {
 		prerequisite = {
 			focus = USA_reformist_progressivism
 			focus = USA_radicalism_era
+			focus = USA_american_reactionism
 		}
 		x = 8
 		y = 1
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available = {
 			NOT = { has_idea = USA_idea_bank_panic } 
+			if = {
+				limit = { has_completed_focus = USA_reformist_progressivism }
+				has_country_leader = { name = "Woodrow Wilson" ruling_only = yes }
+			}
+			NOT = { has_completed_focus = USA_gold_reserve }
 		}
 		completion_reward = {
 			USA_congress_medium_opposition = yes
@@ -261,13 +296,15 @@ focus_tree = {
 		prerequisite = {
 			focus = USA_federal_reserve
 		}
-		mutually_exclusive = {
-			focus = USA_luxary_tax
+		available = {
+			NOT = { has_completed_focus = USA_radicalism_era }
+			NOT = { has_completed_focus = USA_american_reactionism }
 		}
 		x = 6
 		y = 2
 		completion_reward = { 
 			custom_effect_tooltip = USA_modify_profit
+			custom_effect_tooltip = USA_estate_tax_profit
 		}
 	}
 	focus = {
@@ -280,7 +317,9 @@ focus_tree = {
 		}
 		x = 5
 		y = 3
-
+		completion_reward = { 
+			add_research_slot = 1
+		}
 	}
 	focus = {
 		id = USA_federal_farm_loan_act
@@ -302,7 +341,9 @@ focus_tree = {
 		}
 		x = 6
 		y = 5
-
+		completion_reward = { 
+			remove_ideas = USA_idea_wild_west_era
+		}
 	}
 	focus = {
 		id = USA_underwood_tariff
@@ -315,11 +356,14 @@ focus_tree = {
 		y = 2
 		available = {
 			congress_low_support_trigger = yes
+			NOT = { has_completed_focus = USA_radicalism_era }
+			NOT = { has_completed_focus = USA_american_reactionism }
 		}
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		completion_reward = {
 			custom_effect_tooltip = USA_modify_profit
-			
+			custom_effect_tooltip = USA_underwood_tariff_profit
+			add_ideas = USA_idea_underwood_tariff
 		}
 	}
 	focus = {
@@ -331,7 +375,27 @@ focus_tree = {
 		}
 		x = 8
 		y = 3
-
+		available = {
+			if = {
+				limit = { has_idea = USA_idea_corporatocracy }
+				congress_medium_support_trigger = yes
+			}
+			if = {
+				limit = { NOT = { has_idea = USA_idea_corporatocracy } }
+				congress_low_support_trigger = yes
+			}
+		}
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			if = {
+				limit = { NOT = { has_idea = USA_idea_corporatocracy } }
+				custom_effect_tooltip = USA_antitrust_act_tt
+			}
+			if = {
+				limit = { has_idea = USA_idea_corporatocracy }
+				remove_ideas = USA_idea_corporatocracy
+			}
+		}
 	}
 	focus = {
 		id = USA_federal_trade_comission
@@ -382,7 +446,9 @@ focus_tree = {
 		}
 		x = 11
 		y = 1
-		
+		completion_reward = {
+			add_stability = 0.1
+		}
 	}
 	focus = {
 		id = USA_protest_diplomacy
@@ -409,7 +475,40 @@ focus_tree = {
 		}
 		x = 10
 		y = 3
-		
+		completion_reward = {
+			random_owned_controlled_state = {
+				limit = {
+					free_building_slots = {
+						building = arms_factory
+						size > 0
+						include_locked = yes
+					}
+					is_core_of = ROOT
+				}
+				add_building_construction = {
+					type = arms_factory
+					level = 2
+					instant_build = yes
+				}
+				add_extra_state_shared_building_slots = 2
+			}
+			random_owned_controlled_state = {
+				limit = {
+					free_building_slots = {
+						building = arms_factory
+						size > 0
+						include_locked = yes
+					}
+					is_core_of = ROOT
+				}
+				add_building_construction = {
+					type = arms_factory
+					level = 2
+					instant_build = yes
+				}
+				add_extra_state_shared_building_slots = 2
+			}
+		}
 	}
 	focus = {
 		id = USA_limited_rearmament
@@ -436,7 +535,7 @@ focus_tree = {
 		x = 11
 		y = 5
 		completion_reward = {
-			remove_idea = USA_idea_defender_of_the_american_sphere
+			remove_ideas = USA_idea_defender_of_the_american_sphere
 		}
 	}
 	focus = {
@@ -474,7 +573,9 @@ focus_tree = {
 		}
 		x = 15
 		y = 1
-
+		completion_reward = {
+			add_ideas = USA_idea_big_stick
+		}
 	}
 	focus = {
 		id = USA_volunteer_act
@@ -501,7 +602,8 @@ focus_tree = {
 		}
 		x = 15
 		y = 2
-
+		bypass = { NOT = { has_idea = undisturbed_isolation } }
+		completion_reward = { add_ideas = isolation }
 	}
 	focus = {
 		id = USA_intercontinental_protection
@@ -521,9 +623,17 @@ focus_tree = {
 		prerequisite = {
 			focus = USA_reformist_progressivism
 			focus = USA_american_reactionism
+			focus = USA_radicalism_era 
 		}
 		x = 19
 		y = 1
+		available = {
+			NOT = { has_idea = USA_idea_bank_panic }
+			NOT = { has_completed_focus = USA_federal_reserve }
+			NOT = { 
+				has_country_leader = { name = "Woodrow Wilson" ruling_only = yes } 
+			}
+		}
 		completion_reward = { 
 			add_stability = -0.1
 			swap_ideas = { remove_idea = USA_idea_free_banking_era add_idea = USA_gold_reserve }
@@ -557,7 +667,10 @@ focus_tree = {
 		}
 		x = 15
 		y = 4
-
+		completion_reward = {
+			set_rule = { can_create_factions = yes }
+			remove_ideas = USA_idea_defender_of_the_american_sphere
+		}
 	}
 	focus = {
 		id = USA_mobilization_act
@@ -568,7 +681,9 @@ focus_tree = {
 		}
 		x = 16
 		y = 5
-
+		completion_reward = {
+			add_ideas = USA_mobilization_act
+		}
 	}
 	focus = {
 		id = USA_tax-free_weapons_act
@@ -579,8 +694,13 @@ focus_tree = {
 		}
 		x = 17
 		y = 2
+		available = {
+			NOT = { has_completed_focus = USA_radicalism_era }
+			NOT = { has_completed_focus = USA_american_reactionism }
+		}
 		completion_reward = { 
 			custom_effect_tooltip = USA_modify_profit
+			custom_effect_tooltip = USA_tax-free_weapons_act_profit
 		}
 	}
 	focus = {
@@ -592,7 +712,10 @@ focus_tree = {
 		}
 		x = 17
 		y = 4
-
+		completion_reward = {
+			add_war_support = 0.05
+			add_ideas = USA_arm_the_nation 
+		}
 	}
 	focus = {
 		id = USA_dont_tread_on_me
@@ -609,7 +732,10 @@ focus_tree = {
 			NOT = { has_completed_focus = USA_land_of_dixie }
 			NOT = { has_completed_focus = USA_revived_states_of_america }
 		}
-		completion_reward = { set_cosmetic_tag = USA_ancap }
+		completion_reward = { 
+			set_cosmetic_tag = USA_ancap 
+			set_country_leader_ideology = libertarianism
+		}
 	}
 	focus = {
 		id = USA_protectionist_act
@@ -623,6 +749,10 @@ focus_tree = {
 		}
 		x = 19
 		y = 2
+		available = {
+			NOT = { has_completed_focus = USA_radicalism_era }
+			NOT = { has_completed_focus = USA_american_reactionism }
+		}
 		completion_reward = { 
 			custom_effect_tooltip = USA_modify_profit
 		}
@@ -650,7 +780,13 @@ focus_tree = {
 		}
 		x = 19
 		y = 4
-		completion_reward = {
+		available = {
+			any_owned_state = {
+				NOT = { has_state_flag = wild_west_state }
+			}
+		}
+		completion_reward = { 
+			remove_ideas = USA_idea_wild_west_era
 		}
 	}
 	focus = {
@@ -712,6 +848,9 @@ focus_tree = {
 			focus = USA_american_reactionism
 			focus = USA_reformist_progressivism
 		}
+		available = {
+			NOT = { has_completed_focus = USA_principle_of_workmens_compensation }
+		}
 		x = 26
 		y = 1
 		completion_reward = {
@@ -733,6 +872,10 @@ focus_tree = {
 		}
 		x = 21
 		y = 2
+		available = {
+			NOT = { has_completed_focus = USA_radicalism_era }
+			NOT = { has_completed_focus = USA_american_reactionism }
+		}  
 		search_filters = {FOCUS_FILTER_RESEARCH}
 		completion_reward = {
 			add_tech_bonus = { 
@@ -753,7 +896,9 @@ focus_tree = {
 		}
 		x = 21
 		y = 4
-
+		completion_reward = { 
+			add_research_slot = 1
+		}
 	}
 	focus = {
 		id = USA_john_rockefeller_conglomerate
@@ -822,6 +967,9 @@ focus_tree = {
 		}
 		x = 26
 		y = 2
+		available = {
+			NOT = { has_completed_focus = USA_reformist_progressivism }
+		}
 		completion_reward = {
 			add_popularity = { ideology = neutrality popularity = 0.05 }
 		}
@@ -835,7 +983,9 @@ focus_tree = {
 		}
 		x = 26
 		y = 3
-
+		completion_reward = {
+			add_ideas = USA_reorganized_minutemen 
+		}
 	}
 	focus = {
 		id = USA_restore_american_feuds
@@ -861,10 +1011,49 @@ focus_tree = {
 		x = 26
 		y = 5
 		available = { 
+			if = {
+				limit = { has_country_flag = new_prohibition }
+				neutrality > 0.5
+			}
+			if = {
+				limit = { NOT = { has_country_flag = new_prohibition } }
+				fascism > 0.5
+			}
 			NOT = { has_completed_focus = USA_restrained_progressivism }
 			NOT = { has_completed_focus = USA_dont_tread_on_me }
 		}
-		completion_reward = { set_cosmetic_tag = USA_theocratic }
+		completion_reward = { 
+			if = {
+				limit = {
+					OR = {
+						has_global_flag = USA_cw_triggered
+						has_country_flag = new_prohibition
+					}
+				}
+				set_cosmetic_tag = USA_theocratic #Если ГВ начиналась до этого момента или на выборах победили реакционисты
+			}
+			if = {
+				limit = {
+					NOT = { has_global_flag = USA_cw_triggered }
+					NOT = { has_country_flag = new_prohibition }
+				}
+				country_event = ww1_usa.50
+			}
+			if = {
+				limit = {
+					has_country_leader = { name = "Douglas MacArthur" ruling_only = yes }
+				}
+				create_country_leader = {
+					name = "Woodrow Wilson"
+					desc = USA_woodrow_wilson_DESC 
+					picture = "gfx/leaders/USA/USA_woodrow_wilson.dds"
+					expire = "1935.1.1"
+					ideology = moderatism
+					traits = { prohibitionist }
+				}
+				country_event = ww1_usa.51
+			}
+		}
 	}
 	focus = {
 		id = USA_historical_revision
@@ -875,6 +1064,9 @@ focus_tree = {
 		}
 		x = 28
 		y = 2
+		available = {
+			NOT = { has_completed_focus = USA_reformist_progressivism }
+		}
 		completion_reward = {
 			add_popularity = { ideology = fascism popularity = 0.05 }
 		}
@@ -913,9 +1105,35 @@ focus_tree = {
 		}
 		x = 28
 		y = 5
-		available = { 
+		available = {
+			if = {
+				limit = { has_country_flag = new_prohibition }
+				neutrality > 0.5
+			}
+			if = {
+				limit = { NOT = { has_country_flag = new_prohibition } }
+				fascism > 0.5
+			}
 			NOT = { has_completed_focus = USA_restrained_progressivism }
 			NOT = { has_completed_focus = USA_dont_tread_on_me }
+		}
+		completion_reward = {
+			if = {
+				limit = {
+					OR = {
+						has_global_flag = USA_cw_triggered
+						has_country_flag = new_prohibition
+					}
+				}
+				set_cosmetic_tag = USA_CSA
+			}
+			if = {
+				limit = { 
+					NOT = { has_country_flag = new_prohibition }
+					NOT = { has_global_flag = USA_cw_triggered }
+				}
+				country_event = ww1_usa.49
+			}
 		}
 	}
 	focus = {
@@ -1200,7 +1418,14 @@ focus_tree = {
 		}
 		x = 42
 		y = 2
-
+		completion_reward = {
+			add_tech_bonus = {
+				name = USA_doctrine_of_armored_raids
+				bonus = 1.0
+				uses = 1
+				category = cat_mobile_warfare
+			}
+		}
 	}
 	focus = {
 		id = USA_occupy_villas_lair
@@ -1225,7 +1450,15 @@ focus_tree = {
 		}
 		x = 44
 		y = 1
-
+		search_filters = {FOCUS_FILTER_RESEARCH}
+		completion_reward = {
+			add_tech_bonus = {
+				name = USA_shotgun
+				bonus = 1.0
+				uses = 1
+				category = infantry_weapons
+			}
+		}
 	}
 	focus = {
 		id = USA_prepare_for_trench_warfare
@@ -1239,7 +1472,15 @@ focus_tree = {
 		}
 		x = 44
 		y = 2
-
+		search_filters = {FOCUS_FILTER_RESEARCH}
+		completion_reward = {
+			add_tech_bonus = {
+				name = USA_prepare_for_trench_warfare
+				bonus = 1.0
+				uses = 2
+				category = cat_grand_battle_plan
+			}
+		}
 	}
 	focus = {
 		id = USA_regular_divisions
@@ -1251,8 +1492,21 @@ focus_tree = {
 		}
 		x = 43
 		y = 3
+		search_filters = {FOCUS_FILTER_RESEARCH}
 		completion_reward = {
-
+			army_experience = 25
+			add_tech_bonus = {
+				name = USA_artillery_support
+				bonus = 1.0
+				uses = 1
+				category = support_tech
+			}
+			add_tech_bonus = {
+				name = USA_artillery_support
+				bonus = 1.0
+				uses = 1
+				category = infantry_tech
+			}
 		}
 	}
 	focus = {
@@ -1303,7 +1557,15 @@ focus_tree = {
 		}
 		x = 45
 		y = 3
-
+		search_filters = {FOCUS_FILTER_RESEARCH}
+		completion_reward = {
+			add_tech_bonus = {
+				name = USA_artillery_support
+				bonus = 1.0
+				uses = 1
+				category = artillery
+			}
+		}
 	}
 	focus = {
 		id = USA_aeronautical_divisions
@@ -1314,7 +1576,15 @@ focus_tree = {
 		}
 		x = 47
 		y = 3
-
+		search_filters = {FOCUS_FILTER_RESEARCH}
+		completion_reward = {
+			air_experience = 10
+			add_equipment_to_stockpile = {
+				type = fighter_equipment_0
+				amount = 25
+				producer = USA
+			}
+		}
 	}
 	focus = {
 		id = USA_aviation_section
@@ -1402,7 +1672,7 @@ focus_tree = {
 	}
 	focus = {
 		id = USA_big_navy_act
-		icon = GFX_focus_generic_navy_battleship2
+		icon = GFX_goal_generic_navy_battleship
 		cost = 10
 		prerequisite = {
 			focus = USA_natural_bulwarks
@@ -1412,7 +1682,15 @@ focus_tree = {
 		}
 		x = 49
 		y = 3
-
+		search_filters = {FOCUS_FILTER_RESEARCH}
+		completion_reward = {
+			add_tech_bonus = { 
+				name = USA_big_navy_act
+				bonus = 1.0 
+				uses = 2
+				category = naval_doctrine
+			}
+		}
 	}
 	focus = {
 		id = USA_marine_forces
@@ -1423,7 +1701,15 @@ focus_tree = {
 		}
 		x = 50
 		y = 2
-
+		search_filters = {FOCUS_FILTER_RESEARCH}
+		completion_reward = {
+			add_tech_bonus = { 
+				name = USA_marine_forces
+				bonus = 1.0 
+				uses = 2
+				category = marine_tech
+			}
+		}
 	}
 	focus = {
 		id = USA_army_desegregation
@@ -1434,7 +1720,10 @@ focus_tree = {
 		}
 		x = 1
 		y = 4
-
+		search_filters = {FOCUS_FILTER_MANPOWER}
+		completion_reward = {
+			
+		}
 	}
 	focus = {
 		id = USA_peoples_freedom
