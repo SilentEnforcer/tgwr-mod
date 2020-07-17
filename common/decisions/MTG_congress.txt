@@ -1,4 +1,177 @@
 USA_congress = {
+	USA_tax_monthly_profit_mission = {
+		icon = ger_mefo_bills
+		allowed = { always = no }
+		available = {
+			#has_civil_war = yes
+			hidden_trigger = { always = no }
+		}
+		days_mission_timeout = 31
+		#days_remove = 1
+		is_good = yes
+		fire_only_once = yes #cycled
+		timeout_effect = {
+			if = {
+				limit = { 
+					has_completed_focus = USA_protectionist_act
+				}
+				add_political_power = 25
+			}
+			if = {
+				limit = { 
+					has_completed_focus = USA_labor_protection_act
+				}
+				add_political_power = -5
+			}
+			if = {
+				limit = { 
+					NOT = { has_completed_focus = USA_protectionist_act }
+					NOT = { has_completed_focus = USA_underwood_tariff }
+					NOT = { has_completed_focus = USA_labor_protection_act }
+				}
+				add_political_power = 10
+			}
+			if = {
+				limit = { 
+					NOT = { has_completed_focus = USA_tax-free_weapons_act }
+					NOT = { has_completed_focus = USA_estate_tax }
+					NOT = { has_completed_focus = USA_luxary_tax }
+				}
+				if = {
+					limit = { has_war_support > 0.02 }
+					add_stability = 0.005
+				}
+				if = {
+					limit = { has_war_support > 0.02 }
+					add_war_support = -0.01
+				}
+			}
+			if = {
+				limit = { 
+					has_completed_focus = USA_estate_tax
+				}
+				if = {
+					limit = { has_stability < 0.50 }
+					add_stability = 0.05
+				}
+			}
+			if = {
+				limit = { 
+					has_completed_focus = USA_luxary_tax
+				}
+				if = {
+					limit = { has_stability > 0.75 }
+					add_popularity = { ideology = communism popularity = 0.001 }
+				}
+			}
+			if = {
+				limit = { 
+					has_completed_focus = USA_tax-free_weapons_act
+				}
+				if = {
+					limit = { has_war_support < 0.50 }
+					add_stability = -0.005
+				}
+				if = {
+					limit = { has_war_support < 0.50 }
+					add_war_support = 0.005
+				}
+			}
+			hidden_effect = {
+				activate_mission = USA_tax_monthly_profit_mission
+			}
+			# +pp - протекционистическая политика
+			# +modifier - рыночная политика
+			# чем больше проведено реформ - тем крепче экономика
+		}
+		modifier = {
+			#consumer_goods_factor = 0.15
+			#production_factory_max_efficiency_factor = 0.05
+			#production_factory_efficiency_gain_factor = -0.05
+			#production_speed_infrastructure_factor = 0.05
+			#production_speed_industrial_complex_factor = 0.05
+			#production_speed_arms_factory_factor = -0.05
+		}
+	}
+	USA_small_lobby_effort = {
+		icon = generic_political_discourse
+		available = {
+			OR = {
+				check_variable = { senators_support < senators_total }
+				check_variable = { representatives_support < representatives_total }
+			}
+			not = {
+				has_decision = USA_medium_lobby_effort
+			}
+			OR = {
+				political_power_daily > 0.3
+				has_political_power > 10
+			}
+		}
+		cost = 0
+		ai_will_do = {
+			factor = 10
+			modifier = {
+				congress_medium_support_trigger = yes
+				factor = 0.5
+			}
+			modifier = {
+				congress_low_support_trigger = yes
+				factor = 0.5
+			}
+			modifier = {
+				congress_high_support_trigger = yes
+				factor = 0
+			}
+		}
+		modifier = {
+			political_power_gain = -0.3
+		}
+		days_remove = 30
+		remove_effect = {
+			USA_congress_small_support = yes
+		}
+	}
+	USA_medium_lobby_effort = {
+		icon = generic_political_discourse
+		available = {
+			OR = {
+				check_variable = { senators_support < senators_total }
+				check_variable = { representatives_support < representatives_total }
+			}
+			not = {
+				has_decision = USA_small_lobby_effort
+			}
+			OR = {
+				political_power_daily > 0.75
+				has_political_power > 35
+			}
+		}
+		cost = 0
+		ai_will_do = {
+			factor = 10
+			modifier = {
+				congress_medium_support_trigger = yes
+				factor = 0.5
+			}
+			modifier = {
+				congress_low_support_trigger = yes
+				factor = 0.5
+			}
+			modifier = {
+				congress_high_support_trigger = yes
+				factor = 0
+			}
+		}
+		days_remove = 45
+		modifier = {
+			political_power_gain = -0.75
+		}
+		remove_effect = {
+			USA_congress_medium_support = yes
+		}
+	}
+	### DONATES
 	USA_give_tax_break = {
 		icon = ger_mefo_bills
 		available = {
@@ -46,7 +219,198 @@ USA_congress = {
 		}
 		modifier = { research_speed_factor = 0.08 }
 	}
-	# STATES
+	### INVESTMENTS
+	USA_invest_in_state_factory = {
+		icon = generic_construction
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = USA_congress_invest_in_state_factory_tt
+				any_owned_state = {
+					has_state_flag = USA_congress_build_factory
+					check_variable = { factory_goal = industrial_complex_level }
+				}
+			}
+		}
+		highlight_states = {
+			has_state_flag = USA_congress_build_factory
+		}
+		days_mission_timeout = 360
+		is_good = no
+		activation = {
+			any_owned_state = {
+				has_state_flag = USA_congress_build_factory
+			}
+		}
+		timeout_effect = {
+			random_owned_state = {
+				limit = {
+					has_state_flag = USA_congress_build_factory
+				}
+				clr_state_flag = USA_congress_build_factory
+				clear_variable = factory_goal
+			}
+			
+			USA_congress_small_opposition = yes 
+			clr_country_flag = USA_congress_investment
+		}
+		complete_effect = {
+			random_owned_state = {
+				limit = {
+					has_state_flag = USA_congress_build_factory
+				}
+				clr_state_flag = USA_congress_build_factory
+				clear_variable = factory_goal
+			}
+			ROOT = {
+				USA_congress_medium_support = yes 
+				clr_country_flag = USA_congress_investment
+			}
+			
+		}
+	}
+	USA_invest_in_state_arms_factory = {
+		icon = generic_construction
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = USA_congress_invest_in_state_arms_factory_tt
+				any_owned_state = {
+					has_state_flag = USA_congress_build_arms_factory
+					check_variable = { arms_factory_goal = arms_factory_level }
+				}
+			}
+		}
+		highlight_states = {
+			has_state_flag = USA_congress_build_arms_factory
+		}
+		days_mission_timeout = 360
+		is_good = no
+		activation = {
+			any_owned_state = {
+				has_state_flag = USA_congress_build_arms_factory
+			}
+		}
+		timeout_effect = {
+			random_owned_state = {
+				limit = {
+					has_state_flag = USA_congress_build_arms_factory
+				}
+				clr_state_flag = USA_congress_build_arms_factory
+				clear_variable = arms_factory_goal
+			}
+			
+			USA_congress_small_opposition = yes 
+			clr_country_flag = USA_congress_investment
+		}
+		complete_effect = {
+			random_owned_state = {
+				limit = {
+					has_state_flag = USA_congress_build_arms_factory
+				}
+				clr_state_flag = USA_congress_build_arms_factory
+				clear_variable = arms_factory_goal
+			}
+			ROOT = {
+				USA_congress_medium_support = yes 
+				clr_country_flag = USA_congress_investment
+			}
+			
+		}
+	}
+	USA_invest_in_state_dockyard = {
+		icon = generic_construction
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = USA_congress_invest_in_dockyard_tooltip
+				any_owned_state = {
+					has_state_flag = USA_congress_build_dockyard
+					check_variable = { dockyard_goal = building_level@dockyard }
+				}
+			}
+		}
+		highlight_states = {
+			has_state_flag = USA_congress_build_dockyard
+		}
+		days_mission_timeout = 360
+		is_good = no
+		activation = {
+			any_owned_state = {
+				has_state_flag = USA_congress_build_dockyard
+			}
+		}
+		timeout_effect = {
+			random_owned_state = {
+				limit = {
+					has_state_flag = USA_congress_build_dockyard
+				}
+				clr_state_flag = USA_congress_build_dockyard
+				clear_variable = dockyard_goal
+			}
+			USA_congress_small_opposition = yes 
+			clr_country_flag = USA_congress_investment
+		}
+		complete_effect = {
+			random_owned_state = {
+				limit = {
+					has_state_flag = USA_congress_build_dockyard
+				}
+				clr_state_flag = USA_congress_build_dockyard
+				clear_variable = dockyard_goal
+			}
+			ROOT = {
+				USA_congress_medium_support = yes 
+				clr_country_flag = USA_congress_investment
+			}
+		}
+	}
+	USA_invest_in_state_infrastructure = {
+		icon = generic_construction
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = USA_congress_invest_in_state_infrastructure_tt
+				any_owned_state = {
+					has_state_flag = USA_congress_build_infrastructure
+					check_variable = { infrastructure_goal = infrastructure_level }
+				}
+			}
+		}
+		highlight_states = {
+			has_state_flag = USA_congress_build_infrastructure
+		}
+		days_mission_timeout = 360
+		is_good = no
+		activation = {
+			any_owned_state = {
+				has_state_flag = USA_congress_build_infrastructure
+			}
+		}
+		timeout_effect = {
+			random_owned_state = {
+				limit = {
+					has_state_flag = USA_congress_build_infrastructure
+				}
+				clr_state_flag = USA_congress_build_infrastructure
+				clear_variable = infrastructure_goal
+			}
+			
+			USA_congress_small_opposition = yes 
+			clr_country_flag = USA_congress_investment
+		}
+		complete_effect = {
+			random_owned_state = {
+				limit = {
+					has_state_flag = USA_congress_build_infrastructure
+				}
+				clr_state_flag = USA_congress_build_infrastructure
+				clear_variable = infrastructure_goal
+			}
+			ROOT = {
+				USA_congress_medium_support = yes 
+				clr_country_flag = USA_congress_investment
+			}
+			
+		}
+	}
+	### STATES
 	USA_statehood_for_new_mexico = {
 		icon = infiltrate_state
 		available = {
