@@ -84,8 +84,8 @@ NDiplomacy = {
 	TENSION_VOLUNTEER_FORCE_DIVISION = 0.2,			-- Amount of tension generated for each sent division
 	TENSION_DECAY = 0.1,							-- Each months tension decays this much
 	TENSION_SIZE_FACTOR = 1.0,						-- All action tension values are multiplied by this value
-	TENSION_TIME_SCALE_START_DATE = "1910.5.1.12",	-- Starting at this date, the tension values will be scaled down (will be equal to 1 before that) TGW
-	TENSION_TIME_SCALE_MONTHLY_FACTOR = -0.005,		-- Timed tension scale will be modified by this amount starting with TENSION_TIME_SCALE_START_DATE
+	TENSION_TIME_SCALE_START_DATE = "1910.5.1.12",	-- Starting at this date, the tension values will be scaled down (will be equal to 1 before that)
+	TENSION_TIME_SCALE_MONTHLY_FACTOR = -0.005,		-- Timed tension scale will be modified by this amount starting with TENSION_TIME_SCALE_START_DATE #TGWR
 	TENSION_TIME_SCALE_MIN = 0.25,					-- Timed tension scale won't decrease under this value
 	TENSION_GUARANTEE = -5,
 	TENSION_FACTION_JOIN = 4,
@@ -2919,8 +2919,10 @@ NIntel = {
 	ARMY_INTEL_COMBAT_BONUS_MIN_INTEL_FOR_BONUS = 5, -- min intel needed to start applying ARMY_INTEL_COMBAT_BONUS_MAX_BONUS
 	ARMY_INTEL_COMBAT_BONUS_MAX_INTEL_FOR_BONUS = 50, -- intel needed to fully apply ARMY_INTEL_COMBAT_BONUS_MAX_BONUS
 
-	NAVAL_SUPREMACY_INTEL_LOW = 0.3,								-- we need more intel than this to get any supremacy
-
+	NAVAL_SUPREMACY_INTEL_LOW = 0.4,								-- we need more intel than this to get any supremacy
+	NAVAL_SUPREMACY_INTEL_LOW_SUPREMACY_PENALTY_START = 0.1,		-- supremacy is reduced to NAVAL_SUPREMACY_INTEL_LOW_SUPREMACY_MIN_PENALTY at or below this intel
+	NAVAL_SUPREMACY_INTEL_LOW_SUPREMACY_MIN_PENALTY = 0.5, -- you get this much supremacy at NAVAL_SUPREMACY_INTEL_LOW_SUPREMACY_PENALTY_START and scales up to 1 at NAVAL_SUPREMACY_INTEL_LOW
+	
 	NAVY_FLEET_COUNT_INTEL_MIN = 0.1,
 	NAVY_FLEET_COUNT_INTEL_MAX = 0.3,
 	NAVY_FLEET_COUNT_INTEL_RANGE_AT_LOWEST_INTEL = 0.5,
