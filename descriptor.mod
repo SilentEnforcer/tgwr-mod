@@ -13,5 +13,5 @@ tags={
 }
 name="Hearts of Iron IV: The Great War Redux [Beta]"
 version="0.6"
-supported_version="1.10"
+supported_version="1.10.1"
 remote_file_id="1946557392"
