@@ -347,6 +347,7 @@ political_actions = {
 			has_completed_focus = RUS_convene_iv_state_duma
 			NOT = { has_government = communism }
 		}
+		icon = generic_arrest
 		days_re_enable = 90
 		remove_effect = {
 			add_stability = -0.03
@@ -388,6 +389,7 @@ political_actions = {
 			has_completed_focus = RUS_convene_iv_state_duma
 			NOT = { has_government = democratic }
 		}
+		icon = generic_nationalism
 		days_re_enable = 90
 		days_remove = 30
 		available = {
@@ -438,6 +440,33 @@ political_actions = {
 			}
 		}
 	}
+	RUS_battalion_of_death = {
+		icon = generic_prepare_civil_war
+		allowed = {
+			original_tag = RUS
+		}
+		available = {
+			has_war = yes
+			OR = {
+				has_country_leader = {
+					name = "Alexander Kerensky"
+					ruling_only = yes
+				}
+				surrender_progress > 0.15
+			}
+		}
+		cost = 25
+		ai_will_do = {
+			factor = 50
+		}
+		visible = {
+			has_war = yes			
+		}
+		fire_only_once = yes
+		complete_effect = {
+			country_event = { id = ww1_russia.55 }
+		}
+	}
 }
 propaganda_efforts = {
 	RUS_rename_constantinople = {
@@ -461,7 +490,6 @@ propaganda_efforts = {
 		}
 		fire_only_once = yes
 		complete_effect = {
-			add_state_core = 341
 			set_province_name = { id = 9833 name = TSARGRAD_PROV }
 		}
 	}
@@ -484,37 +512,8 @@ propaganda_efforts = {
 			add_war_support = 0.02
 		}
 	}
-	RUS_battalion_of_death = {
-		icon = generic_prepare_civil_war
-		allowed = {
-			original_tag = RUS
-		}
-		available = {
-			has_war = yes
-			OR = {
-				has_country_leader = {
-					name = "Alexander Kerensky"
-					ruling_only = yes
-				}
-				surrender_progress > 0.15
-			}
-		}
-		cost = 25
-		ai_will_do = {
-			factor = 50
-		}
-		visible = {
-			has_war = yes
-			NOT = { has_global_flag = russian_revolution }			
-		}
-		fire_only_once = yes
-		complete_effect = {
-			country_event = { id = ww1_russia.55 }
-			add_war_support = 0.05
-		}
-	}
 }
-RUS_tsar_decision = {
+economy_decisions = {
 	RUS_urgent_strengthening_of_airfleet = {
 		allowed = {
 			original_tag = RUS
@@ -572,10 +571,12 @@ RUS_tsar_decision = {
 		#days_mission_timeout = 500  
 		is_good = yes
 	}
+}
+RUS_tsar_decision = {
+	### 1917 ###
 	RUS_mission_tsar_abdication = {
-		icon = generic_nationalism
+		icon = eng_support_imperialist_coup
 		available = {
-			has_war = no
 			OR = {
 				NOT = { 
 					has_country_leader = {
@@ -586,8 +587,7 @@ RUS_tsar_decision = {
 				has_completed_focus = RUS_force_tsar_abdtication
 				has_completed_focus = RUS_resist_the_duma
 				has_completed_focus = RUS_Soviet_Russia
-				has_global_flag = october_revolution
-				has_government = communism
+				has_completed_focus = RUS_provisional_committee
 			}
 		}
 		days_mission_timeout = 30
@@ -596,89 +596,172 @@ RUS_tsar_decision = {
 			has_country_leader = {
 				name = "Nicholas II"
 				ruling_only = yes
-			}
-			NOT = { has_completed_focus = RUS_resist_the_duma }
+			}		
 			OR = {
 				has_idea = RUS_threat_of_revolution
 				has_idea = RUS_threat_of_revolution2
 				has_idea = RUS_threat_of_revolution3
 			}
-			communism > 0.35
-			has_stability < 0.35
+			has_stability < 0.25
+			OR = {
+				AND = {
+					has_war = no
+					custom_trigger_tooltip = {
+						tooltip = RUS_constitution_support
+						set_temp_variable = { RUS_constitution_support = party_popularity@democratic }
+						add_to_temp_variable = { RUS_constitution_support = party_popularity@neutrality }
+						check_variable = { RUS_constitution_support < 0.5 }
+					}
+				}
+				AND = {
+					has_war = yes
+					OR = {
+						has_war_support < 0.35
+						surrender_progress > 0.1
+					}
+				}
+			}
 			SOV = { exists = no }
+			hidden_trigger = {
+				NOT = { has_completed_focus = RUS_force_tsar_abdtication }
+				NOT = { has_completed_focus = RUS_resist_the_duma }
+				NOT = { has_completed_focus = RUS_Soviet_Russia }
+				NOT = { has_completed_focus = RUS_provisional_committee }
+			}
 			NOT = { has_global_flag = nicholas_ii_abdication }
-			NOT = { has_government = communism }
+			NOT = { has_global_flag = russian_revolution }
 		}
 		allowed = {
 			original_tag = RUS
 		}		
 		visible = {
-			has_war = yes
-			has_country_leader = {
-				name = "Nicholas II"
-				ruling_only = yes
-			}
+			has_stability < 0.25
 			OR = {
-				has_idea = RUS_threat_of_revolution
-				has_idea = RUS_threat_of_revolution2
-				has_idea = RUS_threat_of_revolution3
+				AND = {
+					has_war = no
+					custom_trigger_tooltip = {
+						tooltip = RUS_constitution_support
+						set_temp_variable = { RUS_constitution_support = party_popularity@democratic }
+						add_to_temp_variable = { RUS_constitution_support = party_popularity@neutrality }
+						check_variable = { RUS_constitution_support < 0.5 }
+					}
+				}
+				AND = {
+					has_war = yes
+					OR = {
+						has_war_support < 0.35
+						surrender_progress > 0.1
+					}
+				}
 			}
-			NOT = { has_completed_focus = RUS_resist_the_duma }
-			SOV = { exists = no }
-			NOT = { has_global_flag = nicholas_ii_abdication }
-			NOT = { has_government = communism }
 		}
-		fire_only_once = no
+		cancel_if_not_visible = yes
+		fire_only_once = yes
 		is_good = no
 		timeout_effect = {
 			set_global_flag = russian_revolution
-			country_event = { id = rusrevolt.2 }
-		}		
+			if = {
+				limit = { has_war = yes }
+				country_event = { id = rusrevolt.2 }
+			}
+			if = {
+				limit = { has_war = no }
+				country_event = { id = rusrevolt.20 }
+			}
+		}	
 	}
-	RUS_mission_tsar_abdication_dummy = {
-		icon = generic_nationalism
-		allowed = {
-			original_tag = RUS
-		}
+	RUS_abdicate_in_favor_of_brother = {
+		icon = eng_support_imperialist_coup
+		allowed = { original_tag = RUS }	
+		fire_only_once = yes		
 		visible = {
-			NOT = { has_active_mission = RUS_mission_tsar_abdication }
-			has_country_leader = {
-				name = "Nicholas II"
-				ruling_only = yes
-			}
-			OR = {
-				has_idea = RUS_threat_of_revolution
-				has_idea = RUS_threat_of_revolution2
-				has_idea = RUS_threat_of_revolution3
-			}
-			NOT = { has_completed_focus = RUS_resist_the_duma }
-			NOT = { has_global_flag = nicholas_ii_abdication }
 			NOT = { has_global_flag = russian_revolution }
-			SOV = { exists = no }
-			NOT = { has_government = communism }	
-		}		
-		available = {
-			tag = RUS
 			has_country_leader = {
 				name = "Nicholas II"
 				ruling_only = yes
 			}
-			has_idea = RUS_threat_of_revolution
-			NOT = { has_completed_focus = RUS_resist_the_duma }
-			communism > 0.35
-			has_stability < 0.35
-			NOT = { has_global_flag = nicholas_ii_abdication }
-			SOV = { exists = no }
-			NOT = { has_government = communism }
+			has_war = yes
+			has_government = neutrality
+			has_active_mission = RUS_mission_tsar_abdication
 		}
-		remove_effect = {
-			country_event = { id = rusrevolt.2 }
+		available = {
+			has_active_mission = RUS_mission_tsar_abdication
+			has_country_leader = {
+				name = "Nicholas II"
+				ruling_only = yes
+			}
 		}
-		fire_only_once = no
-		days_remove = 30
-		is_good = no
+
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				is_historical_focus_on = yes
+				factor = 0
+			}
+			modifier = {
+				is_historical_focus_on = no
+				OR = {
+					has_stability < 0.5
+					has_war_support < 0.5
+				}
+				factor = 0
+			}
+		}
+
+		complete_effect = {
+			#country_event = ww1_russia.85
+			custom_effect_tooltip = tsar_mikhail_tt
+			set_global_flag = tsar_mikhail
+		}	
 	}
-	
+	RUS_suppress_the_rebellious_garrisons = {
+		icon = generic_ignite_civil_war
+		allowed = { original_tag = RUS }	
+		
+		visible = {
+			NOT = { has_global_flag = russian_revolution }
+			has_country_leader = {
+				name = "Nicholas II"
+				ruling_only = yes
+			}
+			has_war = yes
+			has_government = neutrality
+			has_active_mission = RUS_mission_tsar_abdication
+		}
+		available = {
+			has_active_mission = RUS_mission_tsar_abdication
+			has_country_leader = {
+				name = "Nicholas II"
+				ruling_only = yes
+			}
+		}
+		
+		fire_only_once = no
+		days_re_enable = 10
+		cost = 35
+
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				is_historical_focus_on = yes
+				factor = 0
+			}
+			modifier = {
+				is_historical_focus_on = no
+				has_political_power < 75
+				factor = 0
+			}
+		}
+
+		complete_effect = {
+			add_war_support = -0.02
+			add_days_mission_timeout = {
+				mission = RUS_mission_tsar_abdication
+				days = 25
+			}
+		}	
+	}
+	###
 	RUS_resist_the_duma = {
 		icon = generic_nationalism
 		available = {
@@ -1144,23 +1227,230 @@ RUS_civil_war = {
 		available = {
 			has_war_with = SOV
 		}
-		cost = 75
+		cost = 10
 		
-		days_remove = 90
-		days_re_enable = 10
+		days_remove = 30
+		days_re_enable = 60
 		remove_effect = {
-			add_war_support = 0.05
-			SOV = { add_war_support = -0.05 }
+			add_war_support = 0.02
+			SOV = { add_war_support = -0.02 }
+		}
+		ai_will_do = {
+			factor = 10
+			modifier = {
+				factor = 0
+				OR = {
+					SOV = { has_war_support < 0.35 }
+					has_war_support > 0.75
+				}
+			}
+		}
+	}
+	RUS_form_volunteer_south_army = {
+		icon = generic_prepare_civil_war
+		allowed = {
+			tag = RUS
+		}
+		visible = {
+			original_tag = RUS
+			has_war_with = SOV
+			DKB = { is_in_faction_with = RUS }
+		}
+		available = {
+			has_war_with = SOV
+			has_manpower > 50000
+		}
+		cost = 25
+		
+		days_remove = 25
+		fire_only_once = yes
+		complete_effect = {
+			add_manpower = -50000
+		}
+		remove_effect = {
+			random_state = {
+				limit = { 
+					is_controlled_by = RUS
+					region = 137
+				}
+				create_unit = {
+					division = "division_template = \"White Guard Corps\"	start_experience_factor = 0.6	start_equipment_factor = 1"
+					owner = RUS
+					allow_spawning_on_enemy_provs = no
+					count = 4
+					country_score = {
+						base = 100
+					}
+				}
+				create_unit = {
+					division = "division_template = \"White Guard Cavalry\"	start_experience_factor = 0.6	start_equipment_factor = 1"
+					owner = RUS
+					allow_spawning_on_enemy_provs = no
+					count = 4
+					country_score = {
+						base = 100
+					}
+				}
+			}
 		}
 		ai_will_do = {
 			factor = 10
 		}
 	}
-	#Экзекуция революционеров (убавляет стабильность у Советской России.)
-	#Контрреволюционная агитация (повышает нейтралитет в Советской России до тех пор, пока там не поднимется контрреволюционное восстание. Если нейтралы победят, они объявят перемирие, если Белогвардейцы согласятся. Запрещается, если Кронштадтское восстание провалилось.)
-	#Поддержать Зеленоармейцев (чтобы повысить эффективность партизан и снизить скорость ремонта у Советов.)
+	RUS_form_army_of_komuch = {
+		icon = generic_prepare_civil_war
+		allowed = {
+			tag = RUS
+		}
+		visible = {
+			original_tag = RUS
+			has_war_with = SOV
+		}
+		available = {
+			has_war_with = SOV
+			has_manpower > 50000
+		}
+		cost = 25
+		
+		days_remove = 25
+		fire_only_once = yes
+		complete_effect = {
+			add_manpower = -50000
+		}
+		remove_effect = {
+			random_state = {
+				limit = { 
+					is_controlled_by = RUS
+					region = 40
+				}
+				create_unit = {
+					division = "division_template = \"White Guard Corps\"	start_experience_factor = 0.6	start_equipment_factor = 1"
+					owner = RUS
+					allow_spawning_on_enemy_provs = no
+					count = 6
+					country_score = {
+						base = 100
+					}
+				}
+				create_unit = {
+					division = "division_template = \"White Guard Cavalry\"	start_experience_factor = 0.6	start_equipment_factor = 1"
+					owner = RUS
+					allow_spawning_on_enemy_provs = no
+					count = 2
+					country_score = {
+						base = 100
+					}
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 10
+		}
+	}
+	RUS_form_siberian_army = {
+		icon = generic_prepare_civil_war
+		allowed = {
+			tag = RUS
+		}
+		visible = {
+			original_tag = RUS
+			has_war_with = SOV
+		}
+		available = {
+			has_war_with = SOV
+			has_manpower > 50000
+		}
+		cost = 25
+		
+		days_remove = 25
+		fire_only_once = yes
+		complete_effect = {
+			add_manpower = -50000
+		}
+		remove_effect = {
+			set_country_flag = RUS_siberian_army_formed
+			random_state = {
+				limit = { 
+					is_controlled_by = RUS
+					region = 14
+				}
+				create_unit = {
+					division = "division_template = \"White Guard Corps\"	start_experience_factor = 0.6	start_equipment_factor = 1"
+					owner = RUS
+					allow_spawning_on_enemy_provs = no
+					count = 7
+					country_score = {
+						base = 100
+					}
+				}
+				create_unit = {
+					division = "division_template = \"White Guard Cavalry\"	start_experience_factor = 0.6	start_equipment_factor = 1"
+					owner = RUS
+					allow_spawning_on_enemy_provs = no
+					count = 1
+					country_score = {
+						base = 100
+					}
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 10
+		}
+	}
+	RUS_form_far_eastern_army = {
+		icon = generic_prepare_civil_war
+		allowed = {
+			tag = RUS
+		}
+		visible = {
+			original_tag = RUS
+			has_war_with = SOV
+			has_country_flag = RUS_siberian_army_formed
+		}
+		available = {
+			has_war_with = SOV
+			has_manpower > 50000			
+		}
+		cost = 25
+		
+		days_remove = 25
+		fire_only_once = yes
+		complete_effect = {
+			add_manpower = -50000
+		}
+		remove_effect = {
+			random_state = {
+				limit = { 
+					is_controlled_by = RUS
+					region = 148
+				}
+				create_unit = {
+					division = "division_template = \"White Guard Corps\"	start_experience_factor = 0.6	start_equipment_factor = 1"
+					owner = RUS
+					allow_spawning_on_enemy_provs = no
+					count = 7
+					country_score = {
+						base = 100
+					}
+				}
+				create_unit = {
+					division = "division_template = \"White Guard Cavalry\"	start_experience_factor = 0.6	start_equipment_factor = 1"
+					owner = RUS
+					allow_spawning_on_enemy_provs = no
+					count = 1
+					country_score = {
+						base = 100
+					}
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 10
+		}
+	}
 	RUS_revolt_of_czechoslovak_legion = {
-		icon = generic_ignite_civil_war	
+		icon = generic_prepare_civil_war
 		allowed = {
 			tag = RUS
 		}
@@ -1187,18 +1477,13 @@ RUS_civil_war = {
 			state = 583
 		}
 		ai_will_do = {
-			factor = 0
+			factor = 100
 			modifier = {
-				factor = 100
-				surrender_progress > 0.1
+				factor = 0
+				surrender_progress > 0.25
 			}
 		}
 	}
-	#Кубанский поход (Повышает устойчивость к погоде у Белой армии и их союзников. Действует, если Дон и Кубань еще целы, а Белая Россия имеет 30% капитуляции. Если слишком часто использовать, 3-4 раза, то Корнилов умрет.)
-	#Помощь Антанты (Нужно иметь хорошие отношения с Британией, США, Францией или Японией, если они союзники. Дает снаряжение, винтовки, танки, самолеты.)
-	#Помощь Центральных Держав (Должны быть хорошие отношения с Германией, если она в Центральных Державах.)
-	#Помочь интервентам (если Антанта в состоянии войны с Советами, то с ними можно согласовывать операции и повысить их эффективность в борьбе с Советами.)
-	#Вывести интервентов (Событие, которое останавливает интервенцию по желанию Белой России.)
 }
 RUS_reunite_white_generals = {
 	RUS_annex_siberia = {

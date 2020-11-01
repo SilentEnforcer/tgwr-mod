@@ -57,7 +57,16 @@ country_event = {
 country_event = {
 	id = rusrevolt.2
 	title = rusrevolt.2.t
-	desc = rusrevolt.2.d
+	desc = {
+		text = rusrevolt.2.d_mikhail
+		trigger = { has_global_flag = tsar_mikhail }
+	}
+	desc = {
+		text = rusrevolt.2.d
+		trigger = {
+			NOT = { has_global_flag = tsar_mikhail }
+		}
+	}
 	picture = rusrevolt_2
 
 	fire_only_once = yes
@@ -65,24 +74,50 @@ country_event = {
 
 	option = {
 		name = rusrevolt.2.a
-		
-		set_global_flag = nicholas_ii_abdication
-		set_country_flag = dual_power
 		if = {
-			limit = {
-				NOT = {
-					has_country_leader = {
-						name = "Alexander Kerensky"
-						ruling_only = yes
-					}
+			limit = { has_global_flag = tsar_mikhail }
+			create_country_leader = {
+			    name = "Mikhail II"
+			    picture = "gfx/leaders/RUS/RUS_mikhail_romanov.dds"			
+			    expire = "1935.1.1"
+			    ideology = autocracy
+			}
+		}
+		if = {
+			limit = { NOT = { has_global_flag = tsar_mikhail } }
+			set_global_flag = nicholas_ii_abdication
+			set_country_flag = dual_power
+			add_ideas = RUS_idea_dual_power
+			set_politics = {
+				ruling_party = democratic 
+				last_election = "1912.9.1"
+				election_frequency = 60 
+				elections_allowed = no
+			}
+			hidden_effect = {
+				set_popularities = {
+					democratic = 52
+					neutrality = 0
+					fascism = 10
+					communism = 38
 				}
 			}
-			create_country_leader = {
-				name = "The Provisional Goverment"
-				picture = "gfx/leaders/RUS/RUS_provisional_goverment.tga"
-				expire = "1935.1.1"
-				ideology = socialism
-				traits = { }
+			if = {
+				limit = {
+					NOT = {
+						has_country_leader = {
+							name = "Alexander Kerensky"
+							ruling_only = yes
+						}
+					}
+				}
+				create_country_leader = {
+					name = "The Provisional Goverment"
+					picture = "gfx/leaders/RUS/RUS_provisional_goverment.tga"
+					expire = "1935.1.1"
+					ideology = socialism
+					traits = { }
+				}
 			}
 		}
 		set_party_name = {
@@ -90,22 +125,7 @@ country_event = {
 			long_name = RUS_democratic_party_SR_long
 			name = RUS_democratic_party_SR
 		}		
-		add_ideas = RUS_idea_dual_power
 		
-		set_politics = {
-			ruling_party = democratic 
-			last_election = "1912.9.1"
-			election_frequency = 60 
-			elections_allowed = no
-		}
-		hidden_effect = {
-			set_popularities = {
-				democratic = 52
-				neutrality = 0
-				fascism = 10
-				communism = 38
-			}
-		}
 		if = {
 			limit = { 
 				has_idea = RUS_threat_of_revolution2
@@ -322,9 +342,10 @@ country_event = {
 		hidden_effect = {
 			set_global_flag = october_revolution
 			set_global_flag = russian_civil_war
-			ENG = {
-				remove_from_faction = RUS
-			}			
+			if = {
+				limit = { FRA = { is_faction_leader = yes } RUS = { is_in_faction_with = FRA } }
+				FRA = { remove_from_faction = RUS }
+			}
 			SOV = {
 				add_named_threat = { threat = 10 name = rusrevolt.6.t }
 				create_faction = "red_movement"			
@@ -341,7 +362,6 @@ country_event = {
 				transfer_state = 247
 				transfer_state = 219
 				transfer_state = 242
-				transfer_state = 243
 				transfer_state = 205
 				declare_war_on = { target = RUS type = civil_war }
 				every_state = {
@@ -354,19 +374,6 @@ country_event = {
 				}
 				remove_ideas = neutrality_idea
 				remove_ideas = internationalism
-				hidden_effect = {
-					add_equipment_to_stockpile = {
-						type = infantry_equipment
-						amount = 10000
-						producer = RUS
-					}
-					add_equipment_to_stockpile = {
-						type = artillery_equipment
-						amount = 5000
-						producer = RUS
-					}
-					add_manpower = 150000
-				}
 				country_event = { days = 10 id = rusrevolt.9 }
 				load_oob = "SOV_1917"
 				if = {
@@ -395,12 +402,90 @@ country_event = {
 					air_ratio = 0.20
 					keep_unit_leaders_trigger = { NOT = { has_id = 76187 } } #Brusilov
 				}
+				delete_unit = {
+					disband = yes
+				}
+				load_oob = "RUS_civil_war"
+				random_owned_state = {
+					limit = { is_controlled_by = RUS NOT = { has_state_flag = white_guard_state } }
+					create_unit = {
+						division = "division_template = \"White Guard Corps\"	start_experience_factor = 0.4	start_equipment_factor = 1"
+						owner = RUS
+						allow_spawning_on_enemy_provs = no
+						count = 6
+						country_score = {
+							base = 100
+						}
+					}
+					set_state_flag = white_guard_state
+				}
+				random_owned_state = {
+					limit = { is_controlled_by = RUS NOT = { has_state_flag = white_guard_state } }
+					set_state_flag = white_guard_state
+					create_unit = {
+						division = "division_template = \"White Guard Corps\"	start_experience_factor = 0.4	start_equipment_factor = 1"
+						owner = RUS
+						allow_spawning_on_enemy_provs = no
+						count = 6
+						country_score = {
+							base = 100
+						}
+					}
+				}
+				random_owned_state = {
+					limit = { is_controlled_by = RUS NOT = { has_state_flag = white_guard_state } }
+					set_state_flag = white_guard_state
+					create_unit = {
+						division = "division_template = \"White Guard Corps\"	start_experience_factor = 0.4	start_equipment_factor = 1"
+						owner = RUS
+						allow_spawning_on_enemy_provs = no
+						count = 6
+						country_score = {
+							base = 100
+						}
+					}
+				}
+				random_owned_state = {
+					limit = { is_controlled_by = RUS NOT = { has_state_flag = white_guard_state } }
+					set_state_flag = white_guard_state
+					create_unit = {
+						division = "division_template = \"White Guard Corps\"	start_experience_factor = 0.4	start_equipment_factor = 1"
+						owner = RUS
+						allow_spawning_on_enemy_provs = no
+						count = 6
+						country_score = {
+							base = 100
+						}
+					}
+				}
+				random_owned_state = {
+					limit = { is_controlled_by = RUS NOT = { has_state_flag = white_guard_state } }
+					set_state_flag = white_guard_state
+					create_unit = {
+						division = "division_template = \"White Guard Corps\"	start_experience_factor = 0.4	start_equipment_factor = 1"
+						owner = RUS
+						allow_spawning_on_enemy_provs = no
+						count = 6
+						country_score = {
+							base = 100
+						}
+					}
+				}
+				random_owned_state = {
+					limit = { is_controlled_by = RUS NOT = { has_state_flag = white_guard_state } }
+					set_state_flag = white_guard_state
+					create_unit = {
+						division = "division_template = \"White Guard Corps\"	start_experience_factor = 0.4	start_equipment_factor = 1"
+						owner = RUS
+						allow_spawning_on_enemy_provs = no
+						count = 6
+						country_score = {
+							base = 100
+						}
+					}
+				}
 				remove_ideas = RUS_threat_of_revolution3
 				remove_ideas = RUS_idea_dual_power
-				add_timed_idea = {
-					idea = RUS_idea_army_collapse
-					days = 270
-				}
 				set_country_flag = petrograd_uprising
 				add_stability = -0.10
 				if = {
@@ -849,4 +934,167 @@ news_event = {
 		name = rusrevolt.19.c
 		trigger = { original_tag = RUS }
 	}
+}
+# SOCIAL-REVOLUTIONARIES UPRISING
+###################
+country_event = {
+	id = rusrevolt.20
+	title = rusrevolt.20.t
+	desc = rusrevolt.20.d
+	picture = GFX_report_event_soldiers_in_france
+
+	fire_only_once = yes
+	is_triggered_only = yes
+
+	
+	option = {
+		name = rusrevolt.20.a
+		trigger = { NOT = { has_completed_focus = RUS_revolutionaries_in_duma } }
+		every_controlled_state = {
+			limit = {
+				OR = {
+					region = 130
+					region = 133
+					region = 131
+					region = 137
+				}
+			}
+			set_state_flag = russian_socialist_state
+		}
+		start_civil_war = {
+			ruling_party = neutrality
+			ideology = democratic
+			size = 0.35
+			states = all
+			states_filter = {
+				has_state_flag = russian_socialist_state
+			}
+		}
+		hidden_effect = {
+			remove_ideas = RUS_threat_of_revolution3
+			remove_ideas = RUS_threat_of_revolution2
+			remove_ideas = RUS_threat_of_revolution
+			random_other_country = {
+				limit = {
+					original_tag = RUS
+					has_government = democratic
+				}
+				set_cosmetic_tag = RUS_REP
+				add_popularity = {
+					ideology = neutrality
+					popularity = 0.15
+				}
+				add_popularity = {
+					ideology = communism
+					popularity = 0.41
+				}
+				create_country_leader = {
+					name = "Alexander Kerensky"
+					picture = "gfx/leaders/RUS/RUS_alexander_kerensky.dds"
+					expire = "1935.1.1"
+					ideology = socialism
+					traits = { }
+				}
+				set_party_name = { 
+					ideology = democratic 
+					long_name = RUS_democratic_party_SR_long
+					name = RUS_democratic_party_SR
+				}
+			}
+			add_popularity = {
+				ideology = communism
+				popularity = -1
+			}
+			add_popularity = {
+				ideology = fascism
+				popularity = 0.15
+			}
+			add_popularity = {
+				ideology = neutrality
+				popularity = 0.15
+			}
+		}
+		ai_chance = { factor = 10 }
+	}
+	option = {
+		name = rusrevolt.20.b #republic	
+		trigger = { NOT = { has_completed_focus = RUS_centrist_duma } }	
+		set_global_flag = nicholas_ii_abdication
+		create_country_leader = {
+			name = "Alexander Kerensky"
+			picture="gfx/leaders/RUS/RUS_alexander_kerensky.dds"
+			expire = "1935.1.1"
+			ideology = socialism
+			traits = { }
+		}
+		set_party_name = {
+			ideology = democratic
+			long_name = RUS_democratic_party_SR_long
+			name = RUS_democratic_party_SR
+		}		
+		set_politics = {
+			ruling_party = democratic 
+			last_election = "1912.9.1"
+			election_frequency = 60 
+			elections_allowed = no
+		}
+		every_controlled_state = {
+			limit = {
+				OR = {
+					region = 136
+					region = 151
+					region = 149
+					region = 148
+					region = 147
+					region = 14
+				}
+			}
+			set_state_flag = russian_monarchist_state
+		}
+		start_civil_war = {
+			ruling_party = democratic
+			ideology = neutrality
+			size = 0.15
+			states = all
+			states_filter = {
+				has_state_flag = russian_monarchist_state
+			}
+		}
+		hidden_effect = {			
+			remove_ideas = RUS_threat_of_revolution3
+			remove_ideas = RUS_threat_of_revolution2
+			remove_ideas = RUS_threat_of_revolution
+			set_stability = 0.85
+			set_war_support = 0.75
+			random_other_country = {
+				limit = {
+					original_tag = RUS
+					has_government = neutrality
+				}
+				set_cosmetic_tag = RUS_REP
+				create_country_leader = {
+					name = "Nicholas II"
+					picture="gfx/leaders/RUS/RUS_nicholas_romanov.dds"
+					expire = "1935.1.1"
+					ideology = autocracy
+					traits = { }
+				}
+				add_popularity = {
+					ideology = democratic
+					popularity = 0.15
+				}
+				add_popularity = {
+					ideology = fascism
+					popularity = 0.36
+				}
+			}
+			set_popularities = {
+				democratic = 52
+				neutrality = 0
+				fascism = 10
+				communism = 38
+			}
+		}	
+		ai_chance = { factor = 10 }
+	}	
 }
