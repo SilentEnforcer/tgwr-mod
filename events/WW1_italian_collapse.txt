@@ -6,6 +6,7 @@ country_event = {
 	title = garibaldi.1.t
 	desc = garibaldi.1.d
 	fire_only_once = yes
+	picture = GFX_report_event_royal_parade
 	mean_time_to_happen = {
 		days = 14
 	}
@@ -21,7 +22,7 @@ country_event = {
 		name = garibaldi.1.a
 		retire_ideology_leader = neutrality
 		create_country_leader = { 
-			name = "Prince Umberto"
+			name = "Umberto II"
 			#picture = "gfx/leaders/ITA/ITA_prince_umberto.dds"
 			expire="1935.1.1" 
 			ideology = autocracy
@@ -30,7 +31,8 @@ country_event = {
 		hidden_effect = {
 			remove_ideas = victor_emmanuel
 			news_event = { id = garibaldi.2 hours = 1 }
-			country_event = { id = garibaldi.4 days = 15}
+			country_event = { id = garibaldi.3 days = 6}
+			country_event = { id = garibaldi.5 days = 19}
 		}
 	}
 }
@@ -39,86 +41,232 @@ news_event = {
 	id = garibaldi.2
 	title = garibaldi.2.t
 	desc = garibaldi.2.d
-	picture = GFX_news_event_saf_civil_war
+	picture = GFX_news_event_royal_visit
 	major = yes
 	is_triggered_only = yes
 	option = {
 		name = garibaldi.2.a
 	}
 }
-#Southern Monarchists declare restoration of the monarchy
+#Socialist riots in North Italy
 country_event = {
 	id = garibaldi.3
 	title = garibaldi.3.t
 	desc = garibaldi.3.d
+	picture = GFX_report_event_generic_riot
 	is_triggered_only = yes
 	fire_only_once = yes
 	immediate = {
 		hidden_effect = {
-			115 = {
+			every_state = {
+				limit = {
+					OR = {
+						state = 158
+						state = 159
+						state = 161
+						state = 162
+						state = 834
+					}
+					is_owned_by = ITA
+					is_controlled_by = ITA
+	            }
 				set_demilitarized_zone = yes
-			}
-			117 = {
-				set_demilitarized_zone = yes
-			}
-			156 = {
-				set_demilitarized_zone = yes
-			}
-			157 = {
-				set_demilitarized_zone = yes
-			}
+	        }
+
+			add_popularity = { ideology = communism popularity = 0.2 }
 		}
 	}
 	option = {
 		name = garibaldi.3.a
 		add_stability = -0.1
-		hidden_effect = {
-			country_event = { id = garibaldi.6 days = 7 }
-		}
 	}
 }
-#Socialists declare Italian Commune
+#Republican Split
 country_event = {
 	id = garibaldi.4
 	title = garibaldi.4.t
 	desc = garibaldi.4.d
 	is_triggered_only = yes
 	fire_only_once = yes
+	picture = GFX_report_event_spain_civil_war_volunteers_02
 	immediate = {
 		hidden_effect = {
-			2 = {
-				set_demilitarized_zone = yes
+			create_dynamic_country = {
+				original_tag = ITA
+				save_event_target_as = italy_socialist
+				every_state = {
+					limit = {
+						is_core_of = ROOT
+					}
+					add_state_claim = PREV
+				}
+				set_capital = 161
+				set_politics = {
+					ruling_party = communism
+					elections_allowed = no
+				}
+				set_popularities = {
+					democratic = 17
+					neutrality = 0
+					fascism = 4
+					communism = 79
+				}
+				set_country_flag = ITA_socialist_italy_flag
+				set_cosmetic_tag = SRI
+				create_country_leader = { 
+					name = "Giacinto Menotti Serrati"
+					picture = "gfx/leaders/ITA/ITA_giacinto_menotti_serrati.dds" 
+					expire="1935.1.1" 
+					ideology = marxism 
+					traits = { } 
+				}
+				set_party_name = {
+					ideology = democratic
+					long_name = ITA_democratic_reformist_party_long
+					name = ITA_democratic_reformist_party
+				}
 			}
-			158 = {
-				set_demilitarized_zone = yes
+			every_state = {
+				limit = {
+					OR = {
+						state = 158
+						state = 159
+						state = 161
+						state = 162
+						state = 834
+						state = 160
+						state = 39
+					}
+					is_owned_by = ITA
+					is_controlled_by = ITA
+	            }
+				SRI = {
+	                transfer_state = PREV
+					remove_state_claim = PREV
+					add_core_of = PREV
+	            }
+	        }
+			SRI = {
+				leave_faction = yes
+				set_rule = { can_join_factions = no }
+				inherit_technology = ITA		   
 			}
-			159 = {
-				set_demilitarized_zone = yes
-			}
-			161 = {
-				set_demilitarized_zone = yes
-			}
-			162 = {
-				set_demilitarized_zone = yes
-			}
-			834 = {
-				set_demilitarized_zone = yes
-			}
-
-			add_popularity = { ideology = communism popularity = 0.2 }
-		}
+			ITA = {
+				add_popularity = {
+				   ideology = communism
+   				    popularity = -0.5
+				}
+				transfer_units_fraction= {
+					target = SRI
+					size = 0.6
+					stockpile_ratio = 0.7
+					army_ratio = 0.7
+					navy_ratio = 0.4
+					air_ratio = 0.6
+				}
+				declare_war_on = {
+ 		            target = SRI
+		            type = civil_war
+		        }
+				if = {
+					limit = {
+						SRI = {owns_state = 162}
+					}	
+			        set_province_controller = 6973
+					162 = {
+						create_unit = {
+							division = "name = \"Milizia Repubblicana\" division_template = \"Milizia Repubblicana\" start_experience_factor = 0.3" 
+							owner = PREV
+							prioritize_location = 6973
+						}
+					}
+				}	
+				if = {
+					limit = {
+						SRI = {owns_state = 160}
+					}	
+			        set_province_controller = 11584
+					set_province_controller = 3604
+					set_province_controller = 6656
+					160 = {
+						create_unit = {
+							division = "name = \"Milizia Repubblicana\" division_template = \"Milizia Repubblicana\" start_experience_factor = 0.3" 
+							owner = PREV
+							prioritize_location = 11584
+						}
+						create_unit = {
+							division = "name = \"Milizia Repubblicana\" division_template = \"Milizia Repubblicana\" start_experience_factor = 0.3" 
+							owner = PREV
+							prioritize_location = 3604
+						}
+						create_unit = {
+							division = "name = \"Milizia Repubblicana\" division_template = \"Milizia Repubblicana\" start_experience_factor = 0.3" 
+							owner = PREV
+							prioritize_location = 6656
+						}
+					}
+				}
+				if = {
+					limit = {
+						SRI = {owns_state = 159}
+					}
+					159 = {
+						create_unit = {
+							division = "name = \"Milizia Repubblicana\" division_template = \"Milizia Repubblicana\" start_experience_factor = 0.3" 
+							owner = PREV
+							prioritize_location = 11568
+						}
+						create_unit = {
+							division = "name = \"Milizia Repubblicana\" division_template = \"Milizia Repubblicana\" start_experience_factor = 0.3" 
+							owner = PREV
+							prioritize_location = 6661
+						}
+					}
+				}
+				if = {
+					limit = {
+						SRI = {owns_state = 158}
+					}	
+			        set_province_controller = 11721
+					set_province_controller = 770
+					set_province_controller = 9738
+					158 = {
+						create_unit = {
+							division = "name = \"Milizia Repubblicana\" division_template = \"Milizia Repubblicana\" start_experience_factor = 0.3" 
+							owner = PREV
+							prioritize_location = 9738
+						}
+						create_unit = {
+							division = "name = \"Milizia Repubblicana\" division_template = \"Milizia Repubblicana\" start_experience_factor = 0.3" 
+							owner = PREV
+							prioritize_location = 770
+						}
+					}
+				}
+			}	
+			ITS = {
+			    declare_war_on = {
+ 		            target = SRI
+		            type = civil_war
+		        }	
+			}	
+		}		
 	}
 	option = {
 		name = garibaldi.4.a
-		add_stability = -0.05
-		hidden_effect = { country_event = { id = garibaldi.5 days = 3 } }
+	}
+	option = {
+		name = garibaldi.6.b
+		ai_chance = { factor = 0 }
+		SRI = { change_tag_from = ROOT }
 	}
 }
-#Republican uprising
+#Republican coup 
 country_event = {
 	id = garibaldi.5
 	title = garibaldi.5.t
 	desc = garibaldi.5.d
+	picture = GFX_report_event_saf_coup
 	is_triggered_only = yes
 	fire_only_once = yes
 	immediate = {
@@ -127,160 +275,212 @@ country_event = {
 				set_politics = {
 					ruling_party = democratic
 				}
+				set_country_flag = ITA_republican_italy_flag
+				set_cosmetic_tag = ROI
 				add_popularity = { ideology = democratic popularity = 0.35 }
 			}
-		}		
+			set_popularities = {
+				democratic = 38
+				neutrality = 25
+				fascism = 9
+				communism = 28
+			}
+			create_country_leader = { 
+				name = "Francesco Saverio Nitti"
+				picture = "gfx/leaders/ITA/ITA_francesco_saverio_nitti.dds" 
+				expire="1935.1.1" 
+				ideology = socialism
+				traits = { } 
+		    }
+			set_party_name = {
+				ideology = neutrality
+				long_name = ITA_neutrality_monarchist_party_long
+				name = ITA_neutrality_monarchist_party
+			}
+			country_event = { id = garibaldi.6 days = 17 }
+			clr_country_flag = color_democratic_italy
+			every_state = {
+				limit = {
+					OR = {
+						state = 115
+						state = 117
+						state = 156
+						state = 157
+					}
+					is_owned_by = ITA
+					is_controlled_by = ITA
+	            }
+				set_demilitarized_zone = yes
+	        }
+		}
 	}	
 	option = {
 		name = garibaldi.5.a
-		add_stability = -0.01
-		hidden_effect = { country_event = { id = garibaldi.3 days = 2 } }
+		retire_ideology_leader = neutrality
+		set_party_name = {
+			ideology = democratic
+			long_name = ITA_democratic_republican_party_long
+			name = ITA_democratic_republican_party
+		}
+		add_stability = -0.05
+		hidden_effect = { country_event = { id = garibaldi.6 days = 17 } }
 	}
 }
-#Italy fragments
+#Southern Monarchists declare restoration of the monarchy
 country_event = {
 	id = garibaldi.6
 	title = garibaldi.6.t
 	desc = garibaldi.6.d
+	picture = GFX_report_event_ger_civil_war
 	is_triggered_only = yes
 	fire_only_once = yes
 	immediate = {
 		hidden_effect = {
-			ITA = {
+			create_dynamic_country = {
+				original_tag = ITA
+				save_event_target_as = italy_monarchist
+				every_state = {
+					limit = {
+						is_core_of = ROOT
+					}
+					add_state_claim = PREV
+				}
 				set_capital = 161
+				set_politics = {
+					ruling_party = neutrality
+					elections_allowed = no
+				}
+				set_popularities = {
+					democratic = 31
+					neutrality = 59
+					fascism = 6
+					communism = 4
+				}
+				set_party_name = {
+					ideology = democratic
+					long_name = ITA_democratic_ldr_party_long
+					name = ITA_democratic_ldr_party
+				}
+				set_country_flag = ITA_monarchist_italy_flag
+				set_cosmetic_tag = ITS
+				create_country_leader = { 
+					name = "Provisional Government of Naples"
+					expire="1935.1.1" 
+					ideology = oligarchism
+					traits = { } 
+		        }
 			}
-			115 = {
-				set_demilitarized_zone = no
-			}
-			117 = {
-				set_demilitarized_zone = no
-			}
-			156 = {
-				set_demilitarized_zone = no
-			}
-			157 = {
-				set_demilitarized_zone = no
-			}
-
-			SIC = {
-				transfer_state = 114
-				transfer_state = 115
-				transfer_state = 117
-				transfer_state = 156
-				transfer_state = 157
-				transfer_state = 835
-
-				add_state_claim = 735
-				add_state_claim = 836
-
+			every_state = {
+				limit = {
+					OR = {
+						state = 115
+						state = 117
+						state = 156
+						state = 157
+						state = 39
+					}
+					is_owned_by = ITA
+					is_controlled_by = ITA
+	            }
+				ITS = {
+	                transfer_state = PREV
+					remove_state_claim = PREV
+					add_core_of = PREV
+	            }
+	        }
+			ITS = {
+				inherit_technology = ITA		  
+			    leave_faction = yes
 				set_rule = { can_join_factions = no }
-				leave_faction = yes
-
-				inherit_technology = ITA
+				set_capital = 117
+				if = {
+					limit = {
+						ITA = {owns_state = 114}
+					}	
+			       set_province_controller = 11773
+				}
+				
+				if = {
+					limit = {
+						ITA = {owns_state = 835}
+					}	
+					set_province_controller = 923
+					set_province_controller = 11882
+				}
 			}
-
 			ITA = {
+				remove_ideas = idea_army_restrictions
+				leave_faction = yes
+				set_rule = { can_join_factions = no }
+				division_template = {
+					name = "Milizia Repubblicana"
+					is_locked = yes
+					division_names_group = ITA_INF_01
+					regiments = {
+						infantry = { x = 0 y = 0 }
+						infantry = { x = 0 y = 1 }
+						infantry = { x = 0 y = 2 }
+						infantry = { x = 0 y = 3 }
+					}
+				}
+				add_popularity = {
+				   ideology = neutrality
+   				    popularity = -0.5
+				}
+				declare_war_on = {
+ 		            target = ITS
+		            type = civil_war
+		        }
 				transfer_units_fraction= {
-					target = SIC
+					target = ITS
 					size = 0.4
 					stockpile_ratio = 0.4
 					army_ratio = 0.45
 					navy_ratio = 0.5
 					air_ratio = 0.35
 				}
-			}
-
-			SRD = {
-				transfer_state = 114
-
-				add_state_claim = 735
-				add_state_claim = 836
-
-				set_rule = { can_join_factions = no }
-				leave_faction = yes
-
-				inherit_technology = ITA
-
-				set_cosmetic_tag = ITA_democratic
-			}
-
-			ITA = {
-				transfer_units_fraction= {
-					target = SRD
-					size = 0.4
-					stockpile_ratio = 0.2
-					army_ratio = 0.3
-					navy_ratio = 0.6
-					air_ratio = 0.4
-				}
-			}
-
-			2 = {
-				set_demilitarized_zone = no
-			}
-			158 = {
-				set_demilitarized_zone = no
-			}
-			159 = {
-				set_demilitarized_zone = no
-			}
-			161 = {
-				set_demilitarized_zone = no
-			}
-			162 = {
-				set_demilitarized_zone = no
-			}
-			834 = {
-				set_demilitarized_zone = no
-			}
-			835 = {
-				set_demilitarized_zone = yes
-			}
-
-			ITA = {
 				if = {
 					limit = {
-						NOT = {
-							has_completed_focus = ITA_vittoria_mutilata
-						}
+						ITS = {owns_state = 156}
 					}
-					complete_national_focus = ITA_vittoria_mutilata
+					set_province_controller = 10027
+					set_province_controller = 3901	
 				}
 				if = {
 					limit = {
-						NOT = {
-							OR = {
-								has_completed_focus = ITA_fascismo_movimento
-								has_completed_focus = ITA_support_socialist_movenment
-							}
-						}
+						ITS = {owns_state = 117}
 					}
-					complete_national_focus = ITA_support_socialist_movenment
+					set_province_controller = 6980
+					set_province_controller = 6939
+					set_province_controller = 883
 				}
-
-				set_politics = {
-					ruling_party = communism
-				}
-				add_popularity = { ideology = communism popularity = 0.5 }
-				set_cosmetic_tag = ITA_communism
-
-				set_rule = { can_join_factions = no }
-
-				set_party_name = {
-					ideology = democratic
-					long_name = ITA_communism_reformist_party
-					name = ITA_communism_reformist_party_long
-				}
-
-				country_event = { id = garibaldi.8 days = 14 }
+				if = {
+					limit = {
+						ITS = {owns_state = 115}
+					}	
+				    set_province_controller = 4014
+				}	
+				
+				country_event = { id = garibaldi.4 days = 11}
 			}
-
 			every_state = {
-				limit = { is_core_of = ITA }
-				add_core_of = SRD
-				add_core_of = SIC
-			}
-
+				limit = {
+					OR = {
+						state = 115
+						state = 117
+						state = 156
+						state = 157
+						state = 158
+						state = 162
+						state = 834
+						state = 835
+					}
+					is_owned_by = ITA
+					is_controlled_by = ITA
+	            }
+				set_demilitarized_zone = no
+	        }
+			
 			news_event = { id = garibaldi.7 hours = 1 }
 
 			every_state = {
@@ -306,6 +506,9 @@ country_event = {
 					547 = {
 						is_owned_by = ENG
 					}
+					792 = {
+						is_owned_by = ITA
+					}
 				}
 				ENG = {
 					transfer_state = 792
@@ -315,6 +518,9 @@ country_event = {
 				limit = {
 					547 = {
 						is_owned_by = KEN
+					}
+					792 = {
+						is_owned_by = ITA
 					}
 				}
 				KEN = {
@@ -346,105 +552,91 @@ country_event = {
 					}
 				}	
 			}
+			ITA = {
+				every_state = {
+					teleport_armies = {
+						to_state_array = owned_controlled_states
+					}
+				}	
+			}
+			IRS = {
+				every_state = {
+					teleport_armies = {
+						to_state_array = owned_controlled_states
+					}
+				
+				}
+			}
+			if = {
+				limit = {
+					ITA = {owns_state = 114}
+				}
+				114 = {
+					create_unit = {
+						division = "name = \"Milizia Repubblicana\" division_template = \"Milizia Repubblicana\" start_experience_factor = 0.3" 
+						owner = ITA
+						prioritize_location = 11874
+					}
+					create_unit = {
+						division = "name = \"Milizia Repubblicana\" division_template = \"Milizia Repubblicana\" start_experience_factor = 0.3" 
+						owner = ITA
+						prioritize_location = 902
+					}
+				}
+			}
+			if = {
+				limit = {
+					ITS = {owns_state = 156}
+				}
+				156 = {
+					create_unit = {
+					 	division = "name = \"Milizia Repubblicana\" division_template = \"Milizia Repubblicana\" start_experience_factor = 0.3" 
+						owner = ITA
+						prioritize_location = 10027
+					}
+				}	
+			}
+			if = {
+				limit = {
+					ITS = {owns_state = 117}
+				}
+				117 = {
+					create_unit = {
+						division = "name = \"Milizia Repubblicana\" division_template = \"Milizia Repubblicana\" start_experience_factor = 0.3" 
+						owner = ITA
+						prioritize_location = 6939
+					}
+					create_unit = {
+						division = "name = \"Milizia Repubblicana\" division_template = \"Milizia Repubblicana\" start_experience_factor = 0.3" 
+						owner = ITA
+						prioritize_location = 883
+					}
+				}
+			}
+			if = {
+				limit = {
+					ITS = {owns_state = 115}
+				}	
+				115 = {
+					create_unit = {
+						division = "name = \"Milizia Repubblicana\" division_template = \"Milizia Repubblicana\" start_experience_factor = 0.3" 
+						owner = ITA
+						prioritize_location = 4014
+					}
+				}
+			}
 		}
 	}
-	#stay as communists
+	#stay as republic
 	option = {
 		name = garibaldi.6.a
 		ai_chance = { factor = 100 }
-		ITA = {
-			every_state = {
-				hidden_effect = {
-					teleport_armies = {
-						to_state_array = owned_controlled_states
-					}
-				}
-			}
-		}
-		SRD = {
-			every_state = {
-				hidden_effect = {
-					teleport_armies = {
-						to_state_array = owned_controlled_states
-					}
-				}
-			}
-		}
-		SIC = {
-			every_state = {
-				hidden_effect = {
-					teleport_armies = {
-						to_state_array = owned_controlled_states
-					}
-				}
-			}
-		}
 	}
-	#Viva Italia
+	#For King and Stuff
 	option = {
 		name = garibaldi.6.b
 		ai_chance = { factor = 0 }
-		ITA = {
-			every_state = {
-				hidden_effect = {
-					teleport_armies = {
-						to_state_array = owned_controlled_states
-					}
-				}
-			}
-		}
-		SRD = {
-			every_state = {
-				hidden_effect = {
-					teleport_armies = {
-						to_state_array = owned_controlled_states
-					}
-				}
-			}
-		}
-		SIC = {
-			every_state = {
-				hidden_effect = {
-					teleport_armies = {
-						to_state_array = owned_controlled_states
-					}
-				}
-			}
-		}
-		SRD = { change_tag_from = ROOT }
-	}
-	#Two Siclies
-	option = {
-		name = garibaldi.6.c
-		ai_chance = { factor = 0 }
-		ITA = {
-			every_state = {
-				hidden_effect = {
-					teleport_armies = {
-						to_state_array = owned_controlled_states
-					}
-				}
-			}
-		}
-		SRD = {
-			every_state = {
-				hidden_effect = {
-					teleport_armies = {
-						to_state_array = owned_controlled_states
-					}
-				}
-			}
-		}
-		SIC = {
-			every_state = {
-				hidden_effect = {
-					teleport_armies = {
-						to_state_array = owned_controlled_states
-					}
-				}
-			}
-		}
-		SIC = { change_tag_from = ROOT }
+		ITS = { change_tag_from = ROOT }
 	}
 }
 #Italy fragmentation news event
