@@ -17,6 +17,11 @@ country_event = {
 			has_global_flag = versallies_treaty
 			has_global_flag = frankfurt_treaty
 		}
+		has_country_leader = {
+		    name = "Vittorio Emanuele III"
+		    ruling_only = no
+		}
+		NOT = {has_government = communism}
 	}
 	option = {
 		name = garibaldi.1.a
@@ -33,6 +38,16 @@ country_event = {
 			news_event = { id = garibaldi.2 hours = 1 }
 			country_event = { id = garibaldi.3 days = 6}
 			country_event = { id = garibaldi.5 days = 19}
+			SRD = {
+				retire_ideology_leader = neutrality
+				create_country_leader = { 
+					name = "Umberto II"
+					picture = "gfx/leaders/ITA/ITA_Umberto_II.dds"
+					expire="1935.1.1" 
+					ideology = autocracy
+					traits = {} 
+				}	
+			}	
 		}
 	}
 }
@@ -718,12 +733,18 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		tag = ROI
-		ROI = {
-			has_government = democratic
-			has_war_with = SRI
-			surrender_progress > 0.4
-			NOT = { is_in_faction_with = ITS }
-		}
+		has_government = democratic
+		has_war_with = SRI
+		surrender_progress > 0.4
+		NOT = { is_in_faction_with = ITS }
+		controls_state = 114
+		NOT = {
+			any_state = {
+				NOT = { state = 114}
+				is_core_of = ROI
+				is_fully_controlled_by = ROI
+			}
+		}		
 	}
 	immediate = {
 		hidden_effect = {
@@ -736,6 +757,10 @@ country_event = {
 		ROI = {
 			set_politics = {
 				ruling_party = fascism
+			}
+			add_popularity = {
+ 			    ideology = democratic
+			    popularity = -0.3
 			}
 		}
 	}
@@ -750,97 +775,63 @@ country_event = {
 	option = {
 		ai_chance = { factor = 30 }
 		name = garibaldi.9.c
-		ROI = {
-			set_cosmetic_tag = SRD
-
-			if = {
+		    every_state = {
 				limit = {
-					2 = {
-						is_fully_controlled_by = SRI
-					}
+					is_owned_by = ROI 
+					is_fully_controlled_by = SRI
 				}
 				SRI ={
-					transfer_state = 2
+					transfer_state = PREV
 				}
 			}
-
-			if = {
+			every_state = {
 				limit = {
-					835 = {
-						is_fully_controlled_by = SRI
-					}
+					is_owned_by = ROI 
+					is_fully_controlled_by = ITS
+				}
+				ITS ={
+					transfer_state = PREV
+				}
+			}
+			every_state = {
+				limit = {
+					is_owned_by = ROI 
+					is_controlled_by  = SRI
 				}
 				SRI ={
-					transfer_state = 835
+					transfer_state = PREV
 				}
 			}
-
-			if = {
+			every_state = {
 				limit = {
-					2 = {
-						is_fully_controlled_by = ITS
-					}
+					is_owned_by = ROI 
+					is_controlled_by  = ITS
 				}
 				ITS ={
-					transfer_state = 2
+					transfer_state = PREV
 				}
-			}
-
-			if = {
-				limit = {
-					835 = {
-						is_fully_controlled_by = ITS
-					}
-				}
-				ITS ={
-					transfer_state = 835
-				}
-			}
-
-			if = {
-				limit = {
-					2 = {
-						is_owned_by = ITA
-					}
-				}
-				ITS ={
-					transfer_state = 2
-				}
-			}
-
-			if = {
-				limit = {
-					835 = {
-						is_owned_by = ITA
-					}
-				}
-				SRI ={
-					transfer_state = 835
-				}
-			}
-
-			every_country = {
-				limit = {
-					has_war_with = ROI
-				}
-				white_peace = PREV
 			}
 			
 			hidden_effect = {
-				ITA = {
-					drop_cosmetic_tag = yes
+				every_state = {
+					limit = { 
+					    OR = {
+							is_core_of = ROI 
+							is_claimed_by = ROI
+						}
+					}
+					remove_core_of = ROI
+					remove_claim_by = ROI
 				}
-
 				SRD = {
+					transfer_state = 114
 					add_state_core = 114
-					add_state_core = 158
-					add_state_core = 735
-					add_state_core = 834
-
+               
 					annex_country = {
 						target = ROI
 						transfer_troops = yes
 					}
+					change_tag_from = ROOT
 
 					add_country_leader_trait = defeatist
 
@@ -848,12 +839,9 @@ country_event = {
 						teleport_armies = {
 							to_state_array = owned_controlled_states
 						}
-					}
-
-					change_tag_from = ROOT
+					}				
 				}
 			}
-		}
 	}
 	option = {
 		ai_chance = { factor = 60 }
@@ -877,6 +865,7 @@ country_event = {
 			has_war = no
 		}
 		SRI = {
+			has_government = communism
 			exists = yes
 			has_war_with = ITS
 			surrender_progress > 0.5
@@ -887,18 +876,9 @@ country_event = {
 		ai_chance = { factor = 100 }
 		FRA = {
 			give_guarantee = ITS
-
-			every_country = {
-				limit = {
-					has_war_with = SRI
-				}
-
-				FRA = {
-					declare_war_on = {
-						target = PREV
-						type = topple_government
-					}
-				}
+            add_to_war = {
+				targeted_alliance = SRI
+				enemy = ITS 
 			}
 		}
 
@@ -907,19 +887,6 @@ country_event = {
 				set_rule = { can_join_factions = yes }
 				create_faction = internationale
 				add_to_faction = SRI
-			}
-
-			if = {
-				limit = {
-					NFA = {
-						exists = yes
-						NOT = { has_war_with = SRI }
-					}
-				}
-
-				NFA = {
-					country_event = { id = garibaldi.11 days = 3 }
-				}
 			}
 
 			if = {
@@ -989,200 +956,43 @@ country_event = {
 	}
 	option = {
 		name = garibaldi.12.a
-		ai_chance = { factor = 90 }
+		ai_chance = { factor = 50 }
 		news_event = { id = garibaldi.13 days = 1 }
+		add_stability = -0.1
 		hidden_effect = {
 			SRI = {
 				add_named_threat = { threat = 5 name = garibaldi.13.t }
 			}
-			
-			if = {
+			every_country = {
 				limit = {
-					AUH = {
-						exists = yes
-						NOT = { has_government = communism }
-						is_subject = no
-					}
-				}
-				AUH = {
-					country_event = { id = garibaldi.14 days = 4 }
-				}
-			}
-			if = {
-				limit = {
-					AUS = {
-						exists = yes
-						NOT = { has_government = communism }
-						is_subject = no
-					}
-				}
-				AUS = {
-					country_event = { id = garibaldi.14 days = 4 }
-				}
-			}
-			if = {
-				limit = {
-					FRA = {
-						exists = yes
-						NOT = { has_government = communism }
-						is_subject = no
-					}
-				}
-				FRA = {
-					country_event = { id = garibaldi.14 days = 4 }
-				}
-			}
-			if = {
-				limit = {
-					NFA = {
-						exists = yes
-						NOT = { has_government = communism }
-						is_subject = no
-					}
-				}
-				NFA = {
-					country_event = { id = garibaldi.14 days = 4 }
-				}
-			}
-			if = {
-				limit = {
-					HUN = {
-						exists = yes
-						NOT = { has_government = communism }
-						is_subject = no
-					}
-				}
-				HUN = {
-					country_event = { id = garibaldi.14 days = 4 }
-				}
-			}
-			if = {
-				limit = {
-					SPR = {
-						exists = yes
-						NOT = { has_government = communism }
-						is_subject = no
-					}
-				}
-				SPR = {
-					country_event = { id = garibaldi.14 days = 4 }
-				}
-			}
-			if = {
-				limit = {
-					POR = {
-						exists = yes
-						NOT = { has_government = communism }
-						is_subject = no
-					}
-				}
-				POR = {
-					country_event = { id = garibaldi.14 days = 4 }
-				}
-			}
-			if = {
-				limit = {
-					CRO = {
-						exists = yes
-						NOT = { has_government = communism }
-						is_subject = no
-					}
-				}
-				CRO = {
-					country_event = { id = garibaldi.14 days = 4 }
-				}
-			}
-			if = {
-				limit = {
-					SLO = {
-						exists = yes
-						NOT = { has_government = communism }
-						is_subject = no
-					}
-				}
-				SLO = {
-					country_event = { id = garibaldi.14 days = 4 }
-				}
-			}
-			if = {
-				limit = {
-					POL = {
-						exists = yes
-						NOT = { has_government = communism }
-						is_subject = no
-					}
-				}
-				POL = {
-					country_event = { id = garibaldi.14 days = 4 }
-				}
-			}
-			if = {
-				limit = {
-					GAL = {
-						exists = yes
-						NOT = { has_government = communism }
-						is_subject = no
-					}
-				}
-				GAL = {
-					country_event = { id = garibaldi.14 days = 4 }
-				}
-			}
-			if = {
-				limit = {
-					CZE = {
-						exists = yes
-						NOT = { has_government = communism }
-						is_subject = no
-					}
-				}
-				CZE = {
-					country_event = { id = garibaldi.14 days = 4 }
-				}
-			}
-			if = {
-				limit = {
-					LIT = {
-						exists = yes
-						NOT = { has_government = communism }
-						is_subject = no
-					}
-				}
-				LIT = {
-					country_event = { id = garibaldi.14 days = 4 }
-				}
-			}
-			if = {
-				limit = {
-					BRA = {
-						exists = yes
-						NOT = { has_government = communism }
-						is_subject = no
-					}
-				}
-				BRA = {
-					country_event = { id = garibaldi.14 days = 4 }
-				}
-			}
-			if = {
-				limit = {
-					MEX = {
-						exists = yes
-						NOT = { has_government = communism }
-						is_subject = no
-					}
-				}
-				MEX = {
-					country_event = { id = garibaldi.14 days = 4 }
-				}
-			}
-		}
+					OR = {
+					    tag = AUH
+						tag = AUS
+						#tag = FRA
+						#tag = HUN
+						tag = SPR
+						tag = POR
+						#tag = CRO
+						#tag = SLO
+						tag = POL
+						#tag = GAL
+						#tag = CZE
+						#tag = LIT
+						tag = BRA
+						tag = MEX
+			        }
+					NOT = { has_government = communism }
+					exists = yes
+					is_subject = no
+			    }
+				country_event = { id = garibaldi.14 days = 4 }
+			}	
+		}	
 	}
 	option = {
 		name = garibaldi.12.b
-		ai_chance = { factor = 10 }
-		add_war_support = -0.05
-		add_stability = -0.01
+		add_political_power = -50
+		ai_chance = { factor = 50 }
 	}
 }
 #Pope is killed
@@ -1215,13 +1025,25 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = garibaldi.14.a
-		ai_chance = { factor = 100 }
+		ai_chance = { 
+		    factor = 70 
+			modifier = {			
+                has_war = yes
+				factor = 0
+			}
+		}
 		set_country_flag = catholic_crusader
 		set_global_flag = catholic_crusader_is_here
 	}
 	option = {
 		name = garibaldi.14.b
-		ai_chance = { factor = 0 }
+		ai_chance = { 
+		    factor = 50 
+			modifier = {			
+                is_major = yes
+				factor = 0
+			}
+	    }
 		add_war_support = -0.1
 		add_stability = -0.1
 	}
@@ -1236,6 +1058,7 @@ country_event = {
 		tag = SRI
 		has_global_flag = catholic_crusader_is_here
 	}
+	mean_time_to_happen = { days = 5 }
 	option = {
 		name = garibaldi.15.a
 		ai_chance = { factor = 100 }
@@ -1709,10 +1532,8 @@ country_event = {
 	option = {
 		name = garibaldi.19.a
 		ai_chance = { factor = 80 }
-		set_cosmetic_tag = SIC
-		add_stability = 0.2
+		add_stability = 0.1
 		hidden_effect = {
-			drop_cosmetic_tag = yes
 
 			every_state = {
 				limit = {
@@ -1720,12 +1541,23 @@ country_event = {
 				}
 				add_core_of = SIC
 			}
+			every_state = {
+				limit = { 
+					OR = {
+						is_core_of = ITS 
+						is_claimed_by = ITS
+					}
+				}
+				remove_core_of = ITS
+				remove_claim_by = ITS
+			}
 
 			SIC = {
 				annex_country = {
 					target = ITS
 					transfer_troops = yes
 				}
+				change_tag_from = ITS
 			}
 		}
 	}
@@ -2061,10 +1893,13 @@ news_event = {
 	fire_only_once = yes
 	trigger = {
 		has_global_flag = italian_civil_war
-
 		SIC = {
 			has_war = no
+			exists = yes
 		}
+		ITS = {
+			exists = no
+		}	
 
 		ROI = {
 			OR = {
@@ -2084,73 +1919,93 @@ news_event = {
 	mean_time_to_happen = { days = 3 }
 	immediate = {
 		hidden_effect = {
+			if = {
+				limit = {
+					SRI = {is_subject_of = SIC}
+				}
+				SIC = {
+					annex_country = {
+						target = SRI
+					}
+				}
+			}
+			every_state = {
+			    limit = {
+				    is_owned_by = SIC
+					OR = {
+						state = 2
+						state = 835
+						state = 157
+						state = 161
+					}
+				}	
+				PAP = {
+					transfer_state = PREV
+					add_state_core = PREV
+				}
+			}
+            every_state = {
+			    limit = {
+				    is_owned_by = SIC
+					state = 833
+				}	
+				EMI = {
+					transfer_state = PREV
+					add_state_core = PREV
+				}
+			}
+            every_state = {
+			    limit = {
+				    is_owned_by = SIC
+					OR = {
+						state = 114
+						state = 158
+					}
+				}	
+				SRD = {
+					transfer_state = PREV
+					add_state_core = PREV
+				}
+			}
+			every_state = {
+			    limit = {
+				    is_owned_by = SIC
+					state = 162
+				}	
+				TUS = {
+					transfer_state = PREV
+					  add_state_core = PREV
+				}
+			}
+			every_country = {
+			    limit = {
+				    OR = {
+						tag = EMI
+						tag = SRD
+						tag = TUS
+					}
+                    exists = no
+				}	
+				SIC = {puppet = PREV}
+			}
+			
+			
+            if = {
+				limit = {
+					SRD = {owns_state = 158}
+				}
+                SRD = {				
+					set_capital = 158
+					set_cosmetic_tag = SRD_PIE
+					add_state_core = 735
+				    add_state_core = 834
+				}	
+			}
+
 			SIC = {
-				annex_country = {
-					target = SRI
-					transfer_troops = yes
-				}
-				
-				annex_country = {
-					target = ROI
-					transfer_troops = yes
-				}
-			}
-
-			PAP = {
-				add_state_core = 2
-				add_state_core = 835
-				add_state_core = 157
-				add_state_core = 161
-				transfer_state = 2
-				transfer_state = 835
-				transfer_state = 157
-				transfer_state = 161
-			}
-
-			EMI = {
-				add_state_core = 833
-				transfer_state = 833
-			}
-
-			SRD = {
-				add_state_core = 114
-				add_state_core = 158
-				add_state_core = 735
-				add_state_core = 834
-
-				annex_country = {
-					target = ROI
-					transfer_troops = yes
-				}
-
-				create_country_leader = { 
-					name = "Umberto II"
-					picture = "gfx/leaders/ITA/ITA_Umberto_II.dds"
-					expire="1935.1.1" 
-					ideology = autocracy
-					traits = {} 
-				}
-
-				transfer_state = 114
-				transfer_state = 158
-
-				set_capital = 158
-
-				set_cosmetic_tag = SRD_PIE
-			}
-
-			TUS = {
-				add_state_core = 162
-				transfer_state = 162
-			}
-
-			SIC = {
-				set_rule = { can_join_factions = no }
+				set_rule = { can_join_factions = yes }
 				create_faction = italian_federation
 				add_to_faction = PAP
-				puppet = EMI
-				puppet = SRD
-				puppet = TUS
 			}
 		}
 	}
@@ -2158,14 +2013,17 @@ news_event = {
 		name = garibaldi.28.a
 		ai_chance = { factor = 100 }
 		trigger = {
-			original_tag = ITA
+			OR = {
+				original_tag = ITA
+				original_tag = SIC
+			}
 		}
 	}
 	option = {
 		name = garibaldi.28.b
 		ai_chance = { factor = 100 }
 		trigger = {
-			NOT = { original_tag = ITA }
+			NOT = { original_tag = ITA original_tag = SIC}
 		}
 	}
 }
