@@ -164,21 +164,16 @@ country_event = {
 				}
 
 				set_rule = { can_join_factions = no }
-				set_cosmetic_tag = FRA_communism
-
-				set_popularities = {
-					democratic = 0
-					neutrality = 27
-					fascism = 0
-					communism = 73
+				hidden_effect = {
+					set_cosmetic_tag = FRA_communism
+					set_country_flag = color_communist_france
 				}
 
-				create_country_leader = {
-					name = "Louis Frossard"
-					picture = "gfx/leaders/FRA/FRA_louis_frossard.dds" 
-					expire = "1935.1.1"
-					ideology = national_syndicalism
-					traits = {} 
+				set_popularities = {
+					democratic = 10
+					neutrality = 7
+					fascism = 10
+					communism = 73
 				}
 			}
 		}
@@ -207,8 +202,11 @@ country_event = {
 
 			create_dynamic_country = {
 				original_tag = FRA
-				save_event_target_as = france_nationalist
-
+                set_party_name = { 
+					ideology = fascism 
+					long_name = NFA_fascism_party_long
+					name = NFA_fascism_party
+				}
 				every_state = {
 					limit = { is_core_of = FRA }
 					add_core_of = NFA
@@ -256,7 +254,6 @@ country_event = {
 				limit = {
 					OR = {
 						state = 1
-						state = 18
 						state = 19
 						state = 20
 						state = 21
@@ -300,17 +297,6 @@ country_event = {
 					transfer_state = PREV
 				}
 			}
-			every_state = {
-				limit = {
-					LBA = { exists = yes }
-					is_owned_by = NFA
-					is_core_of = LBA
-				}
-
-				LBA = {
-					transfer_state = PREV
-				}
-			}
 			NFA = {
 				inherit_technology = FRA
 
@@ -321,6 +307,12 @@ country_event = {
 
 				set_rule = {
 					can_join_factions = no
+				}
+				every_state = {
+					teleport_armies = {
+						to_state_array = owned_controlled_states
+					}
+				
 				}
 			}
 			FRA = {
@@ -337,7 +329,12 @@ country_event = {
 				set_rule = {
 					can_join_factions = no
 				}
-
+                if = {
+				    limit = {
+					    is_faction_leader = yes
+					}
+					dismantle_faction = yes	
+				}
 				leave_faction = yes
 
 				set_politics = {
@@ -347,23 +344,17 @@ country_event = {
 					elections_allowed = no
 				}
 
-				set_cosmetic_tag = FRA_communism
+				hidden_effect = {
+					set_cosmetic_tag = FRA_communism
+					set_country_flag = color_communist_france
+				}
 
 				set_popularities = {
-					democratic = 0
-					neutrality = 27
-					fascism = 0
+					democratic = 16
+					neutrality = 0
+					fascism = 11
 					communism = 73
 				}
-
-				create_country_leader = {
-					name = "Louis Frossard"
-					picture = "gfx/leaders/FRA/FRA_louis_frossard.dds" 
-					expire = "1935.1.1"
-					ideology = national_syndicalism
-					traits = {} 
-				}
-
 				transfer_units_fraction = {
 					target = NFA
 					size = 0.45
@@ -371,8 +362,28 @@ country_event = {
 					army_ratio = 0.45
 					navy_ratio = 0.75
 					air_ratio = 0.5
+					keep_unit_leaders_trigger = {           	                   						
+					    NOT = {
+							OR = { 
+								has_trait = old_guard 
+						   	 	has_trait = politically_connected
+								has_id = 32009
+							}						
+						}
+					}
 				}
-			}
+				every_state = {
+					teleport_armies = {
+						to_state_array = owned_controlled_states
+					}
+				}
+				every_country = {
+					limit = {
+						is_subject_of = FRA
+					}
+					end_puppet = PREV
+				}
+			}	
 		}
 	}
 	option = {
@@ -380,80 +391,30 @@ country_event = {
 		set_global_flag = french_civil_war
 
 		FRA = {
-			every_country = {
-				limit = {
-					is_subject_of = FRA
-				}
-
-				end_puppet = PREV
-			}
-
 			declare_war_on = {
 				target = NFA
 				type = civil_war
-			}
-
-			every_state = {
-				hidden_effect = {
-					teleport_armies = {
-						to_state_array = owned_controlled_states
-					}
-				}
 			}
 		}
 
 		NFA = {
 			change_tag_from = FRA
-
-			every_state = {
-				hidden_effect = {
-					teleport_armies = {
-						to_state_array = owned_controlled_states
-					}
-				}
-			}
 		}
 
-		ai_chance = { factor = 100 }
+		ai_chance = { factor = 0 }
 	}
 	option = {
 		name = ww1_france.5.b
 		set_global_flag = french_civil_war
 
 		FRA = {
-			every_country = {
-				limit = {
-					is_subject_of = FRA
-				}
-
-				end_puppet = PREV
-			}
-
 			declare_war_on = {
 				target = NFA
 				type = civil_war
 			}
-
-			every_state = {
-				hidden_effect = {
-					teleport_armies = {
-						to_state_array = owned_controlled_states
-					}
-				}
-			}
 		}
 
-		NFA = {
-			every_state = {
-				hidden_effect = {
-					teleport_armies = {
-						to_state_array = owned_controlled_states
-					}
-				}
-			}
-		}
-
-		ai_chance = { factor = 0 }
+		ai_chance = { factor = 100 }
 	}
 }
 # THEY SHALL NOT PASS
@@ -705,8 +666,8 @@ country_event = {
 		tag = ITA
 		has_war = no
 		is_subject = no
-		has_country_flag = great_war_winner
-		NOT = { 
+		NOT = {
+		    has_country_flag = great_war_loser
 			owns_state = 735
 			owns_state = 1
 			is_in_faction_with = FRA
@@ -725,8 +686,14 @@ country_event = {
 			transfer_state = 735
 			transfer_state = 834
 			transfer_state = 1
-			transfer_state = 458
-			transfer_state = 665
+			if = {
+			    limit = {
+				    owns_state = 661
+					owns_state = 448
+				}
+				transfer_state = 458
+			    transfer_state = 665
+			}	
 		}
 		NFA = { country_event = { id = ww1_france.23 days = 1 } }
 	}
@@ -758,14 +725,18 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		tag = NFA
-
-		NFA = {
-			has_war_with = FRA
-			surrender_progress > 0.7
-			has_full_control_of_state = 459
-			has_full_control_of_state = 460
-			has_full_control_of_state = 513
-		}
+		has_war_with = FRA
+		surrender_progress > 0.8
+		has_full_control_of_state = 459
+		has_full_control_of_state = 460
+		has_full_control_of_state = 513
+		#NOT = {
+		#	any_state = {
+		#	    NOT = { state = 1}
+		#		is_core_of = NFA
+		#		is_controlled_by = NFA
+		#	}
+		#}
 	}
 	option = {
 		name = ww1_france.24.a
@@ -788,25 +759,10 @@ country_event = {
 					transfer_state = PREV
 				}
 			}
-
 			NFA = {
 				add_state_core = 459
 				add_state_core = 460
 				add_state_core = 513
-
-				every_state = {
-					teleport_armies = {
-						to_state_array = owned_controlled_states
-					}
-				}
-			}
-
-			FRA = {
-				every_state = {
-					teleport_armies = {
-						to_state_array = owned_controlled_states
-					}
-				}
 			}
 		}
 	}
