@@ -297,20 +297,61 @@ country_event = {
 	desc = ww1_romania.9.d
 
 	fire_only_once = yes
-	is_triggered_only = yes #they automatically transfer territories to prevent full annexation of Hungary after war
+	is_triggered_only = yes
 	option = {
-		set_global_flag = ROM_HUN_war_1919
-		name = ww1_romania.9.a
-		ai_chance = { factor = 100 }
-		ROM={
-			create_faction = "little_entente"
-			add_to_faction = SER
-			add_to_faction = CZE
-			declare_war_on = { 
-				target = HUN
-				type = topple_government
+		trigger = {
+		    ROM = {
+				has_war = no
+				is_subject = no
 			}
 		}
+		name = ww1_romania.9.a
+		ai_chance = { factor = 100 }
+		set_global_flag = ROM_HUN_war_1919
+		ROM={
+			declare_war_on = {
+				target = HUN
+				type = take_core_state
+			}
+		}
+		every_country = {
+			limit = {
+				OR = {
+					#original_tag = SER
+					original_tag = CZE
+					#original_tag = CRO
+				}
+				is_subject = no					
+                exists = yes
+			}
+			add_to_war = {
+			    targeted_alliance = ROM 
+			    enemy = HUN 
+			    hostility_reason = take_core_state
+			}
+        }
+		#if = {
+		#	limit = {
+		#		SER = {
+		#			exists = yes 
+		#			is_subject = no		
+		#			owns_state = 45
+		#			has_war = no
+		#		}
+		#		HUN = { owns_state = 155}
+		#	}	        				
+        #    start_border_war = {
+		#		change_state_after_war = no
+		#		attacker = {
+		#			state = 45
+		#			num_provinces = 1
+		#		}				
+		#		defender = {
+		#			state = 155
+		#			num_provinces = 1
+		#		}
+		#	}
+        #}			
 	}
 	option = {
 		name = ww1_romania.9.b
@@ -324,107 +365,32 @@ country_event = {
 	desc = ww1_romania.10.d
 
 	fire_only_once = yes
-	trigger = {
-		tag = ROM
-		has_global_flag = ROM_HUN_war_1919
-		has_war_with = HUN
-		HUN = {
-			is_subject = no
-			has_government = communism
-			has_war_with = ROM
-			OR = {
-				NOT = { controls_state = 43 }
-				NOT = { controls_state = 154 }
-				NOT = { controls_state = 155 }	
-                surrender_progress > 0.65
-			}
-		}
-	}
+	is_triggered_only = yes
 	option = {
 		name = ww1_romania.10.a
 		ai_chance = { factor = 100 }
-		ROM = {
-			transfer_state = 76
-			transfer_state = 84
-			transfer_state = 83
-			transfer_state = 82
-			transfer_state = 80	
-			white_peace = HUN
-			dismantle_faction = yes
-		}
-		CZE = {
-			transfer_state = 73
-			transfer_state = 71
-			transfer_state = 70
-			transfer_state = 664
-			white_peace = HUN
-		}
-		SER = {
-			transfer_state = 45
-			transfer_state = 764
-			white_peace = HUN
+        every_country = {
+			limit = {
+			    has_war_with = HUN	
+			}
+			every_state = {
+				limit = {
+					is_core_of = PREV
+					is_owned_by = HUN
+				}
+                PREV = { transfer_state = PREV }	
+                	
+			}
+			white_peace = HUN						
 		}
 		HUN = {
-			country_event = ww1_hungary.2
+			drop_cosmetic_tag = yes
+			leave_faction = yes
+			country_event = ww1_hungary.2			
 		}
 	}
 	option = {
 		name = ww1_romania.10.a
 		ai_chance = { factor = 0 }
-	}
-}
-# I was lazy to make a decision to white peace
-country_event = {
-	id = ww1_romania.11
-	title = ww1_romania.11.t
-	desc = ww1_romania.11.d
-	fire_only_once = yes
-	hidden = yes
-	trigger = {
-		HUN = {
-			is_subject_of = ROM
-		}
-		ROM = {
-			exists = yes
-		}
-		SER = {
-			exists = yes
-			is_in_faction_with = ROM
-		}
-		CZE = {
-			exists = yes
-			is_in_faction_with = ROM
-		}
-	}
-	immediate = {
-		hidden_effect = {
-			ROM = {
-				dismantle_faction = yes
-
-				transfer_state = 76
-				transfer_state = 82
-				transfer_state = 83
-				transfer_state = 84
-
-				end_puppet = HUN
-			}
-			SER = {
-				transfer_state = 45
-				transfer_state = 764
-			}
-			CZE = {
-				transfer_state = 70
-				transfer_state = 71
-				transfer_state = 73
-				transfer_state = 664
-			}
-			HUN = {
-				transfer_state = 43
-				transfer_state = 154
-				transfer_state = 155
-
-				country_event = ww1_hungary.2
-			}
-		}
 	}
 }
