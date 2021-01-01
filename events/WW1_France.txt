@@ -118,32 +118,78 @@ country_event = {
 	fire_only_once = yes
 	is_triggered_only = yes
 	
-	option = {
-		name = ww1_france.4.a
-		set_global_flag = french_commune
-		set_capital = 26
-
-		if = {
-			limit = { FRA = { has_idea = FRA_idea_pacifist_strike } }
-			remove_ideas = FRA_idea_pacifist_strike
-		}
-
-		FRA = {
-			start_civil_war = {
-				ruling_party = democratic
-				ideology = communism
-				size = 0.65
-				capital = 16
-				states = { 14 15 16 23 24 27 30 785 }
-			}
-		}
-
+	immediate = {
 		hidden_effect = {
-			set_popularities = {
-				democratic = 36
-				neutrality = 41
-				fascism = 23
-				communism = 0
+			create_dynamic_country = {
+				original_tag = FRA
+				every_state = {
+					limit = { is_core_of = FRA }
+					add_core_of = FRC
+				}
+
+				every_state = {
+					limit = { is_claimed_by = FRA }
+					add_claim_by = FRC
+				}
+
+				set_politics = {
+					ruling_party = communism
+					last_election = "1918.11.11"
+					election_frequency = 60 
+					elections_allowed = no
+				}
+
+				set_popularities = {
+					democratic = 10
+					neutrality = 7
+					fascism = 10
+					communism = 73
+				}
+
+				set_capital = 16
+
+				set_country_flag = color_communist_france
+				set_country_flag = FRA_socialist_france_flag
+				set_cosmetic_tag = FRA_communism
+
+				create_country_leader = { 
+					name = "Louis Frossard" 
+					picture = "gfx/leaders/FRA/FRA_louis_frossard.dds"
+					expire = "1935.1.1"
+					ideology = council_communism
+					traits = {}
+				}
+			}
+
+			every_country = {
+				limit = {
+					is_subject_of = FRA
+				}
+
+				end_puppet = PREV
+			}
+
+			every_state = {
+				limit = {
+					OR = {
+						state = 14
+						state = 15
+						state = 16
+						state = 17
+						state = 18
+						state = 23
+						state = 24
+						state = 27
+						state = 29
+						state = 30
+						state = 785
+					}
+					is_owned_by = FRA
+					is_controlled_by = FRA
+				}
+				FRC = {
+					transfer_state = PREV
+				}
 			}
 
 			every_state = {
@@ -157,24 +203,106 @@ country_event = {
 				}
 			}
 
-			random_other_country = {
+			every_state = {
 				limit = {
-					original_tag = FRA
-					has_government = communism
+					LBA = { exists = yes }
+					is_owned_by = FRA
+					is_core_of = LBA
 				}
 
-				set_rule = { can_join_factions = no }
-				hidden_effect = {
-					set_cosmetic_tag = FRA_communism
-					set_country_flag = color_communist_france
+				LBA = {
+					transfer_state = PREV
 				}
+			}
+
+			FRC = {
+				inherit_technology = FRA
+
+				if = {
+					limit = { FRA = { has_idea = Franch_Staff } }
+					add_ideas = Franch_Staff
+				}
+
+				set_rule = {
+					can_join_factions = no
+				}
+			}
+
+			FRA = {
+				if = {
+					limit = { has_idea = FRA_disjointed_government }
+					remove_ideas = FRA_disjointed_government
+				}
+
+				if = {
+					limit = { has_idea = FRA_ww1_Revanchism }
+					remove_ideas = FRA_ww1_Revanchism
+				}
+
+				if = {
+					limit = { has_idea = FRA_idea_pacifist_strike }
+					remove_ideas = FRA_idea_pacifist_strike
+				}
+
+				if = {
+					limit = { has_idea = idea_army_restrictions }
+					remove_ideas = idea_army_restrictions
+				}
+
+				set_rule = {
+					can_join_factions = no
+				}
+                if = {
+				    limit = {
+					    is_faction_leader = yes
+					}
+					dismantle_faction = yes	
+				}
+				leave_faction = yes
 
 				set_popularities = {
-					democratic = 10
-					neutrality = 7
-					fascism = 10
-					communism = 73
+					democratic = 36
+					neutrality = 41
+					fascism = 23
+					communism = 0
 				}
+				
+				set_country_flag = FRA_nationalist_france_flag
+
+				transfer_units_fraction = {
+					target = FRC
+					size = 0.65
+					stockpile_ratio = 0.6
+					army_ratio = 0.55
+					navy_ratio = 0.25
+					air_ratio = 0.5
+					keep_unit_leaders_trigger = {
+						OR = {
+							has_trait = old_guard 
+							has_trait = politically_connected
+							has_id = 32009
+						}
+					}
+				}
+
+				every_country = {
+					limit = {
+						is_subject_of = FRA
+					}
+					end_puppet = PREV
+				}
+			}
+		}
+	}
+
+	option = {
+		name = ww1_france.4.a
+		set_global_flag = french_commune
+
+		FRC = {
+			declare_war_on = {
+				target = NFA
+				type = civil_war
 			}
 		}
 
@@ -242,6 +370,8 @@ country_event = {
 					ideology = military_dictatorship
 					traits = {} 
 				}
+
+				load_focus_tree = france_nationalist_focus
 			}
 			every_country = {
 				limit = {
@@ -297,6 +427,17 @@ country_event = {
 					transfer_state = PREV
 				}
 			}
+			every_state = {
+				limit = {
+					LBA = { exists = yes }
+					is_owned_by = NFA
+					is_core_of = LBA
+				}
+
+				LBA = {
+					transfer_state = PREV
+				}
+			}
 			NFA = {
 				inherit_technology = FRA
 
@@ -309,12 +450,6 @@ country_event = {
 
 				set_rule = {
 					can_join_factions = no
-				}
-				every_state = {
-					teleport_armies = {
-						to_state_array = owned_controlled_states
-					}
-				
 				}
 			}
 			FRA = {
@@ -382,11 +517,7 @@ country_event = {
 						}
 					}
 				}
-				every_state = {
-					teleport_armies = {
-						to_state_array = owned_controlled_states
-					}
-				}
+
 				every_country = {
 					limit = {
 						is_subject_of = FRA
@@ -1006,22 +1137,7 @@ news_event = {
 news_event = {
 	id = ww1_france.27
 	title = ww1_france.27.t
-	desc = {
-		text = ww1_france.27.d
-		trigger = {
-			FROM = {
-				tag = CAN
-			}
-		}
-	}
-	desc = {
-		text = ww1_france.27.d_AST
-		trigger = {
-			FROM = {
-				tag = AST
-			}
-		}
-	}
+	desc = ww1_france.27.d
 	picture = ww1_france_27
 	fire_only_once = yes
 	is_triggered_only = yes
@@ -1050,6 +1166,100 @@ news_event = {
 				is_in_faction_with = CAN
 				is_in_faction_with = AST
 			}
+		}
+	}
+}
+
+country_event = {
+	id = ww1_france.28
+	title = ww1_france.28.t
+	desc = ww1_france.28.d
+	fire_only_once = yes
+	is_triggered_only = yes
+	option = {
+		name = ww1_france.28.a
+		ai_chance = { factor = 100 }
+
+		FROM = {
+			add_to_faction = ROOT
+		}
+
+		if = {
+			limit = {
+				FROM = {
+					OR = {
+						tag = CAN
+						tag = AST
+					}
+				}
+				ROOT = {
+					tag = NFA
+				}
+			}
+
+			FROM = { news_event = ww1_france.27 }
+		}
+	}
+	option = {
+		name = ww1_france.28.b
+		ai_chance = { factor = 0 }
+
+		FROM = {
+			country_event = ww1_france.29
+		}
+	}
+}
+
+country_event = {
+	id = ww1_france.29
+	title = ww1_france.29.t
+	desc = ww1_france.29.d
+	fire_only_once = yes
+	is_triggered_only = yes
+	option = {
+		name = ww1_france.29.a
+		ai_chance = { factor = 100 }
+
+		add_opinion_modifier = {
+			target = FROM
+			modifier = HOI4TGW_Opinion_alliance_malus
+		}
+	}
+}
+
+# France - royalist claims the Throne
+##########################################
+news_event = {
+	id = ww1_france.30
+	title = ww1_france.30.t
+	desc = ww1_france.30.d
+	picture = GFX_news_event_generic_parliament
+	
+	major = yes
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = ww1_france.30.a
+		trigger = {
+			original_tag = FRA
+			has_government = neutrality
+		}
+	}
+	option = {
+		name = ww1_france.30.b
+		trigger = {
+			NOT = {
+				original_tag = FRA
+				has_government = communism
+			}
+		}
+	}
+	option = {
+		name = ww1_france.30.c
+		trigger = {
+			original_tag = FRA
+			has_government = communism
 		}
 	}
 }
