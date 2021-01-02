@@ -635,9 +635,7 @@ country_event = {
 		AST = {
 			transfer_state = 712 
 			transfer_state = 711
-		}
-		GDC = {
-			transfer_state = 326
+			transfer_state = 326 #British Hongkong, but to prevent any unexpected circumstances with British Civil War, it is transfered to Australia, which is also British country that close to Hong Kong.
 		}
 		NZL = {
 			transfer_state = 636
@@ -665,6 +663,13 @@ country_event = {
 			else = {
 				UAE = { transfer_state = 658 }
 			}	
+		}
+		every_other_country = {
+			limit = {
+				has_full_control_of_state = 593 #Guangdong
+				NOT = { is_in_faction_with = AST }
+			}
+			country_event = { id = britas.16 days = 7 }
 		}
 		end_puppet = AST
 		end_puppet = NZL
@@ -1004,5 +1009,194 @@ country_event = {
 	option = {
 		name = britas.15.a
 		white_peace = AFG
+	}
+}
+#Border War for Hong Kong
+country_event = {
+	id = britas.16
+	title = britas.16.t
+	desc = britas.16.d
+	fire_only_once = yes
+	is_triggered_only = yes
+	immediate = {
+		set_country_flag = hong_kong_border_conflict
+		add_state_core = 326
+	}
+	option = {
+		name = britas.16.a
+		ai_chance = {
+			factor = 70
+			modifier = {
+				factor = 0
+				OR = {
+					has_war = yes
+					has_war_support < 0.2
+					has_stability < 0.2
+				}
+			}
+		}
+
+		AST = {
+			division_template = {
+				name = "British Infantry Division"
+				regiments = {
+					infantry = { x = 0 y = 0 }
+					infantry = { x = 0 y = 1 }
+					infantry = { x = 1 y = 0 }
+					infantry = { x = 1 y = 1 }
+					infantry = { x = 2 y = 0 }
+					infantry = { x = 2 y = 1 }
+				}
+				support = {
+					engineer = { x = 0 y = 0 }
+				}
+			}
+
+			326 = {
+				create_unit = {
+					division = "name = \"British Forces Overseas Hong Kong\" division_template = \"British Infantry Division\" start_experience_factor = 1"
+					owner = AST
+				}
+			}
+
+			country_event = britas.19
+		}
+
+		start_border_war = {
+			change_state_after_war = no
+			attacker = {
+				state = 593
+				num_provinces = 1
+				on_win = britas.17
+				on_lose = britas.18
+				on_cancel = britas.18
+			}				
+			defender = {
+				state = 326
+				num_provinces = 1
+				on_win = britas.18
+				on_lose = britas.17
+				on_cancel = britas.17
+			}
+		}
+	}
+	option = {
+		name = britas.16.b
+		ai_chance = {
+			factor = 30
+			modifier = {
+				factor = 100
+				OR = {
+					has_war = yes
+					has_war_support < 0.2
+					has_stability < 0.2
+				}
+			}
+		}
+	}
+}
+# The British Pull Out from Hong Kong
+country_event = {
+	id = britas.17
+	title = britas.17.t
+	desc = britas.17.d
+	fire_only_once = yes
+	is_triggered_only = yes
+	immediate = {
+		every_other_country = {
+			limit = {
+				has_country_flag = hong_kong_border_conflict
+			}
+			transfer_state = 326
+			clr_country_flag = hong_kong_border_conflict
+			if = {
+				limit = {
+					593 = { is_core_of = PREV }
+					NOT = {
+						326 = { is_core_of = PREV }
+					}
+				}
+				add_state_core = 326
+			}
+		}
+	}
+	option = {
+		name = britas.17.a
+		trigger = { tag = AST }
+		ai_chance = { factor = 100 }
+
+		add_state_claim = 326
+		add_war_support = -0.1
+	}
+	option = {
+		name = britas.17.b
+		trigger = { NOT = { tag = AST } }
+		ai_chance = { factor = 100 }
+
+		add_war_support = 0.1
+	}
+}
+# The British Hold the Hong Kong
+country_event = {
+	id = britas.18
+	title = britas.18.t
+	desc = britas.18.d
+	fire_only_once = yes
+	is_triggered_only = yes
+	immediate = {
+		every_other_country = {
+			limit = {
+				has_country_flag = hong_kong_border_conflict
+			}
+			clr_country_flag = hong_kong_border_conflict
+		}
+	}
+	option = {
+		name = britas.18.a
+		trigger = { tag = AST }
+		ai_chance = { factor = 100 }
+
+		add_war_support = 0.1
+	}
+	option = {
+		name = britas.18.b
+		trigger = { NOT = { tag = AST } }
+		ai_chance = { factor = 100 }
+
+		add_war_support = -0.1
+	}
+}
+# Alert for Australia
+country_event = {
+	id = britas.19
+	title = britas.19.t
+	desc = britas.19.d
+	fire_only_once = yes
+	is_triggered_only = yes
+	option = {
+		name = britas.19.a
+		trigger = { tag = AST }
+		ai_chance = { factor = 100 }
+
+		add_war_support = 0.05
+	}
+	option = {
+		name = britas.19.b
+		ai_chance = { factor = 0 }
+
+		cancel_border_war = {
+			defender = 326
+			attacker = 593
+		}
+
+		every_country = {
+			limit = {
+				OR = {
+					tag = AST
+					has_country_flag = hong_kong_border_conflict
+				}
+			}
+			country_event = britas.17
+		}
 	}
 }
