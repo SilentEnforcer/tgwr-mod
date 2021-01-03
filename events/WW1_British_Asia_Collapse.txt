@@ -635,7 +635,6 @@ country_event = {
 		AST = {
 			transfer_state = 712 
 			transfer_state = 711
-			transfer_state = 326 #British Hongkong, but to prevent any unexpected circumstances with British Civil War, it is transfered to Australia, which is also British country that close to Hong Kong.
 		}
 		NZL = {
 			transfer_state = 636
@@ -664,10 +663,110 @@ country_event = {
 				UAE = { transfer_state = 658 }
 			}	
 		}
+		# British Hong Kong
+		hidden_effect = {
+			create_dynamic_country = {
+				original_tag = ENG
+
+				set_politics = {
+					ruling_party = neutrality
+					last_election = "1918.11.11"
+					election_frequency = 60 
+					elections_allowed = no
+				}
+
+				set_popularities = {
+					democratic = 0
+					neutrality = 100
+					fascism = 0
+					communism = 0
+				}
+
+				set_capital = 326
+
+				set_country_flag = ENG_hong_kong_flag
+				set_cosmetic_tag = HKG
+			}
+			HKG = {
+				transfer_state = 326
+
+				division_template = {
+					name = "British Infantry Division"
+					regiments = {
+						infantry = { x = 0 y = 0 }
+						infantry = { x = 0 y = 1 }
+						infantry = { x = 1 y = 0 }
+						infantry = { x = 1 y = 1 }
+						infantry = { x = 2 y = 0 }
+						infantry = { x = 2 y = 1 }
+					}
+					support = {
+						engineer = { x = 0 y = 0 }
+					}
+				}
+
+				326 = {
+					create_unit = {
+						division = "name = \"British Forces Overseas Hong Kong\" division_template = \"British Infantry Division\" start_experience_factor = 1"
+						owner = HKG
+					}
+				}
+
+				add_manpower = 10000 #Britons, because they don't have core on it.
+
+				add_equipment_to_stockpile = {
+					type = infantry_equipment
+					amount = 30000
+					producer = ENG
+				}
+
+				add_equipment_to_stockpile = {
+					type = support_equipment
+					amount = 10000
+					producer = ENG
+				}
+
+				# Too many possibility to add every governors during the days
+				create_country_leader = {
+					name = "Governor of Hong Kong"
+					picture = "gfx/leaders/ENG/HKG_Governor_of_Hong_Kong.dds" 
+					expire = "1935.1.1"
+					ideology = despotism
+					traits = { }
+				}
+
+				set_party_name = {
+					ideology = fascism
+					long_name = HKG_fascism_party_long
+					name = HKG_fascism_party
+				}
+
+				set_party_name = {
+					ideology = neutrality
+					long_name = HKG_neutrality_party
+					name = HKG_neutrality_party
+				}
+
+				set_party_name = {
+					ideology = democratic
+					long_name = HKG_democratic_party
+					name = HKG_democratic_party
+				}
+
+				set_party_name = {
+					ideology = communism
+					long_name = HKG_communism_party_long
+					name = HKG_communism_party
+				}
+			}
+		}
 		every_other_country = {
 			limit = {
 				has_full_control_of_state = 593 #Guangdong
-				NOT = { is_in_faction_with = AST }
+				OR = {
+					tag = QIN
+					tag = CHI
+				}
 			}
 			country_event = { id = britas.16 days = 7 }
 		}
@@ -1019,8 +1118,10 @@ country_event = {
 	fire_only_once = yes
 	is_triggered_only = yes
 	immediate = {
-		set_country_flag = hong_kong_border_conflict
-		add_state_core = 326
+		hidden_effect = {
+			set_country_flag = hong_kong_border_conflict
+			add_state_core = 326
+		}
 	}
 	option = {
 		name = britas.16.a
@@ -1036,31 +1137,7 @@ country_event = {
 			}
 		}
 
-		AST = {
-			division_template = {
-				name = "British Infantry Division"
-				regiments = {
-					infantry = { x = 0 y = 0 }
-					infantry = { x = 0 y = 1 }
-					infantry = { x = 1 y = 0 }
-					infantry = { x = 1 y = 1 }
-					infantry = { x = 2 y = 0 }
-					infantry = { x = 2 y = 1 }
-				}
-				support = {
-					engineer = { x = 0 y = 0 }
-				}
-			}
-
-			326 = {
-				create_unit = {
-					division = "name = \"British Forces Overseas Hong Kong\" division_template = \"British Infantry Division\" start_experience_factor = 1"
-					owner = AST
-				}
-			}
-
-			country_event = britas.19
-		}
+		ENG = { country_event = britas.19 }
 
 		start_border_war = {
 			change_state_after_war = no
@@ -1103,26 +1180,31 @@ country_event = {
 	fire_only_once = yes
 	is_triggered_only = yes
 	immediate = {
-		every_other_country = {
-			limit = {
-				has_country_flag = hong_kong_border_conflict
-			}
-			transfer_state = 326
-			clr_country_flag = hong_kong_border_conflict
-			if = {
+		hidden_effect = {
+			every_other_country = {
 				limit = {
-					593 = { is_core_of = PREV }
-					NOT = {
-						326 = { is_core_of = PREV }
-					}
+					has_country_flag = hong_kong_border_conflict
 				}
-				add_state_core = 326
+				transfer_state = 326
+				clr_country_flag = hong_kong_border_conflict
+				if = {
+					limit = {
+						593 = { is_core_of = PREV }
+						NOT = {
+							326 = { is_core_of = PREV }
+						}
+					}
+					add_state_core = 326
+				}
+			}
+			ENG = {
+				country_event = britas.17
 			}
 		}
 	}
 	option = {
 		name = britas.17.a
-		trigger = { tag = AST }
+		trigger = { tag = ENG } # HKG is gone at this point
 		ai_chance = { factor = 100 }
 
 		add_state_claim = 326
@@ -1130,7 +1212,7 @@ country_event = {
 	}
 	option = {
 		name = britas.17.b
-		trigger = { NOT = { tag = AST } }
+		trigger = { NOT = { tag = ENG } }
 		ai_chance = { factor = 100 }
 
 		add_war_support = 0.1
@@ -1144,29 +1226,48 @@ country_event = {
 	fire_only_once = yes
 	is_triggered_only = yes
 	immediate = {
-		every_other_country = {
-			limit = {
-				has_country_flag = hong_kong_border_conflict
+		hidden_effect = {
+			every_other_country = {
+				limit = {
+					has_country_flag = hong_kong_border_conflict
+				}
+				clr_country_flag = hong_kong_border_conflict
 			}
-			clr_country_flag = hong_kong_border_conflict
 		}
 	}
 	option = {
 		name = britas.18.a
-		trigger = { tag = AST }
+		trigger = {
+			OR = {
+				tag = ENG
+				tag = HKG
+			}
+		}
 		ai_chance = { factor = 100 }
 
 		add_war_support = 0.1
+
+		hidden_effect = {
+			ENG = { country_event = britas.18 }
+		}
 	}
 	option = {
 		name = britas.18.b
-		trigger = { NOT = { tag = AST } }
+		trigger = {
+			NOT = {
+				OR = {
+					tag = HKG
+					tag = ENG
+				}
+			}
+		}
 		ai_chance = { factor = 100 }
 
 		add_war_support = -0.1
 	}
 }
-# Alert for Australia
+# Alert for Britain
+# it is meaningless to give this event to HKG because they are not playable.
 country_event = {
 	id = britas.19
 	title = britas.19.t
@@ -1175,7 +1276,6 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = britas.19.a
-		trigger = { tag = AST }
 		ai_chance = { factor = 100 }
 
 		add_war_support = 0.05
@@ -1189,10 +1289,22 @@ country_event = {
 			attacker = 593
 		}
 
+		HKG = {
+			transfer_units_fraction = {
+				target = ENG
+				size = 0.7
+				stockpile_ratio = 0.5
+				army_ratio = 0.7
+				navy_ratio = 1
+				air_ratio = 0.9
+				keep_unit_leaders_trigger = {}
+			}
+		}
+
 		every_country = {
 			limit = {
 				OR = {
-					tag = AST
+					tag = ENG
 					has_country_flag = hong_kong_border_conflict
 				}
 			}
