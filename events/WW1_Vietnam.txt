@@ -1,17 +1,18 @@
 add_namespace = ww1_vietnam
 country_event = {
-    id = ww1_vietnam.1
-    fire_only_once = yes
+	id = ww1_vietnam.1
+	fire_only_once = yes
 	trigger = {
 		tag = VIN
 		VIN = {
-		    NOT = { is_subject_of = FRA }
+			NOT = { is_subject_of = FRA }
 		}
 		
 	}
 	hidden = yes
 	mean_time_to_happen = { days = 0 }
 	immediate = {
+		drop_cosmetic_tag = yes
 		create_country_leader = { 
 			name = "Phan Boi Châu"
 			picture = "gfx/leaders/VIN/VIN_Phan_Boi_Chau.dds" 
@@ -20,6 +21,36 @@ country_event = {
 			traits = { } 
 		}
 		set_party_name = { ideology = democratic name = VIN_VNQPH_party long_name = VIN_VNQPH_party_long }
+
+		if = {
+			limit = {
+				NFA = { exists = yes }
+			}
+
+			transfer_units_fraction= {
+				target = NFA
+				size = 1
+				stockpile_ratio = 0.9
+				army_ratio = 1
+				navy_ratio = 1
+				air_ratio = 1
+			}
+		}
+
+		if = {
+			limit = {
+				NOT = { NFA = { exists = yes } }
+			}
+
+			transfer_units_fraction= {
+				target = FRA
+				size = 1
+				stockpile_ratio = 0.9
+				army_ratio = 1
+				navy_ratio = 1
+				air_ratio = 1
+			}
+		}
 	}
 }
 #taking advantage
@@ -80,34 +111,34 @@ country_event = {
 #}
 #fragmentation of indochina
 #country_event = {
-#    id = ww1_vietnam.3
-#    title = ww1_vietnam.3.t
-#    desc = ww1_vietnam.3.d
-#    fire_only_once = yes
-#    is_triggered_only = yes
-#    mean_time_to_happen = { days = 1 }
-#    option = {
-#        name = ww1_vietnam.3.a
-#        ai_chance = {
-#                factor = 100
-#        }
-#        CAM = {
-#            transfer_state = 819
-#            transfer_state = 741
-#            declare_war_on = {
-#                target = SIA
-#                type = annex_everything
-#            }
-#        }
-#        LAO = {
-#            transfer_state = 670
-#            transfer_state = 822
-#            declare_war_on = {
-#                target = SIA
-#                type = annex_everything
-#            }
-#        }
-#    }
+#	id = ww1_vietnam.3
+#	title = ww1_vietnam.3.t
+#	desc = ww1_vietnam.3.d
+#	fire_only_once = yes
+#	is_triggered_only = yes
+#	mean_time_to_happen = { days = 1 }
+#	option = {
+#		name = ww1_vietnam.3.a
+#		ai_chance = {
+#				factor = 100
+#		}
+#		CAM = {
+#			transfer_state = 819
+#			transfer_state = 741
+#			declare_war_on = {
+#				target = SIA
+#				type = annex_everything
+#			}
+#		}
+#		LAO = {
+#			transfer_state = 670
+#			transfer_state = 822
+#			declare_war_on = {
+#				target = SIA
+#				type = annex_everything
+#			}
+#		}
+#	}
 #}
 #peace for our enemies
 #country_event = {
@@ -150,9 +181,12 @@ country_event = {
 	trigger = {
 		tag = GER
 		has_global_flag = frankfurt_treaty
-			FRA = { 
+		FRA = { 
+			OR = {
 				has_civil_war = yes
+				has_war_with = NFA
 			}
+		}
 	}
 	mean_time_to_happen = { days = 3 }
 
@@ -164,7 +198,20 @@ country_event = {
 		if = { limit = { VIN = { NOT = { is_subject_of = GER } } } 
 			GER = {
 				puppet = VIN
-			
+			}
+
+			if = {
+				limit = {
+					OR = {
+						has_dlc = "Together for Victory"
+						has_dlc = "Man the Guns"
+					}
+				}
+				set_autonomy = {
+					target = VIN
+					autonomous_state = autonomy_colony
+					freedom_level = 0.5
+				}
 			}
 		}
 		VIN = {
@@ -178,31 +225,31 @@ country_event = {
 				ideology = despotism
 			}
 			annex_country = {
-            	target = LAO
-      	  	}
+				target = LAO
+	  	  	}
 			annex_country = {
-           		target = CAM
-        	}
+		   		target = CAM
+			}
 			hidden_effect = {
 				if = {
 					limit = {
 						neutrality < 0.5
 					}
 					add_popularity = {
-					    ideology = neutrality
-					    popularity = 0.4
+						ideology = neutrality
+						popularity = 0.4
 					}
 					add_popularity = {
-					    ideology = democratic
-					    popularity = -0.05
+						ideology = democratic
+						popularity = -0.05
 					}
 					add_popularity = {
-				    	ideology = fascism
-				    	popularity = -0.05
+						ideology = fascism
+						popularity = -0.05
 					}
 					add_popularity = {
 				   	 	ideology = communism
-				    	popularity = -0.05
+						popularity = -0.05
 					}
 					else = {
 						add_popularity = {
@@ -213,23 +260,342 @@ country_event = {
 				}
 				set_politics = { ruling_party = neutrality elections_allowed = no }
 				set_party_name = { ideology = neutrality name = VIN_democratic_party long_name = VIN_democratic_party }
+
+				if = {
+					limit = {
+						MAL = {
+							is_subject = no
+						}
+					}
+					VIN = {
+						annex_country = {
+							target = MAL
+							transfer_troops = no
+						}
+
+						set_cosmetic_tag = GEA
+						set_capital = 336
+					}
+				}
+
+				division_template = {
+					name = "Infantrie-Division"
+					regiments = {
+						infantry = { x=0  y=0 }
+						infantry = { x=1  y=0 }
+						infantry = { x=0  y=1 }
+						infantry = { x=1  y=1 }
+					}
+				}
+
+				286 = {
+					create_unit = {
+						division = "name = \"1. infantrie Division\" division_template = \"Infantrie-Division\" start_experience_factor = 1.0" 
+						owner = VIN
+					}
+					create_unit = {
+						division = "name = \"2. infantrie Division\" division_template = \"Infantrie-Division\" start_experience_factor = 1.0" 
+						owner = VIN
+					}
+					create_unit = {
+						division = "name = \"3. infantrie Division\" division_template = \"Infantrie-Division\" start_experience_factor = 1.0" 
+						owner = VIN
+					}
+				}
+			}
+
+			if = {
+				limit = {
+					has_idea = idea_army_restrictions
+				}
+				remove_ideas = idea_army_restrictions
 			}
 		}
-		SIA = { 
-			transfer_state = 822
-			transfer_state = 819
-			white_peace = CAM
-			white_peace = LAO
-			white_peace = VIN
-			white_peace = FRA
+		if = {
+			limit = {
+				country_exists = SIA
+				SIA = {
+					NOT = {has_country_flag = great_war_loser}
+				}
+			}
+			SIA = {
+				transfer_state = 822
+				transfer_state = 819
+			}
+		}
+		GER = {
+			transfer_ship = {
+				prefer_name = "SMS Scharnhorst"
+				type = heavy_cruiser
+				target = VIN
+			}
+
+			transfer_ship = {
+				prefer_name = "SMS Gneisenau"
+				type = heavy_cruiser
+				target = VIN
+			}
+
+			transfer_ship = {
+				prefer_name = "SMS Dresden"
+				type = light_cruiser
+				target = VIN
+			}
+
+			transfer_ship = {
+				prefer_name = "SMS Emden"
+				type = light_cruiser
+				target = VIN
+			}
+
+			transfer_ship = {
+				prefer_name = "SMS Nürnberg"
+				type = light_cruiser
+				target = VIN
+			}
+
+			transfer_ship = {
+				prefer_name = "SMS Leipzig"
+				type = light_cruiser
+				target = VIN
+			}
+
+			transfer_ship = {
+				prefer_name = "SMS Niobe"
+				type = light_cruiser
+				target = VIN
+			}
+
+			transfer_ship = {
+				prefer_name = "SMS Amazone"
+				type = light_cruiser
+				target = VIN
+			}
+
+			transfer_ship = {
+				prefer_name = "SMS Arcona"
+				type = light_cruiser
+				target = VIN
+			}
 		}
 	}
 	option = {
 		name = ww1_vietnam.5.b
 		ai_chance = {
 			factor = 0
+		}
+	}
+}
+# German East Asia Is Growing
+country_event = {
+	id = ww1_vietnam.6
+	title = ww1_vietnam.6.t
+	desc = ww1_vietnam.6.d
+	fire_only_once = yes
+	trigger = {
+		OR = {
+			tag = GER
+			tag = AUH
+		}
+		VIN = {
+			has_cosmetic_tag = GEA
+			is_subject_of = ROOT
+		}
+		OR = {
+			owns_state = 270
+			owns_state = 523
+			owns_state = 633
+			owns_state = 634
+			owns_state = 639
+			owns_state = 646
+			owns_state = 647
+			owns_state = 648
+			owns_state = 684
+			owns_state = 725
+			owns_state = 733
+			owns_state = 734
+			owns_state = 737
+			owns_state = 798
+		}
+	}
+	mean_time_to_happen = { days = 14 }
+	option = {
+		name = ww1_vietnam.6.a
+		ai_chance = { factor = 100 }
+
+		if = {
+			limit = {
+				ROOT = { owns_state = 270 }
+			}
+
+			VIN = {
+				transfer_state = 270
+			}
+		}
+
+		if = {
+			limit = {
+				ROOT = { owns_state = 523 }
+			}
+
+			VIN = {
+				transfer_state = 523
+			}
+		}
+
+		if = {
+			limit = {
+				ROOT = { owns_state = 633 }
+			}
+
+			VIN = {
+				transfer_state = 633
+			}
+		}
+
+		if = {
+			limit = {
+				ROOT = { owns_state = 634 }
+			}
+
+			VIN = {
+				transfer_state = 634
+			}
+		}
+
+		if = {
+			limit = {
+				ROOT = { owns_state = 639 }
+			}
+
+			VIN = {
+				transfer_state = 639
+			}
+		}
+
+		if = {
+			limit = {
+				ROOT = { owns_state = 643 }
+			}
+
+			VIN = {
+				transfer_state = 643
+			}
+		}
+
+		if = {
+			limit = {
+				ROOT = { owns_state = 646 }
+			}
+
+			VIN = {
+				transfer_state = 646
+			}
+		}
+
+		if = {
+			limit = {
+				ROOT = { owns_state = 647 }
+			}
+
+			VIN = {
+				transfer_state = 647
+			}
+		}
+
+		if = {
+			limit = {
+				ROOT = { owns_state = 648 }
+			}
+
+			VIN = {
+				transfer_state = 648
+			}
+		}
+
+		if = {
+			limit = {
+				ROOT = { owns_state = 684 }
+			}
+
+			VIN = {
+				transfer_state = 684
+			}
+		}
+
+		if = {
+			limit = {
+				ROOT = { owns_state = 725 }
+			}
+
+			VIN = {
+				transfer_state = 725
+			}
+		}
+
+		if = {
+			limit = {
+				ROOT = { owns_state = 733 }
+			}
+
+			VIN = {
+				transfer_state = 733
+			}
+		}
+
+		if = {
+			limit = {
+				ROOT = { owns_state = 734 }
+			}
+
+			VIN = {
+				transfer_state = 734
+			}
+		}
+
+		if = {
+			limit = {
+				ROOT = { owns_state = 737 }
+			}
+
+			VIN = {
+				transfer_state = 737
+			}
+		}
+
+		if = {
+			limit = {
+				ROOT = { owns_state = 798 }
+			}
+
+			VIN = {
+				transfer_state = 798
+			}
+		}
+
+		if = {
+			limit = {
+				HOL = { is_subject_of = ROOT }
+				INS = { OR = { is_subject_of = HOl is_subject_of = ROOT } }
+			}
+
+			every_state = {
+				limit = { is_core_of = INS }
+				add_core_of = VIN
+			}
+
+			VIN = {
+				annex_country = {
+					target = INS
+					transfer_troops = yes
+				}
 			}
 		}
 	}
+	option = {
+		name = ww1_vietnam.6.b
+		ai_chance = { factor = 0 }
+	}
+}
 #hey Datuman, it's me Undead Unicorn, fix your indenting PLEASE :((((((
 #hey Datuman, it's me Silent Enforcer, :((((((

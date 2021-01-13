@@ -7,8 +7,8 @@ country_event = {
 	
 	trigger = {
 		tag = POL
-		POL = { is_puppet_of = RUS }
-		NOT = { has_global_flag = POL_rus_puppet }
+		POL = { is_subject_of = RUS }
+		NOT = { has_global_flag = POL_RUS }
 	}	
 	mean_time_to_happen = {
 		days = 0
@@ -17,8 +17,8 @@ country_event = {
 	hidden = yes
 
 	immediate = {
-		set_cosmetic_tag = POL_rus_puppet
-		set_global_flag = POL_rus_puppet
+		set_cosmetic_tag = POL_RUS
+		set_global_flag = POL_RUS
 	}
 }
 
@@ -29,8 +29,8 @@ country_event = {
 	
 	trigger = {
 		tag = POL
-		NOT = { POL = { is_puppet_of = RUS } }
-		has_global_flag = POL_rus_puppet
+		NOT = { POL = { is_subject_of = RUS } }
+		has_global_flag = POL_RUS
 	}	
 	mean_time_to_happen = {
 		days = 0
@@ -40,7 +40,7 @@ country_event = {
 
 	immediate = {
 		drop_cosmetic_tag = yes
-		clr_global_flag = POL_rus_puppet
+		clr_global_flag = POL_RUS
 	}
 }
 
@@ -51,9 +51,8 @@ country_event = {
 	
 	trigger = {
 		tag = POL
-		POL = { is_puppet = no }
-		GAL = { exists = yes }
-		GAL = { is_puppet = no }
+		is_subject = no
+		GAL = { exists = yes is_subject = no }
 	}	
 	mean_time_to_happen = {
 		days = 0
@@ -85,29 +84,40 @@ country_event = {
     fire_only_once = yes
 	trigger = {
 		tag = POL
-		POL = {
-			exists = yes
-			is_subject = no
-			NOT = { has_country_leader = { name = "Józef Piłsudski" ruling_only = yes } }
-		}
-		
+		exists = yes			
+		NOT = { has_country_leader = { name = "Józef Piłsudski" ruling_only = yes } }
+		OR = {
+		    is_subject = no
+			AND = {
+				is_subject_of = GER
+				GER = { has_country_flag = great_war_loser }
+				NOT = { has_global_flag = versallies_treaty}
+			}
+        }
 	}
-	mean_time_to_happen = { days = 30 }
+	mean_time_to_happen = { days = 1 }
 	option = {
 		name = ww1_poland.1.a
-		create_country_leader = { 
+		if = {
+		    limit = {
+                is_subject_of = GER
+		    }
+            GER = { end_puppet = POL}
+            leave_faction = yes			
+		}	
+		create_country_leader = {
 			name = "Józef Piłsudski"
 			picture = "gfx/leaders/POL/POL_jozef_pilsudski.dds" 
 			expire = "1935.1.1" 
 			ideology = centrism
 			traits = { nationalist_symbol } 
 		}
-		set_party_name = { ideology = neutrality name = POL_pilsudski_party }
+		set_party_name = { ideology = neutrality name = POL_pilsudski_party long_name = POL_pilsudski_party}
 		set_cosmetic_tag = POL_republic
 		ai_chance = { factor = 100 }
 	}
 }
-#Poland Annexes Galicia - Undead Unicorn wuz here
+#Poland Annexes Galicia - Undead Unicorn wuz here, fixed by Silent Enforcer
 country_event = {
 	id = ww1_poland.2
 	title = ww1_poland.2.t
@@ -115,31 +125,33 @@ country_event = {
 	picture = GFX_report_event_generic_military_parade
 	fire_only_once = yes
 	trigger = {
-		is_major = yes
-		POL = { is_subject_of = ROOT }
-		GLC = { is_subject_of = ROOT }
+		has_subject = POL
+        has_subject = GAL	
 	}
 	option = {
 		name = ww1_poland.2.a
 		ai_chance = { factor = 95 }
 		POL = {
 			annex_country = {
- 			   target = GLC
+ 			   target = GAL
 			    transfer_troops = yes
 			}
+		}
+		if = {
+			limit = {
+				UKR = {
+					is_subject_of = ROOT
+					owns_state = 766
+				}
+			}
+			POL = { transfer_state = 766 }
 		}
 	}
 	option = {
 		name = ww1_poland.2.b
 		ai_chance = { factor = 5 }
-		set_autonomy = {
-		    target = POL
-		    autonomy_state = autonomy_free
-		}
-		declare_war_on = {
-		    target = POL
-		    type = puppet
-		}
+		end_puppet = POL
+		POL = {leave_faction = yes }
 		hidden_effect = {
 			POL = {
 				set_politics = {
@@ -159,6 +171,10 @@ country_event = {
 				}
 				set_cosmetic_tag = POL_republic
 			}
+		}
+		declare_war_on = {
+			target = POL
+			type = puppet_wargoal_focus
 		}
 	}
 }
