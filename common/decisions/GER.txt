@@ -355,7 +355,12 @@ GER_decision_central_powers_conference = {
 		is_good = yes
 		timeout_effect = {
 			set_global_flag = central_powers_conference_ends
-			ITA = { country_event = { id = ww1_germany.57 } }
+			if = {
+			    limit = {
+				    ITA = { NOT = { in_faction_with = GER } }
+				}
+			    ITA = { country_event = { id = ww1_germany.57 } }
+			}
 			if = {
 				limit = { DEN = { has_country_flag = get_holstein } }
 				GER = { add_to_faction = DEN remove_state_core = 751 }
@@ -369,6 +374,7 @@ GER_decision_central_powers_conference = {
 							has_country_flag = get_german_techs
 							has_country_flag = get_german_nothing
 						}
+						NOT = { in_faction_with = GER }
 					}
 				}
 				GER = { add_to_faction = SWE }
@@ -420,6 +426,7 @@ GER_decision_central_powers_conference = {
 							has_country_flag = get_german_techs
 							has_country_flag = get_german_nothing
 						}
+						NOT = { in_faction_with = GER }
 					}
 				}
 				GER = { add_to_faction = HOL }
@@ -471,6 +478,7 @@ GER_decision_central_powers_conference = {
 							has_country_flag = get_german_techs
 							has_country_flag = get_german_nothing
 						}
+						NOT = { in_faction_with = GER }
 					}
 				}
 				GER = { add_to_faction = NOR }
@@ -522,6 +530,7 @@ GER_decision_central_powers_conference = {
 							has_country_flag = get_german_techs
 							has_country_flag = get_german_nothing
 						}
+						NOT = { in_faction_with = GER }
 					}
 				}
 				GER = { add_to_faction = SWI }
@@ -679,7 +688,6 @@ GER_decision_central_powers_conference = {
 			has_completed_focus = GER_central_powers_conference
 			NOT = { has_global_flag = central_powers_conference_ends }
 		}
-		cost = 75
 		fire_only_once = yes
 		complete_effect = {
 			GER = { country_event = ww1_germany.40 }
@@ -1117,7 +1125,7 @@ foreign_politics = {
 	GER_control_austrian_planning = {
 		available = {		
 			has_war = yes
-			army_experience > 10
+			has_army_experience > 10
 			AUH = { is_in_faction_with = GER }
 		}
 		target_trigger = {
@@ -1134,13 +1142,13 @@ foreign_politics = {
 		days_remove = 30
 		days_re_enable = 60
 		complete_effect = {
-			add_army_experience = -10
+			army_experience = -10
 			add_ideas = GER_german_staff_planning
 			AUH = { add_ideas = GER_german_staff_planning_auh }
 		}
 		remove_effect = {
 			AUH = { 
-				add_army_experience = 10 
+				army_experience = 10 
 				remove_ideas = GER_german_staff_planning_auh 
 			}
 			remove_ideas = GER_german_staff_planning
@@ -1165,10 +1173,8 @@ foreign_politics = {
 			has_war = no
 			has_war_support > 0.5
 			has_stability > 0.5
-			OR = {
-				has_global_flag = versallies_treaty
-				has_global_flag = frankfurt_treaty
-			}
+			has_global_flag = frankfurt_treaty
+			has_completed_focus = GER_reichspakt
 		}
 		visible = {
 			RUS = {
@@ -1178,7 +1184,7 @@ foreign_politics = {
 		}
 		fire_only_once = yes
 		cost = 200
-		days_remove = 5
+		days_remove = 10
 		target_trigger = {
 			FROM = {
 				tag = SOV
@@ -1216,10 +1222,8 @@ foreign_politics = {
 			has_war = no
 			has_war_support > 0.5
 			has_stability > 0.5
-			OR = {
-				has_global_flag = versallies_treaty
-				has_global_flag = frankfurt_treaty
-			}
+			has_global_flag = frankfurt_treaty
+			has_completed_focus = GER_reichspakt
 		}
 		visible = {
 			FRC = {
@@ -1229,7 +1233,7 @@ foreign_politics = {
 		}
 		fire_only_once = yes
 		cost = 200
-		days_remove = 5
+		days_remove = 10
 		target_trigger = {
 			FROM = {
 				tag = FRC
@@ -1443,6 +1447,42 @@ GER_decision_military_advisers = {
 		remove_effect = {
 			add_manpower = -1000
 			MEX = { add_timed_idea = { idea = GER_idea_german_military_advisors days = 360 } }
+		}
+		cost = 75
+		ai_will_do = {
+			factor = 100
+		}
+	}
+	GER_advisors_RUS = {
+		icon = GFX_decision_generic_operation
+		available = {
+			is_faction_leader = yes
+			has_manpower > 999
+			has_war_with = SOV
+			NOT = { has_war_with = RUS }
+			RUS = { 
+				has_war_with = SOV
+				NOT = { has_idea = GER_idea_german_military_advisors } 
+			}
+		}	
+		visible = {
+			has_completed_focus = GER_military_advisers
+			has_war_with = SOV
+			NOT = { has_war_with = RUS }
+		}		
+		fire_only_once = no
+		allowed = {
+			original_tag = GER
+		}
+		days_remove = 25
+		target_trigger = {
+			FROM = {
+				tag = RUS
+			}
+		}
+		remove_effect = {
+			add_manpower = -1000
+			RUS = { add_timed_idea = { idea = GER_idea_german_military_advisors days = 360 } }
 		}
 		cost = 75
 		ai_will_do = {
@@ -1979,6 +2019,358 @@ political_actions = {
 		}
 		complete_effect = {
 			set_cosmetic_tag = GER_HRY
+		}
+	}
+	GER_german_east_asia = {
+		icon = GFX_decision_generic_operation
+		allowed = { tag = GER }
+		available = {
+			has_global_flag = frankfurt_treaty
+			OR = {
+				owns_state = 270
+				owns_state = 523
+				owns_state = 633
+				owns_state = 634
+				owns_state = 635
+				owns_state = 639
+				owns_state = 641
+				owns_state = 646
+				owns_state = 647
+				owns_state = 648
+				owns_state = 684
+				owns_state = 725
+				owns_state = 733
+				owns_state = 734
+				owns_state = 737
+				owns_state = 798
+				AND = {
+					HOL = { is_subject_of = ROOT }
+					INS = { OR = { is_subject_of = HOl is_subject_of = ROOT } }
+				}
+			}
+		}
+		visible = {
+			VIN = { is_subject_of = ROOT }
+			OR = {
+				owns_state = 270
+				owns_state = 523
+				owns_state = 633
+				owns_state = 634
+				owns_state = 635
+				owns_state = 639
+				owns_state = 641
+				owns_state = 646
+				owns_state = 647
+				owns_state = 648
+				owns_state = 684
+				owns_state = 725
+				owns_state = 733
+				owns_state = 734
+				owns_state = 737
+				owns_state = 798
+				AND = {
+					HOL = { is_subject_of = ROOT }
+					INS = { OR = { is_subject_of = HOl is_subject_of = ROOT } }
+				}
+			}
+		}
+		fire_only_once = no
+		cost = 100
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			if = {
+				limit = {
+					ROOT = { owns_state = 270 }
+				}
+
+				VIN = {
+					transfer_state = 270
+				}
+			}
+
+			if = {
+				limit = {
+					ROOT = { owns_state = 523 }
+				}
+
+				VIN = {
+					transfer_state = 523
+				}
+			}
+
+			if = {
+				limit = {
+					ROOT = { owns_state = 633 }
+				}
+
+				VIN = {
+					transfer_state = 633
+				}
+			}
+
+			if = {
+				limit = {
+					ROOT = { owns_state = 634 }
+				}
+
+				VIN = {
+					transfer_state = 634
+				}
+			}
+
+			if = {
+				limit = {
+					ROOT = { owns_state = 635 }
+				}
+
+				VIN = {
+					transfer_state = 635
+				}
+			}
+
+			if = {
+				limit = {
+					ROOT = { owns_state = 639 }
+				}
+
+				VIN = {
+					transfer_state = 639
+				}
+			}
+
+			if = {
+				limit = {
+					ROOT = { owns_state = 641 }
+				}
+
+				VIN = {
+					transfer_state = 641
+				}
+			}
+
+			if = {
+				limit = {
+					ROOT = { owns_state = 643 }
+				}
+
+				VIN = {
+					transfer_state = 643
+				}
+			}
+
+			if = {
+				limit = {
+					ROOT = { owns_state = 646 }
+				}
+
+				VIN = {
+					transfer_state = 646
+				}
+			}
+
+			if = {
+				limit = {
+					ROOT = { owns_state = 647 }
+				}
+
+				VIN = {
+					transfer_state = 647
+				}
+			}
+
+			if = {
+				limit = {
+					ROOT = { owns_state = 648 }
+				}
+
+				VIN = {
+					transfer_state = 648
+				}
+			}
+
+			if = {
+				limit = {
+					ROOT = { owns_state = 684 }
+				}
+
+				VIN = {
+					transfer_state = 684
+				}
+			}
+
+			if = {
+				limit = {
+					ROOT = { owns_state = 725 }
+				}
+
+				VIN = {
+					transfer_state = 725
+				}
+			}
+
+			if = {
+				limit = {
+					ROOT = { owns_state = 733 }
+				}
+
+				VIN = {
+					transfer_state = 733
+				}
+			}
+
+			if = {
+				limit = {
+					ROOT = { owns_state = 734 }
+				}
+
+				VIN = {
+					transfer_state = 734
+				}
+			}
+
+			if = {
+				limit = {
+					ROOT = { owns_state = 737 }
+				}
+
+				VIN = {
+					transfer_state = 737
+				}
+			}
+
+			if = {
+				limit = {
+					ROOT = { owns_state = 798 }
+				}
+
+				VIN = {
+					transfer_state = 798
+				}
+			}
+
+			if = {
+				limit = {
+					HOL = { is_subject_of = ROOT }
+					INS = { OR = { is_subject_of = HOl is_subject_of = ROOT } }
+				}
+
+				every_state = {
+					limit = { is_core_of = INS }
+					add_core_of = VIN
+				}
+
+				VIN = {
+					annex_country = {
+						target = INS
+						transfer_troops = yes
+					}
+				}
+			}
+		}
+	}
+	GER_decision_mittelafrika = {
+		icon = GFX_decision_generic_operation
+		allowed = { tag = GER }
+		available = {
+			has_global_flag = frankfurt_treaty
+			OR = {
+				owns_state = 272
+				owns_state = 274
+				owns_state = 295
+				owns_state = 296
+				owns_state = 297
+				owns_state = 298
+				owns_state = 538
+				owns_state = 539
+				owns_state = 540
+				owns_state = 541
+				owns_state = 546
+				owns_state = 547
+				owns_state = 548
+				owns_state = 549
+				owns_state = 558
+				owns_state = 660
+				owns_state = 700
+				owns_state = 701
+				owns_state = 718
+				owns_state = 752
+				owns_state = 768
+				owns_state = 769
+				owns_state = 770
+				owns_state = 771
+				owns_state = 772
+				owns_state = 774
+				owns_state = 776
+				owns_state = 777
+				owns_state = 779
+				owns_state = 780
+				owns_state = 789
+				owns_state = 792
+				owns_state = 794
+				owns_state = 813
+				owns_state = 814
+				owns_state = 815
+				owns_state = 827
+				TOG = { is_subject_of = GER }
+				NMB = { is_subject_of = GER }
+				TZN = { is_subject_of = GER }
+			}
+		}
+		visible = {
+			has_country_flag = great_war_winner
+			OR = {
+				owns_state = 272
+				owns_state = 274
+				owns_state = 295
+				owns_state = 296
+				owns_state = 297
+				owns_state = 298
+				owns_state = 538
+				owns_state = 539
+				owns_state = 540
+				owns_state = 541
+				owns_state = 546
+				owns_state = 547
+				owns_state = 548
+				owns_state = 549
+				owns_state = 558
+				owns_state = 660
+				owns_state = 700
+				owns_state = 701
+				owns_state = 718
+				owns_state = 752
+				owns_state = 768
+				owns_state = 769
+				owns_state = 770
+				owns_state = 771
+				owns_state = 772
+				owns_state = 774
+				owns_state = 776
+				owns_state = 777
+				owns_state = 779
+				owns_state = 780
+				owns_state = 789
+				owns_state = 792
+				owns_state = 794
+				owns_state = 813
+				owns_state = 814
+				owns_state = 815
+				owns_state = 827
+				TOG = { is_subject_of = GER }
+				NMB = { is_subject_of = GER }
+				TZN = { is_subject_of = GER }
+			}
+			has_completed_focus = GER_claim_mittelafrika
+		}
+		fire_only_once = no
+		cost = 100
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			country_event = ww1_germany.26
 		}
 	}
 }
