@@ -1,0 +1,466 @@
+﻿add_namespace = ww1_turkey
+
+# Parliament dissolved, declare Independence
+#######
+country_event = {
+	id = ww1_turkey.1
+	title = ww1_turkey.1.t
+	desc = ww1_turkey.1.d
+	picture = GFX_report_event_generic_military_parade
+
+	is_triggered_only = yes
+	
+	option = {
+		name = ww1_turkey.1.a
+		hidden_effect = {
+			set_global_flag = TUR_become_republic
+			set_politics = {
+				ruling_party = neutrality
+				elections_allowed = no
+			}
+			set_party_name = {
+				ideology = neutrality
+				name = TUR_kemalist_party
+				long_name = TUR_kemalist_party_long
+			}
+			set_party_name = {
+				ideology = democratic
+				name = TUR_mustakil_grup_party
+				long_name = TUR_mustakil_grup_party_long
+			}
+			set_party_name = {
+				ideology = communism
+				name =  TUR_turkish_communist_party
+				long_name =  TUR_turkish_communist_party_long
+			}
+			set_party_name = {
+				ideology = fascism
+				name = TUR_fascist_konsey_party
+				long_name = TUR_fascist_konsey_party_long
+			}
+			add_popularity = { 
+				ideology = neutrality
+				popularity = 0.25
+			}
+			set_global_flag = turkish_independence
+			create_corps_commander = {  
+				name = "Naci Eldeniz" 
+				id = 90544 
+				portrait_path = "gfx/leaders/TUR/TUR_naci_eldeniz.dds" 
+				traits = { } 
+				skill = 2 
+				attack_skill = 2
+				defense_skill = 2
+				planning_skill = 3
+				logistics_skill = 2
+			}
+			create_corps_commander = {  
+				name = "Nihat Anılmış" 
+				id = 90514 
+				portrait_path = "gfx/leaders/TUR/TUR_nihat_anilmis.dds" 
+				traits = { harsh_leader } 
+				skill = 2 
+				attack_skill = 2
+				defense_skill = 2
+				planning_skill = 1
+				logistics_skill = 3
+			}
+			create_country_leader = {
+				name = "Celâl Bayar"
+				desc = "POLITICS_CELAL_BAYAR_DESC"
+				picture = "gfx/leaders/TUR/TUR_celal_bayar.dds" 
+				expire = "1935.1.1"
+				ideology = conservatism
+				traits = {
+				}
+			}
+			create_country_leader = {
+				name = "Mehmet Recep Peker"
+				desc = "POLITICS_MEHMET_RECEP_PEKER_DESC"
+				picture = "gfx/leaders/TUR/TUR_recep_peker.dds" 
+				expire = "1935.1.1"
+				ideology = fascism_ideology
+				traits = {
+				}
+			}
+		}
+		set_cosmetic_tag = TUR_REP
+		retire_country_leader = yes
+		create_country_leader = {
+			name = "Mustafa Kemal"
+			picture = "Portrait_Turkey_Mustafa_Kemal_Ataturk_Military.dds" 
+			expire = "1935.1.1" 
+			ideology = centrism
+			traits = { nationalist_symbol } 
+		}
+		set_capital = 49
+		news_event = ww1_turkey.2
+		if = {
+			limit = { is_puppet = yes }
+			OVERLORD = { end_puppet = TUR }
+		}
+		if = {
+			limit = {
+				GRE = {
+					has_country_flag = great_war_winner
+					NOT = { has_war_with = TUR }
+					any_owned_state = {
+						region = 129
+						is_core_of = TUR
+					}
+				}
+			}
+			country_event = { id = ww1_greece.6 days = 14 }
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+
+# Turkish Independence - News
+#######
+news_event = {
+	id = ww1_turkey.2
+	title = ww1_turkey.2.t
+	desc = ww1_turkey.1.d
+	picture = GFX_news_event_secure_the_wayward_ally
+
+	major = yes
+	is_triggered_only = yes	
+
+	option = {
+		name = ww1_turkey.1.a
+		trigger = { tag = TUR }
+		ai_chance = { factor = 100 }
+	}
+	option = {
+		name = ww1_turkey.2.a
+		trigger = { NOT = { tag = TUR } }
+		ai_chance = { factor = 100 }
+	}
+}
+
+# Greco-Turkish War - Turkish Defeat
+#######
+country_event = {
+	id = ww1_turkey.3
+	title = ww1_turkey.3.t
+	desc = ww1_turkey.3.d
+	picture = GFX_report_event_generic_military_parade
+
+	trigger = {
+		tag = TUR
+		has_defensive_war_with = GRE
+		has_global_flag = interwar_greco_turkish_war
+		OR = {
+			casualties > 100000
+			surrender_progress > 0.20
+		}
+		is_in_faction = no
+		NOT = { has_global_flag = interwar_greco_turkish_war_ended }
+	}
+	fire_only_once = yes
+	mean_time_to_happen = { days = 0 }
+	
+	option = {
+		name = ww1_turkey.3.a	#Ask for peace
+		GRE = { country_event = ww1_turkey.4 }
+		ai_chance = { factor = 10 }
+	}
+	option = {
+		name = ww1_turkey.3.b	#Victory or Death
+		add_war_support = 0.10
+		ai_chance = { factor = 0 }
+	}
+}
+
+# Greco-Turkish War - Greece won
+##############################
+country_event = {
+	id = ww1_turkey.4
+	title = ww1_turkey.4.t
+	desc = ww1_turkey.4.d
+	picture = GFX_report_event_generic_sign_treaty1
+
+	is_triggered_only = yes
+
+	option = {
+	    name = ww1_turkey.4.a
+		set_global_flag = interwar_greco_turkish_war_ended
+		hidden_effect = {
+			TUR = { 
+				add_war_support = -0.10
+				add_stability = -0.10
+				retire_country_leader = yes
+				create_country_leader = {
+					name = "Mustafa İsmet"
+					picture = "gfx/leaders/TUR/TUR_ismet_inonu.dds"
+					expire = "1935.1.1" 
+					ideology = centrism
+					traits = { } 
+				}
+			}
+		}
+		every_country = {
+			limit = {
+				OR = {
+					original_tag = GRE
+					has_war_together_with = GRE
+				}
+				has_war_with = TUR
+			}
+			white_peace = TUR
+		}
+		every_state = {
+			limit = { 
+				state = 341 
+				is_owned_by = TUR
+			}
+			GRE = { transfer_state = PREV }
+		}
+		set_global_flag = greco_turkish_war_greece_won
+	    ai_chance = { factor = 100 }	
+	}
+	option = {
+		name = ww1_turkey.4.b #ignore
+		TUR = { country_event = ww1_turkey.5 }
+		ai_chance = { factor = 0 }
+	}
+}
+
+# Greco-Turkish War - Ignore
+##############################
+country_event = {
+	id = ww1_turkey.5
+	title = ww1_turkey.5.t
+	desc = ww1_turkey.5.d
+	picture = GFX_report_event_spr_civil_war_faction_defeated
+
+	is_triggered_only = yes
+	
+	option = {
+		name = ww1_turkey.5.a
+		ai_chance = { factor = 1 }
+	}
+}
+
+# Greco-Turkish War - Greek Defeat
+#######
+country_event = {
+	id = ww1_turkey.6
+	title = ww1_turkey.6.t
+	desc = ww1_turkey.6.d
+	picture = GFX_report_event_generic_military_parade
+
+	trigger = {
+		tag = GRE
+		has_offensive_war_with = TUR
+		has_global_flag = interwar_greco_turkish_war
+		OR = {
+			casualties > 25000
+			surrender_progress > 0.20
+			all_owned_state = {
+				region = 129
+				NOT = { is_controlled_by = GRE }
+			}
+		}
+		NOT = { has_global_flag = interwar_greco_turkish_war_ended }
+	}
+	fire_only_once = yes
+	mean_time_to_happen = { days = 0 }
+	
+	option = {
+		name = ww1_turkey.6.a	#Ask for peace
+		GRE = { country_event = ww1_turkey.7 }
+		ai_chance = { factor = 10 }
+	}
+	option = {
+		name = ww1_turkey.6.b	#Victory or Death
+		add_war_support = 0.10
+		ai_chance = { factor = 0 }
+	}
+}
+
+# Greco-Turkish War - Turkey won
+##############################
+country_event = {
+	id = ww1_turkey.7
+	title = ww1_turkey.7.t
+	desc = ww1_turkey.7.d
+	picture = GFX_report_event_generic_sign_treaty1
+
+	is_triggered_only = yes
+
+	option = {
+	    name = ww1_turkey.7.a
+		set_global_flag = interwar_greco_turkish_war_ended
+		hidden_effect = {
+			GRE = { 
+				add_war_support = -0.10
+				add_stability = -0.10
+				if = {
+					limit = { NOT = { has_government = neutrality } }
+					add_popularity = { 
+						ideology = neutrality
+						popularity = 0.10
+					}
+				}
+			}
+		}
+		every_country = {
+			limit = {
+				OR = {
+					original_tag = TUR
+					has_war_together_with = TUR
+				}
+				has_war_with = GRE
+			}
+			white_peace = GRE
+		}
+		every_state = {
+			limit = { 
+				region = 129
+				is_core_of = TUR
+				is_owned_by = GRE
+			}
+			TUR = { transfer_state = PREV }
+		}
+		set_global_flag = greco_turkish_war_turkey_won
+	    ai_chance = { factor = 100 }	
+	}
+	option = {
+		name = ww1_turkey.7.b #ignore
+		GRE = { country_event = ww1_turkey.5 }
+		ai_chance = { factor = 0 }
+	}
+}
+
+# Treaty of Lausanne
+##############################
+country_event = {
+	id = ww1_turkey.8
+	title = ww1_ottoman.8.t
+	desc = ww1_ottoman.8.d
+	picture = GFX_report_event_generic_sign_treaty1
+	
+	fire_only_once = yes
+	trigger = {
+		original_tag = TUR
+		has_country_flag = TUR_turkey_national_movement
+		has_war = no
+		OR = {
+			has_global_flag = greco_turkish_war_turkey_won
+			AND = {
+				NOT = { has_global_flag = interwar_greco_turkish_war }
+				NOT = { has_idea = idea_armistice }
+			}
+		}
+		any_state = {
+			is_core_of = TUR
+			region = 129
+			NOT = { is_owned_by = TUR }
+		}
+	}
+	mean_time_to_happen = {
+		days = 30
+	}
+	option =  {
+	    name = ww1_ottoman.8.a
+		every_other_country = {
+			limit = {
+				any_owned_state = {
+					region = 129
+					is_core_of = TUR
+				}
+			}
+			country_event = { id = ww1_turkey.9 hours = 48 random = 20 }
+		}
+	    ai_chance = {
+	        factor = 100
+	    }		
+	}
+}
+
+# Treaty of Lausanne - Answer
+##############################
+country_event = {
+	id = ww1_turkey.9
+	title = ww1_turkey.9.t
+	desc = ww1_turkey.9.d
+	picture = GFX_report_event_generic_sign_treaty1
+
+	is_triggered_only = yes
+	
+	option = {
+	    name = ww1_ottoman.11.a
+		every_owned_state = {
+			limit = { region = 129 is_core_of = TUR }
+			TUR = { transfer_state = PREV }
+		}
+		diplomatic_relation = {
+			country = TUR
+			relation = non_aggression_pact
+			active = yes
+		}
+	    ai_chance = {
+	        factor = 100
+	    }		
+	}
+	option = {
+	    name = ww1_ottoman.11.b
+		trigger = {
+			NOT = { has_global_flag = greco_turkish_war_turkey_won } 
+		}
+		add_political_power = -200
+		TUR = {
+			add_ai_strategy = {
+				type = antagonize
+				id = ROOT
+				value = 300 
+			}
+		}
+	    ai_chance = {
+	        factor = 0
+	    }		
+	}
+}
+
+# Treaty of Lausanne - Ignore
+##############################
+country_event = {
+	id = ww1_turkey.10
+	title = ww1_turkey.10.t
+	desc = ww1_turkey.10.d
+	picture = GFX_report_event_generic_military_parade
+
+	is_triggered_only = yes
+	
+	option = {
+		name = ww1_turkey.10.a
+		ai_chance = { factor = 1 }
+	}
+}
+
+# Kingdom of Kurdistan
+##############################
+country_event = {
+	id = ww1_turkey.11
+	title = ww1_turkey.11.t
+	desc = ww1_turkey.11.d
+	picture = GFX_report_event_fascist_gathering
+
+	trigger = {
+		tag = TUR
+		KUR = { exists = yes }
+	}
+	fire_only_once = yes
+	mean_time_to_happen = { days = 10 }
+	
+	option = {
+		name = ww1_turkey.11.a
+		every_state = {
+			limit = { is_core_of = KUR }
+			remove_core_of = TUR
+		}
+		ai_chance = { factor = 1 }
+	}
+}
