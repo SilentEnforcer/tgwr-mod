@@ -95,7 +95,14 @@ CHI_warlord_era = {
 		activation = {
 			original_tag = CHI
 			NOT = { has_government = fascism }
-			has_global_flag = national_protection_war
+			OR = {
+				has_global_flag = national_protection_war
+				AND = {
+					has_global_flag = yuan_shikai_dead
+					has_global_flag = chinese_warlord_crisis
+					NOT = { has_completed_focus = CHI_second_empire }
+				}
+			}
 			owns_state = 608
 			NOT = { has_global_flag = manchu_restoration }
 			NOT = { has_completed_focus = CHI_national_protection_war }
@@ -130,6 +137,7 @@ CHI_warlord_era = {
 				has_global_flag = national_protection_war
 				has_country_flag = CHI_national_protection_flag
 			}
+			has_completed_focus = CHI_second_empire
 		}
 		allowed = {
 			OR = {
@@ -487,13 +495,11 @@ CHI_warlord_era = {
 		complete_effect = {
 			SIK = {
 				transfer_state = 618
-				transfer_state = 617
 				transfer_state = 287
 				transfer_state = 619
 				hidden_effect = {
 					add_state_core = 619
 					add_state_core = 618
-					add_state_core = 617
 					add_state_core = 287
 					load_oob = "SIK_1916"
 				}
@@ -565,9 +571,8 @@ CHI_warlord_era = {
 			modifier = {
 				factor = 1000
 				OR = {
+					surrender_progress > 0.6
 					has_global_flag = yuan_shikai_dead
-					casualties > 20000
-					surrender_progress > 0.2
 				}
 			}
 		}
@@ -804,6 +809,121 @@ CHI_warlord_era = {
 		}
 		complete_effect = {
 			SDC = { country_event = ww1_china.46 }
+		}
+	}
+	CHI_second_constitutional_protection_movement = {
+		icon = generic_nationalism
+		days_mission_timeout = 120 #historical
+		activation = {
+			has_global_flag = warlord_era
+			OR = {
+				has_global_flag = zhili_anhui_war
+				date > 1920.7.14
+			}
+			NOT = {	
+				OR = {
+					any_country = { has_country_flag = CHI_kuomintang_flag }
+					ANC = { has_government = democratic }
+					SDC = { has_government = democratic }
+					FNG = { has_government = democratic }
+				}
+			}
+		}
+		allowed = {
+			OR = {
+				original_tag = GXC
+				original_tag = ANC
+				original_tag = SDC
+				original_tag = FNG
+			}
+		}
+		available = {
+			OR = {
+				has_global_flag = second_constitutional_protection_movement
+				any_country = { has_country_flag = CHI_kuomintang_flag }
+				ANC = { has_government = democratic }
+				SDC = { has_government = democratic }
+				FNG = { has_government = democratic }
+			}
+		}
+		visible = {
+			NOT = {	
+				OR = {
+					any_country = { has_country_flag = CHI_kuomintang_flag }
+					ANC = { has_government = democratic }
+					SDC = { has_government = democratic }
+					FNG = { has_government = democratic }
+				}
+			}
+		}
+		fire_only_once = yes
+		is_good = no
+		timeout_effect = {
+			set_global_flag = second_constitutional_protection_movement
+		}
+	}
+	CHI_yung_feng_incident = {
+		icon = generic_nationalism
+		days_mission_timeout = 60 #historical
+		activation = {
+			has_global_flag = first_zhili_fengtian_war
+			GXC = { exists = no }
+			any_country = {
+				has_country_flag = CHI_kuomintang_flag
+				owns_state = 591
+			}
+		}
+		allowed = {
+			has_country_flag = CHI_kuomintang_flag
+			owns_state = 591
+		}
+		available = {
+			GXC = { exists = yes }
+			has_global_flag = yung_feng_incident
+			any_country = {
+				has_country_flag = CHI_kuomintang_flag
+				NOT = { owns_state = 591 }
+			}
+		}
+		visible = {
+			has_country_flag = CHI_kuomintang_flag
+			owns_state = 591
+		}
+		fire_only_once = yes
+		is_good = no
+		timeout_effect = {
+			set_global_flag = yung_feng_incident
+		}
+	}
+	SDC_sue_for_peace_FNG = {
+		allowed = {
+			original_tag = SDC
+		}
+		available = {
+			has_global_flag = second_zhili_fengtian_war
+			FNG = {
+				has_war_with = SDC
+			}
+		}
+		visible = {
+			has_global_flag = second_zhili_fengtian_war
+			FNG = {
+				has_war_with = SDC
+			}
+		}
+		fire_only_once = yes
+		ai_will_do = {
+			factor = 0
+			modifier = {
+				factor = 1000
+				OR = {
+					has_global_flag = beijing_coup
+					surrender_progress > 0.5
+				}
+			}
+		}
+		complete_effect = {
+			FNG = { country_event = ww1_china.52 }
 		}
 	}
 }
@@ -1051,18 +1171,24 @@ CHI_chinese_warlords = {
 	CHI_ANC_conquer_mongolia = {
 		icon = generic_prepare_civil_war
 		allowed = {
-			original_tag = ANC
+			OR = {
+				AND = {
+					original_tag = CHI
+					has_country_leader = {
+						name = "Duan Qirui"
+						ruling_only = yes
+					}
+				}
+				original_tag = ANC
+			}
 		}
 		visible = {
 			MON = { exists = yes }
 		}
 		available = {
 			owns_state = 608
-			has_army_manpower = {
-				size > 40000
-			}
 			has_war = no
-			CHI = { exists = no }
+			RUS = { has_war_with = SOV }
 			MON = { exists = yes }
 		}
 		cost = 75		
@@ -1070,7 +1196,7 @@ CHI_chinese_warlords = {
 		fire_only_once = yes
 		remove_effect = {
 			if = {
-				limit = { MON = { is_puppet_of = RUS } }
+				limit = { TAN = { is_puppet_of = RUS } }
 				RUS = { country_event = { id = ww1_china.26 days = 30 } }
 			}
 			transfer_state = 329
