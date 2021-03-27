@@ -1216,7 +1216,6 @@ country_event = {
 	id = garibaldi.16
 	title = garibaldi.16.t
 	desc = garibaldi.16.d
-	fire_only_once = yes
 	is_triggered_only = yes
 	option = {
 		name = garibaldi.16.a
@@ -1268,7 +1267,6 @@ country_event = {
 		ai_chance = { factor = 0 }
 		trigger = {
 			NOT = {
-				tag = SRI
 				has_global_flag = catholic_crusader_is_here
 			}
 		}
@@ -1281,7 +1279,6 @@ country_event = {
 	id = garibaldi.17
 	title = garibaldi.17.t
 	desc = garibaldi.17.d
-	fire_only_once = yes
 	is_triggered_only = yes
 	option = {
 		name = garibaldi.17.a
@@ -1289,7 +1286,11 @@ country_event = {
 
 		every_state = {
 			limit = {
-				is_fully_controlled_by = SRI
+				OR = {
+					is_owned_by = ROI
+					is_owned_by = ITS
+				}
+				is_controlled_by = SRI
 			}
 
 			set_state_flag = controled_by_socialists
@@ -1297,7 +1298,11 @@ country_event = {
 
 		every_state = {
 			limit = {
-				is_fully_controlled_by = ITS
+				OR = {
+					is_owned_by = ROI
+					is_owned_by = SRI
+				}
+				is_controlled_by = ITS
 			}
 
 			set_state_flag = controled_by_monarchists
@@ -1305,13 +1310,27 @@ country_event = {
 
 		every_state = {
 			limit = {
-				is_fully_controlled_by = ROI
+				OR = {
+					is_owned_by = ITS
+					is_owned_by = SRI
+				}
+				is_controlled_by = ROI
 			}
 
 			set_state_flag = controled_by_republicans
 		}
 
 		white_peace = FROM
+
+		hidden_effect = {
+			if = {
+				limit = {
+					tag = ROI
+				}
+				white_peace = SRI
+				white_peace = ITS
+			}
+		}
 		#if = {
 		#	limit = {
 		#		tag = SRI
@@ -1392,13 +1411,8 @@ news_event = {
 	desc = garibaldi.18.d
 	fire_only_once = yes
 	trigger = {
-		ITA = {
-			has_country_flag = great_war_loser
-			OR = {
-				has_global_flag = versallies_treaty
-				has_global_flag = frankfurt_treaty
-			}
-		}
+		tag = ITA
+		has_global_flag = italian_civil_war
 		any_country = {
 			has_country_flag = ITA_socialist_italy_flag
 			has_war = no
@@ -1407,286 +1421,316 @@ news_event = {
 			has_country_flag = ITA_monarchist_italy_flag
 			has_war = no
 		}
+		any_state = {
+			is_core_of = ITA
+			OR = {
+				has_state_flag = controled_by_republicans
+				has_state_flag = controled_by_socialists
+				has_state_flag = controled_by_monarchists
+			}
+		}
 	}
 	mean_time_to_happen = { days = 10 }
 	major = yes
 	immediate = {
-		every_state = {
-			limit = {
-				has_state_flag = controled_by_socialists
-			}
-
-			clr_state_flag = controled_by_socialists
-
-			SRI = {
-				transfer_state = PREV
-			}
-		}
-
-		every_state = {
-			limit = {
-				has_state_flag = controled_by_monarchists
-			}
-
-			clr_state_flag = controled_by_monarchists
-
-			ITS = {
-				transfer_state = PREV
-			}
-		}
-
-		every_state = {
-			limit = {
-				has_state_flag = controled_by_republicans
-			}
-
-			clr_state_flag = controled_by_republicans
-
-			ITA = {
-				transfer_state = PREV
-			}
-		}
-
-		#if = {
-		#	limit = {
-		#		SRI = {
-		#			is_in_faction_with = FRA
-		#		}
-		#	}
-		#	SRI = {
-		#		leave_faction = yes
-		#	}
-		#}
-
-		#if = {
-		#	limit = {
-		#		FRC = {
-		#			is_faction_leader = yes
-		#			NOT = { has_country_flag = internationale_is_already_formed }
-		#		}
-		#	}
-		#	FRC = { dismantle_faction = yes }
-		#}
-
-		#if = {
-		#	limit = {
-		#		ITS = {
-		#			is_faction_leader = no
-		#			is_in_faction_with = NFA
-		#		}
-		#	}
-		#	ITS = {
-		#		leave_faction = yes
-		#	}
-		#}
-
-		#if = {
-		#	limit = {
-		#		NFA = {
-		#			is_faction_leader = yes
-		#			NOT = {
-		#				has_country_flag = entente_is_already_formed_by_nfa
-		#				has_country_flag = entente_is_already_formed_by_others
-		#			}
-		#		}
-		#	}
-		#	NFA = { dismantle_faction = yes }
-		#}
-
-		#if = {
-		#	limit = {
-		#		NFA = {
-		#			is_faction_leader = yes
-		#			has_country_flag = entente_is_already_formed_by_others
-		#		}
-		#	}
-		#
-		#	NFA = { dismantle_faction = yes }
-		#
-		#	every_other_country = {
-		#		limit = {
-		#			OR = {
-		#				tag = CAN
-		#				tag = AST
-		#				tag = ENG #Imperial Entente
-		#			}
-		#			is_faction_leader = yes
-		#		}
-		#		add_to_faction = NFA
-		#	}
-		#}
-
-		every_country = {
-			limit = {
-				is_faction_leader = no
-				is_in_faction_with = ITS
-				NOT = {
-					OR = {
-						tag = ROI
-						tag = ITS
-					}
+		hidden_effect = {
+			every_state = {
+				limit = {
+					has_state_flag = controled_by_socialists
 				}
-			}
-			leave_faction = yes
-		}
-
-		if = {
-			limit = {
-				ITS = {
-					is_in_faction = no
-				}
-			}
-			ITS = {
-				create_faction = italian_federation
-			}
-		}
-
-		if = {
-			limit = {
-				ROI = {
-					exists = yes
-					is_in_faction = no
-				}
-			}
-			ITS = {
-				add_to_faction = ROI
-			}
-		}
-
-		if = {
-			limit = {
-				SRD = {
-					exists = yes
-					is_in_faction = no
-				}
-			}
-			ITS = {
-				add_to_faction = SRD
-			}
-		}
-
-		if = {
-			limit = {
+	
+				clr_state_flag = controled_by_socialists
+	
 				SRI = {
-					NOT = { is_in_faction = yes }
+					transfer_state = PREV
 				}
 			}
-			SRI = {
-				create_faction = italian_popular_front
-			}
-		}
-
-		if = {
-			limit = {
-				ITS = { exists = yes }
-			}
-			ITS = {
-				country_event = { id = garibaldi.19 days = 7 }
-			}
-		}
-
-		if = {
-			limit = {
-				ROI = {
-					exists = yes
+	
+			every_state = {
+				limit = {
+					has_state_flag = controled_by_monarchists
+				}
+	
+				clr_state_flag = controled_by_monarchists
+	
+				ITS = {
+					transfer_state = PREV
 				}
 			}
-			ROI = {
-				country_event = { id = garibaldi.20 days = 7 }
+	
+			every_state = {
+				limit = {
+					has_state_flag = controled_by_republicans
+				}
+	
+				clr_state_flag = controled_by_republicans
+	
+				ITA = {
+					transfer_state = PREV
+				}
 			}
-		}
-
-		if = {
-			limit = {
-				any_country = {
-					OR = {
-						has_country_flag = catholic_crusader
-						has_global_flag = catholic_crusader_is_here
+	
+			#if = {
+			#	limit = {
+			#		SRI = {
+			#			is_in_faction_with = FRA
+			#		}
+			#	}
+			#	SRI = {
+			#		leave_faction = yes
+			#	}
+			#}
+	
+			#if = {
+			#	limit = {
+			#		FRC = {
+			#			is_faction_leader = yes
+			#			NOT = { has_country_flag = internationale_is_already_formed }
+			#		}
+			#	}
+			#	FRC = { dismantle_faction = yes }
+			#}
+	
+			#if = {
+			#	limit = {
+			#		ITS = {
+			#			is_faction_leader = no
+			#			is_in_faction_with = NFA
+			#		}
+			#	}
+			#	ITS = {
+			#		leave_faction = yes
+			#	}
+			#}
+	
+			#if = {
+			#	limit = {
+			#		NFA = {
+			#			is_faction_leader = yes
+			#			NOT = {
+			#				has_country_flag = entente_is_already_formed_by_nfa
+			#				has_country_flag = entente_is_already_formed_by_others
+			#			}
+			#		}
+			#	}
+			#	NFA = { dismantle_faction = yes }
+			#}
+	
+			#if = {
+			#	limit = {
+			#		NFA = {
+			#			is_faction_leader = yes
+			#			has_country_flag = entente_is_already_formed_by_others
+			#		}
+			#	}
+			#
+			#	NFA = { dismantle_faction = yes }
+			#
+			#	every_other_country = {
+			#		limit = {
+			#			OR = {
+			#				tag = CAN
+			#				tag = AST
+			#				tag = ENG #Imperial Entente
+			#			}
+			#			is_faction_leader = yes
+			#		}
+			#		add_to_faction = NFA
+			#	}
+			#}
+	
+			every_country = {
+				limit = {
+					is_faction_leader = no
+					is_in_faction_with = ITS
+					NOT = {
+						OR = {
+							tag = ROI
+							tag = ITS
+						}
 					}
 				}
+				leave_faction = yes
 			}
-			PAP = {
-				inherit_technology = ITS
-				add_state_core = 2
-				add_state_core = 161
-				add_state_core = 835
-				transfer_state = 2
-			}
-		}
-
-		if = {
-			limit = {
-				PAP = {
-					exists = yes
+	
+			if = {
+				limit = {
+					ITS = {
+						is_in_faction = no
+					}
 				}
 				ITS = {
-					OR = {
-						owns_state = 2
-						owns_state = 835
+					create_faction = italian_federation
+				}
+			}
+	
+			if = {
+				limit = {
+					ROI = {
+						exists = yes
+						is_in_faction = no
 					}
 				}
-			}
-
-			PAP = {
-				transfer_state = 2
-				transfer_state = 835
-			}
-		}
-
-		if = {
-			limit = {
-				PAP = {
-					exists = yes
+				ITS = {
+					add_to_faction = ROI
 				}
-				ROI = {
-					OR = {
-						owns_state = 2
-						owns_state = 835
+			}
+	
+			if = {
+				limit = {
+					SRD = {
+						exists = yes
+						is_in_faction = no
 					}
 				}
+				ITS = {
+					add_to_faction = SRD
+				}
 			}
-
-			PAP = {
-				transfer_state = 2
-				transfer_state = 835
-			}
-		}
-
-		if = {
-			limit = {
-				PAP = {
-					exists = yes
+	
+			if = {
+				limit = {
+					SRI = {
+						NOT = { is_in_faction = yes }
+					}
 				}
 				SRI = {
-					OR = {
-						owns_state = 156
+					create_faction = italian_popular_front
+				}
+			}
+	
+			if = {
+				limit = {
+					ITS = {
+						exists = yes
+						NOT = {
+							owns_state = 835
+							owns_state = 162
+							owns_state = 161
+							owns_state = 833
+							owns_state = 160
+							owns_state = 159
+							owns_state = 158
+						}
 					}
 				}
-			}
-			835 = { set_demilitarized_zone = yes }
-			ITS = {
-				transfer_state = 117
-				transfer_state = 156
-				transfer_state = 157
-			}
-		}
-
-		if = {
-			limit = {
-				PAP = {
-					exists = yes
+				ITS = {
+					country_event = { id = garibaldi.19 days = 7 }
 				}
 			}
-			ITS = {
-				add_to_faction = PAP
+	
+			if = {
+				limit = {
+					ROI = {
+						exists = yes
+						controls_state = 114
+					}
+					NOT = {
+						any_state = {
+							NOT = { state = 114 }
+							NOT = { state = 158 }
+							is_core_of = ROI
+							is_controlled_by = ROI
+						}
+					}
+				}
+				ROI = {
+					country_event = { id = garibaldi.20 days = 7 }
+				}
 			}
-		}
-		every_state = {
-			limit = {
-				is_owned_by = PAP
+	
+			if = {
+				limit = {
+					any_country = {
+						OR = {
+							has_country_flag = catholic_crusader
+							has_global_flag = catholic_crusader_is_here
+						}
+					}
+				}
+				PAP = {
+					inherit_technology = ITS
+					add_state_core = 2
+					add_state_core = 161
+					add_state_core = 835
+					transfer_state = 2
+				}
 			}
-
-			set_demilitarized_zone = yes
+	
+			if = {
+				limit = {
+					PAP = {
+						exists = yes
+					}
+					ITS = {
+						OR = {
+							owns_state = 2
+							owns_state = 835
+						}
+					}
+				}
+	
+				PAP = {
+					transfer_state = 2
+					transfer_state = 835
+				}
+			}
+	
+			if = {
+				limit = {
+					PAP = {
+						exists = yes
+					}
+					ROI = {
+						OR = {
+							owns_state = 2
+							owns_state = 835
+						}
+					}
+				}
+	
+				PAP = {
+					transfer_state = 2
+					transfer_state = 835
+				}
+			}
+	
+			if = {
+				limit = {
+					PAP = {
+						exists = yes
+					}
+					SRI = {
+						OR = {
+							owns_state = 156
+						}
+					}
+				}
+				835 = { set_demilitarized_zone = yes }
+				ITS = {
+					transfer_state = 117
+					transfer_state = 156
+					transfer_state = 157
+				}
+			}
+	
+			if = {
+				limit = {
+					PAP = {
+						exists = yes
+					}
+				}
+				ITS = {
+					add_to_faction = PAP
+				}
+			}
+			every_state = {
+				limit = {
+					is_owned_by = PAP
+				}
+	
+				set_demilitarized_zone = yes
+			}
 		}
 	}
 	option = {
@@ -1730,8 +1774,10 @@ country_event = {
 					ITS = { is_faction_leader = yes }
 					is_in_faction_with = ITS
 				}
-				set_cosmetic_tag = italian_federation_member
+				set_country_flag = italian_federation_member
 			}
+
+			ITS = { dismantle_faction = yes }
 
 			SIC = {
 				inherit_technology = ITS
@@ -1804,6 +1850,30 @@ country_event = {
 				add_stability = 0.2
 
 				change_tag_from = ROOT
+
+				if = {
+					limit = {
+						SRD = { owns_state = 158 }
+					}
+					set_cosmetic_tag = SRD_PIE
+				}
+
+				if = {
+					limit = {
+						ITS = {
+							is_faction_leader = yes
+						}
+					}
+					ITS = { add_to_faction = SRD }
+				}
+				else_if = {
+					limit = {
+						SIC = {
+							is_faction_leader = yes
+						}
+					}
+					SIC = { add_to_faction = SRD }
+				}
 			}
 		}
 	}
