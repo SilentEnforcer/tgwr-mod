@@ -1,5 +1,6 @@
 ﻿add_namespace = ww1_xinhai
 add_namespace = ww1_china
+add_namespace = ww1_xinjiang
 
 # GUANGZHOU UPRISING
 ##########################
@@ -51,12 +52,39 @@ country_event = {
 				set_nationality = CHI
 			}
 			set_global_flag = kis_xinhairenews
-			release = MON
-			release = TAN
+
 			if = {
-				limit = { MON = { is_subject_of = QIN } }
-				end_puppet = MON
+				limit = {
+					MON = { is_subject_of = QIN }
+				}
+				QIN = { end_puppet = MON }
 			}
+
+			if = {
+				limit = {
+					QIN = { owns_state = 330 }
+				}
+				MON = {
+					transfer_state = 330
+
+					load_oob = "MON_army"
+				}
+			}
+
+			if = {
+				limit = {
+					TAN = { is_subject_of = QIN }
+				}
+				QIN = { end_puppet = TAN }
+			}
+
+			if = {
+				limit = {
+					QIN = { owns_state = 329 }
+				}
+				TAN = { transfer_state = 329 }
+			}
+
 			CHI = {
 				inherit_technology = QIN
 				transfer_state = 620
@@ -76,7 +104,7 @@ country_event = {
 					neutrality = 59
 				}
 				create_country_leader = {
-					name = "Sun Yat-Sen"
+					name = "Sun Yat-sen"
 					picture = "gfx/leaders/CHI/CHI_sun_wen.dds"
 					expire = "1935.1.1"
 					ideology = socialism
@@ -377,7 +405,28 @@ country_event = {
 						has_id = 15094
 					}
 				}
-			set_nationality = CHI
+				set_nationality = CHI
+			}
+
+			if = {
+				limit = {
+					MON = {
+						OR = {
+							owns_state = 612
+							owns_state = 616
+							owns_state = 618
+							owns_state = 621
+							owns_state = 715
+						}
+					}
+				}
+				CHI = {
+					transfer_state = 612
+					transfer_state = 616
+					transfer_state = 618
+					transfer_state = 621
+					transfer_state = 715
+				}
 			}
 		}
 
@@ -387,6 +436,7 @@ country_event = {
 			}
 			set_country_flag = tibet_released
 			CHI = { release = TIB }
+			TIB = { load_oob = "TIB_army" }
 		}
 		
 		ai_chance = { factor = 100 }
@@ -515,45 +565,75 @@ country_event = {
 	
 	option = {
 		name = ww1_china.2.a
-		
-		YUN = {
-			transfer_state = 325
-			hidden_effect = {
-				add_state_core = 325
-				inherit_technology = CHI
-				set_research_slots = 2
-				add_equipment_to_stockpile = {
-					type = infantry_equipment_0
-					amount = 5000
-					producer = CHI
-				}
-				add_equipment_to_stockpile = {
-					type = support_equipment
-					amount = 500
-					producer = CHI
-				}
-			}
-		}
-		hidden_effect = {
-			CHI = {
-				transfer_units_fraction = {
-					target = YUN
-					size = 0.1
-					stockpile_ratio = 0.10
-					army_ratio = 0.10
-					navy_ratio = 0.0
-					air_ratio = 0.0
-				}
-			}
-		}
+
 		if = {
 			limit = {
-				has_completed_focus = CHI_national_protection_war 
-				CHI = { is_ai = no } 
-				NOT = { has_global_flag = warlord_leads_npw }
+				CHI = { exists = no }
+				QIN = { exists = yes }
 			}
-			custom_effect_tooltip = ww1_china.2.tt
-			YUN = { change_tag_from = CHI }
+			YUN = {
+				transfer_state = 325
+				hidden_effect = {
+					add_state_core = 325
+					inherit_technology = QIN
+					set_research_slots = 2
+					add_equipment_to_stockpile = {
+						type = infantry_equipment_0
+						amount = 5000
+						producer = QIN
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 500
+						producer = QIN
+					}
+				}
+			}
+			hidden_effect = {
+				QIN = {
+					transfer_units_fraction = {
+						target = YUN
+						size = 0.1
+						stockpile_ratio = 0.10
+						army_ratio = 0.10
+						navy_ratio = 0.0
+						air_ratio = 0.0
+					}
+					add_to_faction = YUN
+				}
+			}
+		}
+		else = {
+			YUN = {
+				transfer_state = 325
+				hidden_effect = {
+					add_state_core = 325
+					inherit_technology = CHI
+					set_research_slots = 2
+					add_equipment_to_stockpile = {
+						type = infantry_equipment_0
+						amount = 5000
+						producer = CHI
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 500
+						producer = CHI
+					}
+				}
+			}
+			hidden_effect = {
+				CHI = {
+					transfer_units_fraction = {
+						target = YUN
+						size = 0.1
+						stockpile_ratio = 0.10
+						army_ratio = 0.10
+						navy_ratio = 0.0
+						air_ratio = 0.0
+					}
+				}
+			}
 		}
 		ai_chance = { factor = 100 }
 	}
@@ -778,7 +858,7 @@ country_event = {
 		ai_chance = { factor = 100 }
 	}
 }
-# DEATH OF SHIKAI
+# DEATH OF YUAN SHIKAI
 ##################
 country_event = {
 	title = ww1_china.10.t
@@ -789,10 +869,15 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		original_tag = CHI
-
-		has_country_leader = {
-			name = "Yuan Shikai"
-			ruling_only = yes
+		OR = {
+		    has_country_leader = {
+				name = "Yuan Shikai"
+				ruling_only = yes
+			}
+			has_country_leader = {
+				name = "Hongxian Emperor"
+				ruling_only = yes
+			}
 		}
 
 		OR = {
@@ -800,8 +885,11 @@ country_event = {
 			AND = {
 				has_global_flag = national_protection_war
 				OR = {
-					has_war = no
-					surrender_progress > 0.5
+					NOT = { has_war_with = NPA }
+					AND = {
+						has_war_with = NPA
+						surrender_progress > 0.5
+					}
 				}
 			}
 		}
@@ -809,40 +897,33 @@ country_event = {
 	mean_time_to_happen = { days = 35 }
 	immediate = {
 		hidden_effect = {
+			kill_ideology_leader = neutrality
+			kill_ideology_leader = fascism
+			remove_unit_leader = 73069
+			
+			create_country_leader = {
+				name = "Duan Qirui"
+				picture = "gfx/leaders/CHI/CHI_duan_qirui.dds"
+				expire = "1935.1.1"
+				ideology = oligarchism
+			}
+			create_country_leader = {
+				name = "Duan Qirui"
+				picture = "gfx/leaders/CHI/CHI_duan_qirui.dds"
+				expire = "1935.1.1"
+				ideology = military_dictatorship
+			}
+
+			add_stability = -0.05
+			remove_ideas = CHI_idea_republican_plot
+			set_global_flag = yuan_shikai_dead
+			set_global_flag = chinese_warlord_crisis
+
 			if = {
 				limit = {
-					original_tag = CHI
+					NOT = { has_completed_focus = CHI_second_empire }
 				}
-
-				kill_country_leader = yes
-
-				create_country_leader = {
-					name = "Duan Qirui"
-					picture = "gfx/leaders/CHI/CHI_duan_qirui.dds"
-					expire = "1935.1.1"
-					ideology = oligarchism
-				}
-
-				remove_unit_leader = 73069
-
-				create_country_leader = {
-					name = "Duan Qirui"
-					picture = "gfx/leaders/CHI/CHI_duan_qirui.dds"
-					expire = "1935.1.1"
-					ideology = military_dictatorship
-				}
-
-				add_stability = -0.05
 				remove_ideas = CHI_idea_republican_plot
-				set_global_flag = yuan_shikai_dead
-				set_global_flag = chinese_warlord_crisis
-
-				if = {
-					limit = {
-						NOT = { has_completed_focus = CHI_second_empire }
-					}
-					remove_ideas = CHI_idea_republican_plot
-				}
 			}
 		}
 	}
@@ -863,41 +944,87 @@ country_event = {
 	}
 	mean_time_to_happen = { days = 10 }
 	immediate = {
-		CHI = {
-			every_unit_leader = {
-				limit = {
-					has_id = 73048 
-				}
-				set_nationality = GZC
+		if = {
+			limit = {
+				CHI = { exists = no }
+				QIN = { exists = yes }
 			}
-		}
-		GZC = {
-			transfer_state = 603
-			hidden_effect = {
-				inherit_technology = CHI
-				set_research_slots = 2
-				add_state_core = 603
-				load_oob = "GZC_1916"
-				add_equipment_to_stockpile = {
-					type = infantry_equipment_0
-					amount = 5000
-					producer = CHI
-				}
-				add_equipment_to_stockpile = {
-					type = support_equipment
-					amount = 500
-					producer = CHI
+			QIN = {
+				every_unit_leader = {
+					limit = {
+						has_id = 73048 
+					}
+					set_nationality = GZC
 				}
 			}
+			GZC = {
+				transfer_state = 603
+				hidden_effect = {
+					inherit_technology = QIN
+					set_research_slots = 2
+					add_state_core = 603
+					load_oob = "GZC_1916"
+					add_equipment_to_stockpile = {
+						type = infantry_equipment_0
+						amount = 5000
+						producer = QIN
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 500
+						producer = QIN
+					}
+				}
+			}
+			QIN = {
+				transfer_units_fraction = {
+					target = GZC
+					size = 0.05
+					stockpile_ratio = 0.10
+					army_ratio = 0.10
+					navy_ratio = 0.0
+					air_ratio = 0.0
+				}
+				add_to_faction = GZC
+			}
 		}
-		CHI = {
-			transfer_units_fraction = {
-				target = GZC
-				size = 0.1
-				stockpile_ratio = 0.10
-				army_ratio = 0.10
-				navy_ratio = 0.0
-				air_ratio = 0.0
+		else = {
+			CHI = {
+				every_unit_leader = {
+					limit = {
+						has_id = 73048 
+					}
+					set_nationality = GZC
+				}
+			}
+			GZC = {
+				transfer_state = 603
+				hidden_effect = {
+					inherit_technology = CHI
+					set_research_slots = 2
+					add_state_core = 603
+					load_oob = "GZC_1916"
+					add_equipment_to_stockpile = {
+						type = infantry_equipment_0
+						amount = 5000
+						producer = CHI
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 500
+						producer = CHI
+					}
+				}
+			}
+			CHI = {
+				transfer_units_fraction = {
+					target = GZC
+					size = 0.05
+					stockpile_ratio = 0.10
+					army_ratio = 0.10
+					navy_ratio = 0.0
+					air_ratio = 0.0
+				}
 			}
 		}
 	}
@@ -915,50 +1042,105 @@ country_event = {
 	}
 	mean_time_to_happen = { days = 25 }
 	immediate = {
-		CHI = {
-			every_unit_leader = {
-				limit = {
-					has_id = 73047 
+		if = {
+			limit = {
+				CHI = { exists = no }
+				QIN = { exists = yes }
+			}
+			QIN = {
+				every_unit_leader = {
+					limit = {
+						has_id = 73047 
+					}
+					set_nationality = GXC
 				}
-				set_nationality = GXC
+			}
+			GXC = {
+				inherit_technology = QIN
+				set_research_slots = 2
+				transfer_state = 591
+				transfer_state = 592
+				transfer_state = 593
+				transfer_state = 594
+				transfer_state = 599
+				hidden_effect = {
+					add_state_core = 591
+					add_state_core = 592
+					add_state_core = 593
+					add_state_core = 594
+					add_state_core = 599
+					load_oob = "GXC_1916"
+					add_equipment_to_stockpile = {
+						type = infantry_equipment_0
+						amount = 5000
+						producer = QIN
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 500
+						producer = QIN
+					}
+					set_capital = 592
+				}
+			}
+			QIN = {
+				transfer_units_fraction = {
+					target = GXC
+					size = 0.3
+					stockpile_ratio = 0.10
+					army_ratio = 0.10
+					navy_ratio = 0.0
+					air_ratio = 0.0
+				}
+				add_to_faction = GXC
 			}
 		}
-		GXC = {
-			inherit_technology = CHI
-			set_research_slots = 2
-			transfer_state = 591
-			transfer_state = 592
-			transfer_state = 593
-			transfer_state = 594
-			transfer_state = 599
-			hidden_effect = {
-				add_state_core = 591
-				add_state_core = 592
-				add_state_core = 593
-				add_state_core = 594
-				add_state_core = 599
-				load_oob = "GXC_1916"
-				add_equipment_to_stockpile = {
-					type = infantry_equipment_0
-					amount = 5000
-					producer = CHI
+		else = {
+			CHI = {
+				every_unit_leader = {
+					limit = {
+						has_id = 73047 
+					}
+					set_nationality = GXC
 				}
-				add_equipment_to_stockpile = {
-					type = support_equipment
-					amount = 500
-					producer = CHI
-				}
-				set_capital = 592
 			}
-		}
-		CHI = {
-			transfer_units_fraction = {
-				target = GXC
-				size = 0.1
-				stockpile_ratio = 0.10
-				army_ratio = 0.10
-				navy_ratio = 0.0
-				air_ratio = 0.0
+			GXC = {
+				inherit_technology = CHI
+				set_research_slots = 2
+				transfer_state = 591
+				transfer_state = 592
+				transfer_state = 593
+				transfer_state = 594
+				transfer_state = 599
+				hidden_effect = {
+					add_state_core = 591
+					add_state_core = 592
+					add_state_core = 593
+					add_state_core = 594
+					add_state_core = 599
+					load_oob = "GXC_1916"
+					add_equipment_to_stockpile = {
+						type = infantry_equipment_0
+						amount = 5000
+						producer = CHI
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 500
+						producer = CHI
+					}
+					set_capital = 592
+				}
+			}
+			CHI = {
+				transfer_units_fraction = {
+					target = GXC
+					size = 0.35
+					stockpile_ratio = 0.10
+					army_ratio = 0.10
+					navy_ratio = 0.0
+					air_ratio = 0.0
+				}
 			}
 		}
 	}
@@ -970,7 +1152,6 @@ country_event = {
 	hidden = yes
 	fire_only_once = yes
 	is_triggered_only = yes
-	fire_only_once = yes
 	#trigger = {
 	#	GDC = { exists = no }
 	#	HNC = { exists = yes }
@@ -1038,50 +1219,96 @@ country_event = {
 	}
 	mean_time_to_happen = { days = 35 }
 	immediate = {
-		ANC = {
-			every_unit_leader = {
-				limit = {
-					has_id = 15097 
+		if = {
+			limit = {
+				ANC = { exists = no }
+				QIN = { exists = yes }
+			}
+			QIN = {
+				every_unit_leader = {
+					limit = {
+						has_id = 15097 
+					}
+					set_nationality = SHX
 				}
-				set_nationality = SHX
+			}
+			SHX = {
+				inherit_technology = QIN
+				set_research_slots = 2
+				transfer_state = 615
+				hidden_effect = {
+					add_state_core = 615
+					load_oob = "SHX_1916"
+					add_equipment_to_stockpile = {
+						type = infantry_equipment_0
+						amount = 5000
+						producer = QIN
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 500
+						producer = QIN
+					}
+				}
+			}
+			QIN = {
+				transfer_units_fraction = {
+					target = SHX
+					size = 0.1
+					stockpile_ratio = 0.10
+					army_ratio = 0.10
+					navy_ratio = 0.0
+					air_ratio = 0.0
+				}
+				add_to_faction = SHX
 			}
 		}
-		SDC = {
-			every_unit_leader = {
-				limit = {
-					has_id = 15097 
+		else = {
+			ANC = {
+				every_unit_leader = {
+					limit = {
+						has_id = 15097 
+					}
+					set_nationality = SHX
 				}
-				set_nationality = SHX
 			}
-		}
-		SHX = {
-			inherit_technology = CHI
-			set_research_slots = 2
-			transfer_state = 615
-			hidden_effect = {
-				add_state_core = 615
-				load_oob = "SHX_1916"
-				add_equipment_to_stockpile = {
-					type = infantry_equipment_0
-					amount = 5000
-					producer = CHI
+			SDC = {
+				every_unit_leader = {
+					limit = {
+						has_id = 15097 
+					}
+					set_nationality = SHX
 				}
-				add_equipment_to_stockpile = {
-					type = support_equipment
-					amount = 500
-					producer = CHI
-				}
-				give_military_access = ANC
 			}
-		}
-		ANC = {
-			transfer_units_fraction = {
-				target = SHX
-				size = 0.1
-				stockpile_ratio = 0.10
-				army_ratio = 0.10
-				navy_ratio = 0.0
-				air_ratio = 0.0
+			SHX = {
+				inherit_technology = CHI
+				set_research_slots = 2
+				transfer_state = 615
+				hidden_effect = {
+					add_state_core = 615
+					load_oob = "SHX_1916"
+					add_equipment_to_stockpile = {
+						type = infantry_equipment_0
+						amount = 5000
+						producer = CHI
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 500
+						producer = CHI
+					}
+					give_military_access = ANC
+				}
+			}
+			ANC = {
+				transfer_units_fraction = {
+					target = SHX
+					size = 0.1
+					stockpile_ratio = 0.10
+					army_ratio = 0.10
+					navy_ratio = 0.0
+					air_ratio = 0.0
+				}
 			}
 		}
 	}
@@ -1099,55 +1326,109 @@ country_event = {
 	}
 	mean_time_to_happen = { days = 35 }
 	immediate = {
-		604 = { set_demilitarized_zone = no }
-		755 = { set_demilitarized_zone = no }
-		ANC = {
-			every_unit_leader = {
-				limit = {
-					has_id = 73055 
-				}
-				set_nationality = XSM
+		if = {
+			limit = {
+				ANC = { exists = no }
+				QIN = { exists = yes }
 			}
-		}
-		SDC = {
-			every_unit_leader = {
-				limit = {
-					has_id = 73055 
-				}
-				set_nationality = XSM
-			}
-		}
-		XSM = {
-			inherit_technology = CHI
-			set_research_slots = 2
-			#transfer_state = 283
-			transfer_state = 604
-			transfer_state = 755
-			hidden_effect = {
-				#add_state_core = 283
-				add_state_core = 604
-				add_state_core = 755
-				load_oob = "XSM_1916"
-				add_equipment_to_stockpile = {
-					type = infantry_equipment_0
-					amount = 5000
-					producer = CHI
-				}
-				add_equipment_to_stockpile = {
-					type = support_equipment
-					amount = 500
-					producer = CHI
+			QIN = {
+				every_unit_leader = {
+					limit = {
+						has_id = 73055 
+					}
+					set_nationality = XSM
 				}
 			}
+			XSM = {
+				inherit_technology = QIN
+				set_research_slots = 2
+				transfer_state = 283
+				transfer_state = 604
+				transfer_state = 755
+				transfer_state = 616
+				transfer_state = 621
+				hidden_effect = {
+					add_state_core = 283
+					add_state_core = 604
+					add_state_core = 755
+					add_state_core = 616
+					add_state_core = 621
+					load_oob = "XSM_1916"
+					add_equipment_to_stockpile = {
+						type = infantry_equipment_0
+						amount = 5000
+						producer = QIN
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 500
+						producer = QIN
+					}
+				}
+			}
+			QIN = {
+				transfer_units_fraction = {
+					target = XSM
+					size = 0.1
+					stockpile_ratio = 0.10
+					army_ratio = 0.10
+					navy_ratio = 0.0
+					air_ratio = 0.0
+				}
+				add_to_faction = XSM
+			}
 		}
-		ANC = {
-			transfer_units_fraction = {
-				target = XSM
-				size = 0.1
-				stockpile_ratio = 0.10
-				army_ratio = 0.10
-				navy_ratio = 0.0
-				air_ratio = 0.0
+		else = {
+			604 = { set_demilitarized_zone = no }
+			755 = { set_demilitarized_zone = no }
+			ANC = {
+				every_unit_leader = {
+					limit = {
+						has_id = 73055 
+					}
+					set_nationality = XSM
+				}
+			}
+			SDC = {
+				every_unit_leader = {
+					limit = {
+						has_id = 73055 
+					}
+					set_nationality = XSM
+				}
+			}
+			XSM = {
+				inherit_technology = CHI
+				set_research_slots = 2
+				#transfer_state = 283
+				transfer_state = 604
+				transfer_state = 755
+				hidden_effect = {
+					#add_state_core = 283
+					add_state_core = 604
+					add_state_core = 755
+					load_oob = "XSM_1916"
+					add_equipment_to_stockpile = {
+						type = infantry_equipment_0
+						amount = 5000
+						producer = CHI
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 500
+						producer = CHI
+					}
+				}
+			}
+			ANC = {
+				transfer_units_fraction = {
+					target = XSM
+					size = 0.1
+					stockpile_ratio = 0.10
+					army_ratio = 0.10
+					navy_ratio = 0.0
+					air_ratio = 0.0
+				}
 			}
 		}
 	}
@@ -1160,62 +1441,125 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		SIK = { exists = no }
-		ANC = { exists = yes }
+		OR = {
+			ANC = { exists = yes }
+			QIN = { has_completed_focus = CHI_pacify_beiyang_army }
+		}
 		has_global_flag = warlord_era
 	}
-	mean_time_to_happen = { days = 35 }
+	mean_time_to_happen = { days = 5 }
 	immediate = {
-		287 = { set_demilitarized_zone = no }
-		618 = { set_demilitarized_zone = no }
-		619 = { set_demilitarized_zone = no }
-		ANC = {
-			every_unit_leader = {
-				limit = {
-					has_id = 73049 
-				}
-				set_nationality = SIK
+		if = {
+			limit = {
+				ANC = { exists = no }
+				QIN = { exists = yes }
 			}
-		}
-		SDC = {
-			every_unit_leader = {
-				limit = {
-					has_id = 73049 
+			QIN = {
+				every_unit_leader = {
+					limit = {
+						has_id = 73049 
+					}
+					set_nationality = SIK
 				}
-				set_nationality = SIK
 			}
-		}
-		SIK = {
-			inherit_technology = CHI
-			set_research_slots = 2
-			transfer_state = 618
-			transfer_state = 287
-			transfer_state = 619
-			hidden_effect = {
+			SIK = {
+				inherit_technology = QIN
+				set_research_slots = 2
+				transfer_state = 618
+				transfer_state = 287
+				transfer_state = 619
+				hidden_effect = {
+					add_state_core = 619
+					add_state_core = 618
+					add_state_core = 287
+					load_oob = "SIK_1916"
+					add_equipment_to_stockpile = {
+						type = infantry_equipment_0
+						amount = 5000
+						producer = QIN
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 500
+						producer = QIN
+					}
+				}
+			}
+			QIN = {
+				transfer_units_fraction = {
+					target = SIK
+					size = 0.1
+					stockpile_ratio = 0.10
+					army_ratio = 0.10
+					navy_ratio = 0.0
+					air_ratio = 0.0
+				}
+				add_to_faction = SIK
+			}
+			KUM = {
 				add_state_core = 619
-				add_state_core = 618
-				add_state_core = 287
-				load_oob = "SIK_1916"
-				add_equipment_to_stockpile = {
-					type = infantry_equipment_0
-					amount = 5000
-					producer = CHI
-				}
-				add_equipment_to_stockpile = {
-					type = support_equipment
-					amount = 500
-					producer = CHI
-				}
+				transfer_state = 619
 			}
+			SIK = { puppet = KUM }
 		}
-		ANC = {
-			transfer_units_fraction = {
-				target = SIK
-				size = 0.1
-				stockpile_ratio = 0.10
-				army_ratio = 0.10
-				navy_ratio = 0.0
-				air_ratio = 0.0
+		else = {
+			287 = { set_demilitarized_zone = no }
+			618 = { set_demilitarized_zone = no }
+			619 = { set_demilitarized_zone = no }
+			ANC = {
+				every_unit_leader = {
+					limit = {
+						has_id = 73049 
+					}
+					set_nationality = SIK
+				}
 			}
+			SDC = {
+				every_unit_leader = {
+					limit = {
+						has_id = 73049 
+					}
+					set_nationality = SIK
+				}
+			}
+			SIK = {
+				inherit_technology = CHI
+				set_research_slots = 2
+				transfer_state = 618
+				transfer_state = 287
+				transfer_state = 619
+				hidden_effect = {
+					add_state_core = 619
+					add_state_core = 618
+					add_state_core = 287
+					load_oob = "SIK_1916"
+					add_equipment_to_stockpile = {
+						type = infantry_equipment_0
+						amount = 5000
+						producer = CHI
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 500
+						producer = CHI
+					}
+				}
+			}
+			ANC = {
+				transfer_units_fraction = {
+					target = SIK
+					size = 0.1
+					stockpile_ratio = 0.10
+					army_ratio = 0.10
+					navy_ratio = 0.0
+					air_ratio = 0.0
+				}
+			}
+			KUM = {
+				add_state_core = 619
+				transfer_state = 619
+			}
+			SIK = { puppet = KUM }
 		}
 	}
 }
@@ -1225,44 +1569,125 @@ country_event = {
 	id = ww1_china.17
 	hidden = yes
 	fire_only_once = yes
-	is_triggered_only = yes
-	#trigger = {
-	#	JNC = { exists = no }
-	#	SIK = { exists = yes }
-	#	has_global_flag = warlord_era
-	#}
-	mean_time_to_happen = { days = 35 }
+	trigger = {
+		JNC = { exists = no }
+		has_global_flag = warlord_era
+		QIN = { has_completed_focus = CHI_pacify_beiyang_army }
+	}
+	mean_time_to_happen = { days = 1 }
 	immediate = {
 		JNC = {
-			inherit_technology = CHI
+			inherit_technology = QIN
 			set_research_slots = 2
+			transfer_state = 595
+			transfer_state = 596
 			transfer_state = 598
+			transfer_state = 600
+			transfer_state = 606
 			transfer_state = 613
+			transfer_state = 749
 			hidden_effect = {
+				add_state_core = 595
+				add_state_core = 596
 				add_state_core = 598
+				add_state_core = 600
+				add_state_core = 606
 				add_state_core = 613
+				add_state_core = 749
 				add_equipment_to_stockpile = {
 					type = infantry_equipment_0
 					amount = 5000
-					producer = CHI
+					producer = QIN
 				}
 				add_equipment_to_stockpile = {
 					type = support_equipment
 					amount = 500
-					producer = CHI
+					producer = QIN
+				}
+			}
+			set_cosmetic_tag = NPA_democratic
+			set_capital = 598
+			set_politics = {
+				ruling_party = democratic
+				elections_allowed = no 
+			}
+			set_popularities = {
+				fascism = 5
+				communism = 0
+				democratic = 36
+				neutrality = 59
+			}
+			if = {
+				limit = {
+					NOT = { has_global_flag = sun_yatsen_dead }
+				}
+				create_country_leader = {
+					name = "Sun Yat-sen"
+					picture = "gfx/leaders/CHI/CHI_sun_wen.dds"
+					expire = "1935.1.1"
+					ideology = socialism
+				}
+			}
+			else = {
+				create_country_leader = {
+					name = "Chiang Kai-shek"
+					picture = "gfx/leaders/CHI/CHI_chiang_kai_shek.dds"
+					expire = "1935.1.1"
+					ideology = conservatism
 				}
 			}
 		}
-		CHI = {
+		QIN = {
 			transfer_units_fraction = {
 				target = JNC
-				size = 0.1
-				stockpile_ratio = 0.10
-				army_ratio = 0.10
-				navy_ratio = 0.0
+				size = 0.25
+				stockpile_ratio = 0.30
+				army_ratio = 0.30
+				navy_ratio = 0.60
 				air_ratio = 0.0
 			}
+			add_to_faction = JNC
 		}
+		if = {
+			limit = {
+				MON = {
+					is_subject_of = QIN
+				}
+			}
+			QIN = { end_puppet = MON }
+		}
+		MON = {
+			transfer_state = 330
+			transfer_state = 612
+
+			if = {
+				limit = {
+					OR  = {
+						QIN = { owns_state = 329 }
+						TAN = { is_subject_of = QIN }
+					}
+				}
+				transfer_state = 329
+			}
+
+			load_oob = "MON_army"
+		}
+		if = {
+			limit = {
+				TIB = {
+					is_subject_of = QIN
+				}
+			}
+			QIN = { end_puppet = TIB }
+		}
+		if = {
+			limit = {
+				NOT = { has_country_flag = tibet_released }
+			}
+			set_country_flag = tibet_released
+			QIN = { release = TIB }
+		}
+		TIB = { load_oob = "TIB_army" }
 	}
 }
 #WARLORD ERA - Xicang
@@ -1278,32 +1703,69 @@ country_event = {
 	}
 	mean_time_to_happen = { days = 25 }
 	immediate = {
-		ZHC = {
-			inherit_technology = CHI
-			set_research_slots = 2
-			transfer_state = 601
-			hidden_effect = {
-				add_state_core = 601
-				add_equipment_to_stockpile = {
-					type = infantry_equipment_0
-					amount = 5000
-					producer = CHI
-				}
-				add_equipment_to_stockpile = {
-					type = support_equipment
-					amount = 500
-					producer = CHI
+		if = {
+			limit = {
+				CHI = { exists = no }
+				QIN = { exists = yes }
+			}
+			ZHC = {
+				inherit_technology = QIN
+				set_research_slots = 2
+				transfer_state = 601
+				hidden_effect = {
+					add_state_core = 601
+					add_equipment_to_stockpile = {
+						type = infantry_equipment_0
+						amount = 5000
+						producer = QIN
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 500
+						producer = QIN
+					}
 				}
 			}
+			QIN = {
+				transfer_units_fraction = {
+					target = ZHC
+					size = 0.05
+					stockpile_ratio = 0.10
+					army_ratio = 0.10
+					navy_ratio = 0.0
+					air_ratio = 0.0
+				}
+				add_to_faction = ZHC
+			}
 		}
-		CHI = {
-			transfer_units_fraction = {
-				target = ZHC
-				size = 0.1
-				stockpile_ratio = 0.10
-				army_ratio = 0.10
-				navy_ratio = 0.0
-				air_ratio = 0.0
+		else = {
+			ZHC = {
+				inherit_technology = CHI
+				set_research_slots = 2
+				transfer_state = 601
+				hidden_effect = {
+					add_state_core = 601
+					add_equipment_to_stockpile = {
+						type = infantry_equipment_0
+						amount = 5000
+						producer = CHI
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 500
+						producer = CHI
+					}
+				}
+			}
+			CHI = {
+				transfer_units_fraction = {
+					target = ZHC
+					size = 0.05
+					stockpile_ratio = 0.10
+					army_ratio = 0.10
+					navy_ratio = 0.0
+					air_ratio = 0.0
+				}
 			}
 		}
 	}
@@ -1321,33 +1783,71 @@ country_event = {
 	}
 	mean_time_to_happen = { days = 25 }
 	immediate = {
-		HNC = {
-			inherit_technology = CHI
-			set_research_slots = 2
-			transfer_state = 602
-			hidden_effect = {
-				add_state_core = 602
-				load_oob = "HNC_1916"
-				add_equipment_to_stockpile = {
-					type = infantry_equipment_0
-					amount = 5000
-					producer = CHI
-				}
-				add_equipment_to_stockpile = {
-					type = support_equipment
-					amount = 500
-					producer = CHI
+		if = {
+			limit = {
+				CHI = { exists = no }
+				QIN = { exists = yes }
+			}
+			HNC = {
+				inherit_technology = QIN
+				set_research_slots = 2
+				transfer_state = 602
+				hidden_effect = {
+					add_state_core = 602
+					load_oob = "HNC_1916"
+					add_equipment_to_stockpile = {
+						type = infantry_equipment_0
+						amount = 5000
+						producer = QIN
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 500
+						producer = QIN
+					}
 				}
 			}
+			QIN = {
+				transfer_units_fraction = {
+					target = HNC
+					size = 0.1
+					stockpile_ratio = 0.10
+					army_ratio = 0.10
+					navy_ratio = 0.0
+					air_ratio = 0.0
+				}
+				add_to_faction = HNC
+			}
 		}
-		CHI = {
-			transfer_units_fraction = {
-				target = HNC
-				size = 0.1
-				stockpile_ratio = 0.10
-				army_ratio = 0.10
-				navy_ratio = 0.0
-				air_ratio = 0.0
+		else = {
+			HNC = {
+				inherit_technology = CHI
+				set_research_slots = 2
+				transfer_state = 602
+				hidden_effect = {
+					add_state_core = 602
+					load_oob = "HNC_1916"
+					add_equipment_to_stockpile = {
+						type = infantry_equipment_0
+						amount = 5000
+						producer = CHI
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 500
+						producer = CHI
+					}
+				}
+			}
+			CHI = {
+				transfer_units_fraction = {
+					target = HNC
+					size = 0.1
+					stockpile_ratio = 0.10
+					army_ratio = 0.10
+					navy_ratio = 0.0
+					air_ratio = 0.0
+				}
 			}
 		}
 	}
@@ -1402,48 +1902,93 @@ country_event = {
 	id = ww1_china.21
 	hidden = yes
 	fire_only_once = yes
-	is_triggered_only = yes
-	#trigger = {
-	#	SDC = { exists = no }
-	#	JNC = { exists = yes }
-	#	has_global_flag = warlord_era
-	#}
-	mean_time_to_happen = { days = 25 }
+	trigger = {
+		SDC = { exists = no }
+		JNC = { exists = yes }
+		has_global_flag = warlord_era
+		QIN = { has_completed_focus = CHI_pacify_beiyang_army }
+	}
+	mean_time_to_happen = { days = 10 }
 	immediate = {
-		CHI = {
-			every_unit_leader = {
-				limit = {
-					has_id = 73051 
-				}
-				set_nationality = SDC
+		if = {
+			limit = {
+				CHI = { exists = no }
+				QIN = { exists = yes }
 			}
-		}
-		SDC = {
-			inherit_technology = CHI
-			set_research_slots = 2
-			transfer_state = 597
-			hidden_effect = {
-				add_state_core = 597
-				add_equipment_to_stockpile = {
-					type = infantry_equipment_0
-					amount = 5000
-					producer = CHI
-				}
-				add_equipment_to_stockpile = {
-					type = support_equipment
-					amount = 500
-					producer = CHI
+			QIN = {
+				every_unit_leader = {
+					limit = {
+						has_id = 73051 
+					}
+					set_nationality = SDC
 				}
 			}
+			SDC = {
+				inherit_technology = QIN
+				set_research_slots = 2
+				transfer_state = 597
+				hidden_effect = {
+					add_state_core = 597
+					add_equipment_to_stockpile = {
+						type = infantry_equipment_0
+						amount = 5000
+						producer = QIN
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 500
+						producer = QIN
+					}
+				}
+			}
+			QIN = {
+				transfer_units_fraction = {
+					target = SDC
+					size = 0.1
+					stockpile_ratio = 0.10
+					army_ratio = 0.10
+					navy_ratio = 0.0
+					air_ratio = 0.0
+				}
+				add_to_faction = SDC
+			}
 		}
-		CHI = {
-			transfer_units_fraction = {
-				target = SDC
-				size = 0.1
-				stockpile_ratio = 0.10
-				army_ratio = 0.10
-				navy_ratio = 0.0
-				air_ratio = 0.0
+		else = {
+			CHI = {
+				every_unit_leader = {
+					limit = {
+						has_id = 73051 
+					}
+					set_nationality = SDC
+				}
+			}
+			SDC = {
+				inherit_technology = CHI
+				set_research_slots = 2
+				transfer_state = 597
+				hidden_effect = {
+					add_state_core = 597
+					add_equipment_to_stockpile = {
+						type = infantry_equipment_0
+						amount = 5000
+						producer = CHI
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 500
+						producer = CHI
+					}
+				}
+			}
+			CHI = {
+				transfer_units_fraction = {
+					target = SDC
+					size = 0.1
+					stockpile_ratio = 0.10
+					army_ratio = 0.10
+					navy_ratio = 0.0
+					air_ratio = 0.0
+				}
 			}
 		}
 	}
@@ -1454,41 +1999,76 @@ country_event = {
 	id = ww1_china.22
 	hidden = yes
 	fire_only_once = yes
-	is_triggered_only = yes
-	#trigger = {
-	#	PRC = { exists = no }
-	#	SDC = { exists = yes }
-	#	has_global_flag = warlord_era
-	#}
+	trigger = {
+		has_global_flag = qing_oppress_cliques
+		has_global_flag = warlord_era
+	}
 	mean_time_to_happen = { days = 25 }
 	immediate = {
-		PRC = {
-			inherit_technology = CHI
-			set_research_slots = 2
-			transfer_state = 622
-			hidden_effect = {
-				add_state_core = 622
-				add_equipment_to_stockpile = {
-					type = infantry_equipment_0
-					amount = 7000
-					producer = CHI
+		if = {
+			limit = {
+				CHI = { exists = no }
+				QIN = { exists = yes }
+			}
+			PRC = {
+				inherit_technology = QIN
+				set_research_slots = 2
+				transfer_state = 622
+				hidden_effect = {
+					add_state_core = 622
+					add_equipment_to_stockpile = {
+						type = infantry_equipment_0
+						amount = 7000
+						producer = QIN
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 500
+						producer = QIN
+					}
 				}
-				add_equipment_to_stockpile = {
-					type = support_equipment
-					amount = 500
-					producer = CHI
+			}
+			QIN = {
+				transfer_units_fraction = {
+					target = PRC
+					size = 0.1
+					stockpile_ratio = 0.10
+					army_ratio = 0.10
+					navy_ratio = 0.0
+					air_ratio = 0.0
 				}
-				create_faction = riot_suppressing_troops
+				add_to_faction = PRC
 			}
 		}
-		CHI = {
-			transfer_units_fraction = {
-				target = PRC
-				size = 0.1
-				stockpile_ratio = 0.10
-				army_ratio = 0.10
-				navy_ratio = 0.0
-				air_ratio = 0.0
+		else = {
+			PRC = {
+				inherit_technology = CHI
+				set_research_slots = 2
+				transfer_state = 622
+				hidden_effect = {
+					add_state_core = 622
+					add_equipment_to_stockpile = {
+						type = infantry_equipment_0
+						amount = 7000
+						producer = CHI
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 500
+						producer = CHI
+					}
+					create_faction = riot_suppressing_troops
+				}
+			}
+			CHI = {
+				transfer_units_fraction = {
+					target = PRC
+					size = 0.1
+					stockpile_ratio = 0.10
+					army_ratio = 0.10
+					navy_ratio = 0.0
+					air_ratio = 0.0
+				}
 			}
 		}
 	}
@@ -1506,32 +2086,69 @@ country_event = {
 	}
 	mean_time_to_happen = { days = 25 }
 	immediate = {
-		SCC = {
-			inherit_technology = CHI
-			set_research_slots = 2
-			transfer_state = 605
-			hidden_effect = {
-				add_state_core = 605
-				add_equipment_to_stockpile = {
-					type = infantry_equipment_0
-					amount = 7000
-					producer = CHI
-				}
-				add_equipment_to_stockpile = {
-					type = support_equipment
-					amount = 500
-					producer = CHI
+		if = {
+			limit = {
+				CHI = { exists = no }
+				QIN = { exists = yes }
+			}
+			SCC = {
+				inherit_technology = QIN
+				set_research_slots = 2
+				transfer_state = 605
+				hidden_effect = {
+					add_state_core = 605
+					add_equipment_to_stockpile = {
+						type = infantry_equipment_0
+						amount = 7000
+						producer = QIN
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 500
+						producer = QIN
+					}
 				}
 			}
+			QIN = {
+				transfer_units_fraction = {
+					target = SCC
+					size = 0.1
+					stockpile_ratio = 0.10
+					army_ratio = 0.10
+					navy_ratio = 0.0
+					air_ratio = 0.0
+				}
+				add_to_faction = SCC
+			}
 		}
-		CHI = {
-			transfer_units_fraction = {
-				target = SCC
-				size = 0.1
-				stockpile_ratio = 0.10
-				army_ratio = 0.10
-				navy_ratio = 0.0
-				air_ratio = 0.0
+		else = {
+			SCC = {
+				inherit_technology = CHI
+				set_research_slots = 2
+				transfer_state = 605
+				hidden_effect = {
+					add_state_core = 605
+					add_equipment_to_stockpile = {
+						type = infantry_equipment_0
+						amount = 7000
+						producer = CHI
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 500
+						producer = CHI
+					}
+				}
+			}
+			CHI = {
+				transfer_units_fraction = {
+					target = SCC
+					size = 0.1
+					stockpile_ratio = 0.10
+					army_ratio = 0.10
+					navy_ratio = 0.0
+					air_ratio = 0.0
+				}
 			}
 		}
 	}
@@ -1589,46 +2206,95 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		FNG = { exists = no }
-		GXC = { exists = yes }
 		has_global_flag = warlord_era
 	}
-	mean_time_to_happen = { days = 35 }
+	mean_time_to_happen = { days = 1 }
 	immediate = {
-		FNG = {
-			inherit_technology = CHI
-			set_research_slots = 2
-			transfer_state = 714
-			transfer_state = 715
-			transfer_state = 617
-			transfer_state = 716
-			hidden_effect = {
-				add_state_core = 714
-				add_state_core = 715
-				add_state_core = 617
-				add_state_core = 716
-				load_oob = "FNG_1916"
-				add_equipment_to_stockpile = {
-					type = infantry_equipment_0
-					amount = 10000
-					producer = CHI
+		if = {
+			limit = {
+				CHI = { exists = no }
+				QIN = { exists = yes }
+			}
+			FNG = {
+				inherit_technology = QIN
+				set_research_slots = 2
+				transfer_state = 328
+				transfer_state = 610
+				transfer_state = 717
+				transfer_state = 714
+				transfer_state = 715
+				transfer_state = 617
+				transfer_state = 716
+				hidden_effect = {
+					add_state_core = 328
+					add_state_core = 610
+					add_state_core = 717
+					add_state_core = 714
+					add_state_core = 715
+					add_state_core = 617
+					add_state_core = 716
+					load_oob = "FNG_1916"
+					add_equipment_to_stockpile = {
+						type = infantry_equipment_0
+						amount = 10000
+						producer = QIN
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 700
+						producer = QIN
+					}
 				}
-				add_equipment_to_stockpile = {
-					type = support_equipment
-					amount = 700
-					producer = CHI
+			}
+			QIN = {
+				transfer_units_fraction = {
+					target = FNG
+					size = 0.40
+					stockpile_ratio = 0.10
+					army_ratio = 0.10
+					navy_ratio = 0.10
+					air_ratio = 0.0
 				}
+				add_to_faction = FNG
 			}
 		}
-		CHI = {
-			transfer_units_fraction = {
-				target = FNG
-				size = 0.30
-				stockpile_ratio = 0.10
-				army_ratio = 0.10
-				navy_ratio = 0.0
-				air_ratio = 0.0
+		else = {
+			FNG = {
+				inherit_technology = CHI
+				set_research_slots = 2
+				transfer_state = 714
+				transfer_state = 715
+				transfer_state = 617
+				transfer_state = 716
+				hidden_effect = {
+					add_state_core = 714
+					add_state_core = 715
+					add_state_core = 617
+					add_state_core = 716
+					load_oob = "FNG_1916"
+					add_equipment_to_stockpile = {
+						type = infantry_equipment_0
+						amount = 10000
+						producer = CHI
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 700
+						producer = CHI
+					}
+				}
 			}
-			add_to_faction = FNG
+			CHI = {
+				transfer_units_fraction = {
+					target = FNG
+					size = 0.30
+					stockpile_ratio = 0.10
+					army_ratio = 0.10
+					navy_ratio = 0.0
+					air_ratio = 0.0
+				}
+				add_to_faction = FNG
+			}
 		}
 	}
 }
@@ -1688,6 +2354,7 @@ country_event = {
 					ideology = military_dictatorship
 					traits = { spirit_of_genghis }
 				}
+				load_oob = "MON_army"
 			}
 			RUS = {
 				transfer_state = 329
@@ -1777,16 +2444,7 @@ country_event = {
 	picture = GFX_report_event_japan_army_mountainside
 
 	fire_only_once = yes
-	trigger = {
-		tag = CHI
-		OR = {
-			has_global_flag = CHI_government_split_mission
-			AND = {
-				CHI = { has_completed_focus = CHI_national_protection_war }
-				has_global_flag = warlord_leads_npw
-			}
-		}
-	}
+	is_triggered_only = yes
 	mean_time_to_happen = { days = 1 }
 	immediate = {
 		hidden_effect = {
@@ -2075,20 +2733,11 @@ country_event = {
 	picture = GFX_report_event_japan_army_mountainside
 
 	fire_only_once = yes
-	trigger = {
-		tag = CHI
-		OR = {
-			has_completed_focus = CHI_long_march
-			AND = {
-				has_global_flag = GDC_kuomintang
-				CHI = { communism > 0.25 }
-			}
-		}
-	}
+	is_triggered_only = yes
 	mean_time_to_happen = { days = 1 }
 	option = {
 		name = ww1_china.36.a #PRC
-		trigger = { has_completed_focus = CHI_long_march }
+		#trigger = { has_completed_focus = CHI_long_march }
 		set_politics = {
 			ruling_party = communism
 			elections_allowed = no
@@ -2116,7 +2765,6 @@ country_event = {
 					picture = "gfx/leaders/CHI/CHI_chiang_kai_shek.dds"
 					expire = "1935.1.1"
 					ideology = oligarchism
-					
 				}
 			}
 		}
@@ -2200,60 +2848,168 @@ country_event = {
 
 	immediate = {
 		hidden_effect = {
-			create_dynamic_country = {
-				original_tag = CHI
-
-				set_politics = {
-					ruling_party = neutrality
-					elections_allowed = no
-				}
-
-				set_popularities = {
-					democratic = 11
-					neutrality = 83
-					fascism = 4
-					communism = 2
-				}
-
-				set_capital = 325
-
-				set_country_flag = CHI_national_protection_flag
-				set_cosmetic_tag = NPA
-			}
-			NPA = {
-				transfer_state = 325
-				transfer_state = 591
-				transfer_state = 592
-				transfer_state = 593
-				transfer_state = 594
-				transfer_state = 599
-				transfer_state = 602
-				transfer_state = 603
-				transfer_state = 605
-				inherit_technology = CHI
-
-				set_party_name = { 
-					ideology = neutrality
-					long_name = CHI_national_protection_army_long
-					name = CHI_national_protection_army
-				}
-			}
 			CHI = {
-				transfer_units_fraction = {
-					target = NPA
-					size = 0.6
-					stockpile_ratio = 0.5
-					army_ratio = 0.6
-					navy_ratio = 0.6
-					air_ratio = 0.6
-					keep_unit_leaders_trigger = {
-						OR = {
-							has_id = 73004
-							has_id = 73009
-							has_id = 73046
-							has_id = 73049
-							has_id = 73051
-							has_id = 73069
+				leave_faction = yes
+				set_rule = {
+					can_join_factions = no
+				}
+			}
+
+			if = {
+				limit = {
+					CHI = {
+						has_completed_focus = CHI_suppress_monarchists
+					}
+				}
+				create_dynamic_country = {
+					original_tag = CHI
+	
+					set_politics = {
+						ruling_party = fascism
+						elections_allowed = no
+					}
+	
+					set_popularities = {
+						democratic = 0
+						neutrality = 47
+						fascism = 53
+						communism = 0
+					}
+	
+					set_capital = 608
+	
+					set_country_flag = CHI_national_protection_flag
+					set_cosmetic_tag = NPA
+				}
+				NPA = {
+					every_state = {
+						limit = {
+							is_owned_by = CHI
+							NOT = {
+								state = 325
+								state = 591
+								state = 592
+								state = 593
+								state = 594
+								state = 598
+								state = 599
+								state = 600
+								state = 602
+								state = 603
+								state = 606
+								state = 613
+								state = 749
+							}
+						}
+					}
+					transfer_state = 608
+					inherit_technology = CHI
+
+					set_party_name = { 
+						ideology = fascism
+						long_name = CHI_neutrality_party
+						name = CHI_neutrality_party
+					}
+
+					set_rule = {
+						can_join_factions = no
+					}
+
+					create_country_leader = {
+						name = "Duan Qirui"
+						picture = "gfx/leaders/CHI/CHI_duan_qirui.dds"
+						expire = "1935.1.1"
+						ideology = military_dictatorship
+					}
+				}
+				CHI = {
+					transfer_units_fraction = {
+						target = NPA
+						size = 0.6
+						stockpile_ratio = 0.5
+						army_ratio = 0.6
+						navy_ratio = 0.6
+						air_ratio = 0.6
+						keep_unit_leaders_trigger = {
+							NOT = {
+								has_id = 73004
+								has_id = 73009
+								has_id = 73046
+								has_id = 73049
+								has_id = 73051
+								has_id = 73069
+							}
+						}
+					}
+				}
+			}
+			else = {
+				create_dynamic_country = {
+					original_tag = CHI
+	
+					set_politics = {
+						ruling_party = neutrality
+						elections_allowed = no
+					}
+	
+					set_popularities = {
+						democratic = 11
+						neutrality = 83
+						fascism = 4
+						communism = 2
+					}
+	
+					set_capital = 325
+	
+					set_country_flag = CHI_national_protection_flag
+					set_cosmetic_tag = NPA
+				}
+				NPA = {
+					transfer_state = 325
+					transfer_state = 591
+					transfer_state = 592
+					transfer_state = 593
+					transfer_state = 594
+					transfer_state = 599
+					transfer_state = 602
+					transfer_state = 603
+					transfer_state = 605
+					inherit_technology = CHI
+	
+					set_party_name = { 
+						ideology = neutrality
+						long_name = CHI_national_protection_army_long
+						name = CHI_national_protection_army
+					}
+
+					set_rule = {
+						can_join_factions = no
+					}
+
+					create_country_leader = {
+						name = "Tang Jiyao"
+						picture = "gfx/leaders/CHI/CHI_tang_jiyao.dds"
+						expire = "1935.1.1"
+						ideology = despotism
+					}
+				}
+				CHI = {
+					transfer_units_fraction = {
+						target = NPA
+						size = 0.6
+						stockpile_ratio = 0.5
+						army_ratio = 0.6
+						navy_ratio = 0.6
+						air_ratio = 0.6
+						keep_unit_leaders_trigger = {
+							OR = {
+								has_id = 73004
+								has_id = 73009
+								has_id = 73046
+								has_id = 73049
+								has_id = 73051
+								has_id = 73069
+							}
 						}
 					}
 				}
@@ -2752,12 +3508,13 @@ country_event = {
 						GXC = { exists = yes }
 					}
 					inherit_technology = GXC
-				else = {
-					inherit_technology = CHI
-				}
+					else = {
+						inherit_technology = CHI
+					}
+				}	
 
 				create_country_leader = {
-					name = "Sun Yat-Sen"
+					name = "Sun Yat-sen"
 					picture = "gfx/leaders/CHI/CHI_sun_wen.dds"
 					expire = "1935.1.1"
 					ideology = socialism
@@ -3076,6 +3833,7 @@ country_event = {
 	fire_only_once = yes
 	immediate = {
 		hidden_effect = {
+			set_global_flag = beijing_coup
 			GMJ = {
 				add_state_core = 608
 				transfer_state = 608
@@ -3103,5 +3861,181 @@ country_event = {
 	option = {
 		name = ww1_china.53.a
 		ai_chance = { factor = 100 }
+	}
+}
+# DEATH OF SUN YAT-SEN
+##################
+country_event = {
+	id = ww1_china.54
+	title = ww1_china.54.t
+	desc = ww1_china.54.d
+	picture = GFX_report_event_japan_army_mountainside
+
+	fire_only_once = yes
+	trigger = {
+		has_country_leader = {
+			name = "Sun Yat-sen"
+			ruling_only = yes
+		}
+
+		OR = {
+			date > 1925.3.12
+			AND = {
+				original_tag = CHI
+				has_global_flag = national_protection_war
+				OR = {
+					NOT = { has_war_with = NPA }
+					AND = {
+						has_war_with = NPA
+						surrender_progress > 0.5
+					}
+				}
+			}
+		}
+	}
+	mean_time_to_happen = { days = 35 }
+	immediate = {
+		hidden_effect = {
+			kill_country_leader = yes
+
+			create_country_leader = {
+				name = "Chiang Kai-shek"
+				picture = "gfx/leaders/CHI/CHI_chiang_kai_shek.dds"
+				expire = "1935.1.1"
+				ideology = oligarchism
+			}
+
+			add_stability = -0.05
+
+			if = {
+				limit = {
+					original_tag = CHI
+				}
+				remove_ideas = CHI_idea_militarist_plot
+				set_global_flag = chinese_warlord_crisis
+			}
+			set_global_flag = sun_yatsen_dead
+		}
+	}
+	option = {
+		name = ww1_china.54.a
+		ai_chance = { factor = 100 }
+	}
+}
+# PLAYABLE SELECTION FOR WARLORD ERA (QING)
+##################
+country_event = {
+	id = ww1_china.55
+	title = ww1_china.55.t
+	desc = ww1_china.55.d
+	trigger = {
+		tag = QIN
+		has_global_flag = warlord_era
+		QIN = {
+			exists = yes
+		}
+		JNC = {
+			exists = yes
+			has_cosmetic_tag = NPA_democratic
+		}
+	}
+	fire_only_once = yes
+	mean_time_to_happen = { days = 10 }
+	option = {
+		name = ww1_china.55.a
+		ai_chance = { factor = 100 }
+	}
+	option = {
+		name = ww1_china.55.b
+		ai_chance = { factor = 0 }
+		JNC = { change_tag_from = QIN }
+	}
+	option = {
+		name = ww1_china.55.c
+		ai_chance = { factor = 0 }
+		FNG = { change_tag_from = QIN }
+	}
+}
+# ASSASSINATE YANG ZENGXIN
+##################
+country_event = {
+	id = ww1_xinjiang.1
+	title = ww1_xinjiang.1.t
+	desc = ww1_xinjiang.1.d
+	trigger = {
+		date > 1928.7.7
+		has_country_leader = {
+			name = "Yang Zengxin"
+			ruling_only = no
+		}
+		any_country = {
+			OR = {
+				has_country_leader = {
+					name = "Sun Yat-sen"
+					ruling_only = yes
+				}
+				has_country_leader = {
+					name = "Chiang Kai-shek"
+					ruling_only = yes
+				}
+			}
+		}
+	}
+	fire_only_once = yes
+	mean_time_to_happen = { days = 0 }
+	immediate = {
+		hidden_effect = {
+			kill_ideology_leader = neutrality
+
+			create_country_leader = {
+				name = "Jin Shuren"
+				ideology = despotism
+			}
+		}
+	}
+	option = {
+		name = ww1_xinjiang.1.a
+		ai_chance = { factor = 100 }
+	}
+}
+# DEATH OF MAQSUD SHAH
+##################
+country_event = {
+	id = ww1_xinjiang.2
+	title = ww1_xinjiang.2.t
+	desc = ww1_xinjiang.2.d
+	trigger = {
+		date > 1930.6.6
+		KUM = {
+			has_country_leader = {
+				name = "Maqsud Shah"
+				ruling_only = no
+			}
+		}
+		OR = {
+			original_tag = SIK
+			original_tag = KUM
+		}
+	}
+	fire_only_once = yes
+	mean_time_to_happen = { days = 0 }
+	immediate = {
+		hidden_effect = {
+			if = {
+				limit = { original_tag = KUM }
+				kill_ideology_leader = neutrality
+			}
+		}
+	}
+	option = {
+		name = ww1_xinjiang.2.a
+		ai_chance = { factor = 100 }
+		trigger = { original_tag = KUM }
+		add_stability = -0.1
+	}
+	option = {
+		name = ww1_xinjiang.2.b
+		ai_chance = { factor = 100 }
+		trigger = { original_tag = SIK }
 	}
 }
