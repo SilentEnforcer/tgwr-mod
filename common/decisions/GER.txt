@@ -591,14 +591,19 @@ GER_decision_central_powers_conference = {
 			arms_factory > 2
 			ITA = { is_in_faction = no has_war = no }
 			NOT = { has_global_flag = central_powers_conference_ends }
-			AUH = { has_full_control_of_state = 39 }
+			AUH = { has_full_control_of_state = 244 owns_state = 244 }
 		}
 		highlight_states = {
-			state = 39
+			state = 244
 		}
 		visible = {
+			AUH = { is_in_faction_with = GER }
 			has_completed_focus = GER_central_powers_conference
-			NOT = { has_global_flag = central_powers_conference_ends }
+			NOT = {
+			    has_global_flag = central_powers_conference_ends 
+				has_global_flag = ita_rejected_the_deal
+				is_in_faction_with = ITA				
+			}
 		}
 		fire_only_once = yes
 		complete_effect = {
@@ -1183,7 +1188,7 @@ foreign_politics = {
 			has_country_flag = great_war_winner
 		}
 		fire_only_once = yes
-		cost = 200
+		cost = 250
 		days_remove = 10
 		target_trigger = {
 			FROM = {
@@ -1193,6 +1198,7 @@ foreign_politics = {
 		war_with_on_remove = SOV
 		remove_effect = {
 			GER = {
+				add_stability = -0.1
 				declare_war_on = {
 					target = SOV
 					type = topple_government
@@ -1207,7 +1213,7 @@ foreign_politics = {
 			}
 		}
 		ai_will_do = {
-			factor = 100
+			base = 100
 		}
 	}
 	GER_help_nationalist_france = {
@@ -1232,7 +1238,7 @@ foreign_politics = {
 			has_country_flag = great_war_winner
 		}
 		fire_only_once = yes
-		cost = 200
+		cost = 400
 		days_remove = 10
 		target_trigger = {
 			FROM = {
@@ -1242,6 +1248,7 @@ foreign_politics = {
 		war_with_on_remove = FRC
 		remove_effect = {
 			GER = {
+				add_stability = -0.2
 				declare_war_on = {
 					target = FRC
 					type = topple_government
@@ -1256,7 +1263,11 @@ foreign_politics = {
 			}
 		}
 		ai_will_do = {
-			factor = 0
+			base = 0
+			modifier = {
+				SOV = { exists = no }
+				add = 100
+			}
 		}
 	}
 }
@@ -2786,6 +2797,32 @@ GER_third_franco_german_war = {
 					}
 					white_peace = GER
 				}
+
+				#civil war end
+				if = {
+					limit = {
+						any_country = {
+							original_tag = GER
+							OR = {
+								has_government = democratic
+								has_government = communism
+							}
+						}
+					}
+					every_country = {
+						limit = {
+							original_tag = GER
+							OR = {
+								has_government = democratic
+								has_government = communism
+							}
+						}
+						annex_country = {
+							target = GER
+							transfer_troops = no
+						}
+					}
+				}
 				
 				every_state = {
 					limit = {
@@ -3554,6 +3591,13 @@ GER_third_franco_german_war = {
 								popularity = 0.4
 							}
 						}
+						every_state = {
+							limit = {
+								is_core_of = MAL
+								is_owned_by = PREV
+							}
+							MAL = { transfer_state = PREV }
+						}
 					}
 
 					# What the hell is Gorilla
@@ -3568,6 +3612,7 @@ GER_third_franco_german_war = {
 							annex_country = {
 								target = COG
 							}
+							set_cosmetic_tag = COG
 						}
 						every_state = {
 							limit = {
@@ -3594,32 +3639,6 @@ GER_third_franco_german_war = {
 						dismantle_faction = yes
 					}
 				}
-
-				#civil war end
-				if = {
-					limit = {
-						any_country = {
-							original_tag = GER
-							OR = {
-								has_government = democratic
-								has_government = communism
-							}
-						}
-					}
-					every_country = {
-						limit = {
-							original_tag = GER
-							OR = {
-								has_government = democratic
-								has_government = communism
-							}
-						}
-						annex_country = {
-							target = GER
-							transfer_troops = no
-						}
-					}
-				}
 			}
 		}
 	}
@@ -3638,6 +3657,7 @@ GER_third_franco_german_war = {
 		}
 		is_good = no
 		days_mission_timeout = 20
+		fire_only_once = yes
 		timeout_effect = {
 			custom_effect_tooltip = GER_anti_war_revolt_tt
 
@@ -3692,6 +3712,208 @@ GER_third_franco_german_war = {
 		complete_effect = {
 			add_stability = 0.1
 			add_war_support = 0.2
+		}
+	}
+	NFA_sue_for_peace_GER = {
+		allowed = {
+			original_tag = FRA
+		}
+		available = {
+			NOT = {
+				any_country = {
+					exists = yes
+					has_country_flag = FRA_socialist_france_flag
+				}
+			}
+			has_country_flag = FRA_nationalist_france_flag
+			has_war_with = GER
+			surrender_progress > 0.7
+		}
+		visible = {
+			NOT = {
+				any_country = {
+					exists = yes
+					has_country_flag = FRA_socialist_france_flag
+				}
+			}
+			has_country_flag = FRA_nationalist_france_flag
+			has_war_with = GER
+		}
+		fire_only_once = yes
+		ai_will_do = {
+			base = 0
+			modifier = {
+				add = 10000
+				surrender_progress > 0.85
+			}
+		}
+		target_trigger = {
+			FROM = {
+				tag = GER
+			}
+		}
+		complete_effect = {
+			custom_effect_tooltip = NFA_third_franco_german_war_tt
+			white_peace = GER
+			GER = {
+				every_other_country = {
+					limit = {
+						original_tag = GER
+						OR = {
+							has_government = democratic
+							has_government = communism
+						}
+					}
+					GER = {
+						annex_country = {
+							target = PREV
+							transfer_troops = no
+						}
+					}
+				}
+				annex_country = {
+					target = FRA
+					transfer_troops = no
+				}
+			}
+			create_dynamic_country = {
+				original_tag = FRA
+		
+				set_politics = {
+					ruling_party = neutrality
+					elections_allowed = no
+				}
+		
+				set_popularities = {
+					democratic = 14
+					neutrality = 52
+					fascism = 34
+					communism = 10
+				}
+		
+				set_capital = 16
+		
+				set_country_flag = FRA_puppet_france_flag
+				set_cosmetic_tag = FRP
+				reserve_dynamic_country = yes
+			}
+			every_state = {
+				limit = {
+					is_core_of = FRA
+					NOT = {
+						state = 1
+						state = 17
+						state = 28
+						state = 29
+						state = 706
+						state = 713
+						state = 730
+						state = 735
+						state = 834
+					}
+				}
+				FRP = {
+					add_state_core = PREV
+					transfer_state = PREV
+				}
+			}
+			if = {
+				limit = {
+					GER = {
+						owns_state = 735
+						owns_state = 834
+					}
+				}
+				if = {
+					limit = {
+						SRD = {
+							has_cosmetic_tag = SRD_PIE
+						}
+					}
+					SRD = {
+						add_state_core = 735
+						add_state_core = 834
+						transfer_state = 735
+						transfer_state = 834
+					}
+				}
+				else = {
+					FRP = {
+						add_state_core = 735
+						add_state_core = 834
+						transfer_state = 735
+						transfer_state = 834
+					}
+				}
+			}
+			if = {
+				limit = {
+					GER = {
+						owns_state = 1
+					}
+				}
+				if = {
+					limit = {
+						SRD = {
+							has_cosmetic_tag = SRD_PIE
+						}
+					}
+					SRD = {
+						transfer_state = 1
+					}
+				}
+				else = {
+					FRP = {
+						add_state_core = 1
+						transfer_state = 1
+					}
+				}
+			}
+			FRP = {
+				create_country_leader = {
+					name = "Gouvernement Provisoire"
+					picture = "gfx/leaders/FRA/FRA_provisional_government.dds"
+					expire = "1935.1.1"
+					ideology = conservatism
+					traits = { trait_conservatism }
+				}
+		
+				create_country_leader = {
+					name = "Victoire I"
+					picture = GFX_portrait_ger_victoria_louise
+					expire = "1935.1.1"
+					ideology = autocracy
+					female = yes
+					traits = {
+						victoria_iii
+						trait_autocracy
+					}
+				}
+				set_party_name = { 
+					ideology = neutrality
+					long_name = GER_neutrality_party
+					name = GER_neutrality_party
+				}
+				set_party_name = { 
+					ideology = fascism 
+					long_name = NFA_fascism_party_long
+					name = NFA_fascism_party
+				}
+			}
+			GER = {
+				if = {
+					limit = {
+						has_dlc = "Together for Victory"
+					}
+					set_autonomy = {
+						target = FRP
+						autonomous_state = autonomy_dominion
+					}
+				}
+				else = {
+					puppet = FRP
+				}
+			}
 		}
 	}
 }
