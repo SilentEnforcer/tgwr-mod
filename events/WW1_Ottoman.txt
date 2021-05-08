@@ -2513,19 +2513,6 @@ country_event = {
 		name = ww1_ottoman.60.a
 		ai_chance = {
 			factor = 100
-			modifier = {
-				factor = 0.5
-				OR = {
-					is_in_faction_with = FRA
-					is_in_faction_with = GER
-				}
-			}
-		}
-		if = {
-			limit = {
-				is_in_faction = yes
-			}
-			leave_faction = yes
 		}
 		FROM = {
 			add_to_faction = ROOT
@@ -2536,7 +2523,7 @@ country_event = {
 		ai_chance = {
 			factor = 30
 			modifier = {
-				factor = 0.5
+				factor = 0
 				is_in_faction_with = TUR
 			}
 			modifier = {
@@ -2552,7 +2539,7 @@ country_event = {
 		}
 		TUR = {
 			add_opinion_modifier = {
-				target = ENG
+				target = ROOT
 				modifier = medium_decrease
 			}
 		}
@@ -2671,6 +2658,15 @@ country_event = {
 					291
 					662
 				}
+				load_focus_tree = {
+					tree = ottoman_focus_tree
+					keep_completed = no
+				}
+				unlock_national_focus = TUR_legacy_of_31_march
+				unlock_national_focus = TUR_choose_side
+				unlock_national_focus = TUR_yildiz_teskilati
+				unlock_national_focus = TUR_reshape_the_army
+				complete_national_focus = TUR_dissolve_chamber_of_deputies
 				create_country_leader = {
 					name = "Yıldız Teşkilatı Council"
 					picture = "gfx/leaders/TUR/TUR_yildiz_teskilati_council.dds"
@@ -2748,6 +2744,9 @@ country_event = {
 	desc = ww1_ottoman.70.d
 	is_triggered_only = yes
 	option = {
+		trigger = {
+			has_capitulated = no
+		}
 		#Based
 		name = ww1_ottoman.70.a
 		ENG = {
@@ -2755,6 +2754,15 @@ country_event = {
 			hidden_effect = {
 				set_country_flag = darfur_free
 			}
+		}
+		DAR = {
+			leave_faction = yes
+		}
+		every_country = {
+			limit = {
+				has_war_with = DAR
+			}
+			white_peace = DAR
 		}
 		ai_chance = {
 			factor = 1
@@ -2893,41 +2901,6 @@ country_event = {
 	}
 }
 
-####Osman Fuad leads reactionaries in civil war
-country_event = {
-	id = ww1_ottoman.78
-	title = ww1_ottoman.78.t
-	desc = ww1_ottoman.78.d
-	trigger = {
-		tag = OTM
-		has_country_leader = {
-			name = "Yıldız Teşkilatı Council"
-			ruling_only = yes
-		}
-	}
-	mean_time_to_happen = {
-		days = 30
-	}
-	fire_only_once = yes
-	option = {
-		name = ww1_ottoman.78.a
-		retire_country_leader = yes
-		create_country_leader = {
-			name = "Osman IV Fuad"
-			ideology = autocracy
-			expire = "1935.1.1"
-			picture = "gfx/leaders/TUR/TUR_osman_fuad.dds"
-			traits = {
-				osman_fuad_1
-				osman_fuad_2
-				trait_autocracy
-			}
-		}
-		ai_chance = {
-			factor = 1
-		}
-	}
-}
 
 ################
 ################
@@ -3695,33 +3668,6 @@ country_event = {
 	}
 }
 
-# Deportation of Armenians News
-################
-news_event = {
-	id = ww1_ottoman.104
-	title = ww1_ottoman.104.t
-	desc = ww1_ottoman.104.d
-	picture = GFX_news_event_032
-	major = yes
-	is_triggered_only = yes
-	option = {
-		name = ww1_ottoman.104.a
-		trigger = {
-			tag = TUR
-		}
-		#doing right things
-	}
-	option = {
-		name = ww1_ottoman.104.b
-		set_global_flag = ottoman_deportation_of_minorities
-		trigger = {
-			NOT = {
-				tag = TUR
-			}
-		}
-		#oof
-	}
-}
 
 # Sadakat Pact - South American Focus
 ###########
@@ -3777,12 +3723,49 @@ country_event = {
 	option = {
 		name = ww1_ottoman.107.a
 		ai_chance = {
-			factor = 1
+			base = 1
+			modifier = {
+				factor = 2
+				has_opinion = {
+					target = TUR
+					value > 0
+				}
+			}
+			modifier = {
+				factor = 2
+				has_opinion = {
+					target = TUR
+					value > 10
+				}
+			}
+			modifier = {
+				factor = 2
+				has_opinion = {
+					target = TUR
+					value > 20
+				}
+			}
+			modifier = {
+				factor = 2
+				has_opinion = {
+					target = TUR
+					value > 30
+				}
+			}
+			modifier = {
+				factor = 2
+				has_opinion = {
+					target = TUR
+					value > 40
+				}
+			}
 		}
-		add_political_power = -100
+		add_political_power = -50
 		every_country = {
 			limit = {
 				OR = {
+					tag = ROOT
+					tag = TUR
 					has_idea = TUR_idea_balkan_economic_sphere_5
 					has_idea = TUR_idea_balkan_economic_sphere_4
 					has_idea = TUR_idea_balkan_economic_sphere_3
@@ -3790,13 +3773,27 @@ country_event = {
 					has_idea = TUR_idea_balkan_economic_sphere_1
 				}
 			}
-			TUR_balkan_economic_sphere_level_up = yes
+			if = {
+				limit = {
+					TUR = {
+						NOT = {
+							has_idea = TUR_idea_balkan_economic_sphere_5
+							has_idea = TUR_idea_balkan_economic_sphere_4
+							has_idea = TUR_idea_balkan_economic_sphere_3
+							has_idea = TUR_idea_balkan_economic_sphere_2
+							has_idea = TUR_idea_balkan_economic_sphere_1
+						}
+					}
+				}
+				add_ideas = TUR_idea_balkan_economic_sphere_1
+			}
 			if = {
 				limit = {
 					TUR = {
 						has_idea = TUR_idea_balkan_economic_sphere_1
-					}
+					}	
 				}
+				remove_ideas = TUR_idea_balkan_economic_sphere_1
 				add_ideas = TUR_idea_balkan_economic_sphere_2
 			}
 			if = {
@@ -3805,6 +3802,7 @@ country_event = {
 						has_idea = TUR_idea_balkan_economic_sphere_2
 					}
 				}
+				remove_ideas = TUR_idea_balkan_economic_sphere_2
 				add_ideas = TUR_idea_balkan_economic_sphere_3
 			}
 			if = {
@@ -3813,6 +3811,7 @@ country_event = {
 						has_idea = TUR_idea_balkan_economic_sphere_3
 					}
 				}
+				remove_ideas = TUR_idea_balkan_economic_sphere_3
 				add_ideas = TUR_idea_balkan_economic_sphere_4
 			}
 			if = {
@@ -3821,6 +3820,7 @@ country_event = {
 						has_idea = TUR_idea_balkan_economic_sphere_4
 					}
 				}
+				remove_ideas = TUR_idea_balkan_economic_sphere_4
 				add_ideas = TUR_idea_balkan_economic_sphere_5
 			}
 			if = {
@@ -3829,17 +3829,26 @@ country_event = {
 						has_idea = TUR_idea_balkan_economic_sphere_5
 					}
 				}
+				remove_ideas = TUR_idea_balkan_economic_sphere_5 
 				add_ideas = TUR_idea_balkan_economic_sphere_6
 			}
-		}
+		}	
 	}
 	option = {
 		name = ww1_ottoman.107.b
+		trigger = {
+			NOT = {
+				is_subject_of = TUR
+			}
+		}
 		ai_chance = {
 			base = 1
 			modifier = {
 				factor = 0
-				is_subject_of = TUR
+				has_opinion = {
+					target = TUR
+					value > 50
+				}
 			}
 		}
 	}
@@ -4002,30 +4011,45 @@ country_event = {
 	option = {
 		name = ottoman.185.a
 		end_puppet = EGY
-		TUR = {
-			set_autonomy = {
-				target = EGY
-				autonomy_state = autonomy_tgwr_protectorate
+		if = {
+			limit = {
+				has_dlc = "Together for Victory"
+			}
+			TUR = {
+				set_autonomy = {
+					target = EGY
+					autonomous_state = autonomy_colony
+					freedom_level = 0.8
+				}
+			}
+			else = {
+				puppet = EGY
 			}
 		}
 		EGY = {
 			create_country_leader = {
 				name = "Abbas II Helmy"
 				ideology = autocracy
-				traits = {
-					trait_autocracy
-					nationalist_symbol
-				}
 				picture = "gfx/leaders/EGY/EGY_abbas_ii.dds"
 				expire = "1935.1.1"
+				traits = {
+					trait_autocracy
+				}
 			}
 			drop_cosmetic_tag = yes
 		}
 		ai_chance = {
-			factor = 1
+			base = 0
 			modifier = {
-				factor = 12
-				has_war = yes
+				add = 12
+				any_country = {
+					is_major = yes
+					has_war_with = ROOT
+				}
+			}
+			modifier = {
+				add = 100
+				has_country_flag = great_war_loser
 			}
 		}
 	}
@@ -4058,11 +4082,11 @@ country_event = {
 			}
 		}
 		TUR = {
-			set_state_owner = 656
-			set_state_owner = 804
-			set_state_owner = 765
-			set_state_owner = 658
-			set_state_owner = 659
+			transfer_state = 656
+			transfer_state = 804
+			transfer_state = 765
+			transfer_state = 658
+			transfer_state = 659
 		}
 		ai_chance = {
 			factor = 2
@@ -4111,42 +4135,6 @@ country_event = {
 		}
 	}
 }
-
-####Force Bulgaria to align
-country_event = {
-	id = ottoman.186
-	title = ottoman.186.t
-	desc = ottoman.186.d
-	is_triggered_only = yes
-	option = {
-		name = ottoman.186.a
-		TUR = {
-			puppet = BUL
-		}
-		ai_chance = {
-			factor = 5
-			modifier = {
-				factor = 1
-				is_in_faction = yes
-			}
-		}
-	}
-	option = {
-		name = ottoman.186.b
-		hidden_effect = {
-			TUR = {
-				create_wargoal = {
-					type = puppet_wargoal_focus
-					target = BUL
-				}
-			}
-		}
-		ai_chance = {
-			factor = 5
-		}
-	}
-}
-
 ###Elections 
 country_event = {
 	id = ottoman.187
@@ -4294,5 +4282,171 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_ottoman.111.a
+	}
+}
+
+# Treaty of Batum
+##############################
+country_event = {
+	id = ww1_ottoman.112
+	title = ww1_ottoman.112.t
+	desc = ww1_ottoman.112.d
+	is_triggered_only = yes
+	option = {
+		name = ww1_ottoman.112.a
+		every_state = {
+			limit = {
+				is_owned_by = GEO
+				OR = {
+					is_core_of = TUR
+					is_core_of = ARM
+					is_claimed_by = TUR
+					state = 749
+				}
+				NOT = {
+					state = 230
+				}
+			}
+			TUR = {
+				transfer_state = PREV
+			}
+		}
+		AZR = {
+			every_state = {
+				limit = {
+					is_owned_by = GEO
+					is_core_of = AZR
+				}
+				AZR = {
+					transfer_state = PREV
+				}
+			}
+		}
+		if = {
+			limit = {
+				OR = {
+					AZR = {
+						OR = {
+							is_subject = no
+							is_subject_of = RUS
+						}
+					}
+				}
+			}
+			if = {
+				limit = {
+					OR = {
+						has_dlc = "Together for Victory"
+						has_dlc = "Waking the Tiger"
+					}
+				}
+				set_autonomy = {
+					target = AZR
+					autonomous_state = autonomy_tgwr_informal_protectorate
+					freedom_level = 0.6
+				}
+				AZR = { set_country_flag = protectorate }
+				else = {
+					puppet = AZR
+				}
+			}
+			hidden_effect = {
+				AZR = {
+					set_politics={
+						ruling_party = democratic
+					}	
+					set_popularities = {
+						fascism = 28
+						communism = 18
+						democratic = 46
+						neutrality = 8
+					}
+				}
+			}
+		}
+		if = {
+			limit = {
+				GEO = { owns_state = 230 }
+			}
+			ARM = { transfer_state = 230 }
+		}
+		GEO = {
+			drop_cosmetic_tag = yes
+		}
+		if = {
+			limit = {
+				is_in_faction_with = GER
+				GER = { is_faction_leader = yes }
+			}
+			GER = {
+				country_event = ww1_ottoman.113
+			}
+			else_if = {
+				limit = { 
+					is_in_faction_with = FRA 
+					FRA = { is_faction_leader = yes }
+				}
+				FRA = {
+					country_event = ww1_ottoman.113
+				}
+			}
+		}
+	}
+}
+# Georgia asks for protection
+##############################
+country_event = {
+	id = ww1_ottoman.113
+	title = ww1_ottoman.113.t
+	desc = ww1_ottoman.111.d
+	is_triggered_only = yes
+	option = {
+		name = ww1_ottoman.113.a
+		if = {
+			limit = {
+				OR = {
+					has_dlc = "Together for Victory"
+					has_dlc = "Waking the Tiger"
+				}
+			}
+			set_autonomy = {
+				target = GEO
+				autonomous_state = autonomy_tgwr_informal_protectorate
+				freedom_level = 0.6
+			}
+			GEO = { set_country_flag = protectorate }
+			else = {
+				puppet = GEO
+				add_ideas = protectorate
+			}
+		}
+		hidden_effect = {
+			GEO = {
+				set_politics = {
+					ruling_party = democratic
+				}
+				set_popularities = {
+					democratic = 46
+					neutrality = 20
+					fascism = 0
+					communism = 34
+				}
+			}
+		}
+		reverse_add_opinion_modifier = {
+			target = TUR
+			modifier = small_decrease
+		}
+	}
+	option = {
+		name = ww1_ottoman.113.b
+		TUR = {
+			annex_country = {
+				target = GEO
+			}
+		}
+		ai_chance = {
+			base = 0
+		}
 	}
 }
