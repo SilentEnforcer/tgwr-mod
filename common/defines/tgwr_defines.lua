@@ -9,8 +9,8 @@ NDefines.NDiplomacy.TENSION_TIME_SCALE_START_DATE = "1910.5.1.12"
 
 NDefines.NDiplomacy.TENSION_STATE_VALUE = 0									-- Vanilla is 2
 NDefines.NDiplomacy.TENSION_CIVIL_WAR_IMPACT = 0							-- Vanilla is 0.2
-NDefines.NDiplomacy.TENSION_NO_CB_WAR = 5									-- Vanilla is 15
-NDefines.NDiplomacy.TENSION_CB_WAR = 3										-- Vanilla is 5
+NDefines.NDiplomacy.TENSION_NO_CB_WAR = 10									-- Vanilla is 15
+NDefines.NDiplomacy.TENSION_CB_WAR = 5										-- Vanilla is 5
 NDefines.NDiplomacy.TENSION_ANNEX_NO_CLAIM = 0								-- Vanilla is 2
 NDefines.NDiplomacy.TENSION_ANNEX_CLAIM = 0									-- Vanilla is 1
 NDefines.NDiplomacy.TENSION_ANNEX_CORE = 0								  	-- Vanilla is 0.5
