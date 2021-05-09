@@ -1,80 +1,5 @@
 ﻿add_namespace = ww1_persia
 
-
-# East Persian Cordon
-##################
-country_event = {
-	id = ww1_persia.3
-	title = ww1_persia.3.t
-	desc = ww1_persia.3.d
-	picture = GFX_report_event_soldiers_in_france
-
-	fire_only_once = yes
-	trigger = {
-		tag = PER
-		is_subject = no
-		ENG = { has_war_with = TUR }
-		RUS = { has_war_with = TUR }
-		NOT = { has_war_with = RUS }		
-		NOT = { has_war_with = ENG }
-		NOT = { is_in_faction = yes }
-	}
-	mean_time_to_happen = { days = 10 }
-	option = {
-		name = ww1_persia.3.a
-		if = {
-			limit = {
-				any_state = { 
-					has_dynamic_modifier = { modifier = per_russian_sphere }
-				}
-			}
-			RUS = {
-				diplomatic_relation = {
-					country = PER
-					relation = military_access
-					active = yes
-				}
-			}
-		}
-		if = {
-			limit = {
-				any_state = { 
-					has_dynamic_modifier = { modifier = per_british_sphere }
-				}
-			}
-			ENG = {
-				diplomatic_relation = {
-					country = PER
-					relation = military_access
-					active = yes
-				}
-			}
-		}
-		ai_chance = { factor = 100 }
-	}
-}
-# Gendarmie
-country_event = {
-	id = ww1_persia.4
-	title = ww1_persia.4.t
-	desc = ww1_persia.4.d
-	picture = GFX_report_event_american_hunger_march
-
-	fire_only_once = yes
-	trigger = {
-		original_tag = PER
-		has_global_flag = rus_eng_partition_of_persia
-	}
-	mean_time_to_happen = { days = 7 }
-	option = {
-		name = ww1_persia.4.a
-		every_owned_state = {
-			limit = { is_core_of = PER }
-			add_dynamic_modifier = { modifier = per_paramilitary_gendarmerie }
-		}
-		ai_chance = { factor = 100 }
-	}
-}
 # Surrender to Allies
 country_event = {
 	id = ww1_persia.5 
@@ -82,28 +7,18 @@ country_event = {
 	desc = ww1_persia.5.d
 	picture = GFX_report_event_american_hunger_march
 
-	fire_only_once = yes
-	trigger = {
-		original_tag = PER
-		is_subject = no
-		has_civil_war = no
-		has_war_with = TUR
-		any_state = { 
-			has_dynamic_modifier = { modifier = per_paramilitary_gendarmerie }
-		}
-	}
-	mean_time_to_happen = { days = 14 }
+	is_triggered_only = yes
 	option = {
-		name = ww1_persia.5.a	#surrender to Britain
-		ENG = {
+		name = ww1_persia.5.a
+		RUS = {
 			if = {
 				limit = {
 					OR = {
 						has_dlc = "Together for Victory"
-						has_dlc = "Man the Guns"
+						has_dlc = "Waking the Tiger"
 					}
 				}
-				
+				PER = { set_country_flag = protectorate }
 				set_autonomy = {
 					target = PER
 					autonomous_state = autonomy_tgwr_protectorate
@@ -111,6 +26,7 @@ country_event = {
 				}
 				else = {
 					puppet = PER
+					PER = { add_ideas = protectorate }
 				}
 			}
 		}
@@ -122,29 +38,39 @@ country_event = {
 				communism = 7
 			}
 			set_politics = { ruling_party = neutrality }
-			every_state = {
-				limit = { 
-					has_state_flag = PER_russian_british_cordon 
-					NOT = { is_claimed_by = RUS }
-					NOT = { is_claimed_by = ENG }
-				}
-				PER = { transfer_state = PREV }
-			}
-		}	
-		start_civil_war = { 
-			ideology = fascism 
-			size = 0.5
-			states = all			
-			states_filter = {
-				has_dynamic_modifier = { modifier = per_paramilitary_gendarmerie }
-			}
 		}
-		hidden_effect = {
-			random_country = {
-				limit = {
-					original_tag = PER
-					has_government = fascism
+		start_civil_war = {
+			ideology = fascism 
+			size = 0.6
+			capital = 411
+			states = all		
+			only_own_territory = yes
+			states_filter = {
+				NOT = {
+					state = 266
+					state = 416
+					state = 418
 				}
+			}
+			keep_political_leader = yes
+			hidden_effect = {
+				create_country_leader = {
+					name = "Persian Central Government"
+					picture = "gfx/leaders/PER/PER_gendarmerie.dds"
+					expire = "1935.1.1"
+					ideology = stratocracy
+					traits = {
+						trait_stratocracy
+					}
+				}
+				set_popularities = {
+					democratic = 35
+					neutrality = 10
+					fascism = 55
+					communism = 0
+				}
+				set_cosmetic_tag = PER_gendarmerie
+				set_country_flag = PER_gendarmerie_flag
 				every_other_country = {
 					add_ai_strategy = {
 						type = protect
@@ -157,123 +83,40 @@ country_event = {
 						value = -200
 					}
 				}
-				set_popularities = {
-					democratic = 35
-					neutrality = 10
-					fascism = 55
-					communism = 0
+				declare_war_on = {
+					target = ENG
+					type = take_core_state
 				}
-				set_cosmetic_tag = PER_gendarmerie
+				declare_war_on = {
+					target = RUS
+					type = take_core_state
+				}
 			}
 		}
 		set_global_flag = persian_gendarmerie_revolt
 		ai_chance = { factor = 100 }
 	}
 	option = {
-		name = ww1_persia.5.b	#stand with gendarmie
-		
-		hidden_effect = {
-			set_popularities = {
-				democratic = 35
-				neutrality = 10
-				fascism = 55
-				communism = 0
-			}
-			set_politics = { ruling_party = fascism }
-			every_state = {
-				limit = { 
-					has_state_flag = PER_russian_british_cordon 
-					NOT = { is_claimed_by = RUS }
-					NOT = { is_claimed_by = ENG }
-				}
-				PER = { transfer_state = PREV }
-			}
-			every_other_country = {
-				add_ai_strategy = {
-					type = protect
-					id = PER
-					value = -200
-				}
-				add_ai_strategy = {
-					type = alliance
-					id = PER
-					value = -200
-				}
+		name = ww1_persia.5.b
+		declare_war_on = {
+			target = ENG
+			type = take_core_state
+		}
+		declare_war_on = {
+			target = RUS
+			type = take_core_state
+		}
+		add_popularity = {
+			ideology = fascism
+			popularity = 0.1
+		}
+		add_war_support = 0.1
+		ai_chance = { 
+			base = 10 
+			modifier = {
+				is_historical_focus_on = yes
+				factor = 0
 			}
 		}
-		start_civil_war = {
-			ideology = neutrality
-			size = 0.5
-			states = all
-			states_filter = {
-				has_state_flag = PER_russian_british_cordon
-			}
-			ENG = {
-				if = {
-					limit = {
-						OR = {
-							has_dlc = "Together for Victory"
-							has_dlc = "Man the Guns"
-						}
-					}
-					
-					set_autonomy = {
-						target = PER
-						autonomous_state = autonomy_tgwr_protectorate
-						freedom_level = 0.90
-					}
-					else = {
-						puppet = PER
-					}
-				}
-			}
-		}
-		hidden_effect = {
-			random_country = {
-				limit = {
-					original_tag = PER
-					has_government = neutrality
-				}		
-				set_popularities = {
-					democratic = 18
-					neutrality = 75
-					fascism = 0
-					communism = 7
-				}
-			}
-		}
-		PER = { set_cosmetic_tag = PER_gendarmerie }
-		set_global_flag = persian_gendarmerie_revolt
-		ai_chance = { factor = 0 }
-	}
-}
-# Leave British sphere
-country_event = {
-	id = ww1_persia.6
-	title = ww1_persia.6.t
-	desc = ww1_persia.6.d
-	picture = GFX_report_event_american_hunger_march
-
-	fire_only_once = yes
-	trigger = {
-		original_tag = PER
-		has_civil_war = no
-		OR = {
-			date > 1919.6.22
-			has_global_flag = denouncement_of_anglo_persian_agreement_1919
-		}
-		is_subject = yes
-		has_global_flag = persian_gendarmerie_revolt
-	}
-	mean_time_to_happen = { days = 1 }
-	option = {
-		name = ww1_persia.6.a
-		OVERLORD = {
-			set_autonomy = {
-				target = PER
-				autonomous_state = autonomy_free
-			}
-		}
-		ai_chance = { factor = 100 }
 	}
 }
