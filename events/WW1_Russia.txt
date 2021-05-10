@@ -460,6 +460,9 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		has_global_flag = brest_litovsk
+		UKR = {
+		    exists = yes
+		}
 		SOV = {
 			NOT = {
 				has_completed_focus = SOV_decree_on_peace
@@ -2384,11 +2387,11 @@ country_event = {
 						name = "Boris Savinkov"
 						picture = "gfx/leaders/RUS/RUS_boris_savinkov.dds"
 						expire = "1935.1.1"
-						ideology = vanguardism
+						ideology = agrarian_socialism
 						traits = {
 							rider_named_death
 							eng_civil_war_trait
-							trait_vanguardism
+							trait_agrarian_socialism
 						}
 					}
 					create_country_leader = {
@@ -2456,11 +2459,11 @@ country_event = {
 						name = "Boris Savinkov"
 						picture = "gfx/leaders/RUS/RUS_boris_savinkov.dds"
 						expire = "1935.1.1"
-						ideology = vanguardism
+						ideology = agrarian_socialism
 						traits = {
 							rider_named_death
 							eng_civil_war_trait
-							trait_vanguardism
+							trait_agrarian_socialism
 						}
 					}
 					create_country_leader = {
@@ -2528,11 +2531,11 @@ country_event = {
 						name = "Boris Savinkov"
 						picture = "gfx/leaders/RUS/RUS_boris_savinkov.dds"
 						expire = "1935.1.1"
-						ideology = vanguardism
+						ideology = agrarian_socialism
 						traits = {
 							rider_named_death
 							eng_civil_war_trait
-							trait_vanguardism
+							trait_agrarian_socialism
 						}
 					}
 					create_country_leader = {
@@ -3052,7 +3055,6 @@ country_event = {
 		set_state_controller = 582
 		set_state_controller = 572
 		set_state_controller = 590
-		set_state_controller = 583
 		division_template = {
 			name = "Czechoslovak Legion"
 			division_names_group = RUS_INF_01
@@ -4211,14 +4213,52 @@ country_event = {
 	}
 	hidden = yes
 	immediate = {
-		RUS = {
-			end_puppet = PER
-		}
 		if = {
 			limit = {
-				PER = { is_in_faction_with =  RUS }
+				PER = {
+					is_subject_of = RUS
+				}
 			}
-			PER = { leave_faction = yes }
+			end_puppet = PER
+			every_country = {
+				limit = {
+					has_war_with = PER
+					OR = {
+						tag = SOV
+						is_in_faction_with = SOV
+					}
+					NOT = {
+						has_country_flag = PER_gendarmerie_flag
+						has_wargoal_against = {
+							target = PER
+							type = take_state
+						}
+						has_wargoal_against = {
+							target = PER
+							type = annex_everything
+						}
+						has_wargoal_against = {
+							target = PER
+							type = puppet_wargoal_focus
+						}
+						any_state = {
+							AND = {
+								OR = {
+									is_owned_by = PER
+									is_owned_by = PRG
+								}
+								is_claimed_by = PREV
+							}			
+						}
+					}
+				}
+				PER = {
+					white_peace = PREV
+				}
+			}
+			PER = {
+				leave_faction = yes
+			}
 		}
 		RUS = {
 			diplomatic_relation = {
@@ -4227,13 +4267,21 @@ country_event = {
 				active = no
 			}
 		}
-		every_state = {
+		every_owned_state = {
 			limit = {
 				is_core_of = PER
-				is_owned_by = RUS
 			}
 			PER = {
 				transfer_state = PREV
+			}
+		}
+		every_state = {
+			limit = {
+				is_claimed_by = RUS
+				is_core_of = PER
+			}
+            RUS = {
+                remove_state_claim = PREV
 			}
 		}
 	}
@@ -5079,100 +5127,6 @@ country_event = {
 		ai_chance = {
 			factor = 100
 		}
-	}
-}
-
-#SECOND BREST-LITOVSK TREATY
-##################
-news_event = {
-	id = ww1_russia.90
-	title = ww1_russia.90.t
-	desc = ww1_russia.90.d
-	picture = ww1_russia_6
-	fire_only_once = yes
-	trigger = {
-		tag = RUS
-		NOT = { has_war_with = GER }
-		has_global_flag = russian_civil_war_end
-		SOV = {
-			exists = no
-		}
-		GER = {
-			is_subject = no
-			has_country_flag = germany_helped_white_russia
-		}
-	}
-	major = yes
-	mean_time_to_happen = {
-		days = 0
-	}
-	immediate = {
-		hidden_effect = {
-			DKB = {
-				add_state_core = 218
-				add_state_core = 238
-				add_state_core = 245
-				add_state_core = 265
-				transfer_state = 218
-				transfer_state = 238
-				transfer_state = 245
-				transfer_state = 265
-				leave_faction = yes
-			}
-			KBN = {
-				add_state_core = 234
-				add_state_core = 579
-				transfer_state = 234
-				transfer_state = 579
-				transfer_state = 233
-				leave_faction = yes
-				give_resource_rights = {
-					receiver = GER
-					state = 233
-				}
-				give_resource_rights = {
-					receiver = GER
-					state = 234
-				}
-			}
-			RUS = {
-				give_resource_rights = {
-					receiver = GER
-					state = 235
-				}
-			}
-			GER = {
-				if = {
-					limit = {
-						OR = {
-							has_dlc = "Together for Victory"
-							has_dlc = "Waking the Tiger"
-						}
-					}
-					set_autonomy = {
-						target = DKB
-						autonomous_state = autonomy_tgwr_informal_protectorate
-					}
-					set_autonomy = {
-						target = KBN
-						autonomous_state = autonomy_tgwr_informal_protectorate
-					}
-					else = {
-						puppet = DKB
-						puppet = KBN
-						DKB = {
-							add_ideas = protectorate
-						}
-						KBN = {
-							add_ideas = protectorate
-						}
-					}
-				}
-			}
-		}
-	}
-	option = {
-		name = ww1_russia.90.a
 	}
 }
 
