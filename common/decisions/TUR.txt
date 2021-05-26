@@ -1,11 +1,12 @@
-peace_deals = {
-	TUR_sue_for_peace_ITA = {
+foreign_politics = {
+	TUR_balkan_war_intervention_decision = {
 		allowed = {
-			tag = TUR
+			original_tag = TUR
 		}
 		available = {
-			has_war_with = ITA
-			OR = {
+			NOT = { has_global_flag = kis_war }
+			BUL = { has_war_with = SER owns_state = 756 }
+			TUR = {
 				is_in_faction = no
 				ITA = {
 					is_in_faction = no
@@ -27,8 +28,34 @@ peace_deals = {
 		}
 		fire_only_once = yes
 		ai_will_do = {
-			base = 500
+			factor = 100
 			modifier = {
+				factor = 0
+				GRE = { NOT = { is_in_faction_with = SER } }
+			}
+		}
+		remove_effect = {
+			country_event = { id = ww1_secondbalkan.9 }	
+		}
+	}
+	TUR_join_balkan_war_alternate = {
+		allowed = {
+			original_tag = TUR
+		}
+		available = {
+			NOT = {
+				has_global_flag = kis_war
+			}
+			BUL = {
+				has_war_with = GRE
+			}
+			SER = {
+				has_war_with = GRE
+			}
+		}
+		visible = {
+			SER = {
+				has_war_with = GRE
 				add = -500
 				casualties < 100000
 				surrender_progress < 0.1
@@ -70,9 +97,27 @@ peace_deals = {
 					id = ww1_italianturkish.4
 				}
 			}
+			always = no #temporary
+			BUL = {
+				has_war_with = GRE
+			}
+			NOT = {
+				OR = {
+					has_global_flag = kis_secondbalkanwar_victory
+					has_global_flag = kis_secondbalkanwar_lose
+				}
+			}
+		}
+		fire_only_once = yes
+		days_remove = 10
+		ai_will_do = {
+			factor = 5000
+		}
+		remove_effect = {
+			country_event = ww1_secondbalkan.16
 		}
 	}
-	TUR_sue_for_peace_SER = {
+	TUR_sue_for_peace_SER = {	
 		allowed = {
 			original_tag = TUR
 		}
@@ -87,8 +132,8 @@ peace_deals = {
 			OR = {
 				surrender_progress > 0.3
 				casualties > 60000
-				NOT = {
-					AND = {
+				AND = {
+					NOT = {
 						controls_state = 44
 						controls_state = 106
 						controls_state = 184
@@ -124,7 +169,7 @@ peace_deals = {
 			}
 		}
 		ai_will_do = {
-			base = 500
+			factor = 500
 			modifier = {
 				factor = 0
 				date < 1913.3.30
@@ -133,18 +178,25 @@ peace_deals = {
 			}
 		}
 		complete_effect = {
-			SER = {
-				country_event = {
-					id = ww1_firstbalkan.6
+			if = {
+				limit = {
+					SER = {
+						is_puppet_of = AUH
+					}
+				}
+				AUH = {
+					country_event = ww1_serbia.46
+				}
+				else = {
+					SER = {
+						country_event = ww1_firstbalkan.6
+					}
 				}
 			}
 			set_global_flag = TUR_peace_SER
 		}
-	}
-}
-
-foreign_politics = {
-	TUR_balkan_war_intervention_decision = {
+	}	
+	TUR_sue_for_peace_ITA = {
 		allowed = {
 			original_tag = TUR
 		}
@@ -154,9 +206,11 @@ foreign_politics = {
 				has_war_with = SER
 				owns_state = 756
 			}
-			TUR = {
-				is_in_faction = no
+			OR = {
+				TUR = { is_in_faction = no }
+				ITA = { is_in_faction = no }
 			}
+			NOT = { has_global_flag = TUR_peace_ITA }
 		}
 		visible = {
 			NOT = {
@@ -222,7 +276,7 @@ foreign_politics = {
 		}
 		available = {
 			has_equipment = {
-				infantry_equipment > 6000
+				infantry_equipment > 3999
 			}
 		}
 		visible = {
@@ -240,7 +294,7 @@ foreign_politics = {
 			}
 		}
 		ai_will_do = {
-			base = 100
+			factor = 100
 		}
 	}
 	TUR_raise_rebellion_in_ins = {
@@ -255,7 +309,7 @@ foreign_politics = {
 		}
 		available = {
 			has_equipment = {
-				infantry_equipment > 5000
+				infantry_equipment > 2999
 			}
 		}
 		visible = {
@@ -288,7 +342,7 @@ foreign_politics = {
 		}
 		available = {
 			has_equipment = {
-				infantry_equipment > 3000
+				infantry_equipment > 1999
 			}
 		}
 		visible = {
@@ -355,6 +409,46 @@ foreign_politics = {
 }
 
 crisis = {
+	TUR_anxiety_in_vilayets = {
+		allowed = {
+			original_tag = TUR
+		}	
+		icon = tur_unifying_the_country
+		available = { #GOAL
+			all_owned_state = {
+				NOT = {
+					has_dynamic_modifier = { modifier = loyal_vilayet }
+				}
+				NOT = {
+					has_dynamic_modifier = { modifier = placated_vilayet }
+				}
+			}
+		}
+		activation = {
+			always = no
+		}
+		days_mission_timeout = 90
+		timeout_effect = {
+			OR = {
+				random_owned_controlled_state = {
+					limit = { 
+						has_dynamic_modifier = { modifier = loyal_vilayet } 
+					}
+					add_dynamic_modifier = { modifier = placated_vilayet }
+					remove_dynamic_modifier = { modifier = placated_vilayet }
+				}
+				random_owned_controlled_state = {
+					limit = { 
+						has_dynamic_modifier = { modifier = placated_vilayet } 
+					}
+					remove_dynamic_modifier = { modifier = autonomy_vilayet }
+				}
+			}
+			hidden_effect = { activate_mission = TUR_anxiety_in_vilayets }
+		}
+		fire_only_once = no
+		is_good = no
+	}
 	TUR_CUP_prepares_coup_mission = {
 		allowed = {
 			original_tag = TUR
@@ -364,8 +458,10 @@ crisis = {
 			#GOAL
 			OR = {
 				has_civil_war = yes
-				has_completed_focus = TUR_halaskar_zabitan
-				has_completed_focus = TUR_raid_on_the_sublime_porte
+				has_completed_focus = TUR_unity_and_progress
+				has_completed_focus = TUR_freedom_and_accord
+				has_completed_focus = TUR_ittihadi_muhammedi
+				has_completed_focus = TUR_istirak_mukavemet
 			}
 		}
 		activation = {
@@ -627,7 +723,7 @@ political_actions = {
 		cost = 15
 		fire_only_once = no
 		days_remove = 30
-		days_re_enable = 30
+		days_re_enable = 60
 		visible = {
 			has_completed_focus = TUR_depoliticize_the_army
 			OR = {
@@ -671,7 +767,7 @@ political_actions = {
 		cost = 15
 		fire_only_once = no
 		days_remove = 30
-		days_re_enable = 30
+		days_re_enable = 60
 		visible = {
 			has_completed_focus = TUR_depoliticize_the_army
 			OR = {
@@ -715,7 +811,7 @@ political_actions = {
 		cost = 50
 		fire_only_once = no
 		days_remove = 30
-		days_re_enable = 30
+		days_re_enable = 60
 		visible = {
 			has_completed_focus = TUR_depoliticize_the_army
 			OR = {
@@ -739,6 +835,7 @@ political_actions = {
 		fire_only_once = no
 		days_re_enable = 30
 		visible = {
+			has_completed_focus = TUR_purge_the_officers
 			has_completed_focus = TUR_yildiz_teskilati
 			OR = {
 				has_idea = TUR_officers_struggle_yildiz_bonus
@@ -766,6 +863,7 @@ political_actions = {
 		days_remove = 30
 		days_re_enable = 60
 		visible = {
+			has_completed_focus = TUR_purge_the_officers
 			has_completed_focus = TUR_harbiyeli
 			OR = {
 				has_idea = TUR_officers_struggle_harbiyeli_bonus
