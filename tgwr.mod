@@ -1,3 +1,4 @@
+#Move this file to Hearts of Iron IV/mod
 replace_path="history/states"
 replace_path="history/countries"
 replace_path="history/units"
@@ -27,6 +28,7 @@ tags={
 	"Map"
 }
 name="Hearts of Iron IV: The Great War Redux [GitHub]"
+path="mod/tgwr-mod"
 version="0.7"
 supported_version="1.10.*"
 remote_file_id="1946557392_github"
