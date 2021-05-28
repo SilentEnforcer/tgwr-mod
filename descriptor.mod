@@ -26,7 +26,7 @@ tags={
 	"Military"
 	"Map"
 }
-name="Hearts of Iron IV: The Great War Redux [GitHub]"
+name="Hearts of Iron IV: The Great War Redux [Beta]"
 version="0.7"
 supported_version="1.10.*"
-remote_file_id="1946557392_github"
+remote_file_id="1946557392"
