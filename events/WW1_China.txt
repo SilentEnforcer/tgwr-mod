@@ -1,6 +1,7 @@
 ﻿add_namespace = ww1_xinhai
 add_namespace = ww1_china
 add_namespace = ww1_xinjiang
+
 # GUANGZHOU UPRISING
 ##########################
 country_event = {
@@ -335,7 +336,7 @@ country_event = {
 			set_global_flag = QIN_chosen
 			add_popularity = {
 				ideology = neutrality
-				popularity = 100
+				popularity = 1
 			}
 			add_popularity = {
 				ideology = fascism
@@ -376,7 +377,7 @@ country_event = {
 			set_global_flag = CHI_chosen
 			add_popularity = {
 				ideology = neutrality
-				popularity = 100
+				popularity = 1
 			}
 			add_popularity = {
 				ideology = fascism
@@ -6328,8 +6329,8 @@ country_event = {
 		hidden_effect = {
 			kill_country_leader = yes
 			create_country_leader = {
-				name = "Chiang Kai-shek"
-				picture = "gfx/leaders/CHI/CHI_chiang_kai_shek.dds"
+				name = "Hu Hanmin"
+				picture = "gfx/leaders/CHI/CHI_Hu_Hanmin.dds"
 				expire = "1935.1.1"
 				ideology = conservatism
 				traits = {
@@ -6515,14 +6516,22 @@ country_event = {
 				ruling_only = yes
 			}
 			has_country_leader = {
+				name = "Hu Hanmin"
+				ruling_only = yes
+			}
+			has_country_leader = {
+				name = "Wang Jingwei"
+				ruling_only = yes
+			}
+			has_country_leader = {
 				name = "Chiang Kai-shek"
 				ruling_only = yes
 			}
 		}
-		has_global_flag = russian_revolution
-		SOV = {
-			exists = yes
+		NOT = {
+			has_country_flag = CHI_left_kuomintang_flag
 		}
+		has_global_flag = russian_revolution
 	}
 	fire_only_once = yes
 	option = {
@@ -6550,9 +6559,6 @@ country_event = {
 	title = ww1_china.58.t
 	desc = ww1_china.58.d
 	trigger = {
-		SOV = {
-			exists = yes
-		}
 		has_idea = CHI_idea_communist_movement
 		owns_state = 600
 		OR = {
@@ -6999,6 +7005,20 @@ country_event = {
 						target = KMT
 						days = 120
 					}
+					set_capital = 608
+				}
+				FNG = {
+					transfer_units_fraction = {
+						target = SHX
+						size = 0.3
+						stockpile_ratio = 0.3
+						army_ratio = 0.2
+						navy_ratio = 0
+						air_ratio = 0.2
+						keep_unit_leaders_trigger = {
+							has_trait = CHI_loyalist
+						}
+					}
 				}
 			}
 			if = {
@@ -7034,6 +7054,7 @@ country_event = {
 					GXC = {
 						add_state_core = PREV
 						transfer_state = PREV
+						set_capital = 592
 					}
 				}
 				GXC = {
@@ -7096,63 +7117,68 @@ country_event = {
 	trigger = {
 		has_country_flag = CHI_kuomintang_flag
 		has_global_flag = anti_chiang_war
+		NOT = {
+			has_war_with = SHX
+		}
 	}
 	fire_only_once = yes
 	mean_time_to_happen = {
 		days = 0
 	}
 	immediate = {
-		create_faction = nanjing_government
-		declare_war_on = {
-			target = SHX
-			type = civil_war
-		}
-		SHX = {
-			create_faction = beiping_government
-			if = {
-				limit = {
+		hidden_effect = {
+			create_faction = nanjing_government
+			declare_war_on = {
+				target = SHX
+				type = civil_war
+			}
+			SHX = {
+				create_faction = beiping_government
+				if = {
+					limit = {
+						GXC = {
+							exists = yes
+						}
+					}
+					add_to_faction = GXC
 					GXC = {
-						exists = yes
+						add_to_war = {
+							targeted_alliance = SHX
+							enemy = KMT
+						}
 					}
 				}
-				add_to_faction = GXC
-				GXC = {
-					add_to_war = {
-						targeted_alliance = SHX
-						enemy = KMT
+				if = {
+					limit = {
+						GMJ = {
+							exists = yes
+						}
+					}
+					add_to_faction = GMJ
+					GMJ = {
+						add_to_war = {
+							targeted_alliance = SHX
+							enemy = KMT
+						}
 					}
 				}
 			}
 			if = {
 				limit = {
-					GMJ = {
+					FNG = {
 						exists = yes
+						has_country_leader = {
+							name = "Zhang Xueliang"
+							ruling_only = yes
+						}
 					}
 				}
-				add_to_faction = GMJ
-				GMJ = {
-					add_to_war = {
-						targeted_alliance = SHX
-						enemy = KMT
-					}
-				}
-			}
-		}
-		if = {
-			limit = {
+				add_to_faction = FNG
 				FNG = {
-					exists = yes
-					has_country_leader = {
-						name = "Zhang Xueliang"
-						ruling_only = yes
+					add_to_war = {
+						targeted_alliance = KMT
+						enemy = SHX
 					}
-				}
-			}
-			add_to_faction = FNG
-			FNG = {
-				add_to_war = {
-					targeted_alliance = KMT
-					enemy = SHX
 				}
 			}
 		}
@@ -7173,133 +7199,151 @@ country_event = {
 	desc = ww1_china.64.t
 	is_triggered_only = yes
 	immediate = {
-		every_country = {
-			limit = {
-				has_war_with = KMT
-			}
-			white_peace = KMT
-		}
-		every_state = {
-			limit = {
-				OR = {
-					is_owned_by = GMJ
-					is_owned_by = SHX
-					is_owned_by = GXC
+		hidden_effect = {
+			every_country = {
+				limit = {
+					has_war_with = KMT
 				}
-				OR = {
-					state = 608
-					state = 609
-					state = 611
-					state = 612
-					state = 614
+				white_peace = KMT
+			}
+			every_state = {
+				limit = {
+					OR = {
+						is_owned_by = GMJ
+						is_owned_by = SHX
+						is_owned_by = GXC
+					}
+					OR = {
+						state = 608
+						state = 609
+						state = 611
+						state = 612
+						state = 614
+					}
+				}
+				KMT = {
+					add_state_core = PREV
+					transfer_state = PREV
 				}
 			}
 			KMT = {
-				add_state_core = PREV
-				transfer_state = PREV
-			}
-		}
-		KMT = {
-			if = {
-				limit = {
-					GMJ = {
-						exists = yes
+				if = {
+					limit = {
+						GMJ = {
+							exists = yes
+						}
+					}
+					annex_country = {
+						target = GMJ
+						transfer_troops = yes
 					}
 				}
-				annex_country = {
-					target = GMJ
-					transfer_troops = yes
-				}
-			}
-			if = {
-				limit = {
+				if = {
+					limit = {
+						SHX = {
+							exists = yes
+						}
+					}
+					set_truce = {
+						target = SHX
+						days = 300
+					}
 					SHX = {
+						dismantle_faction = yes
+						set_capital = 615
+					}
+					every_state = {
+						limit = {
+							is_core_of = SHX
+							NOT = {
+								is_owned_by = SHX
+							}
+						}
+						remove_core_of = SHX
+					}
+				}
+				if = {
+					limit = {
+						GXC = {
+							exists = yes
+						}
+					}
+					set_truce = {
+						target = GXC
+						days = 300
+					}
+					every_state = {
+						limit = {
+							is_core_of = GXC
+							NOT = {
+								is_owned_by = GXC
+							}
+						}
+						remove_core_of = GXC
+					}
+				}
+			}
+			FNG = {
+				if = {
+					limit = {
+						is_in_faction_with = KMT
+					}
+					every_state = {
+						limit = {
+							OR = {
+								is_owned_by = GMJ
+								is_owned_by = SHX
+								is_owned_by = GXC
+								is_owned_by = KMT
+							}
+							OR = {
+								state = 608
+								state = 609
+								state = 611
+								state = 612
+								state = 614
+							}
+						}
+						FNG = {
+							add_state_core = PREV
+							transfer_state = PREV
+						}
+					}
+					set_truce = {
+						target = KMT
+						days = 300
+					}
+					every_state = {
+						limit = {
+							is_core_of = FNG
+							NOT = {
+								is_owned_by = FNG
+							}
+						}
+						remove_core_of = FNG
+					}
+				}
+			}
+			KMT = {
+				dismantle_faction = yes
+				give_guarantee = FNG
+			}
+			set_global_flag = warlord_era_end
+			if = {
+				limit = {
+					XSM = {
 						exists = yes
 					}
 				}
-				set_truce = {
-					target = SHX
-					days = 300
-				}
-				SHX = {
-					dismantle_faction = yes
-				}
 				every_state = {
 					limit = {
-						is_core_of = SHX
-						NOT = {
-							is_owned_by = SHX
-						}
+						is_owned_by = KMT
+						state = 283
 					}
-					remove_core_of = SHX
-				}
-			}
-			if = {
-				limit = {
-					GXC = {
-						exists = yes
-					}
-				}
-				set_truce = {
-					target = GXC
-					days = 300
-				}
-				every_state = {
-					limit = {
-						is_core_of = GXC
-						NOT = {
-							is_owned_by = GXC
-						}
-					}
-					remove_core_of = GXC
+					XSM = { transfer_state = 283 }
 				}
 			}
 		}
-		FNG = {
-			if = {
-				limit = {
-					is_in_faction_with = KMT
-				}
-				every_state = {
-					limit = {
-						OR = {
-							is_owned_by = GMJ
-							is_owned_by = SHX
-							is_owned_by = GXC
-							is_owned_by = KMT
-						}
-						OR = {
-							state = 608
-							state = 609
-							state = 611
-							state = 612
-							state = 614
-						}
-					}
-					FNG = {
-						add_state_core = PREV
-						transfer_state = PREV
-					}
-				}
-				set_truce = {
-					target = KMT
-					days = 300
-				}
-				every_state = {
-					limit = {
-						is_core_of = FNG
-						NOT = {
-							is_owned_by = FNG
-						}
-					}
-					remove_core_of = FNG
-				}
-			}
-		}
-		KMT = {
-			dismantle_faction = yes
-		}
-		set_global_flag = warlord_era_end
 	}
 	option = {
 		name = ww1_china.64.a
@@ -7324,58 +7368,60 @@ country_event = {
 	}
 	fire_only_once = yes
 	immediate = {
-		if = {
-			limit = {
-				has_global_flag = warlord_era_end
-				any_country = {
-					has_country_flag = CHI_kuomintang_flag
+		hidden_effect = {
+			if = {
+				limit = {
+					has_global_flag = warlord_era_end
+					any_country = {
+						has_country_flag = CHI_kuomintang_flag
+					}
+				}
+				KMT = {
+					create_faction = nanjing_government
+					add_to_faction = FNG
+					set_country_flag = manchurian_incident
+				}
+				FNG = {
+					add_to_war = {
+						targeted_alliance = KMT
+						enemy = JAP
+					}
 				}
 			}
-			KMT = {
-				create_faction = nanjing_government
-				add_to_faction = FNG
-				set_country_flag = manchurian_incident
-			}
-			FNG = {
-				add_to_war = {
-					targeted_alliance = KMT
-					enemy = JAP
+			else_if = {
+				limit = {
+					CHI = {
+						exists = yes
+					}
 				}
-			}
-		}
-		else_if = {
-			limit = {
 				CHI = {
-					exists = yes
+					create_faction = nanjing_government
+					add_to_faction = FNG
+					set_country_flag = manchurian_incident
+				}
+				FNG = {
+					add_to_war = {
+						targeted_alliance = CHI
+						enemy = JAP
+					}
 				}
 			}
-			CHI = {
-				create_faction = nanjing_government
-				add_to_faction = FNG
-				set_country_flag = manchurian_incident
-			}
-			FNG = {
-				add_to_war = {
-					targeted_alliance = CHI
-					enemy = JAP
+			else_if = {
+				limit = {
+					SHX = {
+						exists = yes
+						has_cosmetic_tag = CHI_united
+					}
 				}
-			}
-		}
-		else_if = {
-			limit = {
 				SHX = {
-					exists = yes
-					has_cosmetic_tag = CHI_united
+					add_to_faction = FNG
+					set_country_flag = manchurian_incident
 				}
-			}
-			SHX = {
-				add_to_faction = FNG
-				set_country_flag = manchurian_incident
-			}
-			FNG = {
-				add_to_war = {
-					targeted_alliance = SHX
-					enemy = JAP
+				FNG = {
+					add_to_war = {
+						targeted_alliance = SHX
+						enemy = JAP
+					}
 				}
 			}
 		}
@@ -7413,6 +7459,7 @@ country_event = {
 				limit = {
 					has_country_flag = manchurian_incident
 				}
+				change_tag_from = FNG
 				transfer_state = 608
 				transfer_state = 614
 				add_state_core = 608
@@ -7816,6 +7863,18 @@ country_event = {
 						}
 						remove_core_of = GZC
 					}
+					every_state = {
+						limit = {
+							is_core_of = HNC
+						}
+						remove_core_of = HNC
+					}
+					every_state = {
+						limit = {
+							is_core_of = ZHC
+						}
+						remove_core_of = ZHC
+					}
 					every_country = {
 						limit = {
 							has_idea = CHI_idea_warlord_neutrality
@@ -7859,6 +7918,10 @@ country_event = {
 							spirit_of_genghis
 							trait_fascism
 						}
+					}
+					add_popularity = {
+						ideology = fascism
+						popularity = 0.3
 					}
 					add_ideas = fascist_influence
 					diplomatic_relation = {
@@ -7914,21 +7977,26 @@ country_event = {
 			name = "Tang Jiyao"
 			ruling_only = yes
 		}
-		date > 1927.2.6
+		OR = {
+			date > 1927.2.6
+			has_global_flag = north_expedition_end
+		}
 	}
 	mean_time_to_happen = {
 		days = 0
 	}
 	fire_only_once = yes
 	immediate = {
-		retire_ideology_leader = neutrality
-		create_country_leader = {
-			name = "Long Yun"
-			picture = "GFX_portrait_yun_long_yun"
-			expire = "1935.1.1"
-			ideology = despotism
-			traits = {
-				trait_despotism
+		hidden_effect = {
+			retire_ideology_leader = neutrality
+			create_country_leader = {
+				name = "Long Yun"
+				picture = "GFX_portrait_yun_long_yun"
+				expire = "1935.1.1"
+				ideology = despotism
+				traits = {
+					trait_despotism
+				}
 			}
 		}
 	}
@@ -8041,8 +8109,8 @@ country_event = {
 	trigger = {
 		has_country_flag = CHI_kuomintang_flag
 		has_global_flag = north_expedition
-		controls_state = 620 # Wuhan
-		controls_state = 598 # Nanjing
+		620 = { is_fully_controlled_by = ROOT } # Wuhan
+		598 = { is_fully_controlled_by = ROOT } # Nanjing
 		has_idea = CHI_idea_communist_movement
 		OR = {
 			communism > 0.1
@@ -8108,6 +8176,14 @@ country_event = {
 						trait_socialism
 					}
 				}
+				set_rule = {
+					can_join_factions = no
+				}
+				diplomatic_relation = {
+					country = KMT
+					relation = military_access
+					active = yes
+				}
 				KMT = {
 					transfer_units_fraction = {
 						target = WHN
@@ -8123,6 +8199,11 @@ country_event = {
 					set_truce = {
 						target = WHN
 						days = 365
+					}
+					diplomatic_relation = {
+						country = WHN
+						relation = military_access
+						active = yes
 					}
 				}
 				add_ideas = CHI_idea_communist_movement
@@ -8194,6 +8275,24 @@ country_event = {
 	}
 }
 
+# WANG JINGWEI
+################
+# country_event = {
+# 	id = ww1_china.72
+# 	title = ww1_china.72.t
+# 	desc = ww1_china.72.d
+# 	trigger = {
+# 		has_country_leader = {
+# 			name = "Hu Hanmin"
+# 			ruling_only = yes
+# 		}
+# 	}
+# 	fire_only_once = yes
+# 	mean_time_to_happen = {
+# 		days = 200
+# 	}
+# }
+
 # ASSASSINATE YANG ZENGXIN
 ##################
 country_event = {
@@ -8201,7 +8300,10 @@ country_event = {
 	title = ww1_xinjiang.1.t
 	desc = ww1_xinjiang.1.d
 	trigger = {
-		date > 1928.7.7
+		OR = {
+			date > 1928.7.7
+			has_global_flag = north_expedition_end
+		}
 		has_country_leader = {
 			name = "Yang Zengxin"
 			ruling_only = no
@@ -8210,6 +8312,14 @@ country_event = {
 			OR = {
 				has_country_leader = {
 					name = "Sun Yat-sen"
+					ruling_only = yes
+				}
+				has_country_leader = {
+					name = "Hu Hanmin"
+					ruling_only = yes
+				}
+				has_country_leader = {
+					name = "Wang Jingwei"
 					ruling_only = yes
 				}
 				has_country_leader = {
