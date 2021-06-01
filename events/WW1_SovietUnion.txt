@@ -563,10 +563,20 @@ country_event = {
 			ruling_party = communism
 			elections_allowed = no
 		}
+		retire_ideology_leader = communism
+		create_country_leader = {
+			name = "Felix Dzerzhinsky"
+			picture = "gfx/leaders/POL/POL_felix_dzerzhinsky.dds" 
+			expire = "1935.1.1" 
+			ideology = vanguardism
+			traits = { prince_of_terror trait_vanguardism } 
+		}
+		set_party_name = { ideology = communism name = POL_polrewkom_party long_name = POL_polrewkom_party_long }
+		set_cosmetic_tag = POL_SOVIET
 		ai_chance = {
-			factor = 0
+			base = 0
 			modifier = {
-				factor = 100
+				add = 100
 				is_in_faction_with = SOV
 			}
 		}
@@ -633,15 +643,18 @@ country_event = {
 				owner = POL
 			}
 		}
-		declare_war_on = { target = SOV type = take_state_focus }
-		random_country = {
+		declare_war_on = { target = SOV type = take_claimed_state }
+		every_country = {
 			limit = {
 				owns_state = 95
-				NOT = { has_war_with = POL }
+				NOT = { 
+					has_war_with = POL 
+					is_subject_of = SOV
+				}
 			}
 			POL = {
 				declare_war_on = {
-					type = take_state_focus 
+					type = take_claimed_state 
 					target = PREV 
 					generator = {
 						95
@@ -733,7 +746,7 @@ country_event = {
 		}
 		white_peace = POL
 		if = {
-			limit = { POL = { is_in_faction = yes } }
+			limit = { POL = { is_in_faction = yes } is_faction_leader = no }
 			POL = { leave_faction = yes }
 		}
 		if = {
@@ -800,14 +813,30 @@ country_event = {
 			white_peace = POL
 		}
 		SOV = { white_peace = POL }
-		POL = {
+		POL = { 
 			transfer_state = 93
 			transfer_state = 94
 			transfer_state = 95
 			transfer_state = 97
 			transfer_state = 773
 			transfer_state = 808
-		}		
+			every_state = {
+				limit = {
+					OR = {
+						is_core_of = GAL
+						is_core_of = POL
+					}					
+					is_owned_by = UKR
+				}
+				POL = {
+					transfer_state = PREV
+				}
+			}
+		}	
+		if = {
+			limit = { POL = { is_in_faction = yes } is_faction_leader = no}
+			POL = { leave_faction = yes }
+		}	
 		ai_chance = { factor = 100 }
 	}
 	option = {
@@ -904,6 +933,12 @@ country_event = {
 			traits = {
 				trait_authoritarian_democracy
 			}
+		}
+		if = {
+			limit = {
+				is_faction_leader = yes
+			}
+			set_faction_name = green_movement
 		}
 		news_event = ww1_soviet.25
 		ai_chance = { factor = 100 }
@@ -1013,48 +1048,28 @@ country_event = {
 	
 	option = {
 		name = ww1_soviet.27.a
+		every_state = {
+			limit = {
+				is_core_of = ROOT
+			}
+			add_core_of = SOV				
+		}
 		SOV = {
 			annex_country = {
 				target = ROOT
-				transfer_troops = no
+				transfer_troops = yes
 			}
 		}
 		ai_chance = {
-			factor = 0
-			modifier = {
-				factor = 10
-				NOT = {
-					tag = LAT
-					tag = LIT
-					tag = EST
-					tag = POL
-					tag = FIN
-				}				
-			}
-			modifier = {
-				factor = 100
-				has_army_manpower = {
-					size < 50000
-				}
-			}
+			base = 100
 		}
 	}
 	option = {
 		name = ww1_soviet.27.b
 		ai_chance = {
-			factor = 0
+			base = 0
 			modifier = {
-				add = 10
-				OR = {
-					tag = LAT
-					tag = LIT
-					tag = EST
-					tag = POL
-					tag = FIN
-				}
-			}
-			modifier = {
-				factor = 100
+				add = 100
 				has_army_manpower = {
 					size > 500000
 				}
@@ -1203,12 +1218,12 @@ country_event = {
 	
 	option = {
 		name = ww1_soviet.31.a
-		every_state = {
-			limit = { is_core_of = RUS is_fully_controlled_by = SOV }
+		every_owned_state = {
+			limit = { is_fully_controlled_by = SOV }
 			SOV = { transfer_state = PREV }
 		}
 		every_state = {
-			limit = { is_core_of = SOV is_fully_controlled_by = RUS }
+			limit = { is_owned_by = SOV is_fully_controlled_by = RUS }
 			RUS = { transfer_state = PREV }
 		}
 		every_country = {
@@ -1224,6 +1239,24 @@ country_event = {
 			white_peace = RUS
 		}
 		white_peace = SOV
+		hidden_effect = {
+			if = {
+				limit = {
+					KAZ = {
+						OR = {
+							is_subject_of = RUS
+							AND = {
+								is_in_faction_with = RUS
+								is_subject = no
+							}
+						}
+					}
+				}
+				SOV = {
+					puppet = KAZ
+				}
+			}
+		}
 		ai_chance = {
 			factor = 100
 			modifier = {
