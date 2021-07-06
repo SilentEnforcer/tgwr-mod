@@ -22,7 +22,7 @@ country_event = {
 		OR = {
 			has_stability < 0.05
 			communism > 0.5
-			has_country_flag = great_war_loser
+			has_country_flag = great_war_loser 
 		}
 	}
 	mean_time_to_happen = {
@@ -32,6 +32,7 @@ country_event = {
 		set_global_flag = french_pacifist_strikes
 		hidden_effect = {
 			add_ideas = FRA_idea_pacifist_strike
+			add_ideas = FRA_interwar_Revanchism
 		}
 	}
 	option = {
@@ -157,6 +158,7 @@ country_event = {
 					communism = 73
 				}
 				set_capital = 16
+				set_country_flag = great_war_loser
 				set_country_flag = color_communist_france
 				set_country_flag = FRA_socialist_france_flag
 				set_cosmetic_tag = FRA_socialism
@@ -169,6 +171,7 @@ country_event = {
 						trait_marxism
 					}
 				}
+				reserve_dynamic_country = yes
 			}
 			every_country = {
 				limit = {
@@ -315,6 +318,7 @@ country_event = {
 				target = NFA
 				type = civil_war
 			}
+			load_focus_tree = france_socialist_focus
 		}
 		ai_chance = {
 			factor = 100
@@ -379,6 +383,7 @@ country_event = {
 				}
 				set_capital = 26
 				set_country_flag = FRA_nationalist_france_flag
+				set_country_flag = great_war_loser
 				set_cosmetic_tag = NFA
 				create_country_leader = {
 					name = "Philippe Pétain"
@@ -389,7 +394,7 @@ country_event = {
 						trait_stratocracy
 					}
 				}
-				load_focus_tree = france_nationalist_focus
+				reserve_dynamic_country = yes
 			}
 			every_country = {
 				limit = {
@@ -496,6 +501,18 @@ country_event = {
 					}
 					remove_ideas = idea_army_restrictions
 				}
+				if = {
+					limit = {
+						has_idea = FRA_ww1_Revanchism
+					}
+					remove_ideas = FRA_ww1_Revanchism
+				}
+				if = {
+					limit = {
+						has_idea = ENG_france_on_their_own
+					}
+					remove_ideas = ENG_france_on_their_own
+				}
 				set_rule = {
 					can_join_factions = no
 				}
@@ -545,7 +562,6 @@ country_event = {
 					}
 					end_puppet = PREV
 				}
-				load_focus_tree = france_socialist_focus
 			}
 		}
 	}
@@ -557,8 +573,10 @@ country_event = {
 				target = NFA
 				type = civil_war
 			}
+			load_focus_tree = france_socialist_focus
 		}
 		NFA = {
+			load_focus_tree = france_nationalist_focus
 			change_tag_from = FRA
 		}
 		ai_chance = {
@@ -573,6 +591,10 @@ country_event = {
 				target = NFA
 				type = civil_war
 			}
+			load_focus_tree = france_socialist_focus
+		}
+		NFA = {
+			load_focus_tree = france_nationalist_focus
 		}
 		ai_chance = {
 			factor = 100
@@ -702,29 +724,20 @@ news_event = {
 	picture = GFX_news_event_063
 	fire_only_once = yes
 	major = yes
+	fire_only_once = yes
 	trigger = {
 		FRA = {
 			has_war_with = GER
 			has_full_control_of_state = 16
 			casualties > 450000
-			OR = {
-				AND = {
-					has_full_control_of_state = 18
-					NOT = {
-						has_full_control_of_state = 28
-					}
-				}
-				AND = {
-					owns_state = 18
-					NOT = {
-						has_full_control_of_state = 18
-					}
-				}
-			}
+			owns_state = 17
 		}
-		NOT = {
-			has_global_flag = battle_of_verdun
+		GER = {
+			controls_state = 17
 		}
+	}
+	mean_time_to_happen = {
+		days = 2
 	}
 	immediate = {
 		set_global_flag = battle_of_verdun
@@ -752,23 +765,27 @@ news_event = {
 	picture = GFX_news_event_005
 	fire_only_once = yes
 	major = yes
+	fire_only_once = yes
 	trigger = {
 		ENG = {
 			has_war_with = GER
-			casualties > 450000
 			is_in_faction_with = FRA
+			casualties > 450000
 		}
 		FRA = {
-			NOT = {
-				has_full_control_of_state = 18
-			}
+			has_war_with = GER
+			owns_state = 29
+			has_full_control_of_state = 16
 		}
-		NOT = {
-			has_global_flag = battle_of_somme
+		GER = {
+			controls_state = 29
 		}
 	}
 	immediate = {
 		set_global_flag = battle_of_somme
+	}
+	mean_time_to_happen = {
+		days = 2
 	}
 	option = {
 		name = ww1_france.19.a
@@ -967,10 +984,12 @@ country_event = {
 			}
 			every_state = {
 				limit = {
-					impassable = no
+					is_owned_by = FRA
 				}
 				teleport_armies = {
-					to_state = 459
+					limit = {
+						has_country_flag = FRA_nationalist_france_flag
+					}
 				}
 			}
 		}
@@ -1475,6 +1494,32 @@ country_event = {
 			JAM = {
 				transfer_state = 310
 			}
+			else_if = {
+				limit = {
+					BRA = {
+						is_subject = no
+						NOT = {
+							has_country_flag = great_war_loser
+						}
+						has_full_control_of_state = 496
+						owns_state = 496
+					}
+				}
+				BRA = { transfer_state = 310 }
+				else_if = {
+					limit = {
+						HOL = {
+							is_subject = no
+							NOT = {
+								has_country_flag = great_war_loser
+							}
+							has_full_control_of_state = 309
+						    owns_state = 309
+						}
+					}
+					HOL = { transfer_state = 310 }
+				}	
+			}		
 		}
 		if = {
 			limit = {
@@ -1528,29 +1573,14 @@ country_event = {
 		}
 		if = {
 			limit = {
-				LBA = {
-					exists = yes
-					owns_state = 273
-				}
 				NFA = {
 					owns_state = 812
 				}
 			}
-			LBA = {
-				transfer_state = 812
-			}
-		}
-		if = {
-			limit = {
-				TUR = {
-					exists = yes
+			every_other_country = {
+				limit = {
 					owns_state = 273
 				}
-				NFA = {
-					owns_state = 812
-				}
-			}
-			TUR = {
 				transfer_state = 812
 			}
 		}

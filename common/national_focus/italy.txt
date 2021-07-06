@@ -146,7 +146,7 @@ focus_tree = {
 	}
 	focus = {
 		id = ITA_istituto_nazionale_delle_assicurazioni
-		icon = GFX_focus_generic_self_management
+		icon = GFX_focus_control_economy
 		cost = 10
 		prerequisite = {
 			focus = ITA_moderate_protectionism
@@ -156,7 +156,7 @@ focus_tree = {
 	}
 	focus = {
 		id = ITA_Ilva
-		icon = GFX_focus_generic_steel
+		icon = GFX_focus_industry_steel
 		cost = 10
 		prerequisite = {
 			focus = ITA_moderate_protectionism
@@ -443,6 +443,11 @@ focus_tree = {
 						state = 159
 						state = 158
 					}
+				}
+				add_building_construction = {
+					type = infrastructure
+					level = 1
+					instant_build = yes
 				}
 			}
 		}
@@ -1494,6 +1499,7 @@ focus_tree = {
 		x = 34
 		y = 0
 		available = {
+			is_subject = no
 			has_country_flag = great_war_winner
 			OR = {
 				has_global_flag = frankfurt_treaty
@@ -1756,15 +1762,23 @@ focus_tree = {
 							NOT = { has_global_flag = ita_rejected_the_deal }
 						}	
 					}
-					GER = {
-						has_completed_focus = GER_backstab
+					AND = {
+						not = {
+							has_country_flag = germany_betrayed_us
+						}
+						GER = {
+							has_completed_focus = GER_backstab
+						}
 					}
 				}
 			}
 			modifier = {
 				factor = 0
-				AUH = {
-					has_completed_focus = AUH_deportation_of_italians
+				OR = {
+					AUH = {
+						has_completed_focus = AUH_deportation_of_italians
+					}
+					has_country_flag = germany_betrayed_us
 				}
 			}
 		}
@@ -1924,10 +1938,14 @@ focus_tree = {
 		x = 28
 		y = 4
 		ai_will_do = {
-			factor = 1
+			base = 1
 			modifier = {
 				factor = 500
-				has_global_flag = kis_war	
+				has_global_flag = kis_war
+			}
+			modifier = {
+				factor = 0
+				has_country_flag = germany_betrayed_us
 			}
 		}
 	}
@@ -1947,9 +1965,6 @@ focus_tree = {
 			is_subject = no
 			NOT = {
 				is_in_faction_with = GER
-				GER = {
-					has_completed_focus = GER_backstab
-				}
 				has_country_flag = great_war_loser
 			}
 			GER = {
@@ -1959,8 +1974,9 @@ focus_tree = {
 		available_if_capitulated = yes
 		bypass = {
 			OR = {
+				is_faction_leader = yes
 				is_in_faction_with = FRA
-				has_war_with = FRA
+				has_war_with = GER
 				has_war_with = AUH
 			}
 		}
@@ -1998,7 +2014,6 @@ focus_tree = {
 					}
 				}
 				add_state_claim = 342
-				add_state_claim = 344
 			}
 			#Don't touch MY CLAIMS
 			news_event = {
@@ -2007,11 +2022,17 @@ focus_tree = {
 			FRA = {
 				add_to_faction = ROOT
 			}
+			hidden_effect = {
+				add_named_threat = { 
+					threat = 5 
+					name = ITA_denouncing_triple_alliance
+				}
+			}
 		}
 	}
 	focus = {
 		id = ITA_join_entente
-		icon = GFX_focus_consolidate_entente
+		icon = GFX_focus_ger_backstab
 		cost = 10
 		prerequisite = {
 			focus = ITA_denouncing_triple_alliance
@@ -2028,6 +2049,7 @@ focus_tree = {
 		available = {
 			NOT = {
 				has_country_flag = great_war_loser
+				is_in_faction_with = AUH
 			}
 			is_in_faction = yes
 			is_subject = no
@@ -2073,6 +2095,19 @@ focus_tree = {
 			}
 			GER = {
 				add_to_faction = ROOT
+			}
+			hidden_effect = {
+				add_named_threat = { 
+					threat = 5 
+					name = italy_joins_cp
+				}
+			}
+		}
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 0
+				has_country_flag = germany_betrayed_us
 			}
 		}
 	}
@@ -2121,6 +2156,7 @@ focus_tree = {
 		x = 31
 		y = 1
 		available = {
+			is_subject = no
 			NOT = {
 				has_government = communism
 			}
@@ -2144,7 +2180,7 @@ focus_tree = {
 	}
 	focus = {
 		id = ITA_blackshirt_veterans
-		icon = GFX_focus_generic_manpower
+		icon = GFX_focus_revenge_soldier
 		cost = 10
 		prerequisite = {
 			focus = ITA_fascismo_movimento
@@ -2192,7 +2228,7 @@ focus_tree = {
 	}
 	focus = {
 		id = ITA_march_on_rome
-		icon = GFX_goal_generic_political_pressure
+		icon = GFX_focus_fascist_revanchism
 		cost = 10
 		prerequisite = {
 			focus = ITA_mussolini_cult
@@ -2204,6 +2240,7 @@ focus_tree = {
 		y = 3
 		available = {
 			fascism > 0.3
+			is_subject = no
 		}
 		bypass = {
 			has_government = fascism
@@ -2331,8 +2368,8 @@ focus_tree = {
 		}
 	}
 	focus = {
-		id = ITA_war_with_ethiopia
-		icon = GFX_goal_generic_major_war
+		id = ITA_Pacification_of_Libya
+		icon = GFX_focus_attack_senussi
 		cost = 10
 		prerequisite = {
 			focus = ITA_expansionism
@@ -2340,52 +2377,31 @@ focus_tree = {
 		x = 31
 		y = 6
 		available = {
-			OR = {
-				fascism > 0.75
-				date > 1935.10.3
+			is_subject = no
+			any_owned_state = {
+				is_core_of = LBA
 			}
 		}
-		will_lead_to_war_with = ETH
+		bypass = {
+			LBA = {
+				OR = {
+					is_subject = yes
+					exists = no
+				}
+			}
+		}
+		will_lead_to_war_with = LBA
 		completion_reward = {
 			create_wargoal = {
 				type = annex_everything
-				target = ETH
+				target = LBA
 			}
 		}
-	}
-	focus = {
-		id = ITA_friend_greece
-		icon = GFX_goal_molotov_ribbentrop_pact
-		cost = 10
-		prerequisite = {
-			focus = ITA_mussolini_cult
-		}
-		x = 33
-		y = 3
-		available = {
-			is_subject = no
-			GRE = {
-				is_in_faction = no
-			}
-		}
-		completion_reward = {
-			add_opinion_modifier = {
-				target = GRE
-				modifier = small_increase
-			}
-			GRE = {
-				add_opinion_modifier = {
-					target = ROOT
-					modifier = small_increase
-				}
-				country_event = {
-					id = generic.1
-				}
-				add_ai_strategy = {
-					type = befriend
-					id = ROOT
-					value = 100
-				}
+		ai_will_do = {
+			base = 0
+			modifier = {
+				add = 100
+				date > 1923.1.1
 			}
 		}
 	}
@@ -2401,6 +2417,12 @@ focus_tree = {
 		}
 		x = 37
 		y = 1
+		available = {
+			is_subject = no
+		}
+		bypass = {
+			has_government = communism
+		}
 		completion_reward = {
 			add_timed_idea = {
 				idea = internationalism
@@ -2421,6 +2443,9 @@ focus_tree = {
 		}
 		x = 36
 		y = 2
+		available = {
+			has_government = communism
+		}
 		bypass = {
 			SOV = {
 				exists = no
@@ -2454,6 +2479,10 @@ focus_tree = {
 		}
 		x = 36
 		y = 3
+		available = {
+			has_government = communism
+			is_subject = no
+		}
 		bypass = {
 			OR = {
 				SOV = {
@@ -2490,6 +2519,7 @@ focus_tree = {
 		x = 38
 		y = 2
 		available = {
+			is_subject = no
 			communism > 0.15
 		}
 		bypass = {
@@ -2577,7 +2607,7 @@ focus_tree = {
 	}
 	focus = {
 		id = ITA_recover_after_civil_war
-		icon = GFX_goal_generic_production
+		icon = GFX_focus_radical_engine
 		cost = 10
 		prerequisite = {
 			focus = ITA_prepare_for_revolution
@@ -2585,14 +2615,16 @@ focus_tree = {
 		x = 38
 		y = 3
 		available = {
-			has_civil_war = no
-			hidden_trigger = {
-				NOT = {
-					has_war_with = ROI
-					has_war_with = ITS
-					has_war_with = SRI
+			AND = {
+				has_civil_war = no
+				hidden_trigger = {
+					NOT = {
+						has_war_with = ROI
+						has_war_with = ITS
+						has_war_with = SRI
+					}
 				}
-			}
+			}		
 		}
 		completion_reward = {
 			add_stability = 0.15
@@ -2605,7 +2637,7 @@ focus_tree = {
 	}
 	focus = {
 		id = ITA_battle_for_grain
-		icon = GFX_goal_generic_consumer_goods
+		icon = GFX_focus_agrarian_profit
 		cost = 10
 		prerequisite = {
 			focus = ITA_recover_after_civil_war
@@ -2698,7 +2730,7 @@ focus_tree = {
 			if = {
 				limit = {
 					is_in_faction = no
-					SOV = {
+					FRA = {
 						NOT = {
 							has_war_with = RUS
 							has_war_with = ROOT
@@ -2707,7 +2739,7 @@ focus_tree = {
 						is_faction_leader = yes
 					}
 				}
-				SOV = {
+				FRA = {
 					add_ai_strategy = {
 						type = alliance
 						id = ROOT
@@ -2721,7 +2753,7 @@ focus_tree = {
 				else_if = {
 					limit = {
 						is_in_faction = no
-						FRA = {
+						SOV = {
 							has_government = communism
 							is_faction_leader = yes
 							NOT = {
@@ -2729,7 +2761,7 @@ focus_tree = {
 							}
 						}
 					}
-					FRA = {
+					SOV = {
 						add_ai_strategy = {
 							type = alliance
 							id = ROOT
@@ -3038,48 +3070,6 @@ focus_tree = {
 		completion_reward = {
 			add_ideas = {
 				idea_italian_patriotism
-			}
-		}
-	}
-	focus = {
-		id = ITA_propaganda_in_greece
-		icon = GFX_goal_generic_propaganda
-		cost = 10
-		prerequisite = {
-			focus = ITA_join_comintern
-		}
-		x = 38
-		y = 6
-		available = {
-			is_subject = no
-			has_government = communism
-		}
-		bypass = {
-			GRE = {
-				OR = {
-					exists = no
-					has_government = communism
-				}
-			}
-		}
-		completion_reward = {
-			GRE = {
-				add_opinion_modifier = {
-					target = ROOT
-					modifier = ita_diplomacy_focus
-				}
-				add_ideas = communist_influence
-				if = {
-					limit = {
-						has_idea = democratic_influence
-					}
-					remove_ideas = {
-						democratic_influence
-					}
-				}
-				country_event = {
-					id = generic.1
-				}
 			}
 		}
 	}
