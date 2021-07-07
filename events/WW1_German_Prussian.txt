@@ -1090,8 +1090,6 @@ country_event = {
 		}
 		set_politics = {
 			ruling_party = communism
-			last_election = "1918.10.31"
-			election_frequency = 60
 			elections_allowed = no
 		}
 		set_popularities = {
@@ -1100,40 +1098,44 @@ country_event = {
 			fascism = 10
 			communism = 51
 		}
-		create_country_leader = {
-			name = "Bela Kun"
-			picture = "gfx/leaders/HUN/HUN_bela_kun.dds"
-			expire = "1935.1.1"
-			ideology = vanguardism
-			traits = {
-				trait_vanguardism
-			}
-		}
 		set_cosmetic_tag = HUN_communism
 		add_named_threat = {
 			threat = 10
 			name = prussian.7.t
 		}
-		news_event = prussian.8
 		hidden_effect = {
+			news_event = prussian.8
 			add_opinion_modifier = {
 				target = BAY
 				modifier = HOI4TGW_Opinion_alliance_bonus
 			}
+			set_global_flag = second_hungarian_revolution
 		}
-		set_global_flag = second_hungarian_revolution
+		every_country = {
+			limit = {
+				any_owned_state = {
+					is_on_continent = europe
+				}
+				NOT = {
+					has_government = communism
+				}
+			}
+			add_timed_idea = {
+				idea = communist_pressure
+				days = 100
+			}
+		}
 	}
 	option = {
 		name = prussian.7.b
 		ai_chance = {
 			factor = 1
 		}
-		add_popularity = {
+		start_civil_war = {
 			ideology = communism
-			popularity = 0.25
+			size = 0.55
+			set_cosmetic_tag = HUN_communism
 		}
-		add_stability = -0.25
-		add_political_power = -150
 	}
 }
 
@@ -1199,13 +1201,12 @@ country_event = {
 			}
 		}
 		OR = {
-			POL = {
-				exists = yes
-				is_subject_of = RUS
-				owns_state = 88
-			}
 			RUS = {
-				owns_state = 88
+				is_owner_neighbor_of = CZE
+			}
+			POL = {
+				is_subject_of = RUS
+				is_owner_neighbor_of = CZE
 			}
 		}
 	}
@@ -1217,38 +1218,30 @@ country_event = {
 		ai_chance = {
 			factor = 90
 		}
-		CZE = {
-			hidden_effect = {
-				SLO = {
-					add_state_core = 70
-					add_state_core = 71
-					add_state_core = 73
-					add_state_core = 664
+		hidden_effect = {
+			CZE = {
+				every_owned_state = {
+					limit = {
+						is_core_of = SLO
+					}
+					remove_core_of = CZE
+					add_claim_by = CZE
+					SLO = {
+						transfer_state = PREV
+					}
 				}
-				remove_state_core = 70
-				remove_state_core = 71
-				remove_state_core = 73
-				remove_state_core = 664
-				add_state_claim = 70
-				add_state_claim = 71
-				add_state_claim = 73
-				add_state_claim = 664
-				release = SLO
 				country_event = ww1_czechoslovakia.4
 				add_opinion_modifier = {
 					target = RUS
 					modifier = HOI4TGW_Opinion_anti_ru_policy_malus
 				}
 			}
-		}
-		RUS = {
-			give_guarantee = SLO
-			give_guarantee = ROM
-			add_named_threat = {
-				threat = 10
-				name = prussian.10.t
-			}
-			hidden_effect = {
+			RUS = {
+				give_guarantee = SLO
+				add_named_threat = {
+					threat = 10
+					name = prussian.10.t
+				}
 				if = {
 					limit = {
 						has_dlc = "Man the Guns"
@@ -1259,20 +1252,13 @@ country_event = {
 						freedom_level = 0.5
 					}
 				}
-				if = {
-					limit = {
-						NOT = {
-							has_dlc = "Man the Guns"
-						}
-					}
+				else = {
 					SLO = {
 						give_military_access = RUS
 					}
 				}
 			}
-		}
-		HUN = {
-			hidden_effect = {
+			HUN = {
 				add_opinion_modifier = {
 					target = RUS
 					modifier = HOI4TGW_Opinion_anti_ru_policy_malus
@@ -1286,12 +1272,36 @@ country_event = {
 		ai_chance = {
 			factor = 10
 		}
-		CZE = {
-			add_popularity = {
-				ideology = communism
-				popularity = 0.25
+		hidden_effect = {
+			CZE = {
+				every_owned_state = {
+					limit = {
+						is_core_of = SLO
+					}
+					remove_core_of = CZE
+					add_claim_by = CZE
+					SLO = {
+						transfer_state = PREV
+					}
+				}
+				create_wargoal = {
+					target = SLO
+					type = puppet_wargoal_focus
+				}
 			}
-			add_stability = -0.25
+			SLO = {
+				set_politics = {
+					ruling_party = communism
+					elections_allowed = no
+				}
+				add_popularity = {
+					ideology = communism
+					popularity = 0.3
+				}
+			}
+			HUN = {
+				give_guarantee = SLO
+			}
 		}
 	}
 }
@@ -1466,10 +1476,48 @@ country_event = {
 				}
 			}
 		}
-		else = {
+		else_if = {
+			limit = {
+				GRE = {
+					has_country_flag = great_war_winner
+				}
+			}
 			every_owned_state = {
 				limit = {
 					state = 756
+				}
+				RUS = {
+					transfer_state = PREV
+				}
+			}
+			every_owned_state = {
+				limit = {
+					OR = {
+						region = 25
+						region = 202
+					}
+					is_core_of = GRE
+				}
+				GRE = {
+					transfer_state = PREV
+				}
+			}
+			every_owned_state = {
+				limit = {
+					is_core_of = BUL
+				}
+				BUL = {
+					transfer_state = PREV
+				}
+			}
+		}
+		else = {
+			every_owned_state = {
+				limit = {
+					OR = {
+						state = 756
+						state = 200
+					}
 				}
 				RUS = {
 					transfer_state = PREV
@@ -1659,7 +1707,7 @@ news_event = {
 	id = prussian.15
 	title = prussian.15.t
 	desc = {
-		text = prussian.15.d
+		text = prussian.15.desc
 		trigger = {
 			ENG = {
 				NOT = {
@@ -1669,7 +1717,7 @@ news_event = {
 		}
 	}
 	desc = {
-		text = prussian.15.d_war
+		text = prussian.15.desc_war
 		trigger = {
 			ENG = {
 				has_war_with = RUS
@@ -1723,6 +1771,19 @@ news_event = {
 				is_in_faction_with = RUS
 				is_subject_of = RUS
 				has_war_with = ENG
+			}
+		}
+	}
+	option = {
+		name = prussian.15.d
+		ai_chance = {
+			factor = 100
+		}
+		trigger = {
+			ENG = {
+				NOT = {
+					has_war_with = RUS
+				}
 			}
 		}
 	}
