@@ -28,6 +28,6 @@ tags={
 	"Map"
 }
 name="Hearts of Iron IV: The Great War Redux [Beta]"
-version="0.7"
+version="0.77"
 supported_version="1.10.*"
 remote_file_id="1946557392"
