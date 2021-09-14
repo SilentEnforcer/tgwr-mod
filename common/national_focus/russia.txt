@@ -31,6 +31,9 @@ focus_tree = {
 		ai_will_do = {
 			factor = 3
 		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
+		}
 	}
 	focus = {
 		id = RUS_military_exhibitions
@@ -229,6 +232,9 @@ focus_tree = {
 		ai_will_do = {
 			factor = 1
 		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
+		}
 	}
 	focus = {
 		id = RUS_revolutionaries_in_duma
@@ -342,10 +348,22 @@ focus_tree = {
 				target = GER
 				modifier = RUS_rapprochement_with_kaiser
 			}
+			give_guarantee = GER
+			diplomatic_relation = {
+				country = GER
+				relation = non_aggression_pact
+				active = yes
+			}
 			GER = {
 				add_opinion_modifier = {
 					target = RUS
 					modifier = RUS_rapprochement_with_kaiser
+				}
+				give_guarantee = ROOT
+				diplomatic_relation = {
+					country = GER
+					relation = non_aggression_pact
+					active = yes
 				}
 			}
 			add_opinion_modifier = {
@@ -432,16 +450,20 @@ focus_tree = {
 		ai_will_do = {
 			factor = 1
 		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
+		}
 	}
 	focus = {
 		id = RUS_secure_asia
 		icon = GFX_goal_generic_cavalry
-		cost = 10
+		cost = 5
 		prerequisite = {
 			focus = RUS_unity_of_entente
+			focus = RUS_rapprochement_with_kaiser
 		}
-		x = 4
-		y = 4
+		x = 3
+		y = 3
 		available_if_capitulated = yes
 		available = {
 			is_subject = no
@@ -459,9 +481,6 @@ focus_tree = {
 			}
 		}
 		completion_reward = {
-			RUS = {
-				add_state_core = 329
-			}
 			if = {
 				limit = {
 					OR = {
@@ -482,6 +501,7 @@ focus_tree = {
 				}
 			}
 			TAN = {
+				set_cosmetic_tag = TAN_RUS
 				add_offsite_building = {
 					type = arms_factory
 					level = 1
@@ -490,6 +510,9 @@ focus_tree = {
 		}
 		ai_will_do = {
 			factor = 1
+		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
 		}
 	}
 	#focus = {
@@ -505,7 +528,7 @@ focus_tree = {
 	#}
 	focus = {
 		id = RUS_guardian_of_orthodoxy
-		icon = GFX_goal_generic_defence
+		icon = GFX_focus_GRE_an_orthodox_state
 		cost = 10
 		prerequisite = {
 			focus = RUS_unity_of_entente
@@ -608,6 +631,9 @@ focus_tree = {
 				}
 			}
 		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
+		}
 	}
 	focus = {
 		id = RUS_resist_the_duma
@@ -669,7 +695,7 @@ focus_tree = {
 	}
 	focus = {
 		id = RUS_league_of_slavic_peoples
-		icon = GFX_goal_generic_national_unity
+		icon = GFX_focus_balkan_puppet
 		cost = 10
 		prerequisite = {
 			focus = RUS_union_of_russian_people
@@ -683,6 +709,10 @@ focus_tree = {
 		bypass = {
 		}
 		completion_reward = {
+			add_named_threat = {
+				threat = 5
+				name = RUS_league_of_slavic_peoples
+			}
 			leave_faction = yes
 			create_faction = slavic_league
 			set_global_flag = slavic_league
@@ -919,7 +949,7 @@ focus_tree = {
 	}
 	focus = {
 		id = RUS_liberation_of_the_balkans
-		icon = GFX_goal_generic_major_war
+		icon = GFX_focus_remove_turk
 		cost = 10
 		prerequisite = {
 			focus = RUS_league_of_slavic_peoples
@@ -928,6 +958,7 @@ focus_tree = {
 		y = 4
 		available = {
 			is_subject = no
+			has_civil_war = no
 			is_in_faction_with = SER
 			TUR = {
 				exists = yes
@@ -969,7 +1000,12 @@ focus_tree = {
 		x = 17
 		y = 2
 		available = {
-			num_of_civilian_factories > 50
+			if = {
+				limit = {
+					is_ai = no
+				}
+				num_of_civilian_factories > 50
+			}
 		}
 		completion_reward = {
 			if = {
@@ -1009,32 +1045,49 @@ focus_tree = {
 		}
 		completion_reward = {
 			custom_effect_tooltip = RUS_orthodoxy_autocracy_nationality_tt
-			clr_country_flag = dont_trigger_political_event
-			if = {
-				limit = {
-					has_idea = RUS_threat_of_revolution
-				}
-				remove_ideas = RUS_threat_of_revolution
+			hidden_effect = {
+				set_cosmetic_tag = RUS_absolutism
 			}
 			if = {
 				limit = {
-					has_idea = RUS_threat_of_revolution2
+					OR = {
+						has_idea = RUS_threat_of_revolution
+						has_idea = RUS_threat_of_revolution2
+						has_idea = RUS_threat_of_revolution3
+					}
+					NOT = {
+						has_country_flag = russian_revolutionaires_lose
+					}
 				}
-				remove_ideas = RUS_threat_of_revolution2
-			}
-			if = {
-				limit = {
-					has_idea = RUS_threat_of_revolution3
+				country_event = {
+					id = ww1_russia.39
 				}
-				remove_ideas = RUS_threat_of_revolution3
+				else = {
+					remove_ideas = RUS_threat_of_revolution
+					hidden_effect = {
+						remove_ideas = RUS_threat_of_revolution2
+						remove_ideas = RUS_threat_of_revolution3
+					}
+				}
 			}
-			set_cosmetic_tag = RUS_absolutism
-			country_event = {
-				id = ww1_russia.39
+			add_popularity = {
+				ideology = democratic
+				popularity = -0.15
+			}
+			add_popularity = {
+				ideology = fascism
+				popularity = 0.1
 			}
 		}
 		ai_will_do = {
-			factor = 1
+			base = 3
+			modifier = {
+				factor = 0
+				OR = {
+					has_war = yes
+					has_active_mission = RUS_resist_the_duma
+				}
+			}
 		}
 	}
 	focus = {
@@ -1050,6 +1103,7 @@ focus_tree = {
 			is_subject = no
 			has_capitulated = no
 			has_government = neutrality
+			has_civil_war = no
 		}
 		completion_reward = {
 			add_popularity = {
@@ -1211,6 +1265,9 @@ focus_tree = {
 		}
 		x = 18
 		y = 4
+		available = {
+			has_civil_war = no
+		}
 		completion_reward = {
 			add_ideas = RUS_idea_united_and_indivible
 			unlock_decision_category_tooltip = RUS_reunite_white_generals
@@ -1505,7 +1562,7 @@ focus_tree = {
 	}
 	focus = {
 		id = RUS_complete_stolypin_reform
-		icon = GFX_goal_generic_position_armies
+		icon = GFX_focus_agrarian_profit
 		cost = 20
 		prerequisite = {
 			focus = RUS_extension_of_the_putilov_factory
@@ -1580,7 +1637,7 @@ focus_tree = {
 	}
 	focus = {
 		id = RUS_modernization_of_the_central_railways
-		icon = GFX_goal_generic_construct_infrastructure
+		icon = GFX_focus_forest_railway
 		cost = 10
 		prerequisite = {
 			focus = RUS_tver_railway_plant
@@ -1716,7 +1773,7 @@ focus_tree = {
 	}
 	focus = {
 		id = RUS_modernize_transsib
-		icon = GFX_goal_generic_construct_infrastructure
+		icon = GFX_focus_train_railroads
 		cost = 10
 		prerequisite = {
 			focus = RUS_modernization_of_the_central_railways
@@ -1772,7 +1829,7 @@ focus_tree = {
 	}
 	focus = {
 		id = RUS_crimea_fortress
-		icon = GFX_goal_generic_construct_military
+		icon = GFX_focus_fortification
 		cost = 10
 		prerequisite = {
 			focus = RUS_formation_of_the_submarine_fleet
@@ -2129,7 +2186,7 @@ focus_tree = {
 	}
 	focus = {
 		id = RUS_aviation_research_institute
-		icon = GFX_goal_generic_air_fighter2
+		icon = GFX_focus_plane_factory
 		cost = 10
 		prerequisite = {
 			focus = RUS_aircraft_design_offices
@@ -2248,7 +2305,7 @@ focus_tree = {
 	}
 	focus = {
 		id = RUS_convene_v_state_duma
-		icon = GFX_goal_generic_intelligence_exchange
+		icon = GFX_focus_hold_elections
 		cost = 5
 		prerequisite = {
 			focus = RUS_provisional_committee
@@ -2256,12 +2313,15 @@ focus_tree = {
 		mutually_exclusive = {
 			focus = RUS_constituent_assembly
 		}
-		x = 9
+		x = 7
 		y = 6
 		available_if_capitulated = yes
 		available = {
 			has_war = no
 			has_government = democratic
+			NOT = {
+				has_cosmetic_tag = RUS_republic
+			}
 			OR = {
 				has_country_leader = {
 					name = "Mikhail II"
@@ -2303,7 +2363,7 @@ focus_tree = {
 			}
 		}
 		ai_will_do = {
-			factor = 1
+			factor = 100
 		}
 	}
 	focus = {
@@ -2313,7 +2373,7 @@ focus_tree = {
 		prerequisite = {
 			focus = RUS_convene_v_state_duma
 		}
-		x = 9
+		x = 7
 		y = 7
 		completion_reward = {
 			add_stability = 0.25
@@ -2347,7 +2407,7 @@ focus_tree = {
 		mutually_exclusive = {
 			focus = RUS_convene_v_state_duma
 		}
-		x = 7
+		x = 9
 		y = 6
 		bypass = {
 			NOT = {
@@ -2376,54 +2436,49 @@ focus_tree = {
 					ruling_only = yes
 				}
 			}
-			
 			OR = {
 				has_war = no
 				has_war_with = SOV
 			}
-			NOT = {
-				has_country_leader = {
-					name = "Nicholas II"
-					ruling_only = yes
+			OR = {
+				has_cosmetic_tag = RUS_republic
+				NOT = {
+					has_country_leader = {
+						name = "Nicholas II"
+						ruling_only = no
+					}
+					has_country_leader = {
+						name = "Mikhail II"
+						ruling_only = no
+					}
 				}
-				has_country_leader = {
-					name = "Mikhail II"
-					ruling_only = yes
-				}
-			}
+			}			
 			OR = {
 				has_completed_focus = RUS_force_tsar_abdtication
 				has_global_flag = nicholas_ii_abdication
 			}
 		}
-		completion_reward = {
-			set_cosmetic_tag = RUS_republic
-			set_politics = {
-				ruling_party = democratic
-				elections_allowed = yes
-			}
-			every_country = {
+		completion_reward = {			
+			if = {
 				limit = {
-					is_in_faction_with = RUS
+					NOT = {
+						has_cosmetic_tag = RUS_republic
+					}
 				}
-				add_stability = 0.1
+				set_cosmetic_tag = RUS_republic
+			}
+			if = {
+				limit = {
+					NOT = {
+						has_government = democratic
+					}
+				}
+				set_politics = {
+					ruling_party = democratic
+					elections_allowed = yes
+				}
 			}
 			add_political_power = 100
-			set_party_name = {
-				ideology = democratic
-				long_name = RUS_democratic_party_UFA_long
-				name = RUS_democratic_party_UFA
-			}
-			create_country_leader = {
-				name = "Provisional All-Russian Government"
-				picture = "gfx/leaders/RUS/RUS_provisional_goverment.tga"
-				expire = "1935.1.1"
-				ideology = social_liberalism
-				traits = {
-					trait_social_liberalism
-				}
-			}
-			clr_country_flag = dont_trigger_political_event
 			if = {
 				limit = {
 					has_idea = RUS_threat_of_revolution
@@ -2442,12 +2497,50 @@ focus_tree = {
 				}
 				remove_ideas = RUS_threat_of_revolution3
 			}
-			country_event = {
-				id = ww1_russia.19
-			}
+			if = {
+				limit = {
+					has_war_with = SOV
+				}
+				set_party_name = {
+					ideology = democratic
+					long_name = RUS_democratic_party_UFA_long
+					name = RUS_democratic_party_UFA
+				}
+				create_country_leader = {
+					name = "Provisional All-Russian Government"
+					picture = "gfx/leaders/RUS/RUS_provisional_government.dds"
+					expire = "1935.1.1"
+					ideology = social_liberalism
+					traits = {
+						trait_social_liberalism
+					}
+				}
+				country_event = {
+					id = ww1_russia.19
+				}
+				else = {
+					set_party_name = {
+						ideology = democratic
+						long_name = RUS_constituent_assembly_party_long
+						name = RUS_constituent_assembly_party
+					}
+					create_country_leader = {
+						name = "All-Russian Constituent Assembly"
+						picture = "gfx/leaders/RUS/RUS_provisional_government.dds"
+						expire = "1935.1.1"
+						ideology = socialism
+						traits = {
+							trait_socialism
+						}
+					}
+				}
+			}	
 		}
 		ai_will_do = {
 			factor = 100
+		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
 		}
 	}
 	focus = {
@@ -2460,7 +2553,7 @@ focus_tree = {
 		mutually_exclusive = {
 			focus = RUS_president_election
 		}
-		x = 7
+		x = 9
 		y = 7
 		available = {
 			is_subject = no
@@ -2625,10 +2718,13 @@ focus_tree = {
 		ai_will_do = {
 			factor = 100
 		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
+		}
 	}
 	focus = {
 		id = RUS_president_election
-		icon = GFX_goal_generic_demand_territory
+		icon = GFX_focus_generic_voting
 		cost = 10
 		prerequisite = {
 			focus = RUS_constituent_assembly
@@ -2636,7 +2732,7 @@ focus_tree = {
 		mutually_exclusive = {
 			focus = RUS_white_movenment
 		}
-		x = 5
+		x = 11
 		y = 7
 		available = {
 			is_subject = no
@@ -2651,17 +2747,8 @@ focus_tree = {
 		completion_reward = {
 			add_political_power = 200
 			add_stability = 0.25
-			set_politics = {
-				ruling_party = democratic
-				elections_allowed = yes
-			}
 			country_event = {
 				id = ww1_russia.53
-			}
-			set_party_name = {
-				ideology = democratic
-				long_name = RUS_fascism_party_OMSK_long
-				name = RUS_fascism_party_OMSK
 			}
 			if = {
 				limit = {
@@ -2702,20 +2789,6 @@ focus_tree = {
 					}
 				}
 				puppet = CRI
-				hidden_effect = {
-					CRI = {
-						set_politics = {
-							ruling_party = democratic
-							elections_allowed = no
-						}
-						set_popularities = {
-							democratic = 75
-							neutrality = 25
-							fascism = 0
-							communism = 0
-						}
-					}
-				}
 			}
 		}
 		ai_will_do = {
@@ -2734,20 +2807,32 @@ focus_tree = {
 		available_if_capitulated = yes
 		available = {
 			is_subject = no
-			has_stability > 0.5
-			democratic > 0.5
-		}
-		bypass = {
-			NOT = {
-				has_country_leader = {
-					name = "Nicholas II"
-					ruling_only = yes
+			OR = {
+				AND = {
+					has_stability > 0.5
+					democratic > 0.5
 				}
+				has_country_flag = great_war_loser
 				has_country_leader = {
 					name = "Mikhail II"
 					ruling_only = yes
 				}
-			}
+			}			
+		}
+		bypass = {
+			OR = {
+				has_government = democratic
+				NOT = {
+					has_country_leader = {
+						name = "Nicholas II"
+						ruling_only = yes
+					}
+					has_country_leader = {
+						name = "Mikhail II"
+						ruling_only = yes
+					}
+				}	
+			}		
 		}
 		completion_reward = {
 			custom_effect_tooltip = available_political_advisor
@@ -2762,7 +2847,14 @@ focus_tree = {
 			}
 		}
 		ai_will_do = {
-			factor = 100
+			base = 100
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+				NOT = {
+					has_global_flag = great_war_ends
+				}
+			}
 		}
 	}
 	focus = {
@@ -2793,6 +2885,21 @@ focus_tree = {
 				ideology = democratic
 				popularity = 0.1
 			}
+			retire_ideology_leader = neutrality
+			hidden_effect = {
+				create_country_leader = {
+					name = "Mikhail Rodzyanko"
+					picture = "gfx/leaders/RUS/RUS_mikhail_rodzyanko.dds"
+					expire = "1935.1.1"
+					ideology = authoritarian_democracy
+					traits = { trait_authoritarian_democracy }
+				}
+				set_party_name = {
+					ideology = neutrality
+					long_name = RUS_democratic_party_long
+					name = RUS_democratic_party
+				}
+			}	
 			news_event = {
 				id = rusrevolt.5
 			}
@@ -2876,7 +2983,7 @@ focus_tree = {
 				expire = "1935.1.1"
 				ideology = religious_communism
 				traits = {
-					orthodox_autocrat
+					inept_autocrat
 					trait_religious_communism
 				}
 			}
@@ -3036,20 +3143,17 @@ focus_tree = {
 	}
 	focus = {
 		id = RUS_unite_ruthenia
-		icon = GFX_goal_generic_attack_allies
+		icon = GFX_focus_take_ruthenia
 		cost = 10
 		prerequisite = {
 			focus = RUS_guardian_of_orthodoxy
 		}
-		prerequisite = {
-			focus = RUS_secure_asia
-		}
-		x = 5
-		y = 5
+		x = 4
+		y = 4
 		will_lead_to_war_with = AUH
 		available = {
 			threat > 0.25
-			has_war_support > 0.5
+			has_war_support > 0.4
 			NOT = {
 				is_in_faction_with = AUH
 			}
@@ -3062,6 +3166,9 @@ focus_tree = {
 			add_state_claim = 91
 			add_state_claim = 88
 			add_state_claim = 89
+			add_state_claim = 562
+			add_state_core = 73
+			add_state_core = 237
 			if = {
 				limit = {
 					NOT = {
@@ -3087,6 +3194,9 @@ focus_tree = {
 				date < 1915.1.1
 				factor = 0
 			}
+		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
 		}
 	}
 	focus = {
@@ -3274,26 +3384,29 @@ focus_tree = {
 		available = {
 			is_subject = no
 		}
-		will_lead_to_war_with = CHI
-		will_lead_to_war_with = QIN
+		bypass = {
+			OR = {
+				owns_state = 328
+				owns_state = 714
+				owns_state = 716
+				owns_state = 717
+			}
+		}
+		will_lead_to_war_with = FNG
 		completion_reward = {
-			custom_effect_tooltip = RUS_safety_of_amur_road_tt
 			add_state_claim = 717
 			add_state_claim = 714
 			add_state_claim = 328
-			add_state_claim = 525			#Korea
-			add_state_claim = 527
-			add_state_claim = 796
-			add_state_claim = 797
-			add_state_claim = 799
-			add_state_claim = 800
-			add_state_claim = 801
-			add_state_claim = 802
+			add_state_claim = 716
+			create_wargoal = {
+				target = FNG
+				type = annex_everything
+			}
 		}
 	}
 	focus = {
 		id = RUS_denounce_portsmouth
-		icon = GFX_goal_generic_navy_battleship
+		icon = GFX_focus_battlefleet
 		cost = 10
 		prerequisite = {
 			focus = RUS_safety_of_amur_road
@@ -3361,6 +3474,9 @@ focus_tree = {
 		ai_will_do = {
 			factor = 1
 		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
+		}
 	}
 	focus = {
 		id = RUS_ultimatum_to_persia
@@ -3408,13 +3524,13 @@ focus_tree = {
 	}
 	focus = {
 		id = RUS_greek_project
-		icon = GFX_goal_generic_occupy_states_ongoing_war
+		icon = GFX_focus_GRE_resurrecting_the_megali_idea
 		cost = 10
 		prerequisite = {
 			focus = RUS_unite_ruthenia
 		}
-		x = 5
-		y = 6
+		x = 4
+		y = 5
 		available = {
 			is_subject = no
 			SOV = {
@@ -3525,6 +3641,9 @@ focus_tree = {
 		ai_will_do = {
 			factor = 1
 		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
+		}
 	}
 	focus = {
 		id = RUS_public_education
@@ -3549,7 +3668,7 @@ focus_tree = {
 		prerequisite = {
 			focus = RUS_convene_v_state_duma
 		}
-		x = 11
+		x = 5
 		y = 7
 		completion_reward = {
 			add_political_power = 200
@@ -3576,6 +3695,9 @@ focus_tree = {
 		}
 		ai_will_do = {
 			factor = 1000
+		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
 		}
 	}
 	focus = {
@@ -3736,7 +3858,7 @@ focus_tree = {
 	}
 	focus = {
 		id = RUS_build_berlin_baghdad_railway
-		icon = GFX_goal_generic_construct_infrastructure
+		icon = GFX_focus_berlin_bagdad
 		cost = 10
 		prerequisite = {
 			focus = RUS_ultimatum_to_persia
