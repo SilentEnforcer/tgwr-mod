@@ -47,6 +47,12 @@ country_event = {
 			elections_allowed = yes
 		}
 		hidden_effect = {
+			every_unit_leader = {
+				limit = {
+					has_trait = trait_royal
+				}		
+                remove_unit_leader = PREV	
+			}
 			set_popularities = {
 				democratic = 42
 				neutrality = 26
@@ -339,20 +345,41 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		tag = GER
-		NOT = {
-			has_government = communism
-		}
+		has_global_flag = weimar_republic
+		has_country_flag = great_war_loser
 		OR = {
-			has_stability < 0.15
-			has_global_flag = weimar_republic
+			RUS = {
+				NOT = {
+					has_country_flag = great_war_winner
+				}
+			}
+			has_global_flag = russian_revolution #Prevent Prussian Blue
 		}
-		communism > 0.2
+		NOT = { 
+		    has_global_flag = treaty_of_berlin
+		}
+		NOT = {
+			AND = {
+				has_global_flag = treaty_of_berlin
+				USA = {
+					NOT = {
+						has_country_flag = great_war_winner
+					}
+				}
+			}
+		}		
+		NOT = { has_government = communism }
 	}
 	mean_time_to_happen = {
-		days = 10
+		days = 20
 	}
 	immediate = {
 		hidden_effect = {
+			add_popularity = {
+				ideology = communism
+				popularity = 0.1
+			}
+			add_stability = -0.05
 			set_party_name = {
 				ideology = communism
 				long_name = GER_communism_party_interwar_long
@@ -367,33 +394,28 @@ country_event = {
 			ideology = communism
 			popularity = -0.02
 		}
+		country_event = { id = freikorps.2 days = 3 }
 		set_global_flag = spartacist_uprising
-		hidden_effect = {
-			kill_ideology_leader = communism
-			create_country_leader = {
-				name = "Ernst Thälmann"
-				#picture = "Portrait_Germany_Ernst_Thalmann.dds"
-				expire = "1956.1.1"
-				ideology = vanguardism
-				traits = {
-					assassination_survivor
-					trait_vanguardism
-				}
-			}
-		}
 		ai_chance = {
 			factor = 100
 		}
 	}
 	option = {
 		name = ww1_germany.12.b
+		trigger = {
+			has_government = democratic
+		}
 		add_popularity = {
 			ideology = communism
 			popularity = 0.1
 		}
 		set_global_flag = support_spartacists
 		ai_chance = {
-			factor = 0
+			factor = 30
+			modifier = {
+				is_historical_focus_on = yes
+				factor = 0
+			}
 		}
 	}
 }
@@ -409,18 +431,42 @@ country_event = {
 	trigger = {
 		tag = GER
 		has_civil_war = no
+		has_government = democratic
 		NOT = {
-			has_government = communism
+			AND = {
+				has_global_flag = treaty_of_berlin
+				USA = {
+					NOT = {
+						has_country_flag = great_war_winner
+					}
+				}
+			}
 		}
 		has_global_flag = support_spartacists
+		has_country_flag = great_war_loser
+		has_global_flag = versallies_treaty
+		has_war = no
 	}
 	mean_time_to_happen = {
-		days = 30
+		days = 20
 	}
 	option = {
 		name = ww1_germany.13.a
 		news_event = ww1_germany.14
+		if = {
+			limit = {
+				is_faction_leader = yes
+			}
+			dismantle_faction = yes
+			else_if = {
+				limit = { 
+					is_in_faction = yes
+				}
+				leave_faction = yes
+			}
+		}
 		GER = {
+			remove_ideas = idea_army_restrictions
 			start_civil_war = {
 				ruling_party = democratic
 				ideology = communism
@@ -428,14 +474,19 @@ country_event = {
 				capital = 64
 				states = {
 					64
-					61
-					62
-					58
-					59
-					66
-					67
+					60
 					68
-					63
+					53
+					52
+					54
+				}
+				keep_unit_leaders_trigger = {
+					OR = {
+						has_trait = trait_royal
+						has_trait = ENG_royalist
+						has_trait = old_guard
+						has_trait = politically_connected
+					}
 				}
 			}
 		}
@@ -460,7 +511,7 @@ country_event = {
 						}
 					}
 				}
-				52 = {
+				50 = {
 					create_unit = {
 						division = "name = \"Eiserne Brigade\" division_template = \"Freikorps Brigade\" start_experience_factor = 0.4"
 						owner = GER
@@ -482,7 +533,7 @@ country_event = {
 						owner = GER
 					}
 				}
-				53 = {
+				55 = {
 					create_unit = {
 						division = "name = \"Lützow Brigade\" division_template = \"Freikorps Brigade\" start_experience_factor = 0.4"
 						owner = GER
@@ -492,7 +543,7 @@ country_event = {
 						owner = GER
 					}
 				}
-				54 = {
+				59 = {
 					create_unit = {
 						division = "name = \"Marinebrigade Loewenfeld\" division_template = \"Freikorps Brigade\" start_experience_factor = 0.4"
 						owner = GER
@@ -502,7 +553,7 @@ country_event = {
 						owner = GER
 					}
 				}
-				50 = {
+				58 = {
 					create_unit = {
 						division = "name = \"Maercker Brigade\" division_template = \"Freikorps Brigade\" start_experience_factor = 0.4"
 						owner = GER
@@ -559,7 +610,7 @@ country_event = {
 						owner = PREV
 					}
 				}
-				61 = {
+				60 = {
 					create_unit = {
 						division = "name = \"IV Brigade\" division_template = \"Spartacus Brigade\" start_experience_factor = 0.2"
 						owner = PREV
@@ -588,27 +639,47 @@ country_event = {
 			}
 		}
 		set_global_flag = white_germany
-		ai_chance = {
-			factor = 0
+		trigger = {
+			is_ai = no
 		}
 	}
 	option = {
 		name = ww1_germany.13.b
 		news_event = ww1_germany.14
+		if = {
+			limit = {
+				is_faction_leader = yes
+			}
+			dismantle_faction = yes
+			else_if = {
+				limit = { 
+					is_in_faction = yes
+				}
+				leave_faction = yes
+			}
+		}
 		GER = {
 			start_civil_war = {
 				ruling_party = communism
 				ideology = democratic
 				size = 0.5
-				states = {
-					52
-					53
-					54
-					50
-					55
-					60
-					65
-					57
+				states_filter = {
+					NOT = {
+						state = 64
+						state = 60
+						state = 68
+						state = 53
+						state = 52
+						state = 54
+					}
+				}
+				keep_unit_leaders_trigger = {
+					NOT = {
+						has_trait = trait_royal
+						has_trait = ENG_royalist
+						has_trait = old_guard
+						has_trait = politically_connected
+					}
 				}
 			}
 		}
@@ -650,7 +721,7 @@ country_event = {
 						owner = GER
 					}
 				}
-				61 = {
+				60 = {
 					create_unit = {
 						division = "name = \"V Brigade\" division_template = \"Spartacus Brigade\" start_experience_factor = 0.2"
 						owner = GER
@@ -713,56 +784,56 @@ country_event = {
 						}
 					}
 				}
-				52 = {
+				50 = {
 					create_unit = {
 						division = "name = \"Eiserne Brigade\" division_template = \"Freikorps Brigade\" start_experience_factor = 0.4"
-						owner = PREV
+						owner = GER
 					}
 					create_unit = {
 						division = "name = \"Garde-Schützendivision\" division_template = \"Freikorps Brigade\" start_experience_factor = 0.4"
-						owner = PREV
+						owner = GER
 					}
 					create_unit = {
 						division = "name = \"Caspari Brigade\" division_template = \"Freikorps Brigade\" start_experience_factor = 0.4"
-						owner = PREV
+						owner = GER
 					}
 					create_unit = {
 						division = "name = \"Lichtschlag Brigade\" division_template = \"Freikorps Brigade\" start_experience_factor = 0.4"
-						owner = PREV
+						owner = GER
 					}
 					create_unit = {
 						division = "name = \"Epp Brigade\" division_template = \"Freikorps Brigade\" start_experience_factor = 0.4"
-						owner = PREV
+						owner = GER
 					}
 				}
-				53 = {
+				55 = {
 					create_unit = {
 						division = "name = \"Lützow Brigade\" division_template = \"Freikorps Brigade\" start_experience_factor = 0.4"
-						owner = PREV
+						owner = GER
 					}
 					create_unit = {
 						division = "name = \"Marinebrigade Ehrhardt\" division_template = \"Freikorps Brigade\" start_experience_factor = 0.4"
-						owner = PREV
+						owner = GER
 					}
 				}
-				54 = {
+				59 = {
 					create_unit = {
 						division = "name = \"Marinebrigade Loewenfeld\" division_template = \"Freikorps Brigade\" start_experience_factor = 0.4"
-						owner = PREV
+						owner = GER
 					}
 					create_unit = {
 						division = "name = \"Oberland Brigade\" division_template = \"Freikorps Brigade\" start_experience_factor = 0.4"
-						owner = PREV
+						owner = GER
 					}
 				}
-				50 = {
+				58 = {
 					create_unit = {
 						division = "name = \"Maercker Brigade\" division_template = \"Freikorps Brigade\" start_experience_factor = 0.4"
-						owner = PREV
+						owner = GER
 					}
 					create_unit = {
 						division = "name = \"Rossbach Brigade\" division_template = \"Freikorps Brigade\" start_experience_factor = 0.4"
-						owner = PREV
+						owner = GER
 					}
 				}
 			}
@@ -1028,21 +1099,28 @@ country_event = {
 			}
 		}
 		ai_chance = {
-			factor = 70
+			factor = 30
+			modifier = {
+				is_historical_focus_on = yes
+				NOT = {
+					has_government = neutrality
+				}
+				factor = 0
+			}
+			modifier = {
+				factor = 5
+				has_government = neutrality
+			}
 		}
 	}
 	option = {
 		name = ww1_germany.20.b
 		ai_chance = {
-			factor = 30
+			factor = 70
 			modifier = {
 				is_historical_focus_on = yes
 				factor = 0
-			}
-			modifier = {
-				factor = 2
-				has_government = neutrality
-			}
+			}			
 		}
 	}
 }
@@ -3059,15 +3137,32 @@ country_event = {
 	fire_only_once = yes
 	option = {
 		name = ww1_germany.59.a
-		kill_country_leader = yes
-		create_country_leader = {
-			name = "Nikolai Bukharin"
-			picture = "gfx/leaders/SOV/SOV_nikolai_bukharin.dds"
-			expire = "1935.1.1"
-			ideology = vanguardism
-			traits = {
-				socialite_connections
-				trait_vanguardism
+		kill_ideology_leader = communism
+		if = {
+			limit = {
+				date < 1919.2.16
+			}
+			create_country_leader = {
+				name = "Yakov Sverdlov"
+				picture = "gfx/leaders/SOV/SOV_yakov_sverdlov.dds"
+				expire = "1935.1.1"
+				ideology = vanguardism
+				traits = {
+					prince_of_terror
+					trait_vanguardism
+				}
+			}
+			else = {
+				create_country_leader = {
+					name = "Leon Trotsky"
+					picture = "gfx/leaders/SOV/SOV_leon_trotsky_army.dds"
+					expire = "1935.1.1"
+					ideology = vanguardism
+					traits = {
+						permanent_revolutionary
+						trait_vanguardism
+					}
+				}
 			}
 		}
 		add_stability = -0.35
@@ -3151,6 +3246,7 @@ country_event = {
 	trigger = {
 		tag = GER
 		has_country_flag = great_war_loser
+		has_global_flag = versallies_treaty
 	}
 	fire_only_once = yes
 	mean_time_to_happen = {
@@ -4168,6 +4264,7 @@ country_event = {
 		has_country_flag = great_war_loser
 		has_global_flag = versallies_treaty
 		has_idea = idea_army_restrictions
+		has_war = no
 	}
 	fire_only_once = yes
 	mean_time_to_happen = { days = 10 }

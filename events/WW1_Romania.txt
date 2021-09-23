@@ -56,13 +56,13 @@ country_event = {
 	}
 	trigger = {
 		tag = ROM
-		is_puppet = no
+		is_subject = no
 		AUH = {
 			exists = no
 		}
 		HUN = {
 			exists = yes
-			is_puppet = no
+			is_subject = no
 			NOT = {
 				has_war_with = ROM
 			}
@@ -391,20 +391,40 @@ country_event = {
 		ai_chance = {
 			factor = 100
 		}
+		every_state = {
+			limit = {
+				is_owned_by = HUN
+				is_core_of = ROM
+			}
+			ROM = { transfer_state = PREV }
+		}
+		if = {
+            limit = {
+				CZE = {
+					has_war_with = HUN
+				}
+			}
+			every_state = {
+				limit = {
+					is_owned_by = HUN
+					is_core_of = CZE
+				}
+				CZE = { transfer_state = PREV }
+			}
+		}
+		
 		every_country = {
 			limit = {
 				has_war_with = HUN
 			}
-			every_state = {
-				limit = {
-					is_core_of = PREV
-					is_owned_by = HUN
-				}
-				PREV = {
-					transfer_state = PREV
-				}
+			hidden_effect = {
+				set_country_flag = hungarian_romanian_war_winner
 			}
 			white_peace = HUN
+			set_truce = {
+				target = HUN
+				days = 365
+			}
 		}
 		if = {
             limit = {
@@ -426,38 +446,6 @@ country_event = {
 			drop_cosmetic_tag = yes
 			leave_faction = yes
 			country_event = ww1_hungary.2
-			add_ideas = idea_army_restrictions
-			if = {
-				limit = {
-					owns_state = 147
-				}
-				if = {
-					limit = {
-						AUS = {
-							exists = yes
-						}
-					}
-					AUS = {
-						transfer_state = 147
-						add_state_core = 147
-					}
-				}
-				else_if = {
-					limit = {
-						AUH = {
-							exists = yes
-							OR = {
-								has_completed_focus = AUH_unitary_monarchy
-								has_completed_focus = AUH_reform_transleithania
-							}
-						}
-					}
-					AUH = {
-						transfer_state = 147
-						add_state_core = 147
-					}
-				}
-			}
 		}
 		hidden_effect = {
 			every_country = {
@@ -471,12 +459,261 @@ country_event = {
 					active = no
 				}
 			}
+			# Interwar Diplomacy
+			ROM = {
+				add_ideas = neutrality_idea
+			}
+			if = {
+				limit = {
+					CZE = {
+						has_country_flag = hungarian_romanian_war_winner
+					}
+				}
+				ROM = {
+					give_guarantee = CZE
+				}
+				CZE = {
+					give_guarantee = ROM
+				}
+			}
+			if = {
+				limit = {
+					SER = {
+						has_country_flag = great_war_winner
+					}
+				}
+				ROM = {
+					give_guarantee = SER
+				}
+				CZE = {
+					give_guarantee = SER
+				}
+			}
+			if = {
+				limit = {
+					FRA = {
+						has_country_flag = great_war_winner
+					}
+				}
+				FRA = {
+					give_guarantee = ROM
+					give_guarantee = CZE
+				}
+			}
 		}
 	}
 	option = {
 		name = ww1_romania.10.a
 		ai_chance = {
 			factor = 0
+		}
+	}
+}
+
+# Death of Ferdinand I
+############################
+country_event = {
+	id = ww1_romania.11
+	title = ww1_romania.11.t
+	desc = {
+		text = ww1_romania.11.d
+		trigger = {
+			NOT = {
+				has_country_flag = great_war_loser
+			}
+		}
+	}
+	desc = {
+		text = ww1_romania.11.d_carol
+		trigger = {
+			has_country_flag = great_war_loser
+		}
+	}
+	fire_only_once = yes
+	trigger = {
+		original_tag = ROM
+		has_country_leader = {
+			name = "Ferdinand I"
+			ruling_only = no
+		}
+		date > 1927.7.20
+	}
+	mean_time_to_happen = {
+		days = 0
+	}
+	option = {
+		name = ww1_romania.11.a
+		ai_chance = {
+			factor = 100
+		}
+		trigger = {
+			NOT = {
+				has_country_flag = great_war_loser
+			}
+		}
+		kill_ideology_leader = neutrality
+		create_country_leader = {
+			name = "Mihai I"
+			picture = GFX_Portrait_romania_michael_i
+			expire = "1935.1.1"
+			ideology = autocracy
+			traits = {
+				trait_autocracy
+			}
+		}
+		# Regent
+		create_country_leader = {
+			name = "Nicolae"
+			#picture = "NEED_PORTRAIT :)"
+			expire = "1935.1.1"
+			ideology = autocracy
+			traits = {
+				trait_autocracy
+			}
+		}
+		add_ideas = ROM_figurehead_king_michael
+	}
+	option = {
+		name = ww1_romania.11.b
+		ai_chance = {
+			factor = 100
+		}
+		trigger = {
+			has_country_flag = great_war_loser
+		}
+		kill_ideology_leader = neutrality
+		create_country_leader = {
+			name = "Carol II"
+			picture = GFX_Portrait_romania_Carol_II
+			expire = "1935.1.1"
+			ideology = autocracy
+			traits = {
+				trait_autocracy
+			}
+		}
+	}
+}
+
+# Carol II
+#############################
+country_event = {
+	id = ww1_romania.12
+	title = ww1_romania.12.t
+	desc = ww1_romania.12.d
+	fire_only_once = yes
+	trigger = {
+		original_tag = ROM
+		OR = {
+			has_country_leader = {
+				name = "Mihai I"
+				ruling_only = no
+			}
+			has_country_leader = {
+				name = "Nicolae"
+				ruling_only = no
+			}
+		}
+		date > 1930.6.8
+	}
+	mean_time_to_happen = {
+		days = 0
+	}
+	option = {
+		name = ww1_romania.12.a
+		ai_chance = {
+			factor = 100
+		}
+		retire_ideology_leader = neutrality
+		create_country_leader = {
+			name = "Carol II"
+			picture = GFX_Portrait_romania_Carol_II
+			expire = "1935.1.1"
+			ideology = autocracy
+			traits = {
+				hedonist
+				trait_autocracy
+			}
+		}
+	}
+	option = {
+		name = ww1_romania.12.b
+		ai_chance = {
+			factor = 0
+		}
+		start_civil_war = {
+			ideology = neutrality
+			size = 0.5
+			keep_political_leader = yes
+			hidden_effect = {
+				create_country_leader = {
+					name = "Carol II"
+					picture = GFX_Portrait_romania_Carol_II
+					expire = "1935.1.1"
+					ideology = autocracy
+					traits = {
+						hedonist
+						trait_autocracy
+					}
+				}
+				add_ideas = ROM_king_carol_ii_hedonist
+			}
+		}
+	}
+}
+
+# Carol II with Iron Guard
+#############################
+country_event = {
+	id = ww1_romania.13
+	title = ww1_romania.13.t
+	desc = ww1_romania.13.d
+	fire_only_once = yes
+	trigger = {
+		original_tag = ROM
+		has_country_leader = {
+			name = "Carol II"
+			ruling_only = no
+		}
+		date > 1933.12.20
+	}
+	mean_time_to_happen = {
+		days = 9
+	}
+	option = {
+		name = ww1_romania.12.a
+		set_party_name = {
+			ideology = fascism
+			long_name = ROM_legionary_party_long
+			name = ROM_legionary_party
+		}
+		set_cosmetic_tag = ROM_legionary
+		set_popularities = {
+			communism = 0
+			democratic = 38
+			neutrality = 18
+			fascism = 44
+		}
+		set_politics = {
+			ruling_party = fascism
+			elections_allowed = no
+		}
+		create_country_leader = {
+			name = "Corneliu Zelea Codreanu"
+			picture = "gfx/leaders/ROM/ROM_Corneliu_Zelea_Codreanu.dds"
+			expire = "1935.1.1"
+			ideology = fascism_ideology
+			traits = {
+				trait_proto_fascism
+			}
+		}
+		create_country_leader = {
+			name = "Carol II"
+			picture = GFX_Portrait_romania_Carol_II
+			expire = "1935.1.1"
+			ideology = fascism_ideology
+			traits = {
+				trait_proto_fascism
+			}
 		}
 	}
 }

@@ -9,7 +9,7 @@ ideas = {
 			level = 7
 			
 			available = {
-				#has_manpower_for_recruit_change_to = { value = 0.005 group = mobilization_laws }
+				hidden_trigger = { always = no }
 			}
 			equipment_bonus = {
 				infantry_equipment = {
@@ -26,7 +26,9 @@ ideas = {
 				conscription = 0.005
 			}
 			cancel_if_invalid = no
-
+			ai_will_do = {
+				factor = 0
+			}
 		}
 		
 		volunteer_only = {	
@@ -35,22 +37,29 @@ ideas = {
 			level = 6
 			
 			available = {
-				#has_manpower_for_recruit_change_to =  { value = 0.015 group = mobilization_laws }
 				NOT = { has_idea = undisturbed_isolation }
 				NOT = { has_idea = isolation }
 				if = {
-					limit = { tag = USA }
+					limit = { original_tag = USA }
 					has_completed_focus = USA_volunteer_act
 				}
 			}
 
 			modifier = {
-				conscription = 0.01
+				conscription = 0.015
 			}
 			
 			default = yes
 			
 			cancel_if_invalid = no
+			
+			ai_will_do = {
+				factor = 100
+				modifier = {
+					factor = 0
+					NOT = { has_idea = disarmed_nation }
+				}
+			}
 		}
 		
 		limited_conscription = {		
@@ -59,37 +68,30 @@ ideas = {
 			level = 5
 
 			available = {
-				#has_manpower_for_recruit_change_to =  { value = 0.025 group = mobilization_laws }
-				has_war_support > 0.1
+				OR = {
+					has_war_support > 0.1
+					has_manpower < 1000
+				}
 				NOT = { has_idea = undisturbed_isolation }
 				NOT = { has_idea = isolation }
 				if = {
-					limit = { tag = AST }
-					AST = {
-						NOT = { has_idea = AST_idea_Citizen_Army } 
-					}
+					limit = { original_tag = AST }
+					NOT = { has_idea = AST_idea_Citizen_Army } 
 				}
 				if = {
-					limit = { tag = ENG }
-					has_global_flag = kis_war
+					limit = { original_tag = ENG }
+					OR = {
+						has_global_flag = kis_war
+						surrender_progress > 0					
+					}			
 				}
 				if = {
-					limit = { tag = USA }
+					limit = { original_tag = USA }
 					has_completed_focus = USA_continental_corps
-					NOT = { has_idea = undisturbed_isolation }
-					NOT = { has_idea = isolation }
 				}
 				if = {
-					limit = { tag = RUS }
-					RUS = {
-						OR = {
-							NOT = { has_idea = RUS_idea_volunteer_army }
-							AND = {
-								has_idea = RUS_idea_volunteer_army
-								has_war_support > 0.8
-							}
-						}
-					}
+					limit = { original_tag = RUS has_idea = RUS_idea_volunteer_army }
+					has_war_support > 0.8
 				}
 			}
 
@@ -98,48 +100,71 @@ ideas = {
 			}
 			
 			cancel_if_invalid = no
+			
+			ai_will_do = {
+				factor = 200
+				modifier = {
+					factor = 0
+					NOT = { has_idea = volunteer_only }
+				}
+				modifier = {
+					factor = 0
+					NOT = { check_variable = { target_conscription_amount = current_conscription_amount } }
+				}
+				modifier = {
+					factor = 0
+					has_war = yes
+					enemies_strength_ratio < 0.5
+					has_manpower > 0
+				}
+				modifier = {
+					factor = 0
+					check_variable = { manpower_k > num_battalions }
+				}
+			}
 		}
 		
 		extensive_conscription = {
 			
 			available = {
-				#has_manpower_for_recruit_change_to = { value = 0.05 group = mobilization_laws }
 				OR = {
+					has_war_support > 0.5
 					has_government = fascism
-					has_government = communism
+					custom_trigger_tooltip = {
+    					tooltip = has_government_vanguardism_tt
+    					has_country_leader_with_trait = trait_vanguardism
+					}
 					AND = {
 						has_war = yes
-						enemies_strength_ratio > 0.5
+						OR = {
+							enemies_strength_ratio > 0.5
+							has_manpower < 1000
+							surrender_progress > 0.15
+						}
 					}					
 				}
-				has_war_support > 0.2
-				if = {
-					limit = { tag = ENG }
-					has_global_flag = kis_war
+				NOT = {
+					has_idea = undisturbed_isolation
+					has_idea = isolation
 				}
 				if = {
-					limit = { tag = AST }
-					AST = {
-						NOT = { has_idea = AST_idea_Citizen_Army } 
+					limit = { original_tag = ENG }
+					OR = {
+						has_global_flag = kis_war
+						surrender_progress > 0					
 					}
 				}
 				if = {
-					limit = { tag = USA }
+					limit = { original_tag = AST }
+					NOT = { has_idea = AST_idea_Citizen_Army } 
+				}
+				if = {
+					limit = { original_tag = USA }
 					has_completed_focus = USA_continental_corps
-					NOT = { has_idea = undisturbed_isolation }
-					NOT = { has_idea = isolation }
 				}
 				if = {
-					limit = { tag = RUS }
-					RUS = {
-						OR = {
-							NOT = { has_idea = RUS_idea_volunteer_army }
-							AND = {
-								has_idea = RUS_idea_volunteer_army
-								has_war_support > 0.8
-							}
-						}
-					}
+					limit = { original_tag = RUS has_idea = RUS_idea_volunteer_army }
+					has_war_support > 0.8
 				}
 			}
 			
@@ -155,21 +180,37 @@ ideas = {
 				training_time_factor = 0.1
 			}
 			ai_will_do = {
-   				factor = 100
-				
+				factor = 400
 				modifier = {
 					factor = 0
-					has_manpower > 500000
+					NOT = { has_idea = limited_conscription }
 				}
 				modifier = {
-					factor = 1000
-					tag = FRA
-					OR = {
-						has_war = yes
-						has_manpower < 450000
-					}
+					factor = 0
+					check_variable = { manpower_k > num_battalions }
 				}
-			}	
+				modifier = {
+					factor = 0
+					NOT = { check_variable = { target_conscription_amount = current_conscription_amount } }
+				}
+				modifier = { #much stronger than the enemy, unless at zero manpower
+					factor = 0
+					has_war = yes
+					enemies_strength_ratio < 0.5
+					has_manpower > 0
+				}
+				modifier = {
+					factor = 0
+					NOT = {
+						original_tag = FRA
+						original_tag = TUR
+						original_tag = GER
+						original_tag = AUH
+					}	
+					has_manpower > 500000
+					manpower_per_military_factory >  800
+				}
+			}
 			
 			cancel_if_invalid = no
 		}
@@ -178,53 +219,47 @@ ideas = {
 			
 			
 			available = {
-				#has_manpower_for_recruit_change_to =  { value = 0.1 group = mobilization_laws }
+				has_war = yes
 				OR = {
 					has_government = fascism
-					has_government = communism
-					AND = {
-						has_war = yes
-						enemies_strength_ratio > 0.6
-						#any_enemy_country = {
-						#	strength_ratio = {
-						#		tag = ROOT 
-						#		ratio > 0.6
-						#	}
-						#}
+					custom_trigger_tooltip = {
+    					tooltip = has_government_vanguardism_tt
+    					has_country_leader_with_trait = trait_vanguardism
 					}
-				}
-				OR = {
 					has_war_support > 0.6
+					enemies_strength_ratio > 0.6
 					surrender_progress > 0
+					has_manpower < 1000
+				}
+				NOT = {
+					has_idea = undisturbed_isolation
+					has_idea = isolation
 				}
 				if = {
-					limit = { tag = ENG }
-					has_global_flag = kis_war
-				}
-				if = {
-					limit = { tag = AST }
-					AST = {
-						NOT = { has_idea = AST_idea_Citizen_Army } 
+					limit = { original_tag = ENG }
+					OR = {
+						has_global_flag = kis_war
+						surrender_progress > 0					
 					}
 				}
 				if = {
-					limit = { tag = USA }
+					limit = { original_tag = AST }
+					NOT = { has_idea = AST_idea_Citizen_Army } 
+				}
+				if = {
+					limit = { original_tag = USA }
 					has_completed_focus = USA_continental_corps
 					NOT = { has_idea = undisturbed_isolation }
 					NOT = { has_idea = isolation }
 				}
 				if = {
-					limit = { tag = RUS }
-					RUS = {
-						OR = {
-							NOT = { has_idea = RUS_idea_volunteer_army }
-							AND = {
-								has_idea = RUS_idea_volunteer_army
-								has_war_support > 0.8
-							}
-						}
-					}
+					limit = { original_tag = RUS has_idea = RUS_idea_volunteer_army }
+					has_war_support > 0.8
 				}
+			}
+
+			cancel = {
+				has_war = no
 			}
 			
 			cost = 150
@@ -239,17 +274,57 @@ ideas = {
 				training_time_factor = 0.2
 			}
 			ai_will_do = {
-   				factor = 100
+				factor = 600
 				modifier = {
 					factor = 0
-					has_manpower > 500000
+					NOT = { has_idea = extensive_conscription }
 				}
 				modifier = {
-					factor = 1000
-					tag = FRA
-					OR = {
-						has_war = yes
-						has_manpower < 450000
+					factor = 0
+					NOT = { has_idea = extensive_conscription }
+				}
+				modifier = {
+					factor = 0
+					check_variable = { manpower_k > num_battalions }
+				}
+				modifier = { #much stronger than the enemy, unless at zero manpower
+					factor = 0
+					has_war = yes
+					enemies_strength_ratio < 0.5
+					has_manpower > 0
+				}
+				modifier = {
+					factor = 0
+					NOT = {
+						original_tag = FRA
+						original_tag = TUR
+						original_tag = GER
+						original_tag = AUH
+					}
+					has_manpower > 500000
+					manpower_per_military_factory >  800
+				}
+				modifier = {
+					factor = 0
+					NOT = { check_variable = { target_conscription_amount = current_conscription_amount } }
+				}
+				modifier = { #much stronger than the enemy, unless at zero manpower
+					factor = 0
+					has_war = yes
+					enemies_strength_ratio < 0.5
+					has_manpower > 0
+				}
+				modifier = {
+					factor = 0
+					original_tag = TUR
+					NOT = {
+						has_global_flag = kis_war
+						AND = {
+							any_country = {
+								is_major = yes
+								has_war_with = TUR
+							}
+						}
 					}
 				}
 			}		
@@ -259,47 +334,51 @@ ideas = {
 		all_adults_serve = {
 			
 			available = {
-				#has_manpower_for_recruit_change_to =  { value = 0.2 group = mobilization_laws }
 				has_war = yes
 				OR = {
-					has_war_support > 0.7
-					surrender_progress > 0
-				}
-				enemies_strength_ratio > 0.75
-				#any_enemy_country = {
-				#	strength_ratio = {
-				#		tag = ROOT 
-				#		ratio > 0.75
-				#	}
-				#}
-				if = {
-					limit = { tag = ENG }
-					has_global_flag = kis_war
-				}
-				if = {
-					limit = { tag = AST }
-					AST = {
-						NOT = { has_idea = AST_idea_Citizen_Army } 
-					}
-				}
-				if = {
-					limit = { tag = RUS }
-					RUS = {
-						OR = {
-							NOT = { has_idea = RUS_idea_volunteer_army }
-							AND = {
-								has_idea = RUS_idea_volunteer_army
-								has_war_support > 0.8
+					AND = {
+						has_war_support > 0.7
+						OR = {						
+							has_government = fascism
+							custom_trigger_tooltip = {
+    							tooltip = has_government_vanguardism_tt
+    							has_country_leader_with_trait = trait_vanguardism
 							}
-						}
+						}	
+					}			
+					enemies_strength_ratio > 0.75
+					surrender_progress > 0.15
+					has_manpower < 1000
+				}
+				NOT = {
+					has_idea = undisturbed_isolation
+					has_idea = isolation
+				}
+				if = {
+					limit = { original_tag = ENG }
+					OR = {
+						has_global_flag = kis_war
+						surrender_progress > 0					
 					}
 				}
 				if = {
-					limit = { tag = USA }
+					limit = { original_tag = AST }
+					NOT = { has_idea = AST_idea_Citizen_Army } 
+				}
+				if = {
+					limit = { original_tag = RUS has_idea = RUS_idea_volunteer_army }
+					has_war_support > 0.8
+				}
+				if = {
+					limit = { original_tag = USA }
 					has_completed_focus = USA_continental_corps
 					NOT = { has_idea = undisturbed_isolation }
 					NOT = { has_idea = isolation }
 				}
+			}
+
+			cancel = {
+				has_war = no
 			}
 		
 			cost = 150
@@ -315,25 +394,42 @@ ideas = {
 				training_time_factor = 0.3
 			}
 			ai_will_do = {
-   				factor = 100
+				factor = 800
 				modifier = {
-					#Prio if low on manpower
-					factor = 20
-					manpower_per_military_factory <  600
-				}
-				modifier = {
-					#Lower chance if has decent amount
-					factor = 0.5
-					manpower_per_military_factory >  1000
-				}
-				modifier = {
-					#Block has plenty manpower
 					factor = 0
-					NOT = { tag = CHI }
-					manpower_per_military_factory >  5000
+					NOT = { has_idea = service_by_requirement }
 				}
-				
-			}	
+				modifier = {
+					factor = 0
+					check_variable = { manpower_k > num_battalions }
+				}
+				modifier = { #much stronger than the enemy, unless at zero manpower
+					factor = 0
+					has_war = yes
+					enemies_strength_ratio < 0.5
+					has_manpower > 0
+				}
+				modifier = {
+					factor = 0
+					NOT = {
+						original_tag = FRA
+						original_tag = TUR
+						original_tag = GER
+						original_tag = AUH
+					}
+					has_manpower > 500000
+					manpower_per_military_factory >  800
+				}
+				modifier = {
+					factor = 0
+					NOT = { check_variable = { target_conscription_amount = current_conscription_amount } }
+				}
+				modifier = {
+					factor = 0
+					original_tag = RUS
+					has_manpower > 0
+				}
+			}
 			
 			cancel_if_invalid = no
 		}
@@ -341,35 +437,49 @@ ideas = {
 		scraping_the_barrel = {
 			
 			available = {
-				#has_manpower_for_recruit_change_to =  { value = 0.25 group = mobilization_laws }
 				has_war = yes
 				OR = {
-					has_war_support > 0.85
+					AND = {
+						has_war_support > 0.85
+						OR = {						
+							has_government = fascism
+							custom_trigger_tooltip = {
+    							tooltip = has_government_vanguardism_tt
+    							has_country_leader_with_trait = trait_vanguardism
+							}
+						}	
+					}
 					surrender_progress > 0.25
+					has_manpower < 1000
+					enemies_strength_ratio > 1
+				}		
+				NOT = {
+					has_idea = undisturbed_isolation
+					has_idea = isolation
 				}
-				enemies_strength_ratio > 1
-				#any_enemy_country = {
-				#	strength_ratio = {
-				#		tag = ROOT 
-				#		ratio > 1
-				#	}
-				#}
 				if = {
-					limit = { tag = AST }
-					AST = {
-						NOT = { has_idea = AST_idea_Citizen_Army } 
+					limit = { original_tag = AST }
+					NOT = { has_idea = AST_idea_Citizen_Army } 
+				}
+				if = {
+					limit = { original_tag = ENG }
+					OR = {
+						has_global_flag = kis_war
+						surrender_progress > 0					
 					}
 				}
 				if = {
-					limit = { tag = ENG }
-					has_global_flag = kis_war
+					limit = { original_tag = USA }
+					has_completed_focus = USA_continental_corps
 				}
 				if = {
-					limit = { tag = USA }
-					has_completed_focus = USA_volunteer_act
-					NOT = { has_idea = undisturbed_isolation }
-					NOT = { has_idea = isolation }
+					limit = { original_tag = RUS has_idea = RUS_idea_volunteer_army }
+					has_war_support > 0.8
 				}
+			}
+
+			cancel = {
+				has_war = no
 			}
 			
 			cost = 150
@@ -384,24 +494,30 @@ ideas = {
 				training_time_factor = 0.5
 			}
 			ai_will_do = {
-   				factor = 100
+				factor = 1000
 				modifier = {
-					#Prio if low on manpower
-					factor = 20
-					manpower_per_military_factory <  500
-				}				
-				modifier = {
-					#Lower chance if has decent amount
-					factor = 0.5
-					manpower_per_military_factory >  1000
-				}
-				modifier = {
-					#Block has plenty manpower
 					factor = 0
-					manpower_per_military_factory >  5000
+					NOT = { has_idea = all_adults_serve }
 				}
-				
-			}	
+				modifier = { #already mobilising
+					factor = 0
+					NOT = { check_variable = { target_conscription_amount = current_conscription_amount } }
+				}
+				modifier = {
+					factor = 0
+					check_variable = { manpower_k > num_battalions }
+				}
+				modifier = { #much stronger than the enemy, unless at zero manpower
+					factor = 0
+					has_war = yes
+					enemies_strength_ratio < 0.5
+					has_manpower > 0
+				}
+				modifier = {
+					factor = 0
+					original_tag = RUS
+				}
+			}
 			
 			cancel_if_invalid = no
 		}
