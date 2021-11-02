@@ -15,7 +15,6 @@ replace_path="common/units/names_ships"
 replace_path="common/technology_sharing"
 replace_path="map/strategicregions"
 replace_path="gfx/loadingscreens"
-replace_path="portraits"
 tags={
 	"Fixes"
 	"Events"
