@@ -74,12 +74,12 @@ GER_prepare_war_with_FRA = {
 			#historical purposes
 			has_active_mission = european_crisis_mission
 			## France is preparing war against us
-			FRA = {
-				focus_progress = {
-					focus = FRA_ww1_alsaceloreaine_war
-					progress > 0.01
-				}
-			}
+			#FRA = {
+			#	focus_progress = {
+			#		focus = FRA_ww1_alsaceloreaine_war
+			#		progress > 0.01
+			#	}
+			#}
 			## someone is preparing war against France in the faction
 			any_country = {
 				is_in_faction_with = GER
@@ -323,27 +323,22 @@ GER_rush_on_FRA = {
 
 	enable = {
 		original_tag = GER	
-		has_war_with = RUS
 		OR = {
 			has_war_with = FRA
 			has_war_with = BEL
 		}
 		OR = {
-			NOT = {
-				BEL = {
-					has_capitulated = yes
-				}
-			}
-			NOT = {
-				FRA = {
-					has_capitulated = yes
-				}
+			FRA = {
+				has_capitulated = no
 			}
 		}
 		RUS = {
 			OR = {
 				has_civil_war = yes 
 				has_war_with = SOV
+				NOT = {
+					has_war_with = GER
+				}
 			}
 		}
 	}
@@ -359,12 +354,22 @@ GER_rush_on_FRA = {
 			## we are losing ground somewhere
 			surrender_progress > 0.2
 			RUS = {
-				NOT = {
-					OR = {
-						has_civil_war = yes 
-						has_war_with = SOV
-					}
+				has_civil_war = no
+			}
+			USA = {
+				AND = {
+					has_war_with = GER
+					casualties > 30000
 				}
+			}
+			stockpile_ratio = {	## less than 1% of the armies equipment must be in reserves
+				archetype = infantry_equipment
+				ratio < 0.05
+			}
+			# 2 million death is too much to push
+			casualties_inflicted_by = {
+				opponent = FRA
+				thousands > 1000
 			}
 		}
 	}
@@ -375,19 +380,19 @@ GER_rush_on_FRA = {
 	ai_strategy = {
 		type = front_unit_request
 		tag = RUS
-		value = -200
+		value = -50
 	}
 
 	ai_strategy = {
 		type = ignore
 		id = RUS
-		value = 200
+		value = 50
 	}
 
 	ai_strategy = {
 		type = conquer
 		id = RUS
-		value = -200
+		value = -50
 	}
 }
 
@@ -443,7 +448,7 @@ GER_big_army_before_ww1 = {
 	ai_strategy = {
 		type = build_army
 		id = garrison
-		value = 9999
+		value = 20
 	}
 }
 
@@ -537,92 +542,53 @@ GER_final_battle_against_allies = {
 
 }
 
-
-crush_FRA_while_USA_are_sleeping = {
+GER_attack_if_france_is_weak_and_RUS_died = {
 	enable = {
 		tag = GER
 		has_war_with = FRA
-		OR = {
-			SOV = {
-				exists = yes
-			}
-			RUS = {
-				OR = {
-					NOT = { has_war_with = GER }
-					has_civil_war = yes
-				}
-			}
+		strength_ratio = {
+			tag = FRA
+			ratio > 1
 		}
-		stockpile_ratio = {	## 5% of the armies equipment must be in reserves
-			archetype = infantry_equipment
-			ratio > 0.005
+		date > 1915.1.1
+		RUS = {
+			OR = {
+				NOT = {
+					has_war_with = GER
+				}
+				has_civil_war = yes
+				has_capitulated = yes
+			}
 		}
 	}
 	abort = {
 		OR = {
-			USA = {
-				AND = {
-					has_war_with = GER
-					casualties > 30000
-				}
-			}
-			surrender_progress > 0.1
-			stockpile_ratio = {	## less than 1% of the armies equipment must be in reserves
-				archetype = infantry_equipment
-				ratio < 0.05
-			}
-			# 2 million death is too much to push
-			casualties_inflicted_by = {
-				opponent = FRA
-				thousands > 1000
-			}
+			NOT = { has_war_with = USA }
 		}
-	}
-	
-
-	ai_strategy = {
-		type = antagonize
-		id = FRA
-		value = 500
-	}
-	ai_strategy = {
-		type = role_ratio
-		id = garrison
-		value = 50
-	}
-	ai_strategy = {
-		type = role_ratio
-		id = armor
-		value = 100
-	}
-	ai_strategy = {
-		type = front_unit_request
-		tag = FRA
-		value = 500
-	}
-	ai_strategy = {
-		type = front_unit_request
-		tag = RUS
-		value = -100
-	}
-	ai_strategy = {
-		type = conquer
-		id = RUS
-		value = -100
 	}
 	ai_strategy = {
 		type = front_control
 		tag = FRA
-		ratio = 0.5
 		
-		priority = 100
+		priority = 10
 		ordertype = front
-		execution_type = rush
+		execution_type = rush_weak
+		ratio = 0.45
 		execute_order = yes
+	}
+	ai_strategy = {
+		type = conquer
+		id = FRA
+		value = 200
+	}
+	ai_strategy = {
+		type = front_unit_request
+		tag = FRA
+		value = 200
 	}
 }
 
-GER_attack_if_france_is_weak = {
+GER_attack_if_france_is_weak_but_RUS_are_alive = {
 	enable = {
 		tag = GER
 		has_war_with = FRA
@@ -686,14 +652,9 @@ GER_attack_if_france_is_weak_2 = {
 		}
 	}
 	ai_strategy = {
-		type = front_control
-		tag = FRA
-		
-		priority = 99999
-		ordertype = front
-		execution_type = rush_weak
-		ratio = 0.45
-		execute_order = yes
+		type = conquer
+		id = FRA
+		value = 100
 	}
 	ai_strategy = {
 		type = front_unit_request
