@@ -9398,3 +9398,151 @@ TUR_war_of_independence_support_TRK = {
 		}
 	}
 }
+
+TUR_reclaiming_ahd_i_milli = {
+	TUR_border_skirmishes = {
+		icon = border_war
+
+		target_array = neighbors
+
+		available = {
+			FROM = {
+				any_owned_state = {
+					is_controlled_by = FROM
+					any_neighbor_state = {
+						is_fully_controlled_by = ROOT
+						set_temp_variable = { var:attacker_state_temp = id }
+						has_ROOT_at_least_1_div_in_current_state_scope = yes
+						hidden_trigger = { NOT = { has_state_flag = border_incident_active } }
+					}
+					NOT = { has_state_flag = border_incident_active }
+					set_temp_variable = { var:defender_state_temp = id }
+				}
+			}
+			NOT = { has_non_aggression_pact_with = FROM }
+		}
+
+		visible = {
+            has_completed_focus = TUR_disobey_the_treaties
+			FROM = { exists = yes }
+			NOT = { has_war_with = FROM }
+			FROM = { has_not_initiated_border_incident_with_ROOT = yes }
+			FROM = {
+				NOT = {
+					is_subject_of = ROOT
+				}
+				NOT = {
+					is_in_faction_with = ROOT
+				}
+			}
+			NOT = {
+				is_subject_of = FROM
+			}
+
+			NOT = { has_border_war_with = FROM }
+			FROM = {
+				any_owned_state = {
+					is_claimed_by = ROOT
+					hidden_trigger = { NOT = { has_state_flag = border_incident_active } }
+					any_neighbor_state = {
+						hidden_trigger = { NOT = { has_state_flag = border_incident_active } }
+						is_fully_controlled_by = ROOT
+					}
+				}
+			}
+		}
+
+		ai_will_do = {
+			base = 0
+			modifier = {
+				
+			}
+		}
+
+		cost = 50
+
+		fire_only_once = no
+
+		days_remove = 7
+		days_re_enable = 15
+
+		complete_effect = {
+			hidden_effect = {
+				FROM = {
+					random_owned_controlled_state = {
+						limit = {
+							is_claimed_by = ROOT
+							hidden_trigger = { NOT = { has_state_flag = border_incident_active } }
+							any_neighbor_state = {
+								hidden_trigger = { NOT = { has_state_flag = border_incident_active } }
+								has_ROOT_at_least_1_div_in_current_state_scope = yes
+								is_fully_controlled_by = ROOT
+							}
+						}
+						save_event_target_as = defender_state
+						set_variable = { FROM.defender_state_vs_@ROOT = id }
+						set_temp_variable = { defender_state_temp = id }
+						set_state_flag = border_incident_active
+					}
+				}
+				random_state = {
+					limit = {
+						is_fully_controlled_by = ROOT
+						hidden_trigger = { NOT = { has_state_flag = border_incident_active } }
+						has_ROOT_at_least_1_div_in_current_state_scope = yes
+						any_neighbor_state = {
+							state = var:FROM.defender_state_vs_@ROOT
+						}
+					}
+					save_event_target_as = attacker_state
+					set_variable = { FROM.attacker_state_vs_@ROOT = id }
+					set_temp_variable = { attacker_state_temp = id }
+					set_state_flag = border_incident_active
+				}
+			}
+		}
+		remove_effect = {
+			start_border_war = {
+				change_state_after_war = yes
+				attacker = {
+					state = var:FROM.attacker_state_vs_@ROOT
+					num_provinces = 4
+					on_win = wtt_border_conflict_won_attacker.1
+					on_lose = wtt_border_conflict_lost_attacker.1
+					on_cancel = wtt_border_conflict_canceled_attacker.1
+				}
+				
+				defender = {
+					state = var:FROM.defender_state_vs_@ROOT
+					num_provinces = 4
+					on_win = wtt_border_conflict_won_defender.1
+					on_lose = wtt_border_conflict_lost_defender.1
+					on_cancel = wtt_border_conflict_canceled_defender.1
+				}
+			}
+			if = {
+				limit = { is_border_conflict_defender_vs_FROM = yes }
+				var:attacker_state_vs_@FROM = {
+					clr_state_flag = border_incident_active
+				}
+				var:defender_state_vs_@FROM = {
+					clr_state_flag = border_incident_active
+				}
+				clear_variable = attacker_state_vs_@FROM
+				clear_variable = defender_state_vs_@FROM
+			}
+			else = {
+				FROM = {
+					var:attacker_state_vs_@ROOT = {
+						clr_state_flag = border_incident_active
+					}
+					var:defender_state_vs_@ROOT = {
+						clr_state_flag = border_incident_active
+					}
+					clear_variable = attacker_state_vs_@ROOT
+					clear_variable = defender_state_vs_@ROOT
+				}
+			}
+		}
+	}
+}
