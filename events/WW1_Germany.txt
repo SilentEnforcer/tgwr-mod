@@ -51,7 +51,7 @@ country_event = {
 				limit = {
 					has_trait = trait_royal
 				}		
-                remove_unit_leader = PREV
+                retire = yes
 			}
 			set_popularities = {
 				democratic = 42
@@ -401,7 +401,7 @@ country_event = {
 				RUS = {
 					has_country_flag = great_war_winner	
 					has_country_leader = {
-						name = "Nicholas II"
+						name = "Nikolai II"
 						ruling_only = no
 					}
 					OR = {
@@ -4361,13 +4361,275 @@ country_event = {
 	}
 }
 
-
-# Germany is fighting for too long and suffer from famine
-#########################
+# Treaty of Rapallo (1922) - Approach to the Soviets
+############################
 country_event = {
 	id = ww1_germany.86
 	title = ww1_germany.86.t
 	desc = ww1_germany.86.d
+	picture = GFX_report_event_generic_read_write
+	fire_only_once = yes
+	trigger = {
+		tag = GER
+		has_war = no
+		has_global_flag = interbellum
+		has_country_flag = great_war_loser
+		has_government = democratic
+		SOV = {
+			exists = yes
+			has_war = no
+			has_government = communism
+		}
+	}
+	mean_time_to_happen = {
+		days = 1252
+	}
+	option = {
+		name = ww1_germany.86.a
+		SOV = {
+			country_event = ww1_germany.87
+		}
+		ai_chance = {
+			factor = 100
+		}
+	}
+	option = {
+		name = ww1_germany.86.b
+		ai_chance = {
+			factor = 0
+		}
+	}
+}
+
+# Treaty of Rapallo (1922) - Soviets answer
+############################
+country_event = {
+	id = ww1_germany.87
+	title = ww1_germany.87.t
+	desc = ww1_germany.87.d
+	picture = GFX_report_event_generic_read_write
+	fire_only_once = yes
+	is_triggered_only = yes
+	# Treaty of Rapallo is signed
+	option = {
+		name = ww1_germany.87.a
+		#add_ideas = GER_idea_treaty_of_rapallo
+		add_opinion_modifier = {
+			target = FROM
+			modifier = medium_increase
+		}
+		FROM = {
+			#add_ideas = GER_idea_treaty_of_rapallo
+			add_opinion_modifier = {
+				target = PREV
+				modifier = medium_increase
+			}
+		}
+		every_state = {
+			limit = {
+				OR = {
+					AND = {
+						is_owned_by = POL
+						POL = {
+							NOT = {
+								has_government = communism
+								is_subject_of = SOV
+							}
+						}
+					}
+					AND = {
+						is_owned_by = UKR
+						UKR = {
+							NOT = {
+								has_government = communism
+								is_subject_of = SOV
+							}
+						}
+					}
+					AND = {
+						is_owned_by = LIT
+						LIT = {
+							NOT = {
+								has_government = communism
+								is_subject_of = SOV
+							}
+						}
+					}
+					AND = {
+						is_owned_by = LAT
+						LAT = {
+							NOT = {
+								has_government = communism
+								is_subject_of = SOV
+							}
+						}
+					}
+					AND = {
+						is_owned_by = EST
+						EST = {
+							NOT = {
+								has_government = communism
+								is_subject_of = SOV
+							}
+						}
+					}
+					AND = {
+						is_owned_by = FIN
+						FIN = {
+							NOT = {
+								has_government = communism
+								is_subject_of = SOV
+							}
+						}
+					}
+				}
+				OR = {
+					is_core_of = SOV
+					is_claimed_by = SOV
+				}
+			}
+			remove_core_of = SOV
+			remove_claim_by = SOV
+		}
+		news_event = ww1_germany.88
+		ai_chance = {
+			base = 100
+			modifier = {
+				factor = 0
+				OR = {
+					has_war_with = GER
+					is_in_faction_with = ENG
+					is_in_faction_with = FRA
+				}
+			}
+		}
+	}
+	# Soviets don't want to befriend with Germans
+	option = {
+		name = ww1_germany.87.b
+		add_timed_idea = {
+			idea = GER_idea_reparations
+			days = 100
+		}
+		FROM = {
+			country_event = ww1_germany.89
+		}
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 100
+				OR = {
+					has_war_with = GER
+					is_in_faction_with = ENG
+					is_in_faction_with = FRA
+				}
+			}
+		}
+	}
+}
+
+# Treaty of Rapallo (1922) - The treaty signed
+############################
+news_event = {
+	id = ww1_germany.88
+	title = ww1_germany.88.t
+	desc = ww1_germany.88.d
+	picture =  EVENT_hoi4tgw_second_treaty_of_frankfort
+	fire_only_once = yes
+	is_triggered_only = yes
+	# Germany and Soviet
+	option = {
+		name = ww1_germany.88.a
+		trigger = {
+			OR = {
+				tag = GER
+				tag = SOV
+				is_subject_of = GER
+				is_subject_of = SOV
+				has_government = communism
+			}
+		}
+	}
+	# And the rest of the world
+	option = {
+		name = ww1_germany.88.b
+		trigger = {
+			NOT = {
+				tag = GER
+				tag = SOV
+				is_subject_of = GER
+				is_subject_of = SOV
+				has_government = communism
+			}
+		}
+	}
+}
+
+# Treaty of Rapallo (1922) - Soviets denied
+############################
+country_event = {
+	id = ww1_germany.89
+	title = ww1_germany.89.t
+	desc = ww1_germany.89.d
+	fire_only_once = yes
+	is_triggered_only = yes
+	option = {
+		name = ww1_germany.89.a
+		add_opinion_modifier = {
+			target = FROM
+			modifier = HOI4TGW_Opinion_diplomats_malus
+		}
+		FROM = {
+			add_opinion_modifier = {
+				target = PREV
+				modifier = HOI4TGW_Opinion_diplomats_malus
+			}
+		}
+	}
+}
+
+# Germany surrender because 0% war support
+#########################
+country_event = {
+	id = ww1_germany.90
+	title = ww1_germany.90.t
+	desc = ww1_germany.90.d
+	picture = GFX_report_event_worker_protests
+	fire_only_once = yes
+	trigger = {
+		tag = GER
+		has_war_with = FRA
+		NOT = {
+			has_global_flag = great_war_ends
+			has_global_flag = great_war_winner
+			has_active_mission = GER_armistice
+			has_active_mission = FRA_armistice
+		}
+		OR = {
+			has_idea = ger_famine
+			surrender_progress > 0.10
+			casualties > 2000000
+		}
+		has_war_support < 0.05
+	}
+	mean_time_to_happen = {
+		days = 20
+	}
+	option = {
+		name = ww1_germany.90.a
+		activate_decision = GER_armistice
+		ai_chance = {
+			factor = 100
+		}
+	}
+}
+
+# Germany is fighting for too long and suffer from famine
+#########################
+country_event = {
+	id = ww1_germany.91
+	title = ww1_germany.91.t
+	desc = ww1_germany.91.d
 	picture = GFX_report_event_worker_protests
 	fire_only_once = yes
 	trigger = {
@@ -4393,44 +4655,5 @@ country_event = {
 	option = {
 		name = ww1_germany.86.a
 		add_ideas = ger_famine
-		ai_chance = {
-			factor = 100
-		}
-	}
-}
-
-# Germany surrender because 0% war support
-#########################
-country_event = {
-	id = ww1_germany.87
-	title = ww1_germany.87.t
-	desc = ww1_germany.87.d
-	picture = GFX_report_event_worker_protests
-	fire_only_once = yes
-	trigger = {
-		tag = GER
-		has_war_with = FRA
-		NOT = {
-			has_global_flag = great_war_ends
-			has_global_flag = great_war_winner
-			has_active_mission = GER_armistice
-			has_active_mission = FRA_armistice
-		}
-		OR = {
-			has_idea = ger_famine
-			surrender_progress > 0.10
-			casualties > 2000000
-		}
-		has_war_support < 0.05
-	}
-	mean_time_to_happen = {
-		days = 20
-	}
-	option = {
-		name = ww1_germany.87.a
-		activate_decision = GER_armistice
-		ai_chance = {
-			factor = 100
-		}
 	}
 }
