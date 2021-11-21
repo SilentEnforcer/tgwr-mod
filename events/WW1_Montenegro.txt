@@ -38,43 +38,311 @@ country_event = {
 	}
 }
 
-# Božidar Janković transfer to Montenegro
+#hidden event to set flag when Montenegro capitulates
 country_event = {
-	id = ww1_montenegro.3
-	title = ww1_montenegro.3.t
-	desc = ww1_montenegro.3.d
+	id = ww1_montenegro.5
+	hidden = yes
 	fire_only_once = yes
+	mean_time_to_happen = {
+		days = 60
+	}
 	trigger = {
-		tag = SER
+		tag = MNT
 		has_war_with = AUH
-		is_in_faction_with = MNT
-		MNT = {
-			has_war_with = AUH
+		is_in_faction_with = SER
+		has_capitulated = yes
+	}
+	immediate = {
+		set_country_flag = Montenegro_capitulated
+	}
+}
+
+#Nikola I Petrović abdicates
+country_event = {
+	id = ww1_montenegro.4
+	title = ww1_montenegro.4.t
+	desc = ww1_montenegro.4.d
+	trigger = {
+		tag = MNT
+		has_capitulated = no
+		has_country_leader = {
+			name = "Nikola I"
+			ruling_only = yes
+		}
+		has_country_flag = Montenegro_capitulated
+		has_global_flag = great_war_ends
+		NOT = {
+			AND = {
+				has_country_flag = great_war_winner
+				SER = {
+					has_country_flag = great_war_loser
+				}
+			}
+		}
+		is_subject = no
+	}
+	mean_time_to_happen = {
+		days = 0
+	}
+	option = {
+		name = ww1_montenegro.4.a
+		retire_country_leader = yes
+		set_politics = {
+			ruling_party = democratic
+			elections_allowed = no
+		}
+		set_party_name = {
+			ideology = democratic
+			long_name = MNT_national_assembly_long
+			name = MNT_national_assembly
+		}
+		create_country_leader = {
+			name = "Podgorica Assembly"
+			picture = "gfx/leaders/MNT/MNT_Podgorica_Assembly.png"
+			ideology = conservatism
+			expire = "1935.1.1"
+			traits = {
+				trait_conservatism
+			}
+		}
+		hidden_effect = {
+			country_event = {
+				id = ww1_montenegro.6
+				days = 5
+			}
+			create_country_leader = {
+				name = "Danilo I"
+				picture = "gfx/leaders/MNT/MNT_Danilo_I.dds"
+				ideology = autocracy
+				expire = "1935.1.1"
+				traits = {
+					inexperienced_monarch
+					trait_autocracy
+				}
+			}
+		}
+	}
+}
+
+#Great national assembly of all Serbs in Montenegro
+country_event = {
+	id = ww1_montenegro.6
+	title = ww1_montenegro.6.t
+	desc = ww1_montenegro.6.d
+	is_triggered_only = yes
+	option = {
+		#ask Serbia to join
+		name = ww1_montenegro.6.a
+		SER = {
+			country_event = ww1_montenegro.7
+		}
+		custom_effect_tooltip = game_over_tt
+		ai_chance = {
+			factor = 100
 		}
 	}
 	option = {
-		name = ww1_montenegro.3.a
-		every_unit_leader = {
-			limit = {
-				OR = {
-					has_id = 82011
-					has_id = 82031
-				}
-			}
-			set_nationality = MNT
+		#nah
+		name = ww1_montenegro.6.b
+		add_stability = -0.2
+		ai_chance = {
+			factor = 0
 		}
+	}
+}
+
+#Serbia asked to annex Montenegro
+country_event = {
+	id = ww1_montenegro.7
+	title = ww1_montenegro.7.t
+	desc = ww1_montenegro.7.d
+	is_triggered_only = yes
+	fire_only_once = yes
+	option = {
+		#Yay
+		name = ww1_montenegro.7.a
 		MNT = {
-			add_ideas = YUG_idea_serbian_general_staff
+			every_unit_leader = {
+				set_nationality = SER
+			}
+			every_owned_state = {
+				limit = {
+					is_core_of = MNT
+				}
+				add_core_of = SER
+			}
+		}
+		annex_country = {
+			target = MNT
+			transfer_troops = yes
 		}
 		ai_chance = {
 			factor = 100
 		}
 	}
 	option = {
-		name = ww1_montenegro.3.b
-		add_war_support = -0.05
+		#Nah
+		name = ww1_montenegro.7.b
+		add_political_power = 50
 		ai_chance = {
 			factor = 0
+		}
+	}
+}
+
+#Nikola Petrović da li da pita Austrijance da promeni stranu
+country_event = {
+	id = ww1_montenegro.8
+	title = ww1_montenegro.8.t
+	desc = ww1_montenegro.8.d
+	fire_only_once = yes
+	trigger = {
+		tag = MNT
+		has_war_with = AUH
+		has_war_together_with = SER
+		has_capitulated = yes
+		SER = {
+			has_war_with = AUH
+			has_capitulated = yes
+		}
+	}
+	option = {
+		#yes, this is perfect opportunity
+		name = ww1_montenegro.8.a
+		AUH = {
+			country_event = ww1_montenegro.9
+		}
+		add_stability = -0.2
+		ai_chance = {
+			factor = 40
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+			}
+		}
+	}
+	option = {
+		#no, that is betrayal of our people who died in war
+		name = ww1_montenegro.8.b
+		add_stability = 0.05
+		add_war_support = 0.05
+		ai_chance = {
+			factor = 60
+		}
+	}
+}
+
+#Austrian answer to this all
+country_event = {
+	id = ww1_montenegro.9
+	title = ww1_montenegro.9.t
+	desc = ww1_montenegro.9.d
+	is_triggered_only = yes
+	fire_only_once = yes
+	option = {
+		#Jej
+		name = ww1_montenegro.9.a
+		MNT = {
+			set_cosmetic_tag = MNT_SER
+			every_country = {
+				limit = {
+					has_war_with = MNT
+					NOT = {
+						has_war_with = AUH
+					}
+				}
+				white_peace = PREV
+			}
+			set_country_flag = MNT_serbia
+			add_opinion_modifier = {
+				target = SER
+				modifier = faction_traitor
+			}
+			add_country_leader_trait = unpopular_monarch
+		}
+		every_state = {
+			limit = {
+				is_core_of = SER
+			}
+			add_core_of = MNT
+		}
+		every_state = {
+			limit = {
+				is_owned_by = SER
+				is_controlled_by = AUH
+			}
+			MNT = {
+				set_state_controller = PREV
+			}
+		}
+		every_state = {
+			limit = {
+				is_owned_by = MNT
+			}
+			add_core_of = SER
+		}
+		if = {
+			limit = {
+				OR = {
+					has_dlc = "Together for Victory"
+					has_dlc = "Waking the Tiger"
+				}
+			}
+			set_autonomy = {
+				target = MNT
+				autonomy_state = autonomy_dominion
+				freedom_level = 0.4
+			}
+			else = {
+				GER = {
+					add_to_faction = MNT
+				}
+			}
+		}
+		SER = {
+			country_event = ww1_montenegro.10
+			add_opinion_modifier = {
+				target = MNT
+				modifier = faction_traitor
+			}
+		}
+		ai_chance = {
+			factor = 40
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+			}
+		}
+	}
+	option = {
+		#he is still enemy tho
+		name = ww1_montenegro.9.b
+		ai_chance = {
+			factor = 80
+		}
+	}
+}
+
+#Serbian reaction
+country_event = {
+	id = ww1_montenegro.10
+	title = ww1_montenegro.10.t
+	desc = ww1_montenegro.10.d
+	is_triggered_only = yes
+	option = {
+		#tag switch
+		name = ww1_montenegro.10.a
+		MNT = {
+			change_tag_from = SER
+		}
+		ai_chance = {
+			factor = 0
+		}
+	}
+	option = {
+		name = ww1_montenegro.10.b
+		ai_chance = {
+			factor = 100
 		}
 	}
 }
