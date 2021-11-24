@@ -51,7 +51,7 @@ country_event = {
 				limit = {
 					has_trait = trait_royal
 				}		
-                remove_unit_leader = PREV
+                retire = yes
 			}
 			set_popularities = {
 				democratic = 42
@@ -401,7 +401,7 @@ country_event = {
 				RUS = {
 					has_country_flag = great_war_winner	
 					has_country_leader = {
-						name = "Nicholas II"
+						name = "Nikolai II"
 						ruling_only = no
 					}
 					OR = {
@@ -652,7 +652,7 @@ country_event = {
 			start_civil_war = {
 				ruling_party = communism
 				ideology = democratic
-				size = 0.5
+				size = 0.4
 				states_filter = {
 					NOT = {
 						state = 64
@@ -674,8 +674,11 @@ country_event = {
 			}
 		}
 		hidden_effect = {
-			set_cosmetic_tag = GER_socialism
 			GER = {
+				set_cosmetic_tag = GER_socialism
+				remove_ideas = GER_idea_reparations
+				add_ideas = limited_conscription
+				add_ideas = partial_economic_mobilisation
 				division_template = {
 					name = "Spartacus Brigade"
 					regiments = {
@@ -1458,11 +1461,12 @@ country_event = {
 						}
 						NOT = {
 							country_exists = COG
+							country_exists = BLE
 						}
 					}
 					create_corps_commander = {
 						name = "Félix Fuchs"
-						portrait_path="gfx/leaders/COG/COG_felix_fuchs.dds" 
+						portrait_path="gfx/leaders/BEL/BEL_felix_fuchs.dds" 
 						traits = { old_guard politically_connected jungle_rat } 
 						skill = 2 
 						attack_skill = 1
@@ -4320,5 +4324,341 @@ country_event = {
 		}
 		set_equipment_fraction = 0.3
 		load_oob = GER_1918
+	}
+}
+
+# Erich Ludendorff is in power
+#########################
+country_event = {
+	id = ww1_germany.85
+	title = ww1_germany.85.t
+	desc = ww1_germany.85.d
+	picture = GFX_report_event_ger_civil_war
+	fire_only_once = yes
+	trigger = {
+		tag = GER
+		has_government = neutrality
+		has_war_with = FRA
+		NOT = {
+			has_global_flag = great_war_ends
+		}
+		fascism > 0.3
+		has_idea = GER_erich_ludendorff
+	}
+	mean_time_to_happen = {
+		days = 2
+	}
+	option = {
+		name = ww1_germany.85.a
+		hidden_effect = {
+			set_global_flag = ludendorff_in_power
+		}
+		set_politics = {
+			ruling_party = fascism
+			elections_allowed = no
+		}
+		add_ideas = GER_idea_wilhelm_ii
+		ai_chance = {
+			factor = 100
+		}
+	}
+}
+
+# Treaty of Rapallo (1922) - Approach to the Soviets
+############################
+country_event = {
+	id = ww1_germany.86
+	title = ww1_germany.86.t
+	desc = ww1_germany.86.d
+	picture = GFX_report_event_generic_read_write
+	fire_only_once = yes
+	trigger = {
+		tag = GER
+		has_country_flag = great_war_loser
+		is_subject = no
+		has_war = no
+		has_global_flag = interbellum	
+		has_government = democratic
+		SOV = {
+			exists = yes
+			is_subject = no
+			has_war = no
+			has_government = communism
+		}
+	}
+	mean_time_to_happen = {
+		days = 1252
+	}
+	option = {
+		name = ww1_germany.86.a
+		SOV = {
+			country_event = ww1_germany.87
+		}
+		ai_chance = {
+			factor = 100
+		}
+	}
+	option = {
+		name = ww1_germany.86.b
+		ai_chance = {
+			factor = 0
+		}
+	}
+}
+
+# Treaty of Rapallo (1922) - Soviets answer
+############################
+country_event = {
+	id = ww1_germany.87
+	title = ww1_germany.87.t
+	desc = ww1_germany.87.d
+	picture = GFX_report_event_generic_read_write
+	fire_only_once = yes
+	is_triggered_only = yes
+	# Treaty of Rapallo is signed
+	option = {
+		name = ww1_germany.87.a
+		#add_ideas = GER_idea_treaty_of_rapallo
+		add_opinion_modifier = {
+			target = FROM
+			modifier = medium_increase
+		}
+		FROM = {
+			#add_ideas = GER_idea_treaty_of_rapallo
+			add_opinion_modifier = {
+				target = PREV
+				modifier = medium_increase
+			}
+		}
+		every_state = {
+			limit = {
+				OR = {
+					AND = {
+						is_owned_by = POL
+						POL = {
+							NOT = {
+								has_government = communism
+								is_subject_of = SOV
+							}
+						}
+					}
+					AND = {
+						is_owned_by = UKR
+						UKR = {
+							NOT = {
+								has_government = communism
+								is_subject_of = SOV
+							}
+						}
+					}
+					AND = {
+						is_owned_by = LIT
+						LIT = {
+							NOT = {
+								has_government = communism
+								is_subject_of = SOV
+							}
+						}
+					}
+					AND = {
+						is_owned_by = LAT
+						LAT = {
+							NOT = {
+								has_government = communism
+								is_subject_of = SOV
+							}
+						}
+					}
+					AND = {
+						is_owned_by = EST
+						EST = {
+							NOT = {
+								has_government = communism
+								is_subject_of = SOV
+							}
+						}
+					}
+					AND = {
+						is_owned_by = FIN
+						FIN = {
+							NOT = {
+								has_government = communism
+								is_subject_of = SOV
+							}
+						}
+					}
+				}
+				OR = {
+					is_core_of = SOV
+					is_claimed_by = SOV
+				}
+			}
+			remove_core_of = SOV
+			remove_claim_by = SOV
+		}
+		news_event = ww1_germany.88
+		ai_chance = {
+			base = 100
+			modifier = {
+				factor = 0
+				OR = {
+					has_war_with = GER
+					is_in_faction_with = ENG
+					is_in_faction_with = FRA
+				}
+			}
+		}
+	}
+	# Soviets don't want to befriend with Germans
+	option = {
+		name = ww1_germany.87.b
+		add_timed_idea = {
+			idea = GER_idea_reparations
+			days = 100
+		}
+		FROM = {
+			country_event = ww1_germany.89
+		}
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 100
+				OR = {
+					has_war_with = GER
+					is_in_faction_with = ENG
+					is_in_faction_with = FRA
+				}
+			}
+		}
+	}
+}
+
+# Treaty of Rapallo (1922) - The treaty signed
+############################
+news_event = {
+	id = ww1_germany.88
+	title = ww1_germany.88.t
+	desc = ww1_germany.88.d
+	picture =  EVENT_hoi4tgw_second_treaty_of_frankfort
+	fire_only_once = yes
+	is_triggered_only = yes
+	# Germany and Soviet
+	option = {
+		name = ww1_germany.88.a
+		trigger = {
+			OR = {
+				tag = GER
+				tag = SOV
+				is_subject_of = GER
+				is_subject_of = SOV
+				has_government = communism
+			}
+		}
+	}
+	# And the rest of the world
+	option = {
+		name = ww1_germany.88.b
+		trigger = {
+			NOT = {
+				tag = GER
+				tag = SOV
+				is_subject_of = GER
+				is_subject_of = SOV
+				has_government = communism
+			}
+		}
+	}
+}
+
+# Treaty of Rapallo (1922) - Soviets denied
+############################
+country_event = {
+	id = ww1_germany.89
+	title = ww1_germany.89.t
+	desc = ww1_germany.89.d
+	fire_only_once = yes
+	is_triggered_only = yes
+	option = {
+		name = ww1_germany.89.a
+		add_opinion_modifier = {
+			target = FROM
+			modifier = HOI4TGW_Opinion_diplomats_malus
+		}
+		FROM = {
+			add_opinion_modifier = {
+				target = PREV
+				modifier = HOI4TGW_Opinion_diplomats_malus
+			}
+		}
+	}
+}
+
+# Germany surrender because 0% war support
+#########################
+country_event = {
+	id = ww1_germany.90
+	title = ww1_germany.90.t
+	desc = ww1_germany.90.d
+	picture = GFX_report_event_worker_protests
+	fire_only_once = yes
+	trigger = {
+		tag = GER
+		has_war_with = FRA
+		NOT = {
+			has_global_flag = great_war_ends
+			has_global_flag = great_war_winner
+			has_active_mission = compiegne_armistice_mission
+			has_active_mission = frankfurt_armistice_mission
+		}
+		OR = {
+			has_idea = ger_famine
+			surrender_progress > 0.10
+			casualties > 2000000
+		}
+		has_war_support < 0.05
+	}
+	mean_time_to_happen = {
+		days = 20
+	}
+	option = {
+		name = ww1_germany.90.a
+		activate_decision = GER_armistice
+		ai_chance = {
+			factor = 100
+		}
+	}
+}
+
+# Germany is fighting for too long and suffer from famine
+#########################
+country_event = {
+	id = ww1_germany.91
+	title = ww1_germany.91.t
+	desc = ww1_germany.91.d
+	picture = GFX_report_event_worker_protests
+	fire_only_once = yes
+	trigger = {
+		tag = GER
+		OR = {
+			has_war_with = USA
+			has_war_with = ENG
+		}
+		NOT = {
+			has_global_flag = great_war_ends
+			USA = {
+				has_capitulated = yes
+			}
+			ENG = {
+				has_capitulated = yes
+			}
+		}
+		date > 1917.10.10
+	}
+	mean_time_to_happen = {
+		days = 20
+	}
+	option = {
+		name = ww1_germany.86.a
+		add_ideas = ger_famine
 	}
 }
