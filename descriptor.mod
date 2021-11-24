@@ -1,6 +1,7 @@
 replace_path="history/states"
 replace_path="history/countries"
 replace_path="history/units"
+replace_path="history/general"
 replace_path="common/ai_strategy_plans"
 replace_path="common/ai_templates"
 replace_path="common/ai_areas"
@@ -30,5 +31,5 @@ tags={
 }
 name="Hearts of Iron IV: The Great War Redux [Beta]"
 version="0.77"
-supported_version="1.10.*"
+supported_version="1.11.*"
 remote_file_id="1946557392"
