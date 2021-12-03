@@ -1516,8 +1516,13 @@ country_event = {
 	desc = ww1_generic.34.d
 	picture = GFX_report_event_generic_sign_treaty1
 	trigger = {
+		has_dlc = "Man the Guns"
 		has_global_flag = great_war_ends
 		has_country_flag = great_war_winner
+		all_country = {
+			is_major = yes
+			has_war = no
+		}
 		OR = {
 			has_navy_size = {
 				size > 5
@@ -1541,12 +1546,75 @@ country_event = {
 	mean_time_to_happen = {
 		days = 20
 	}
-fire_only_once=yes
+	fire_only_once = yes
 	option = {
 		name = ww1_generic.34.a
-		add_ideas = idea_naval_treaty_adherent
 		ai_chance = {
-			factor = 100
+			factor = 70
+			modifier = {
+				has_government = democratic
+				factor = 5
+			}
+			modifier = {
+				has_government = fascism
+				factor = 0.25
+			}
+		}
+		hidden_effect = {
+			set_global_flag = naval_treaty_signed
+		}
+		add_ideas = idea_naval_treaty_adherent
+		if = {
+			limit = {
+				has_global_flag = {
+					flag = MTG_naval_treaty_signatories
+					value > 0
+				}
+			}
+			modify_global_flag = {
+				flag = MTG_naval_treaty_signatories
+				value = 1
+			}
+		}
+		else = {
+			set_global_flag = {
+				flag = MTG_naval_treaty_signatories
+				value = 1
+			}
+		}
+		every_other_country = {
+			limit = {
+				has_naval_treaty_trigger = yes
+			}
+			country_event = { id = MTG_naval_treaty.2 days = 3 }
+			add_ai_strategy = {
+				type = protect
+				id = PREV
+				value = 100
+			}
+		}
+	}
+	option = { #refuse
+		name = ww1_generic.34.b
+		ai_chance = {
+			factor = 30
+		}
+		custom_effect_tooltip = ww1_generic.34.b.tt
+		set_country_flag = MTG_refused_naval_treaty
+		every_other_country = {
+			limit = {
+				has_naval_treaty_trigger = yes
+			}
+			add_opinion_modifier = {
+				target = PREV
+				modifier = refused_naval_treaty
+			}
+			country_event = { id = MTG_naval_treaty.3 days = 3 }
+			add_ai_strategy = {
+				type = contain
+				id = PREV
+				value = 100
+			}
 		}
 	}
 }
