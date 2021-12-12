@@ -1909,36 +1909,84 @@ CHI_chinese_warlords = {
 	CHI_form_china = {
 		cost = 150
 		allowed = {
+			is_china_or_warlord = yes
 		}
 		visible = {
 			has_global_flag = warlord_era
-			has_country_flag = part_of_china
+			NOT = {
+				country_exists = CHI
+				country_exists = QIN
+			}
 		}
 		available = {
-			CHI = {
-				exists = no
-			}
-			QIN = {
-				exists = no
-			}
-			owns_state = 595 #Fujian
-			owns_state = 597 #Shandong
-			owns_state = 598 #Jiangsu
-			owns_state = 602 #Henan
-			owns_state = 603 #Guizhou
-			owns_state = 605 #Sichuan
-			owns_state = 608 #Beijing
-			owns_state = 613 #Shanghai
-			owns_state = 620 #Hubei
-		}
-		target_trigger = {
-			tag = CHI
+			owns_state = 591
+			owns_state = 592
+			owns_state = 593
+			owns_state = 594
+			owns_state = 595
+			owns_state = 596
+			owns_state = 597
+			owns_state = 598
+			owns_state = 599
+			owns_state = 600
+			owns_state = 602
+			owns_state = 606
+			owns_state = 607
+			owns_state = 608
+			owns_state = 613
+			owns_state = 614
+			owns_state = 620
 		}
 		fire_only_once = yes
 		complete_effect = {
 			hidden_effect = {
+				# I'm not sure how will affect on other features.
+				# set_global_flag = warlord_era_end
 				set_global_flag = reunite_china
 				set_country_flag = reunited_china
+				# The old clique that unified China will be forgotten.
+				every_other_country = {
+					limit = {
+						has_country_flag = reunite_china
+					}
+					clr_country_flag = reunite_china
+					every_state = {
+						limit = {
+							NOT = {
+								is_owned_by = PREV
+							}
+							OR = {
+								is_core_of = PREV
+								is_claimed_by = PREV
+							}
+						}
+						remove_core_of = PREV
+						remove_claim_by = PREV
+					}
+				}
+				# CCP everywhere
+				set_party_name = {
+					ideology = communism
+					long_name = CHI_communist_party
+					name = CHI_communist_party
+				}
+				# Kill Kuomintang
+				if = {
+					limit = {
+						NOT = {
+							has_country_flag = CHI_kuomintang_flag
+						}
+					}
+					every_other_country = {
+						limit = {
+							has_country_flag = CHI_kuomintang_flag
+						}
+						every_state = {
+							remove_claim_by = PREV
+							remove_core_of = PREV
+						}
+					}
+				}
 			}
 			if = {
 				limit = {
@@ -1947,42 +1995,70 @@ CHI_chinese_warlords = {
 						has_country_flag = CHI_left_kuomintang_flag
 						has_country_flag = long_march_end
 						has_cosmetic_tag = KMT_BEIPING
+						has_cosmetic_tag = KMT_WUHAN
+						has_cosmetic_tag = KMT_NANJING
+						has_cosmetic_tag = CPG
 						has_cosmetic_tag = QIN_government
 						has_government = communism
 					}
 				}
+				# Not Kuomintang
 				hidden_effect = {
 					set_party_name = {
 						ideology = democratic
 						long_name = CHI_zhigong_party
 						name = CHI_zhigong_party
 					}
+				}		
+			}
+			else_if = {
+				limit = {
+					has_country_leader = {
+						 name = "Chen Jiongming"
+						 ruling_only = yes
+					}
 				}
-				if = {
-					limit = {
-						has_country_leader = {
-							 name = "Chen Jiongming"
-							 ruling_only = yes
-						}
+				# Chen's China need to be named as 'United Provinces'
+				set_cosmetic_tag = CHI_reformed_democratic
+			}
+			# Chinese Soviet Republic before the Long March
+			else_if = {
+				limit = {
+					has_government = communism
+					NOT = {
+						has_country_flag = long_march_end
 					}
-					set_cosmetic_tag = CHI_reformed_democratic
-					else_if = {
-						limit = {
-							has_government = communism
-						}
-						hidden_effect = {
-							set_party_name = {
-								ideology = communism
-								long_name = CHI_communist_party
-								name = CHI_communist_party
-							}
-						}
-						set_cosmetic_tag = CSR
-						else = {
-							set_cosmetic_tag = CHI_reformed
-						}
-					}
-				}				
+				}
+				set_cosmetic_tag = CSR
+			}
+			# People's Republic of China after the Long March
+			else_if = {
+				limit = {
+					has_government = communism
+					has_country_flag = long_march_end
+				}
+				set_cosmetic_tag = CHI_united_communism
+			}
+			# Kuomintang Unification
+			else_if = {
+				limit = {
+					has_cosmetic_tag = KMT_BEIPING
+					has_cosmetic_tag = KMT_WUHAN
+					has_cosmetic_tag = KMT_NANJING
+					has_cosmetic_tag = CPG
+				}
+				set_cosmetic_tag = CHI_united
+			}
+			# Qing Unification: WOW
+			else_if = {
+				limit = {
+					has_cosmetic_tag = QIN_government
+				}
+				set_cosmetic_tag = QIN
+			}
+			# Other warlords
+			else = {
+				set_cosmetic_tag = CHI_reformed
 			}
 			every_state = {
 				limit = {
@@ -2040,12 +2116,20 @@ CHI_chinese_warlords = {
 				remove_claim_by = CHI
 				add_claim_by = ROOT
 			}
+			# Matter of captial: Nanjing, Beijing, Wuhan
 			if = {
 				limit = {
-					has_government = democratic
+					OR = {
+						has_government = democratic
+						original_tag = GXC
+						original_tag = GDC
+						original_tag = YUN
+						original_tag = HNC
+					}
 				}
 				set_capital = { state = 598} #Nanjing
 			}
+			# Special case )))))))))
 			else_if = {
 				limit = {
 					has_cosmetic_tag = KMT_WUHAN
@@ -2055,6 +2139,7 @@ CHI_chinese_warlords = {
 			else = {
 				set_capital = { state = 608} #Beijing
 			}
+			# Zhili Qing
 			if = {
 				limit = {
 					has_idea = QIN_idea_low_legitimacy
@@ -2064,6 +2149,7 @@ CHI_chinese_warlords = {
 					add_idea = QIN_idea_low_legitimacy_5
 				}
 			}
+			# Not warlord anymore
 			if = {
 				limit = {
 					has_idea = CHI_idea_warlord_neutrality
@@ -3301,13 +3387,11 @@ CHI_chinese_warlords = {
 		}
 		visible = {
 			has_global_flag = warlord_era
+			NOT = {
+				has_global_flag = reunite_china
+			}
 		}
 		available = {
-			hidden_trigger = {
-				NOT = {
-					has_global_flag = reunite_china
-				}
-			}
 			has_global_flag = warlord_era
 			if = {
 				limit = {
@@ -3444,6 +3528,16 @@ CHI_chinese_warlords = {
 				}
 				else = {
 					drop_cosmetic_tag = yes
+				}
+			}
+			# Hightest legitimacy
+			if = {
+				limit = {
+					has_idea = QIN_idea_low_legitimacy
+				}
+				swap_ideas = {
+					remove_idea = QIN_idea_low_legitimacy
+					add_idea = QIN_idea_low_legitimacy_5
 				}
 			}
 			every_other_country = {
@@ -3688,7 +3782,6 @@ CHI_chinese_warlords = {
 		}
 		visible = {
 			has_global_flag = warlord_era
-			country_exists = QIN
 			NOT = {
 				has_global_flag = warlord_era_end
 				country_exists = CHI
@@ -3696,47 +3789,49 @@ CHI_chinese_warlords = {
 			}
 		}
 		available = {
-			has_global_flag = warlord_era
-			country_exists = QIN
+			608 = { is_fully_controlled_by = PREV }
 			NOT = {
 				has_global_flag = warlord_era_end
 				country_exists = CHI
-				has_cosmetic_tag = FNG_government
 			}
 		}
 		cost = 150
-		fire_only_once = yes
 		complete_effect = {
 			set_cosmetic_tag = FNG_government
-			every_state = {
-				limit = {
-					is_core_of = QIN
-				}
-				add_core_of = FNG
-			}
 			if = {
 				limit = {
-					is_in_faction_with = QIN
+					country_exists = QIN
 				}
-				leave_faction = yes
+				every_state = {
+					limit = {
+						is_core_of = QIN
+					}
+					add_core_of = FNG
+				}
+				if = {
+					limit = {
+						is_in_faction_with = QIN
+					}
+					leave_faction = yes
+				}
 			}
-		}
-		target_trigger = {
-			FROM = {
-				tag = QIN
-			}
+			set_capital = 608
 		}
 		war_with_on_remove = QIN
 		ai_will_do = {
-			factor = 0
+			base = 0
 			modifier = {
-				factor = 100
+				add = 100
 				OR = {
 					has_war_with = QIN
 					NOT = {
 						is_in_faction_with = QIN
 					}
 				}
+			}
+			modifier = {
+				add = 100
+				NOT = { country_exists = QIN }
 			}
 		}
 	}
