@@ -11,7 +11,20 @@ country_event = {
 	}
 	trigger = {
 		original_tag = GER
-		has_government = neutrality
+		OR = {
+			has_government = neutrality
+			AND = {
+				has_government = fascism
+				has_country_leader = {
+					name = "Erich Ludendorff"
+					ruling_only = yes
+				}
+			}
+			AND = {
+				has_government = democratic
+				has_idea = GER_idea_wilhelm_ii
+			}
+		}
 		has_country_flag = great_war_loser
 		NOT = {
 			has_global_flag = weimar_republic
@@ -59,6 +72,7 @@ country_event = {
 				fascism = 12
 				communism = 20
 			}
+			remove_ideas = GER_idea_wilhelm_ii
 		}
 		add_ideas = GER_idea_stuggle_for_power
 		set_global_flag = weimar_republic
@@ -4343,7 +4357,7 @@ country_event = {
 			has_global_flag = great_war_ends
 		}
 		fascism > 0.3
-		has_idea = GER_erich_ludendorff
+		has_completed_focus = GER_oberster_kriegsherr
 	}
 	mean_time_to_happen = {
 		days = 2
@@ -4593,7 +4607,7 @@ country_event = {
 	}
 }
 
-# Germany surrender because 0% war support
+# Germany surrender because low war support
 #########################
 country_event = {
 	id = ww1_germany.90
@@ -4615,7 +4629,7 @@ country_event = {
 			surrender_progress > 0.10
 			casualties > 2000000
 		}
-		has_war_support < 0.05
+		has_war_support < 0.15
 	}
 	mean_time_to_happen = {
 		days = 20
@@ -4658,7 +4672,357 @@ country_event = {
 		days = 20
 	}
 	option = {
-		name = ww1_germany.86.a
+		name = ww1_germany.91.a
 		add_ideas = ger_famine
+	}
+}
+
+# Ludendorff Offensive
+###################################
+news_event = {
+	id = ww1_germany.92
+	title = ww1_germany.92.t
+	desc = ww1_germany.92.d
+	picture = GFX_news_event_ger_civil_war
+	major = yes
+	is_triggered_only = yes
+	option = {
+		name = ww1_germany.92.a
+		trigger = {
+			OR = {
+				tag = GER
+				is_in_faction_with = GER
+			}
+		}
+	}
+	option = {
+		name = ww1_germany.92.b
+		trigger = {
+			OR = {
+				tag = FRA
+				is_in_faction_with = FRA
+			}
+		}
+	}
+	option = {
+		name = ww1_germany.92.c
+		trigger = {
+			NOT = {
+				tag = GER
+				is_in_faction_with = GER
+				tag = FRA
+				is_in_faction_with = FRA
+			}
+		}
+	}
+}
+
+# GERMAN-POLISH CUSTOMS WAR - REFUSAL TO IMPORT POLISH GOODS WITHOUT CUSTOMS
+###############################################################################
+country_event = {
+	id = ww1_germany.93
+	title = ww1_germany.93.t
+	desc = ww1_germany.93.d
+	picture = GFX_report_event_worker_protests
+	fire_only_once = yes
+	trigger = {
+		tag = GER
+		has_global_flag = interbellum
+		has_country_flag = great_war_loser
+		has_government = democratic
+		has_war = no
+		is_subject = no
+		NOT = {
+			has_country_leader = {
+				name = "Friedrich Ebert"
+				ruling_only = yes
+			}
+		}
+		POL = {
+			is_neighbor_of = GER
+			has_war = no
+			is_subject = no
+			NOT = {
+				has_government = communism
+			}
+			owns_state = 85	#Westpreußen
+			owns_state = 404	#Danzig
+			owns_state = 762	#Kattowitz
+		}
+	}
+	mean_time_to_happen = {
+		days = 30
+	}
+	option = {
+		name = ww1_germany.93.a
+		hidden_effect = { set_global_flag = german_polish_customs_war }
+		add_opinion_modifier = {
+			target = POL
+			modifier = tgwr_opinion_german_polish_customs_war
+		}
+		POL = {
+			country_event = {
+				id = ww1_germany.94
+				days = 3
+			}
+		}
+		ai_chance = {
+			factor = 100
+		}
+	}
+	option = {
+		name = ww1_germany.93.b
+		add_war_support = -0.05
+		ai_chance = {
+			factor = 0
+		}
+	}
+}
+
+# GERMAN-POLISH CUSTOMS WAR - POLISH REACTION ON EMBARGO
+###############################################################################
+country_event = {
+	id = ww1_germany.94
+	title = ww1_germany.94.t
+	desc = ww1_germany.94.d
+	is_triggered_only = yes
+	option = {
+		name = ww1_germany.94.a
+		add_opinion_modifier = {
+			target = GER
+			modifier = tgwr_opinion_german_polish_customs_war
+		}
+		# High Dependence on trade with Germany
+		add_stability = -0.1
+		add_war_support = 0.05
+		ai_chance = {
+			factor = 100
+		}
+	}
+	option = {
+		name = ww1_germany.94.b
+		GER = {
+			remove_opinion_modifier = {
+				target = POL
+				modifier = tgwr_opinion_embargo
+			}
+		}
+		every_owned_state = {
+			limit = {
+				OR = {
+					state = 85
+					state = 404
+					state = 762
+				}
+			}
+			GER = {
+				add_state_core = PREV
+				transfer_state = PREV
+			}
+		}
+		ai_chance = {
+			factor = 0
+		}
+	}
+}
+
+# GERMAN-POLISH CUSTOMS WAR - GREAT DEPRESSION
+###############################################################################
+country_event = {
+	id = ww1_germany.95
+	title = ww1_germany.95.t
+	desc = ww1_germany.95.d
+	picture = GFX_report_event_worker_protests
+	fire_only_once = yes
+	trigger = {
+		OR = {
+			tag = GER
+			tag = POL
+		}
+		has_global_flag = german_polish_customs_war
+		country_exists = GER
+		country_exists = POL
+		GER = {
+			has_idea = idea_great_depression
+			has_opinion_modifier = tgwr_opinion_german_polish_customs_war
+			is_subject = no
+			NOT = {
+				has_government = communism
+			}
+		}
+		POL = {
+			has_idea = idea_great_depression
+			has_opinion_modifier = tgwr_opinion_german_polish_customs_war
+			is_subject = no
+			NOT = {
+				has_government = communism
+			}
+		}
+	}
+	mean_time_to_happen = {
+		days = 10
+	}
+	option = {
+		name = ww1_germany.95.a
+		add_stability = -0.1
+		ai_chance = {
+			factor = 100
+		}
+	}
+}
+
+# GERMAN-POLISH CUSTOMS WAR - WAR ENDS
+###############################################################################
+country_event = {
+	id = ww1_germany.96
+	title = ww1_germany.96.t
+	desc = {
+		text = ww1_germany.96.d
+		trigger = {
+			has_country_leader = {
+				name = "Adolf Hitler"
+				ruling_only = yes
+			}
+		}
+	}
+	desc = {
+		text = ww1_germany.96.d_2
+		trigger = {
+			NOT = {
+				has_country_leader = {
+					name = "Adolf Hitler"
+					ruling_only = yes
+				}
+			}
+		}
+	}
+	fire_only_once = yes
+	trigger = {
+		tag = GER
+		has_global_flag = german_polish_customs_war
+		has_opinion_modifier = tgwr_opinion_german_polish_customs_war
+		OR = {
+			AND = {
+				has_country_leader = {
+					name = "Adolf Hitler"
+					ruling_only = yes
+				}
+				POL = {
+					exists = yes
+					has_opinion_modifier = tgwr_opinion_german_polish_customs_war
+				}
+				NOT = {
+					has_war_with = POL
+				}
+			}
+			has_government = communism
+			POL = {
+				has_government = communism
+			}
+			is_subject = yes
+		}
+	}
+	mean_time_to_happen = {
+		days = 10
+	}
+	option = {
+		name = ww1_germany.96.a
+		remove_opinion_modifier = {
+			target = POL
+			modifier = tgwr_opinion_german_polish_customs_war
+		}
+		POL = {
+			remove_opinion_modifier = {
+				target = POL
+				modifier = tgwr_opinion_german_polish_customs_war
+			}
+		}
+		trigger = {
+			NOT = {
+				has_country_leader = {
+					name = "Adolf Hitler"
+					ruling_only = yes
+				}
+			}
+		}
+		ai_chance = {
+			factor = 100
+		}
+	}
+	option = {
+		name = ww1_germany.96.b
+		remove_opinion_modifier = {
+			target = POL
+			modifier = tgwr_opinion_german_polish_customs_war
+		}
+		POL = {
+			country_event = {
+				id = ww1_germany.97
+				days = 10
+			}
+		}
+		trigger = {
+			has_country_leader = {
+				name = "Adolf Hitler"
+				ruling_only = yes
+			}
+		}
+		ai_chance = {
+			factor = 100
+		}
+	}
+	option = {
+		name = ww1_germany.96.c
+		add_stability = -0.07
+		add_war_support = 0.07
+		trigger = {
+			has_country_leader = {
+				name = "Adolf Hitler"
+				ruling_only = yes
+			}
+		}
+		ai_chance = {
+			factor = 0
+		}	
+	}
+}
+
+# GERMAN-POLISH CUSTOMS WAR - HITLER SUGGESTS NON-AGGRESSION PACT
+###############################################################################
+country_event = {
+	id = ww1_germany.97
+	title = ww1_germany.97.t
+	desc = ww1_germany.97.d
+	is_triggered_only = yes
+	option = {
+		name = ww1_germany.97.a
+		remove_opinion_modifier = {
+			target = GER
+			modifier = tgwr_opinion_german_polish_customs_war
+		}
+		diplomatic_relation = {
+			target = GER
+			relation = non_aggression_pact
+			active = yes
+		}
+		ai_chance = {
+			factor = 100
+		}
+	}
+	option = {
+		name = ww1_germany.94.b
+		GER = {
+			add_state_core = 85
+			add_state_core = 86
+			add_state_core = 404
+			add_state_core = 762
+			create_wargoal = {
+				target = POL
+				type = annex_everything
+			}
+		}
+		ai_chance = {
+			factor = 0
+		}
 	}
 }
