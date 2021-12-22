@@ -43,28 +43,33 @@ country_event = {
 					create_unit = {
 						division = "name = \"Division I\" division_template = \"Pan-German Rebels\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
 						owner = GER
+						allow_spawning_on_enemy_provs = yes
 					}
 					create_unit = {
 						division = "name = \"Division II\" division_template = \"Pan-German Rebels\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
 						owner = GER
+						allow_spawning_on_enemy_provs = yes
 					}		
 				}
 				152 = {
 					create_unit = {
 						division = "name = \"Division III\" division_template = \"Pan-German Rebels\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
 						owner = GER
+						allow_spawning_on_enemy_provs = yes
 					}	
 				}
 				153 = {
 					create_unit = {
 						division = "name = \"Division IV\" division_template = \"Pan-German Rebels\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
 						owner = GER
+						allow_spawning_on_enemy_provs = yes
 					}	
 				}
 				69 = {
 					create_unit = {
 						division = "name = \"Division V\" division_template = \"Pan-German Rebels\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
 						owner = GER
+						allow_spawning_on_enemy_provs = yes
 					}	
 				}
 			}
@@ -192,15 +197,15 @@ country_event = {
 			}
 			104 = {
 				create_unit = {
-					division = "name = \"Division I\" division_template = \"Bosanski pobunjenici\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
+					division = "name = \"Četnički odred\" division_template = \"Bosanski pobunjenici\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
 					owner = BOS
 				}
 				create_unit = {
-					division = "name = \"Division II\" division_template = \"Bosanski pobunjenici\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
+					division = "name = \"Odred Mlade Bosne\" division_template = \"Bosanski pobunjenici\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
 					owner = BOS
 				}
 				create_unit = {
-					division = "name = \"Division III\" division_template = \"Bosanski pobunjenici\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
+					division = "name = \"Podrinjski čentički odred\" division_template = \"Bosanski pobunjenici\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
 					owner = BOS
 				}
 			}
@@ -208,23 +213,9 @@ country_event = {
 	}
 	option = {
 		name = ww1_bruderkrieg.3.a
-		add_to_war = {
-			targeted_alliance = BOS
-			enemy = AUH
-		}
-		puppet = BOS
-		set_rule = {
-			can_join_factions = no
-		}
-		BOS = {
-			set_politics = {
-				ruling_party = fascism
-				elections_allowed = no
-			}
-			set_popularities = {
-				democratic = 40
-				fascism = 60
-			}
+		create_wargoal = {
+			target = AUH
+			type = take_state_focus
 		}
 		ai_chance = {
 			factor = 100
@@ -274,13 +265,13 @@ country_event = {
 	title = ww1_bruderkrieg.5.t
 	desc = ww1_bruderkrieg.5.d
 	is_triggered_only = yes
-	trigger = {
-		original_tag = GER
-		has_war_with = AUH
-		NOT = {
-			has_war_with = FRA
-		}
-	}
+	#trigger = {
+	#	original_tag = GER
+	#	has_war_with = AUH
+	#	NOT = {
+	#		has_war_with = FRA
+	#	}
+	#}
 	immediate = {
 		hidden_effect = { news_event = ww1_bruderkrieg.12 }
 	}
@@ -331,8 +322,20 @@ country_event = {
 		name = ww1_bruderkrieg.6.a
 		hidden_effect = {
 			set_global_flag = brothers_war_ends
+			every_country = {
+				limit = {
+					has_war_with = AUH
+				}
+				set_country_flag = joined_brothers_war
+			}
 		}
 		AUH = {
+			every_country = {
+				limit = {
+					owns_state = 79
+				}
+				transfer_state = 80
+			}
 			if = {
 				limit = {
 					NOT = {
@@ -344,6 +347,35 @@ country_event = {
 				}
 			}
 			white_peace = GER
+			every_state = {
+				limit = {
+					OR = {
+						is_owned_by = AUH
+						is_owned_by = GAL
+					}
+					is_core_of = UKR
+					NOT = {
+						is_core_of = HUN
+						state = 73
+						state = 237
+					}
+				}
+				if = {
+					limit = {
+						UKR = {
+							exists = no	
+						}
+					}
+					RUS = {
+						transfer_state = PREV
+					}
+					else = {
+						UKR = {
+							transfer_state = PREV
+						}
+					}
+				}
+			}
 			every_state = {
 				limit = {
 					OR = {
@@ -423,12 +455,14 @@ country_event = {
 			}
 			every_owned_state = {
 				limit = {
-					state = 4
-					state = 39
-					state = 69
-					state = 102
-					state = 152
-					state = 153
+					OR = {
+						state = 4
+						state = 39
+						state = 69
+						state = 102
+						state = 152
+						state = 153
+					}
 				}
 				GER = {
 					transfer_state = PREV
@@ -444,13 +478,17 @@ country_event = {
 			}
 			if = {
 				limit = {
-					has_war_with = ITA
+					ITA = {
+						has_country_flag = joined_brothers_war
+					}
 				}
 				every_owned_state = {
 					limit = {
-						state = 163
-						state = 244
-						state = 736
+						OR = {
+							state = 163
+							state = 244
+							state = 736
+						}
 					}
 					ITA = {
 						transfer_state = PREV
@@ -464,8 +502,10 @@ country_event = {
 				else = {
 					every_owned_state = {
 						limit = {
-							state = 244
-							state = 736
+							OR = {
+								state = 244
+								state = 736
+							}
 						}
 						GER = {
 							transfer_state = PREV
@@ -475,13 +515,17 @@ country_event = {
 			}
 			if = {
 				limit = {
-					has_war_with = ROM
+					ROM = {
+						has_country_flag = joined_brothers_war
+					}
 				}
 				every_owned_state = {
 					limit = {
-						state = 81
-						state = 82
-						state = 84
+						OR = {
+							state = 81
+							state = 82
+							state = 84
+						}
 					}
 					ROM = {
 						transfer_state = PREV
@@ -495,13 +539,17 @@ country_event = {
 			}
 			if = {
 				limit = {
-					has_war_with = SER
+					SER = {
+						has_country_flag = joined_brothers_war
+					}
 				}
 				every_owned_state = {
 					limit = {
-						state = 103
-						state = 575
-						state = 764
+						OR = {
+							state = 103
+							state = 575
+							state = 764
+						}
 					}
 					SER = {
 						set_rule = {
@@ -555,6 +603,18 @@ country_event = {
 					add_core_of = HUN
 				}
 				HUN = {
+					every_other_country = {
+						limit = {
+							OR = {
+								has_country_flag = joined_brothers_war
+								tag = GER
+							}
+						}
+						set_truce = {
+							days = 365
+							target = PREV
+						}
+					}
 					add_opinion_modifier = {
 						target = GER
 						modifier = HOI4TGW_Opinion_anti_ger_policy_malus
@@ -564,7 +624,6 @@ country_event = {
 						target = AUH
 						transfer_troops = yes
 					}
-					change_tag_from = AUH
 					set_party_name = {
 						ideology = neutrality
 						long_name = AUH_neutrality_party
@@ -622,6 +681,49 @@ country_event = {
 							traits = { trait_autocracy }
 						}
 					}
+					set_politics = {
+						ruling_party = neutrality
+						elections_allowed = no
+					}
+					hidden_effect = {
+						set_popularities = {
+							democratic = 20
+							neutrality = 55
+							fascism = 20
+							communism = 5
+						}
+					}
+					every_owned_state = {
+						limit = {
+							is_core_of = CRO
+						}
+						CRO = {
+							transfer_state = PREV
+							HUN = {
+								if = {
+									limit = {
+										has_dlc = "Together for Victory"
+									}
+									set_autonomy = {
+										target = PREV
+										autonomous_state = autonomy_dominion
+									}
+									else = {
+										puppet = PREV
+									}
+								}
+							}
+							create_country_leader = {
+								name = "Ivan Škrlec Lomnički"
+								ideology = despotism
+								expire = "1935.1.1"
+								picture = "gfx/leaders/CRO/CRO_Ivan_Skerlecz.png"
+								traits = {
+									trait_despotism
+								}
+							}
+						}
+					}
 				}
 				FRA = {
 					give_guarantee = HUN
@@ -648,6 +750,9 @@ country_event = {
 					is_core_of = GAL
 				}
 				remove_core_of = GAL
+				remove_core_of = AUH
+				remove_core_of = HUN
+				add_claim_by = HUN
 			}
 		}
 		ai_chance = {
@@ -657,6 +762,9 @@ country_event = {
 	option = {
 		name = ww1_bruderkrieg.6.b
 		news_event = ww1_bruderkrieg.16
+		HUN = {
+			change_tag_from = AUH
+		}
 		ai_chance = {
 			base = 0
 		}
@@ -669,24 +777,25 @@ country_event = {
 	id = ww1_bruderkrieg.7
 	title = ww1_bruderkrieg.7.t
 	desc = ww1_bruderkrieg.7.d
-	trigger = {
-		tag = RUS
-		NOT = {
-			is_in_faction_with = AUH
-			has_war_with = GER
-		}
-		UKR = {
-			OR = {
-				exists = no
-				is_subject_of = RUS
-			}
-		}
-		AUH = { has_war_with = GER }
-	}
-	mean_time_to_happen = {
-		days = 10
-	}
-	fire_only_once = yes
+	is_triggered_only = yes
+	#trigger = {
+	#	tag = RUS
+	#	NOT = {
+	#		is_in_faction_with = AUH
+	#		has_war_with = GER
+	#	}
+	#	UKR = {
+	#		OR = {
+	#			exists = no
+	#			is_subject_of = RUS
+	#		}
+	#	}
+	#	AUH = { has_war_with = GER }
+	#}
+	#mean_time_to_happen = {
+	#	days = 10
+	#}
+	#fire_only_once = yes
 	option = {
 		name = ww1_bruderkrieg.7.a
 		every_country = {
@@ -708,12 +817,10 @@ country_event = {
 		}
 		every_state = {
 			limit = {
-				OR = {
-					is_owned_by = AUH
-					is_owned_by = GAL
-				}
-				is_core_of = UKR
+				is_owned_by = AUH
+				is_core_of = GAL
 				NOT = {
+					is_core_of = CZE
 					state = 73
 					state = 237
 				}
@@ -723,27 +830,38 @@ country_event = {
 			hidden_effect = {
 				set_state_flag = austrian_galicia
 			}
-			if = {
-				limit = {
-					UKR = {
-						is_subject_of = RUS
+			GAL = {
+				if = {
+					limit = {
+						is_subject_of = AUH
+					}
+					AUH = {
+						end_puppet = PREV
+					}
+					white_peace = GER
+				}
+				transfer_state = PREV
+				RUS = {
+					if = {
+						limit = {
+							has_dlc = "Together for Victory"
+						}
+						PREV = {
+							set_country_flag = protectorate
+						}
+						set_autonomy = {
+							target = PREV
+							autonomous_state = autonomy_tgwr_informal_protectorate
+						}
+						else = {
+							PREV = {
+								add_ideas = protectorate
+							}
+							puppet = PREV
+						}
 					}
 				}
-				UKR = {
-					transfer_state = PREV
-				}
 			}
-			else = {
-				RUS = {
-					transfer_state = PREV
-				}
-			}
-		}
-		every_country = {
-			limit = {
-				owns_state = 79
-			}
-			transfer_state = 80
 		}
 		ai_chance = {
 			factor = 100
@@ -818,12 +936,6 @@ country_event = {
 					}
 				}
 			}
-		}
-		every_country = {
-			limit = {
-				owns_state = 79
-			}
-			transfer_state = 80
 		}
 	}
 }
@@ -1185,9 +1297,22 @@ country_event = {
 	title = ww1_bruderkrieg.17.t
 	desc = ww1_bruderkrieg.17.d
 	trigger = {
-		any_owned_state = {
-			is_core_of = UKR
-			has_state_flag = austrian_galicia
+		OR = {
+			any_owned_state = {
+				has_state_flag = austrian_galicia
+			}
+			GAL = {
+				is_subject_of = PREV
+				any_owned_state = {
+					has_state_flag = austrian_galicia
+				}
+			}
+			UKR = {
+				is_subject_of = PREV
+				any_owned_state = {
+					has_state_flag = austrian_galicia
+				}
+			}
 		}
 		has_global_flag = brothers_war_ends
 		NOT = {
@@ -1214,12 +1339,72 @@ country_event = {
 		}
 		every_owned_state = {
 			limit = {
-				is_core_of = UKR
 				has_state_flag = austrian_galicia
 			}
 			clr_state_flag = austrian_galicia
 			AUH = {
 				transfer_state = PREV
+			}
+		}
+		if = {
+			limit = {
+				GAL = {
+					is_subject_of = PREV
+				}
+			}
+			GAL = {
+				every_owned_state = {
+					limit = {
+						has_state_flag = austrian_galicia
+					}
+					clr_state_flag = austrian_galicia
+					AUH = {
+						if = {
+							limit = {
+								has_completed_focus = AUH_reform_polish_galicia
+							}
+							RUS = {
+								end_puppet = GAL
+							}
+							if = {
+								limit = {
+									OR = {
+										has_dlc = "Together for Victory"
+										has_dlc = "Waking the Tiger"
+									}
+								}
+								set_autonomy = {
+									target = GAL
+									autonomous_state = autonomy_tgwr_crownland
+								}
+								else = {
+									puppet = GAL
+								}
+							}
+						}
+						else = {
+							transfer_state = PREV
+						}
+					}
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				UKR = {
+					is_subject_of = PREV
+				}
+			}
+			UKR = {
+				every_owned_state = {
+					limit = {
+						has_state_flag = austrian_galicia
+					}
+					clr_state_flag = austrian_galicia
+					AUH = {
+						transfer_state = PREV
+					}
+				}
 			}
 		}
 	}
@@ -1232,6 +1417,42 @@ country_event = {
 			add_opinion_modifier = {
 				target = PREV
 				modifier = HOI4TGW_Opinion_diplomats_malus
+			}
+		}
+	}
+}
+
+#Hidden event for Serbia to puppet Bosnia once it joins the war
+country_event = {
+	id = ww1_bruderkrieg.18
+	hidden = yes
+	is_triggered_only = yes
+	trigger = {
+		original_tag = SER
+		has_war_with = AUH
+		BOS = {
+			has_war_with = AUH
+		}
+		GER = {
+			has_war_with = AUH
+		}
+	}
+	# mean_time_to_happen = {
+	# 	days = 0
+	# }
+	immediate = {
+		puppet = BOS
+		set_rule = {
+			can_join_factions = no
+		}
+		BOS = {
+			set_politics = {
+				ruling_party = fascism
+				elections_allowed = no
+			}
+			set_popularities = {
+				democratic = 40
+				fascism = 60
 			}
 		}
 	}
