@@ -24,8 +24,8 @@ tags={
 	"Historical"
 	"Gameplay"
 	"National Focuses"
-	"Events"	
-	"Technologies"	
+	"Events"
+	"Technologies"
 }
 name="The Great War Redux [Beta]"
 version="0.8"
