@@ -9,6 +9,9 @@ GER_defensive_if_lack_of_guns_against_FRA = {
 			archetype = infantry_equipment
 			ratio < 0.05
 		}
+		NOT = {
+			has_idea = schlieffenmoltke
+		}
 	}
 	abort = {
 		stockpile_ratio = {	## 7% of the armies equipment must be in reserves
@@ -21,7 +24,7 @@ GER_defensive_if_lack_of_guns_against_FRA = {
 		type = front_control
 		tag = FRA
 		ratio = 0.5
-		priority = 200
+		priority = 10
 		ordertype = front
 		execution_type = careful
 		execute_order = no
@@ -51,7 +54,7 @@ GER_defensive_if_lack_of_guns_against_RUS = {
 		type = front_control
 		tag = RUS
 		ratio = 0.5
-		priority = 200
+		priority = 10
 		ordertype = front
 		execution_type = careful
 		execute_order = yes	## stupids russians !
@@ -321,6 +324,10 @@ GER_rush_on_FRA = {
 				}
 			}
 		}
+		stockpile_ratio = {	## more than 5% of the armies equipment must be in reserves
+				archetype = infantry_equipment
+				ratio > 0.05
+			}
 	}
 
 	abort = {
@@ -425,19 +432,14 @@ GER_big_army_before_ww1 = {
 	ai_strategy = {
 		type = build_army
 		id = infantry
-		value = 999999
+		value = 100
 	}
 
 	ai_strategy = {
 		type = force_build_armies
-		value = 999999
+		value = 100
 	}
 
-	ai_strategy = {
-		type = build_army
-		id = garrison
-		value = 20
-	}
 }
 
 GER_stockpile_less_early_game = {
@@ -548,12 +550,12 @@ GER_attack_if_france_is_weak_and_RUS_died = {
 				has_capitulated = yes
 			}
 		}
+		stockpile_ratio = {	## more than 5% of the armies equipment must be in reserves
+				archetype = infantry_equipment
+				ratio > 0.05
+			}
 	}
-	abort = {
-		OR = {
-			NOT = { has_war_with = USA }
-		}
-	}
+	abort_when_not_enabled = yes
 	ai_strategy = {
 		type = front_control
 		tag = FRA
@@ -573,81 +575,6 @@ GER_attack_if_france_is_weak_and_RUS_died = {
 		type = front_unit_request
 		tag = FRA
 		value = 200
-	}
-}
-
-GER_attack_if_france_is_weak_but_RUS_are_alive = {
-	enable = {
-		tag = GER
-		has_war_with = FRA
-		strength_ratio = {
-			tag = FRA
-			ratio > 1
-		}
-		date > 1915.1.1
-		RUS = {
-			has_war_with = GER
-			OR = {
-				has_civil_war = yes
-				has_war_with = SOV
-			}			
-		}
-	}
-	abort_when_not_enabled = yes
-	abort = {
-		OR = {
-			NOT = { has_war_with = USA }
-		}
-	}
-	ai_strategy = {
-		type = front_control
-		tag = FRA
-		
-		priority = 99999
-		ordertype = front
-		execution_type = rush_weak
-		ratio = 0.75
-		execute_order = yes
-	}
-	ai_strategy = {
-		type = front_unit_request
-		tag = FRA
-		value = 200
-	}
-}
-
-GER_attack_if_france_is_weak_2 = {
-	enable = {
-		tag = GER
-		has_war_with = FRA
-		strength_ratio = {
-			tag = FRA
-			ratio > 1
-		}
-		date > 1915.1.1
-		RUS = {
-			has_civil_war = no
-			NOT = {
-				has_war_with = SOV
-			}
-			has_war_with = GER
-		}
-	}
-	abort_when_not_enabled = yes
-	abort = {
-		OR = {
-			NOT = { has_war_with = USA }
-		}
-	}
-	ai_strategy = {
-		type = conquer
-		id = FRA
-		value = 100
-	}
-	ai_strategy = {
-		type = front_unit_request
-		tag = FRA
-		value = 100
 	}
 }
 
@@ -687,7 +614,12 @@ GER_ignore_romania = {
 		is_in_faction_with = AUH
 	}
 	abort = {
-		AUH = { surrender_progress > 0.5 }	
+		OR = {
+			AUH = { surrender_progress > 0.5 }	
+			ROM = {
+				is_in_faction_with = RUS
+			}
+		}
 	}
 	ai_strategy = {
 		type = ignore
@@ -830,25 +762,36 @@ russian_civil_war_ignore_ai = {
 # contain
 # area_priority
 
-
 GER_unit_production = {
-	enable = {
+	allowed = {
 		original_tag = GER
+	}
+	enable = {
+		always = yes
 	}
 	abort = {
 		always = no
 	}
-	
+
 	ai_strategy = {
-		type = role_ratio
-		id = garrison
-		value = 8 #30 to 8
+		type = equipment_variant_production_factor	#dont build trains
+		id = train_equipment
+		value = -50
 	}
 
 	ai_strategy = {
+		type = equipment_variant_production_factor	#dont build trains
+		id = train_equipment_1
+		value = -50
+	}
+
+#####################################################
+	## land, must go up to 100 in total
+
+	ai_strategy = {
 		type = role_ratio
-		id = paratroopers
-		value = 0
+		id = garrison
+		value = 13
 	}
 
 	ai_strategy = {
@@ -866,115 +809,169 @@ GER_unit_production = {
 	ai_strategy = {
 		type = role_ratio
 		id = cavalry
-		value = 0
-	}
-
-	ai_strategy = {
-		type = role_ratio
-		id = motorized
-		value = -3 #because doctrine this = 2
-	}
-
-	ai_strategy = {
-		type = role_ratio
-		id = mechanized
-		value = -5 #because doctrine this = 0
+		value = 10
 	}
 
 	ai_strategy = {
 		type = role_ratio
 		id = armor
-		value = 5 #because doctrine this = 10
+		value = 5 #germany dont like tanks
 	}
 
 	ai_strategy = {
 		type = role_ratio
 		id = infantry
-		value = 75 #88 to 70
+		value = 70 #88 to 70
 	}
-	
-	#Air unit factors
+
+##############################################
+	# Naval unit factors, must be 100 in total
 	ai_strategy = {
-		type = unit_ratio
-		id = fighter
-		value = 50
-	}
-	
-	ai_strategy = {
-		type = unit_ratio
-		id = cas
-		value = 15 #because doctrine this = 15
-	}
-	
-	ai_strategy = {
-		type = unit_ratio
-		id = tactical_bomber
-		value = 5
-	}
-	
-	ai_strategy = {
-		type = unit_ratio
-		id = strategic_bomber
-		value = 5
-	}
-	
-	ai_strategy = {
-		type = unit_ratio
-		id = naval_bomber
-		value = 5
-	}
-	
-	
-	# Naval unit factors
-	ai_strategy = {
-		type = unit_ratio
+		type = role_ratio
 		id = capital_ship
+		value = 25
+	}
+
+	ai_strategy = {
+		type = role_ratio
+		id = submarine
 		value = 35
 	}
 
 	ai_strategy = {
 		type = unit_ratio
-		id = submarine
-		value = 10 #because doctrine this = 50
+		id = heavy_cruiser
+		value = 10
 	}
 
 	ai_strategy = {
 		type = unit_ratio
+		id = light_cruiser
+		value = 5
+	}
+
+	ai_strategy = {
+		type = role_ratio
 		id = screen_ship
-		value = 30
+		value = 25
+	}
+
+###################################################
+	#Air unit factors, road to 100
+	ai_strategy = {
+		type = unit_ratio
+		id = fighter
+		value = 50
 	}
 
 	ai_strategy = {
 		type = unit_ratio
-		id = convoy
-		value = 1 ## 10 to 1
+		id = scout_plane
+		value = 10
 	}
-	
+
 	ai_strategy = {
-		type = equipment_production_factor
-		id = fighter
-		value = 15
-	}
-	
-	ai_strategy = {
-		type = equipment_production_factor
-		id = infantry
-		value = 55 #30 to 50
-	}
-	
-	ai_strategy = {
-		type = equipment_production_factor
-		id = artillery
-		value = 40 #20 to 40
-	}
-	
-	ai_strategy = {
-		type = equipment_production_factor
-		id = armor
+		type = unit_ratio
+		id = tactical_bomber
 		value = 20
 	}
 
-}	
+	ai_strategy = {
+		type = unit_ratio
+		id = strategic_bomber
+		value = 10
+	}
+
+	ai_strategy = {
+		type = unit_ratio
+		id = naval_bomber
+		value = 10
+	}
+
+
+######################################
+	##production factors
+
+	ai_strategy = {
+		type = equipment_production_factor
+		id = fighter
+		value = 150
+	}
+	
+
+	ai_strategy = {
+		type = equipment_production_factor
+		id = infantry
+		value = 100
+	}
+
+	ai_strategy = {
+		type = equipment_production_factor
+		id = artillery
+		value = 50 
+	}
+	
+	ai_strategy = {
+		type = equipment_variant_production_factor
+		id = support_equipment
+		value = 50
+	}
+
+	ai_strategy = {
+		type = equipment_production_factor
+		id = anti_air
+		value = 25
+	}
+
+	ai_strategy = { #added to railway gun define (set to 0 by default, increased in default strategies)
+		type = railway_gun_divisions_ratio
+		value = 1
+	}
+
+	ai_strategy = {
+		type = equipment_production_factor
+		id = motorized
+		value = -25
+	}
+
+	ai_strategy = {
+		type = equipment_production_factor
+		id = anti_tank
+		value = -50
+	}
+
+	ai_strategy = {
+		type = equipment_production_factor
+		id = cas
+		value = -65
+	}
+
+	ai_strategy = {
+		type = equipment_production_factor
+		id = tactical_bomber
+		value = -80
+	}
+
+	ai_strategy = {
+		type = equipment_variant_production_factor
+		id = strat_bomber_equipment
+		value = -100
+	}
+
+	ai_strategy = {
+		type = equipment_production_factor
+		id = naval_bomber
+		value = -120
+	}
+
+	ai_strategy = {
+		type = equipment_production_factor
+		id = strategic_bomber
+		value = -200
+	}
+
+
+}
 
 GER_highered_armored_production = {
 	enable = {
@@ -1099,6 +1096,13 @@ GER_area_priority = {
 		id = africa
 		value = -200 #several units
 	}
+
+	ai_strategy = {
+		type = front_unit_request
+		area = africa
+		value = -200 #several units
+	}
+	
 	
 	ai_strategy = {
 		type = area_priority
