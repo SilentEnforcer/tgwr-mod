@@ -97,7 +97,7 @@ GER_great_war = {
 		visible = {
 			tag = GER
 			has_country_leader = {
-				name = "Erich Ludendorff"
+				character = GER_erich_ludendorff
 				ruling_only = yes
 			}
 		}
@@ -4244,10 +4244,10 @@ GER_decision_paying_reparations = {
 			original_tag = GER
 		}
 		available = {
-			has_idea = GER_idea_reparations
+			has_war = no
 		}
 		visible = {
-			has_global_flag = versallies_treaty
+			has_global_flag = interbellum
 			has_idea = GER_idea_reparations
 		}
 		fire_only_once = yes
@@ -4255,6 +4255,20 @@ GER_decision_paying_reparations = {
 		days_remove = 1200
 		modifier = {
 			civilian_factory_use = 10
+		}
+		cancel_trigger = {
+			OR = {
+				NOT = {
+					has_idea = GER_idea_reparations
+				}
+				FRA = {
+					OR = {
+						has_war_with = PREV
+						is_subject_of = PREV
+						exists = no
+					}
+				}
+			}
 		}
 		remove_effect = {
 			swap_ideas = {
@@ -4267,7 +4281,6 @@ GER_decision_paying_reparations = {
 			modifier = {
 				factor = 0
 				OR = {
-					has_government = fascism
 					has_government = communism
 					has_war = yes
 				}
@@ -4279,10 +4292,10 @@ GER_decision_paying_reparations = {
 			original_tag = GER
 		}
 		available = {
-			has_idea = GER_idea_reparations_dawes
+			has_war = no
 		}
 		visible = {
-			has_global_flag = versallies_treaty
+			has_global_flag = interbellum
 			has_idea = GER_idea_reparations_dawes
 		}
 		fire_only_once = yes
@@ -4290,6 +4303,20 @@ GER_decision_paying_reparations = {
 		days_remove = 2000
 		modifier = {
 			civilian_factory_use = 7
+		}
+		cancel_trigger = {
+			OR = {
+				NOT = {
+					has_idea = GER_idea_reparations_dawes
+				}
+				FRA = {
+					OR = {
+						has_war_with = PREV
+						is_subject_of = PREV
+						exists = no
+					}
+				}
+			}
 		}
 		remove_effect = {
 			swap_ideas = {
@@ -4302,7 +4329,6 @@ GER_decision_paying_reparations = {
 			modifier = {
 				factor = 0
 				OR = {
-					has_government = fascism
 					has_government = communism
 					has_war = yes
 				}
@@ -4314,10 +4340,10 @@ GER_decision_paying_reparations = {
 			original_tag = GER
 		}
 		available = {
-			has_idea = GER_idea_reparations_young
+			has_war = no
 		}
 		visible = {
-			has_global_flag = versallies_treaty
+			has_global_flag = interbellum
 			has_idea = GER_idea_reparations_young
 		}
 		fire_only_once = yes
@@ -4325,6 +4351,20 @@ GER_decision_paying_reparations = {
 		days_remove = 2000
 		modifier = {
 			civilian_factory_use = 5
+		}
+		cancel_trigger = {
+			OR = {
+				NOT = {
+					has_idea = GER_idea_reparations_young
+				}
+				FRA = {
+					OR = {
+						has_war_with = PREV
+						is_subject_of = PREV
+						exists = no
+					}
+				}
+			}
 		}
 		remove_effect = {
 			remove_ideas = GER_idea_reparations_young
@@ -4337,6 +4377,74 @@ GER_decision_paying_reparations = {
 					has_government = fascism
 					has_government = communism
 					has_war = yes
+				}
+			}
+		}
+	}
+	GER_decision_moratorium = {
+		allowed = {
+			original_tag = GER
+		}
+		available = {
+			is_subject = no
+		}
+		visible = {
+			has_global_flag = interbellum
+			OR = {
+				has_idea = GER_idea_reparations
+				has_idea = GER_idea_reparations_dawes
+				has_idea = GER_idea_reparations_young
+			}
+		}
+		fire_only_once = yes
+		cost = 0
+		complete_effect = {
+			effect_tooltip = {
+				remove_ideas = GER_idea_reparations
+			}
+			custom_effect_tooltip = GER_decision_moratorium_tt
+			hidden_effect = {
+				remove_ideas = GER_idea_reparations
+				remove_ideas = GER_idea_reparations_dawes
+				remove_ideas = GER_idea_reparations_young
+				if = {
+					limit = {
+						NOT = {
+							has_idea = idea_great_depression
+							has_war_with = FRA
+						}
+						FRA = {
+							is_subject = no
+						}
+					}
+					FRA = {
+						create_wargoal = {
+							target = PREV
+							type = topple_government
+						}
+					}
+				}
+			}
+		}
+		ai_will_do = { 
+			base = 0
+			modifier = {
+				add = 1
+				OR = {
+					has_government = fascism
+					has_government = communism
+				}
+				is_historical_focus_on = no
+			}
+			modifier = {
+				add = 100
+				has_idea = idea_great_depression
+			}
+			modifier = {
+				add = 100
+				any_country = {
+					is_major = yes
+					has_war_with = PREV
 				}
 			}
 		}
@@ -4457,6 +4565,51 @@ GER_decision_form_landsturm = {
 			}
 			modifier = {
 				has_war_support < 0.25
+				add = 10
+			}
+		}
+	}
+
+	GER_reserve_guns = {
+		icon = generic_nationalism
+		allowed = {
+			tag = GER
+		}
+		available = {
+			tag = GER
+			has_equipment = {
+				infantry_equipment < 10001
+			}
+			has_completed_focus = GER_prussian_militarism	
+		}
+		visible = {
+			tag = GER
+			has_completed_focus = GER_prussian_militarism	
+		}
+		fire_only_once = no
+		days_remove = 7
+		days_re_enable = 190
+		cost = 50
+		remove_effect = {
+			add_equipment_to_stockpile = {
+				type = infantry_equipment_0
+				amount = 1500
+				producer = GER
+			}
+			custom_effect_tooltip = back_in_190_days
+		}
+		ai_will_do = { 
+			base = 1
+			modifier = {
+				has_equipment = {
+					infantry_equipment < 4999
+				}
+				add = 10
+			}
+			modifier = {
+				has_equipment = {
+					infantry_equipment < 1
+				}
 				add = 10
 			}
 		}
