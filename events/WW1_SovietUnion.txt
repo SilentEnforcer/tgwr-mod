@@ -72,14 +72,12 @@ country_event = {
 	title = ww1_soviet.4.t
 	desc = ww1_soviet.4.d
 	id = ww1_soviet.4
-	picture = GFX_report_event_generic_sign_treaty1
-	
+	picture = GFX_report_tsar_family
 	fire_only_once = yes
-	is_triggered_only = yes
 	trigger = {
-        SOV = { 
+		SOV = {
 			has_government = communism 
-		    has_war_with = RUS
+			has_war_with = RUS
 		}
 	}
 	option = {
@@ -87,7 +85,26 @@ country_event = {
 		set_global_flag = nicholas_ii_is_dead
 		add_political_power = -50
 		news_event = { id = ww1_soviet.5 } #Царь убит большевиками.
-		ai_chance = { factor = 100 }
+		hidden_effect = {
+			RUS = { retire_character = RUS_nikolai_ii }
+			# Kill him effectively
+		}
+		ai_chance = {
+			factor = 100
+			modifier = {
+				factor = 0
+				OR = {
+					has_game_rule = {
+						rule = tsar_fate
+						option = TSAR_IN_BRITAIN
+					}
+					has_game_rule = {
+						rule = tsar_fate
+						option = TSAR_RETURNED
+					}
+				}
+			}
+		}
 	}
 	option = {
 		name = ww1_soviet.4.b
@@ -109,7 +126,30 @@ country_event = {
 			factor = 25
 			modifier = {
 				is_historical_focus_on = yes
+				NOT = {
+					has_game_rule = {
+						rule = tsar_fate
+						option = TSAR_IN_BRITAIN
+					}
+					has_game_rule = {
+						rule = tsar_fate
+						option = TSAR_RETURNED
+					}
+				}
 				factor = 0
+			}
+			modifier = {
+				factor = 1000
+				OR = {
+					has_game_rule = {
+						rule = tsar_fate
+						option = TSAR_IN_BRITAIN
+					}
+					has_game_rule = {
+						rule = tsar_fate
+						option = TSAR_RETURNED
+					}
+				}
 			}
 		}
 	}
@@ -157,12 +197,34 @@ country_event = {
 			popularity = 0.1
 		}
 		add_political_power = 75
-		ai_chance = { factor = 100 }
+		hidden_effect = {
+			# Nikolai is in Britain, not Russia
+			RUS = { retire_character = RUS_nikolai_ii }
+		}
+		ai_chance = {
+			factor = 100
+			modifier = {
+				factor = 0
+				has_game_rule = {
+					rule = tsar_fate
+					option = TSAR_RETURNED
+				}
+			}
+		}
 	}
 	option = {
 		name = ww1_soviet.6.b #Помочь царю вернуться в Россию.
 		RUS = { country_event = { id = ww1_soviet.7 } }
-		ai_chance = { factor = 100 }
+		ai_chance = {
+			factor = 100
+			modifier = {
+				factor = 0
+				has_game_rule = {
+					rule = tsar_fate
+					option = TSAR_IN_BRITAIN
+				}
+			}
+		}
 	}
 }
 # TSAR IN WHITE RUSSIA
@@ -184,7 +246,17 @@ country_event = {
 		}
 		add_political_power = 75
 		set_global_flag = nicholas_ii_saved
-		ai_chance = { factor = 50 }
+		ai_chance = {
+			factor = 50
+			modifier = {
+				factor = 0
+				has_completed_focus = RUS_white_movenment
+				OR = {
+					has_government = fascism
+					has_government = neutrality
+				}
+			}
+		}
 	}
 	option = {
 		name = ww1_soviet.7.b #Реставрация монархии.
@@ -202,16 +274,28 @@ country_event = {
 				fascism = 32
 				communism = 0
 			}
-			create_country_leader = {
-				name = "Nikolai II"
-				picture = "gfx/leaders/RUS_nicholas_romanov_dictator.png"
-				expire = "1935.1.1"
-				ideology = autocracy
-				traits = {
-					autocratic_imperialist
+			hidden_effect = {
+				RUS_nikolai_ii = {
+					set_portraits = {
+						civilian = {
+							large = "gfx/leaders/RUS/RUS_nicholas_romanov_dictator.png"
+						}
+					}
+					add_country_leader_role = {
+						country_leader = {
+							ideology = autocracy
+							traits = { autocratic_imperialist }
+						}
+					}
+					promote_character = autocracy
 				}
 			}
 			drop_cosmetic_tag = yes
+			set_party_name = {
+				ideology = neutrality
+				long_name = RUS_neutrality_party
+				name = RUS_neutrality_party
+			}
 		}
 		news_event = { id = ww1_soviet.8 }
 		set_global_flag = nicholas_ii_saved
@@ -533,7 +617,7 @@ country_event = {
 	title = ww1_soviet.15.t
 	desc = ww1_soviet.15.d
 	id = ww1_soviet.15
-	picture = GFX_report_event_yugoslavia_partisans
+	picture = GFX_report_polish_sov_ww1
 	
 	fire_only_once = yes
 	is_triggered_only = yes
@@ -548,13 +632,14 @@ country_event = {
 			ruling_party = communism
 			elections_allowed = no
 		}
-		retire_ideology_leader = communism
-		create_country_leader = {
-			name = "Felix Dzerzhinsky"
-			picture = "gfx/leaders/POL/POL_felix_dzerzhinsky.png" 
-			expire = "1935.1.1" 
-			ideology = vanguardism
-			traits = { prince_of_terror  } 
+		POL_felix_dzerzhinsky = {
+			add_country_leader_role = {
+				country_leader = {
+					ideology = vanguardism
+					traits = { prince_of_terror }
+				}
+			}
+			promote_character = vanguardism
 		}
 		set_party_name = { ideology = communism name = POL_polrewkom_party long_name = POL_polrewkom_party_long }
 		set_cosmetic_tag = POL_SOVIET
@@ -660,6 +745,7 @@ country_event = {
 			}
 		}
 		add_ideas = POL_idea_polish_reclamation
+		add_ideas = idea_soviet_westward_offensive
 		SOV = { 
 			country_event = { id = ww1_soviet.16 } 
 		}
@@ -707,7 +793,7 @@ country_event = {
 	title = ww1_soviet.16.t
 	desc = ww1_soviet.16.d
 	id = ww1_soviet.16
-	picture = GFX_report_event_yugoslavia_partisans
+	picture = GFX_report_polish_sov_ww1
 	
 	fire_only_once = yes
 	is_triggered_only = yes
@@ -825,6 +911,16 @@ country_event = {
 				is_in_faction_with = SOV
 			}
 			white_peace = POL
+		}
+		every_country = {
+			limit = {
+				OR = {
+					tag = EST
+					tag = LAT
+				}
+				has_war_with = SOV
+			}
+			white_peace = SOV
 		}
 		SOV = { white_peace = POL }
 		POL = {
@@ -1389,6 +1485,94 @@ country_event = {
 				}
 			}
 		}
+	}
+}
+
+# INVADE ESTONIA
+###################
+country_event = {
+	id = ww1_soviet.34
+	title = ww1_soviet.34.t
+	desc = ww1_soviet.34.d
+	trigger = {
+		tag = SOV
+		EST = {
+			exists = yes
+			is_subject = no
+			is_in_faction = no
+			is_neighbor_of = PREV
+			NOT = {
+				has_government = communism
+			}
+		}
+	}
+	mean_time_to_happen = { days = 30 }
+	option = {
+		name = ww1_soviet.34.a
+		declare_war_on = {
+			target = EST
+			type = annex_everything
+		}
+		hidden_effect = {
+			EST = {
+				add_ideas = idea_soviet_westward_offensive
+				add_ideas = idea_soviet_liberation_war
+			}
+		}
+		ai_chance = {
+			factor = 100
+			modifier = {
+				factor = 0
+				surrender_progress > 0.3
+			}
+		}
+	}
+	option = {
+		name = ww1_soviet.34.b
+	}
+}
+
+# INVADE LATVIA
+##################
+country_event = {
+	id = ww1_soviet.35
+	title = ww1_soviet.35.t
+	desc = ww1_soviet.35.d
+	trigger = {
+		tag = SOV
+		LAT = {
+			exists = yes
+			is_subject = no
+			is_in_faction = no
+			is_neighbor_of = PREV
+			NOT = {
+				has_government = communism
+			}
+		}
+	}
+	mean_time_to_happen = { days = 30 }
+	option = {
+		name = ww1_soviet.34.a
+		declare_war_on = {
+			target = LAT
+			type = annex_everything
+		}
+		hidden_effect = {
+			LAT = {
+				add_ideas = idea_soviet_westward_offensive
+				add_ideas = idea_soviet_liberation_war
+			}
+		}
+		ai_chance = {
+			factor = 100
+			modifier = {
+				factor = 0
+				surrender_progress > 0.3
+			}
+		}
+	}
+	option = {
+		name = ww1_soviet.34.b
 	}
 }
 
