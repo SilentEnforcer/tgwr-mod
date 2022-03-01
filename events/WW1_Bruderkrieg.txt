@@ -224,20 +224,13 @@ country_event = {
 	}
 }
 
-###Germany conquers Vienna-France mobilizes
+# AUSTRIA SEEKS FRENCH HELP
+####################################
 country_event = {
 	id = ww1_bruderkrieg.4
 	title = ww1_bruderkrieg.4.t
 	desc = ww1_bruderkrieg.4.d
 	is_triggered_only = yes
-	#trigger = {
-	#	original_tag = FRA
-	#	has_war = no
-	#	GER = {
-	#		has_war_with = AUH
-	#		controls_state = 4
-	#	}
-	#}
 	fire_only_once = yes
 	option = {
 		name = ww1_bruderkrieg.4.a
@@ -246,26 +239,37 @@ country_event = {
 		}
 		add_war_support = 0.05
 		add_stability = -0.05
+		ai_chance = {
+			base = 30
+			modifier = {
+				factor = 0
+				has_war_with = AUH
+			}
+		}
 	}
 	option = {
 		name = ww1_bruderkrieg.4.b
 		add_war_support = -0.05
+		ai_chance = {
+			base = 10
+			modifier = {
+				factor = 0
+				OR = {
+					has_war_support > 0.5
+					has_war_with = GER
+				}
+			}
+		}
 	}
 }
 
-###French threat
+# FRENCH THREAT
+##################
 country_event = {
 	id = ww1_bruderkrieg.5
 	title = ww1_bruderkrieg.5.t
 	desc = ww1_bruderkrieg.5.d
 	is_triggered_only = yes
-	#trigger = {
-	#	original_tag = GER
-	#	has_war_with = AUH
-	#	NOT = {
-	#		has_war_with = FRA
-	#	}
-	#}
 	immediate = {
 		hidden_effect = { news_event = ww1_bruderkrieg.12 }
 	}
@@ -274,22 +278,65 @@ country_event = {
 		AUH = {
 			country_event = ww1_bruderkrieg.5
 		}
+		ai_chance = {
+			base = 70
+		}
+		trigger = {
+			NOT = {
+				has_war_with = FRA
+			}
+		}
 	}
 	option = {
 		name = ww1_bruderkrieg.5.b
 		FRA = {
-			declare_war_on = {
-				target = GER
-				type = take_core_state
-				generator = {
-					28
+			if = {
+				limit = {
+					NOT = { has_war_with = GER }
 				}
+				declare_war_on = {
+					target = GER
+					type = take_core_state
+					generator = {
+						28
+					}
+				}
+			}
+			hidden_effect = {
+				if = {
+					limit = {
+						AUH = {
+							exists = yes
+							has_war_with = GER
+						}
+					}
+					add_to_faction = AUH
+				}
+			}
+		}
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = 70
+				has_war_support > 0.5
+			}
+			modifier = {
+				add = 100
+				strength_ratio = {
+					target = FRA
+					ratio > 1
+				}
+			}
+			modifier = {
+				add = 30
+				enemies_strength_ratio < 0.5
 			}
 		}
 	}
 }
 
-###Austrian answer to white peace offer
+# GERMAN ANSWER TO AUSTRIAN WHITE PEACE OFFER
+################################################
 country_event = {
 	id = ww1_bruderkrieg.6
 	title = ww1_bruderkrieg.6.t
@@ -761,7 +808,221 @@ country_event = {
 	}
 	option = {
 		name = ww1_bruderkrieg.6.b
+		
+		add_named_threat = {
+			threat = 20
+			name = ww1_bruderkrieg.16.t
+		}
+		
+		# AUSTRIAN ENDSIEG NEWS
 		news_event = ww1_bruderkrieg.16
+		
+		AUH = {
+			if = {
+				limit = {
+					FRA = {
+						exists = yes
+						is_subject = no
+						NOT = {
+							has_war_with = PREV
+							has_war_with = GER
+							is_in_faction_with = GER
+						}
+					}
+				}
+				FRA = { country_event = ww1_bruderkrieg.4 }
+			}
+			# BUKOVINA
+			every_other_country = {
+				limit = {
+					owns_state = 79
+					NOT = {
+						has_war_with = PREV
+						is_in_faction_with = PREV
+					}
+				}
+				create_wargoal = {
+					target = PREV
+					type = take_core_state
+					generator = { 80 }
+				}
+			}
+
+			# WEST UKRAINE
+			every_other_country = {
+				limit = {
+					OR = {
+						original_tag = UKR
+						original_tag = RUS
+					}
+					exists = yes
+					is_subject = no
+					OR = {
+						is_neighbor_of = PREV
+						any_other_country = {
+							is_subject_of = PREV
+							is_neighbor_of = PREV.PREV
+						}
+					}
+					NOT = {
+						has_war_with = PREV
+						is_in_faction_with = PREV
+					}
+				}
+				hidden_effect = {
+					every_state = {
+						limit = {
+							OR = {
+								state = 88
+								state = 89
+								state = 91
+								state = 562
+							}
+						}
+						add_claim_by = PREV
+					}
+				}
+				create_wargoal = {
+					target = PREV
+					type = take_claimed_state
+					generator = { 88 89 91 562 }
+				}
+			}
+			
+			# POLISH GALICIA
+			every_state = {
+				limit = {
+					OR = {
+						is_owned_by = AUH
+						is_owned_by = GAL
+					}
+					is_core_of = POL
+					NOT = {
+						state = 72
+					}
+				}
+				add_claim_by = RUS
+				remove_core_of = AUH
+				POL = {
+					transfer_state = PREV
+					division_template = {
+						name = "Bojówki"
+						regiments = {
+							infantry = {
+								x = 0
+								y = 0
+							}
+							infantry = {
+								x = 0
+								y = 1
+							}
+							infantry = {
+								x = 0
+								y = 2
+							}
+							infantry = {
+								x = 1
+								y = 0
+							}
+							infantry = {
+								x = 1
+								y = 1
+							}
+							infantry = {
+								x = 1
+								y = 2
+							}
+						}
+					}
+					capital_scope = {
+						create_unit = {
+							division = "name = \"Pułk Bojowników\" division_template = \"Bojówki\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
+							owner = POL
+						}
+						create_unit = {
+							division = "name = \"Pułk Bojowników\" division_template = \"Bojówki\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
+							owner = POL
+						}
+						create_unit = {
+							division = "name = \"Pułk Bojowników\" division_template = \"Bojówki\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
+							owner = POL
+						}
+					}
+					PREV.PREV = {
+						create_wargoal = {
+							target = PREV
+							type = annex_everything
+						}
+					}
+					if = {
+						limit = {
+							NOT = {
+								is_subject_of = RUS
+							}
+						}
+						RUS = {
+							create_wargoal = {
+								target = PREV
+								type = annex_everything
+							}
+						}
+					}
+				}
+			}
+			
+			# CZECH
+			if = {
+				limit = {
+					CZE = { is_subject_of = PREV }
+				}
+				end_puppet = CZE
+			}
+			else = {
+				every_owned_state = {
+					limit = {
+						is_core_of = CZE
+					}
+					CZE = {
+						transfer_state = PREV
+						annex_country = {
+							target = CZE
+						}
+						load_oob = CZE_1918
+						set_global_flag = czechoslovakia_released
+						PREV.PREV = {
+							target = PREV
+							type = annex_everything
+						}
+					}
+				}
+			}
+			
+			# GERMANY
+			GER = {
+				delete_unit_template_and_units = {
+					division_template = "Pan-German Rebels"
+					disband = yes
+				}
+			}
+
+			# SERBIA
+			if = {
+				limit = {
+					SER = {
+						has_subject = BOS
+					}
+				}
+				SER = {
+					set_rule = {
+						can_join_factions = yes
+					}
+					annex_country = {
+						target = BOS
+						transfer_troops = yes
+					}
+				}
+			}
+		}
 		ai_chance = {
 			base = 0
 		}
