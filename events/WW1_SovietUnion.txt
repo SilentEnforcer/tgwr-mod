@@ -910,14 +910,29 @@ country_event = {
 			limit = {
 				UKR = {
 					OR = {
-						is_subject = yes
+						is_subject_of = SOV
 						has_government = communism
 						has_capitulated = yes
 						exists = no
+						is_in_faction_with = SOV
 					}
 				}
 			}
-			hidden_effect = { UKR = { set_country_flag = divide_ukraine } }
+			hidden_effect = { UKR = { set_country_flag = riga_peace } }
+		}
+		if = {
+			limit = {
+				BLR = {
+					OR = {
+						is_subject_of = SOV
+						has_government = communism
+						has_capitulated = yes
+						exists = no
+						is_in_faction_with = SOV
+					}
+				}
+			}
+			hidden_effect = { BLR = { set_country_flag = riga_peace } }
 		}
 		every_country = {
 			limit = {
@@ -928,66 +943,6 @@ country_event = {
 				has_war_with = SOV
 			}
 			white_peace = SOV
-		}
-		if = {
-			limit = {
-				OR = {
-					tag = EST
-					tag = LAT
-				}
-				OR = {
-					is_subject = yes
-					has_government = communism
-					exists = no
-				}
-			}
-			every_country = {
-				limit = {
-					OR = {
-						has_subject = LAT
-						has_subject = EST
-					}
-				}
-				end_puppet = LAT
-				end_puppet = EST
-			}
-			LAT = {
-				drop_cosmetic_tag = yes
-				set_politics = {
-					ruling_party = democratic
-					elections_allowed = yes
-				}
-				set_rule = {
-					can_join_factions = yes
-				}
-				set_popularities = {
-					democratic = 50
-					neutrality = 30
-					fascism = 0
-					communism = 20
-				}
-				transfer_state = 12
-				transfer_state = 96
-				transfer_state = 190
-			}
-			EST = {
-				drop_cosmetic_tag = yes
-				set_politics = {
-					ruling_party = democratic
-					elections_allowed = yes 
-				}
-				set_rule = {
-					can_join_factions = yes
-				}
-				set_popularities = {
-  					democratic = 55
-					fascism = 0
-  					communism = 35
-  					neutrality = 10
-				}
-				transfer_state = 13
-				transfer_state = 191
-			}
 		}
 		every_country = {
 			limit = {
@@ -1017,10 +972,15 @@ country_event = {
 						AND = {
 							is_owned_by = UKR
 							UKR = {
-								has_country_flag = divide_ukraine
+								has_country_flag = riga_peace
 							}
 						}
-						is_owned_by = BLR
+						AND = {
+							is_owned_by = BLR
+							BLR = {
+								has_country_flag = riga_peace
+							}
+						}
 						is_owned_by = SOV
 						is_owned_by = RUS
 						is_owned_by = LIT
@@ -1030,22 +990,49 @@ country_event = {
 					transfer_state = PREV
 				}
 			}
-		}	
+		}
 		if = {
 			limit = { POL = { is_in_faction = yes } is_faction_leader = no }
 			POL = { leave_faction = yes }
+		}
+		every_other_country = {
+			limit = {
+				OR = {
+					original_tag = UKR
+					original_tag = BLR
+				}
+				exists = yes
+				has_country_flag = riga_peace
+			}
+			SOV = {
+				if = {
+					limit = {
+						has_completed_focus = SOV_soviet_union
+					}
+					annex_country = {
+						target = PREV
+						transfer_troops = yes
+					}
+				}
+				else_if = {
+					limit = {
+						PREV = {
+							NOT = { is_subject_of = PREV }
+						}
+					}
+					puppet = PREV
+				}
+			}
 		}
 		FRA = {
 			if = {
 				limit = {
 					has_country_flag = great_war_winner
-					NOT = {
-						has_government = communism
-					}
 				}
+				country_event = ww1_soviet.38
 			}
-			give_guarantee = POL
 		}
+		news_event = ww1_soviet.39
 		ai_chance = { factor = 100 }
 	}
 	option = {
@@ -1752,6 +1739,69 @@ country_event = {
 		name = ww1_soviet.37.b
 		ai_chance = {
 			base = 1
+		}
+	}
+}
+
+# FRANCE BACKS POLAND?
+##################################
+country_event = {
+	id = ww1_soviet.38
+	title = ww1_soviet.38.t
+	desc = ww1_soviet.38.d
+	is_triggered_only = yes
+	option = {
+		name = ww1_soviet.38.a
+		give_guarantee = FROM
+		ai_chance = {
+			factor = 100
+			modifier = {
+				factor = 0
+				has_government = communism
+			}
+		}
+	}
+	option = {
+		name = ww1_soviet.38.b
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 1
+				has_government = communism
+			}
+		}
+	}
+}
+
+# PEACE OF RIGA - NEWS
+#########################
+news_event = {
+	id = ww1_soviet.39
+	title = ww1_soviet.39.t
+	desc = ww1_soviet.38.d
+	is_triggered_only = yes
+	major = yes
+	picture = y
+	option = {
+		name = ww1_soviet.39.a
+		trigger = {
+			OR = {
+				tag = SOV
+				has_government = communism
+				is_subject_of = SOV
+				is_in_faction_with = SOV
+			}
+		}
+	}
+	option = {
+		name = ww1_soviet.39.a
+		trigger = {
+			NOT = {
+				tag = SOV
+				has_government = communism
+				is_subject_of = SOV
+				is_in_faction_with = SOV
+			}
 		}
 	}
 }
