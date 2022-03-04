@@ -809,7 +809,7 @@ news_event = {
 	title = ww1_soviet.17.t
 	desc = ww1_soviet.17.d
 	id = ww1_soviet.17
-	picture = GFX_news_event_023
+	picture = GFX_news_event_polish_soviet_war
 	
 	major = yes
 	is_triggered_only = yes
@@ -894,7 +894,7 @@ country_event = {
 	}
 }
 # POLISH-SOVIET WAR - RUSSIA ASK FOR PEACE
-##########################
+#############################################
 country_event = {
 	title = ww1_soviet.20.t
 	desc = ww1_soviet.20.d
@@ -906,12 +906,40 @@ country_event = {
 	
 	option = {
 		name = ww1_soviet.18.a #yes
-		every_country = {
-		    limit = {
-				is_in_faction_with = SOV
+		
+		# HAS UKRAINE DEFEATED?
+		if = {
+			limit = {
+				UKR = {
+					OR = {
+						is_subject_of = SOV
+						has_government = communism
+						has_capitulated = yes
+						exists = no
+						is_in_faction_with = SOV
+					}
+				}
 			}
-			white_peace = POL
+			hidden_effect = { UKR = { set_country_flag = riga_peace } }
 		}
+		
+		# HAS BELARUS DEFEATED?
+		if = {
+			limit = {
+				BLR = {
+					OR = {
+						is_subject_of = SOV
+						has_government = communism
+						has_capitulated = yes
+						exists = no
+						is_in_faction_with = SOV
+					}
+				}
+			}
+			hidden_effect = { BLR = { set_country_flag = riga_peace } }
+		}
+		
+		# END OF SOVIET WESTWARD OFFENSIVE
 		every_country = {
 			limit = {
 				OR = {
@@ -922,9 +950,36 @@ country_event = {
 			}
 			white_peace = SOV
 		}
-		SOV = { white_peace = POL }
-		POL = {
-			every_state = {
+		
+		# END OF POLISH-SOVIET WAR
+		every_country = {
+			limit = {
+				OR = {
+					tag = SOV
+					is_in_faction_with = SOV
+				}
+			}
+			white_peace = POL
+		}
+		
+		# POLISH EXPANSIONISM
+		every_country = {
+			limit = {
+				OR = {
+					AND = {
+						original_tag = BLR
+						has_country_flag = riga_peace
+					}
+					AND = {
+						original_tag = BLR
+						has_country_flag = riga_peace
+					}
+					original_tag = SOV
+					original_tag = RUS
+					original_tag = LIT
+				}
+			}
+			every_owned_state = {
 				limit = {
 					OR = {
 						state = 93
@@ -937,35 +992,117 @@ country_event = {
 						state = 89
 						state = 562
 						state = 73
-					}	
-					OR = {
-						is_owned_by = UKR
-						is_owned_by = BLR
-						is_owned_by = SOV
-						is_owned_by = RUS
-						is_owned_by = LIT
-					}					 					
+					}
 				}
-				POL = {
-					transfer_state = PREV
-				}
+				transfer_state_to = POL
 			}
-		}	
+		}
+		
+		# NO FACTIONS INTERWAR
 		if = {
 			limit = { POL = { is_in_faction = yes } is_faction_leader = no }
 			POL = { leave_faction = yes }
 		}
+		
+		# FATE OF UKRAINE AND BELARUS
+		# it is because they are not original country but civil war country with wrong colour and mechanics.
+		hidden_effect = {
+			every_other_country = {
+				limit = {
+					OR = {
+						original_tag = UKR
+						original_tag = BLR
+					}
+					exists = yes
+				}
+				if = {
+					limit = {
+						has_country_flag = riga_peace
+					}
+					SOV = {
+						if = {
+							limit = {
+								has_completed_focus = SOV_soviet_union
+							}
+							annex_country = {
+								target = PREV
+								transfer_troops = yes
+							}
+						}
+						else_if = {
+							limit = {
+								PREV = {
+									NOT = { is_subject_of = PREV }
+								}
+							}
+							puppet = PREV
+						}
+					}
+				}
+				else = {
+					if = {
+						limit = {
+							original_tag = UKR
+						}
+						UKR = {
+							annex_country = {
+								target = PREV
+							}
+							set_politics = {
+								ruling_party = democratic
+								elections_allowed = yes
+							}
+							set_popularities = {
+								democratic = 50
+								fascism = 0
+								communism = 40
+								neutrality = 10
+							}
+							set_party_name = {
+								ideology = democratic
+								long_name = UKR_directory_party							
+								name = UKR_directory_party
+							}
+							drop_cosmetic_tag = yes
+						}
+					}
+					if = {
+						limit = {
+							original_tag = BLR
+						}
+						BLR = {
+							annex_country = {
+								target = PREV
+							}
+							set_politics = {
+								ruling_party = neutrality
+								elections_allowed = no
+							}
+							set_popularities = {
+								fascism = 2
+								communism = 41
+								democratic = 4
+								neutrality = 53
+							}
+							drop_cosmetic_tag = yes
+						}
+					}
+				}
+			}
+		}
+		
+		# FRENCO-POLISH ALLIANCE
 		FRA = {
 			if = {
 				limit = {
 					has_country_flag = great_war_winner
-					NOT = {
-						has_government = communism
-					}
 				}
+				country_event = ww1_soviet.38
 			}
-			give_guarantee = PREV
 		}
+		
+		# NEWS EVENT
+		news_event = ww1_soviet.39
 		ai_chance = { factor = 100 }
 	}
 	option = {
@@ -1573,6 +1710,169 @@ country_event = {
 	}
 	option = {
 		name = ww1_soviet.34.b
+	}
+}
+
+# UNITED INTERNATIONAL
+#########################
+country_event = {
+	id = ww1_soviet.36
+	title = ww1_soviet.36.t
+	desc = ww1_soviet.36.d
+	trigger = {
+		is_ai = no
+		is_major = yes
+		is_faction_leader = yes
+		has_global_flag = interbellum
+		has_government = communism
+		has_war = no
+		capital_scope = { is_on_continent = europe }
+		GER = { has_country_flag = great_war_winner }
+		OR = {
+			NOT = { country_exists = GER }
+			has_subject = GER
+		}
+		any_other_country = {
+			has_government = communism
+			is_major = yes
+			is_faction_leader = yes
+			NOT = {
+				has_war_with = PREV
+				has_country_flag = great_war_winner
+			}
+			capital_scope = { is_on_continent = europe }
+			has_war = no
+		}
+		if = {
+			limit = {
+				original_tag = SOV
+			}
+			has_completed_focus = SOV_comintern
+		}
+	}
+	mean_time_to_happen = { days = 45 }
+	option = {
+		name = ww1_soviet.36.a
+		every_other_country = {
+			limit = {
+				has_government = communism
+				is_major = yes
+				is_faction_leader = yes
+				NOT = {
+					has_war_with = PREV
+					has_country_flag = great_war_winner
+				}
+				capital_scope = { is_on_continent = europe }
+				has_war = no
+			}
+			country_event = ww1_soviet.37
+		}
+	}
+	option = {
+		name = ww1_soviet.36.b
+	}
+}
+
+# UNITED INTERNATIONAL - ANSWER
+##################################
+country_event = {
+	id = ww1_soviet.37
+	title = ww1_soviet.36.t
+	desc = ww1_soviet.37.d
+	is_triggered_only = yes
+	option = {
+		name = ww1_soviet.37.a
+		FROM = {
+			every_other_country = {
+				limit = {
+					OR = {
+						is_in_faction_with = PREV.PREV
+						is_subject_of = PREV.PREV
+					}
+				}
+				PREV = { add_to_faction = PREV }
+			}
+			add_to_faction = PREV
+		}
+		ai_chance = {
+			factor = 100
+			modifier = {
+				factor = 0
+				has_opinion = {
+					target = FROM
+					value < 70
+				}
+			}
+		}
+	}
+	option = {
+		name = ww1_soviet.37.b
+		ai_chance = {
+			base = 1
+		}
+	}
+}
+
+# FRANCE BACKS POLAND?
+##################################
+country_event = {
+	id = ww1_soviet.38
+	title = ww1_soviet.38.t
+	desc = ww1_soviet.38.d
+	is_triggered_only = yes
+	option = {
+		name = ww1_soviet.38.a
+		give_guarantee = FROM
+		ai_chance = {
+			factor = 100
+			modifier = {
+				factor = 0
+				has_government = communism
+			}
+		}
+	}
+	option = {
+		name = ww1_soviet.38.b
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 1
+				has_government = communism
+			}
+		}
+	}
+}
+
+# PEACE OF RIGA - NEWS
+#########################
+news_event = {
+	id = ww1_soviet.39
+	title = ww1_soviet.39.t
+	desc = ww1_soviet.38.d
+	is_triggered_only = yes
+	major = yes
+	picture = GFX_news_event_peace_of_riga
+	option = {
+		name = ww1_soviet.39.a
+		trigger = {
+			OR = {
+				tag = SOV
+				has_government = communism
+				is_subject_of = SOV
+				is_in_faction_with = SOV
+			}
+		}
+	}
+	option = {
+		name = ww1_soviet.39.a
+		trigger = {
+			NOT = {
+				tag = SOV
+				has_government = communism
+				is_subject_of = SOV
+				is_in_faction_with = SOV
+			}
+		}
 	}
 }
 
