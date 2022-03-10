@@ -8947,7 +8947,7 @@ news_event = {
 	id = ww1_china.80
 	title = ww1_china.80.t
 	desc = ww1_china.80.d
-	picture = GFX_news_event_japanese_parade
+	picture = GFX_news_event_chinese_soldiers
 	is_triggered_only = yes
 	major = yes
 	option = {
@@ -9066,6 +9066,296 @@ country_event = {
 				remove_unit_leader = 15098
 			}
 			set_global_flag = cai_e_dead
+		}
+	}
+}
+
+# CHINISE UNITED FRONT IN WARLORD ERA
+########################################
+country_event = {
+	id = ww1_china.83
+	title = ww1_china.83.t
+	desc = ww1_china.83.d
+	trigger = {
+		OR = {
+			tag = QIN
+			tag = CHI
+			AND = {
+				OR = {
+					tag = ANC
+					tag = SDC
+					tag = FNG
+				}
+				owns_state = 608
+			}
+			has_country_flag = reunite_china
+		}
+		is_subject = no
+		NOT = {
+			has_global_flag = warlord_era_end
+		}
+		OR = {
+			any_other_country = {
+				is_china_or_warlord = no
+				is_major = yes
+				has_offensive_war_with = PREV
+			}
+			AND = {
+				any_other_country = {
+					is_china_or_warlord = yes
+					is_subject = no
+					NOT = {
+						has_war_with = PREV
+					}
+					if = {
+						limit = {
+							PREV = { has_government = communism }
+						}
+						has_government = communism
+						else = {
+							NOT = { has_government = communism }
+						}
+					}
+					any_other_country = {
+						is_china_or_warlord = no
+						is_major = yes
+						has_offensive_war_with = PREV
+					}
+				}
+			}
+		}
+	}
+	fire_only_once = yes
+	mean_time_to_happen = { days = 0 }
+	option = {
+		name = ww1_china.83.a
+		ai_chance = { factor = 1000 }
+		
+		# FLAGS
+		hidden_effect = {
+			set_global_flag = chinese_united_front
+			set_country_flag = chinese_united_front_leader
+		}
+		
+		# CREATE FACTION
+		if = {
+			limit = {
+				is_faction_leader = no
+			}
+			create_faction = chinese_united_front
+			else = {
+				hidden_effect = { set_country_flag = chinese_united_front_reserve }
+				set_faction_name = chinese_united_front
+			}
+		}
+		
+		# INVITE OTHER CHINESE COUNTRIES
+		every_other_country = {
+			limit = {
+				is_china_or_warlord = yes
+				is_subject = no
+				NOT = {
+					has_war_with = PREV
+					is_in_faction_with = PREV
+				}
+				if = {
+					limit = {
+						PREV = { has_government = communism }
+					}
+					has_government = communism
+					else = {
+						NOT = { has_government = communism }
+					}
+				}
+			}
+			country_event = ww1_china.84
+		}
+		
+		# GOOD EFFECTS
+		add_war_support = 0.1
+	}
+	option = {
+		name = ww1_china.83.b
+		ai_chance = { factor = 0 }
+	}
+}
+
+# CHINESE UNITED FRONT - ANSWER
+##################################
+country_event = {
+	id = ww1_china.84
+	title = ww1_china.84.t
+	desc = ww1_china.84.d
+	is_triggered_only = yes
+	option = {
+		name = ww1_china.84.a
+		ai_chance = {
+			factor = 1000
+			modifier = {
+				factor = 0
+				has_war_with = FROM
+			}
+			modifier = {
+				factor = 0
+				any_other_country = {
+					has_war_with = FROM
+					OR = {
+						is_in_faction_with = PREV
+						has_subject = PREV
+					}
+				}
+			}
+		}
+		FROM = {
+			country_event = ww1_china.85
+		}
+		add_war_support = 0.1
+	}
+	option = {
+		name = ww1_china.84.b
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 1000
+				has_war_with = FROM
+			}
+			modifier = {
+				add = 1000
+				any_other_country = {
+					has_war_with = FROM
+					OR = {
+						is_in_faction_with = PREV
+						has_subject = PREV
+					}
+				}
+			}
+		}
+	}
+}
+
+# CHINESE UNITED FRONT - NOTIFY
+##################################
+country_event = {
+	id = ww1_china.85
+	title = ww1_china.85.t
+	desc = ww1_china.85.d
+	is_triggered_only = yes
+	option = {
+		name = ww1_china.85.a
+		hidden_effect = {
+			FROM = { set_country_flag = chinese_united_front_member }
+		}
+		add_to_faction = FROM
+		every_other_country = {
+			limit = {
+				is_china_or_warlord = no
+				is_major = yes
+				has_offensive_war_with = PREV
+			}
+			FROM = {
+				add_to_war = {
+					targeted_alliance = PREV.PREV
+					enemy = PREV
+				}
+			}
+		}
+		add_war_support = 0.05
+		add_political_power = 50
+	}
+}
+
+# CHINESE UNITED FRONT - NEWS
+################################
+news_event = {
+	id = ww1_china.86
+	title = ww1_china.86.t
+	desc = ww1_china.86.d
+	major = yes
+	picture = GFX_news_event_chinese_soldiers
+	trigger = {
+		has_global_flag = chinese_united_front
+	}
+	fire_only_once = yes
+	mean_time_to_happen = { days = 0 }
+	option = {
+		name = ww1_china.86.a
+		trigger = {
+			OR = {
+				has_country_flag = chinese_united_front_member
+				has_country_flag = chinese_united_front_leader
+			}
+		}
+	}
+	option = {
+		name = ww1_china.86.b
+		trigger = {
+			NOT = {
+				has_country_flag = chinese_united_front_member
+				has_country_flag = chinese_united_front_leader
+			}
+		}
+	}
+}
+
+# CHINESE UNITED FRONT - DISMANTLE
+####################################
+country_event = {
+	id = ww1_china.87
+	title = ww1_china.87.t
+	desc = ww1_china.87.d
+	trigger = {
+		has_country_flag = chinese_united_front_leader
+		has_war = no
+		is_faction_leader = yes
+		NOT = {
+			has_country_flag = chinese_united_front_reserve
+		}
+	}
+	fire_only_once = yes
+	mean_time_to_happen = { days = 30 }
+	option = {
+		name = ww1_china.87.a
+		ai_chance = { factor = 1000 }
+		dismantle_faction = yes
+	}
+}
+
+# NORTHERN EXPEDITION - NEWS
+################################
+news_event = {
+	id = ww1_china.88
+	title = ww1_china.88.t
+	desc = ww1_china.88.d
+	major = yes
+	picture = GFX_news_event_chinese_nra
+	trigger = {
+		has_global_flag = chinese_united_front
+	}
+	fire_only_once = yes
+	mean_time_to_happen = { days = 0 }
+	option = {
+		name = ww1_china.88.a
+		trigger = {
+			OR = {
+				has_country_flag = CHI_kuomintang_flag
+				is_in_faction_with = KMT
+			}
+		}
+	}
+	option = {
+		name = ww1_china.88.b
+		trigger = {
+			has_war_with = KMT
+		}
+	}
+	option = {
+		name = ww1_china.88.c
+		trigger = {
+			NOT = {
+				has_country_flag = CHI_kuomintang_flag
+				is_in_faction_with = KMT
+				has_war_with = KMT
+			}
 		}
 	}
 }
