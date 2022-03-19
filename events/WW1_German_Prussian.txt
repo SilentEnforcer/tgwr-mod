@@ -34,6 +34,7 @@ country_event = {
 		}
 		GER = {
 			exists = yes
+        		has_country_flag = great_war_loser
 			NOT = {
 				has_government = communism
 			}
@@ -70,6 +71,19 @@ country_event = {
 				}
 			}
 			ENG = {
+				country_event = {
+					id = prussian.3
+					days = 1
+				}
+			}
+		}
+                if = {
+			limit = {
+				AUH = {
+					has_country_flag = great_war_winner
+				}
+			}
+			AUH = {
 				country_event = {
 					id = prussian.3
 					days = 1
@@ -390,7 +404,7 @@ news_event = {
 							state = 763
 						}
 					}
-					PREV = { transfer_state = PREV }
+					transfer_state_to = PREV
 				}
 				release = BAY
 				release = SAX
@@ -480,6 +494,9 @@ news_event = {
 					FRA = {
 						has_country_flag = agreed_on_treaty_of_berlin
 					}
+                                        NOT = {
+                                                AUH = { has_country_flag = agreed_on_treaty_of_berlin }
+                                        }
 				}
 				FRA = {
 					puppet = WUR
@@ -495,6 +512,27 @@ news_event = {
 					}
 				}
 			}
+                        else_if = {
+                                limit = {
+                                        AUH = {
+                                                has_country_flag = agreed_on_treaty_of_berlin
+                                        }
+                                }
+                                AUH = {
+                                        if = {
+                                                limit = {
+                                                        has_dlc = "Together for Victory"
+                                                }
+                                                set_autonomy = {
+                                                        target = WUR
+                                                        autonomous_state = autonomy_dominion
+                                                }
+                                                else = {
+                                                        puppet = WUR
+                                                }
+                                        }
+                                }
+                        }
 			if = {
 				limit = {
 					FRA = {
@@ -555,22 +593,6 @@ news_event = {
 						}
 					}
 				}
-			}
-			if = {
-				limit = {
-					OR = {
-						NOT = {
-							FRA = {
-								has_country_flag = agreed_on_treaty_of_berlin
-							}
-						}
-						NOT = {
-							ENG = {
-								has_country_flag = agreed_on_treaty_of_berlin
-							}
-						}
-					}
-				}				
 			}
 			if = {
 				limit = {
@@ -835,6 +857,26 @@ news_event = {
 					transfer_state = 794
 				}
 			}
+                        AUH = {
+                                if = {
+                                        limit = {
+                                                has_country_flag = agreed_on_treaty_of_berlin
+                                        }
+                                        if = {
+                                                limit = {
+                                                        has_dlc = "Together for Victory"
+                                                }
+                                                set_autonomy = {
+                                                        target = BAY
+                                                        autonomous_state = autonomy_dominion
+                                                        freedom_level = 0.8
+                                                }
+                                                else = {
+                                                        puppet = BAY
+                                                }
+                                        }
+                                }
+                        }
 		}
 	}
 	option = {
@@ -1506,7 +1548,10 @@ country_event = {
 		NOT = {
 			has_government = communism
 		}
-		is_subject = no
+		OR = {
+                        is_subject = no
+                        is_subject_of = AUH
+                }
 		communism > 0.5
 	}
 	option = {
@@ -1514,6 +1559,32 @@ country_event = {
 		news_event = prussian.5
 		ai_chance = {
 			factor = 100
+		}
+                hidden_effect = {
+			every_other_country = {
+				limit = {
+					original_tag = GER
+					tag = WUR
+					tag = HAN
+					tag = SAX
+					NOT = {
+						has_government = communism
+					}
+				}
+				add_opinion_modifier = {
+					target = BAY
+					modifier = HOI4TGW_Opinion_hostile_diplomatic_relations
+				}
+			}
+                        if = {
+                                limit = {
+                                        is_subject_of = AUH
+                                }
+                                AUH = {
+                                        end_puppet = PREV
+                                        country_event = prussian.30
+                                }
+                        }
 		}
 		set_politics = {
 			ruling_party = communism
@@ -1537,23 +1608,6 @@ country_event = {
 			}
 		}
 		create_faction = komintern
-		hidden_effect = {
-			every_other_country = {
-				limit = {
-					original_tag = GER
-					tag = WUR
-					tag = HAN
-					tag = SAX
-					NOT = {
-						has_government = communism
-					}
-				}
-				add_opinion_modifier = {
-					target = BAY
-					modifier = HOI4TGW_Opinion_hostile_diplomatic_relations
-				}
-			}
-		}
 	}
 	option = {
 		name = prussian.29.b
@@ -1565,4 +1619,70 @@ country_event = {
 			size = 0.5
 		}
 	}
+}
+
+# Austrian Reaction to Bavarian Revolution
+country_event = {
+        id = prussian.30
+        title = prussian.30.t
+        desc = prussian.30.d
+        is_triggered_only = yes
+        option = {
+                name = prussian.30.a
+                add_popularity = {
+                        ideology = communism
+                        popularity = 0.10
+                }
+                declare_war_on = {
+                        target = FROM
+                        type = puppet_wargoal_focus
+                }
+                if = {
+                        limit = {
+                                OR = {
+                                        has_stability < 0.4
+                                        communism > 0.35
+                                }
+                        }
+                        hidden_effect = {
+                                start_civil_war = {
+                                        ideology = communism
+                                        size = 0.30
+                                        keep_unit_leaders_trigger = {
+                                                OR = {
+                                                        has_trait = trait_royal
+                                                        has_trait = old_guard
+                                                        has_trait = politically_connected
+                                                }
+                                        }
+                                }
+                        }
+                }
+                ai_chance = {
+                        base = 10
+                        modifier = {
+                                add = -5
+                                communism > 0.3
+                        }
+                        modifier = {
+                                factor = 0
+                                has_government = communism
+                        }
+                }
+        }
+        option = {
+                name = prussian.30.b
+                add_war_support = -0.10
+                add_popularity = {
+                        ideology = communism
+                        popularity = 0.15
+                }
+                ai_chance = {
+                        base = 10
+                        modifier = {
+                                add = 10
+                                has_government = fascism
+                        }
+                }
+        }
 }
