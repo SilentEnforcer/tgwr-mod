@@ -1487,6 +1487,7 @@ FRA_defense_of_france = {
 			has_war = yes
 			has_civil_war = no
 			17 = {
+				is_owned_by = ROOT
 				is_controlled_by = ROOT
 				OR = {
 					any_neighbor_state = {
@@ -1520,7 +1521,7 @@ FRA_defense_of_france = {
 
 		available = {
 			custom_trigger_tooltip = {
-				tooltip = FRA_not_hold_nancy
+				tooltip = FRA_not_hold_paris
 				NOT = { controls_province = 11506 }
 			}
 		}
@@ -1537,6 +1538,7 @@ FRA_defense_of_france = {
 			has_war = yes
 			has_civil_war = no
 			16 = {
+				is_owned_by = ROOT
 				is_controlled_by = ROOT
 				OR = {
 					any_neighbor_state = {
@@ -1733,14 +1735,14 @@ peace_deals = {
 					create_country_leader = {
 						name = "GER_erich_ludendorff"
 						picture = "gfx/leaders/GER/GER_erich_ludendorff.dds" 
-						expire = "1935.1.1" 
+						 
 						ideology = stratocracy
 						traits = { great_war_hero german_agent foreign_leader }
 					}
 					create_country_leader = {
 						name = "Gouvernement Provisoire"
 						picture = "gfx/leaders/FRA/FRA_provisional_government.dds"
-						expire = "1935.1.1"
+						
 						ideology = authoritarian_democracy
 						traits = {
 							german_agent
@@ -1749,7 +1751,7 @@ peace_deals = {
 					create_country_leader = {
 						name = "Gouvernement Provisoire"
 						picture = "gfx/leaders/FRA/FRA_provisional_government.dds"
-						expire = "1935.1.1"
+						
 						ideology = conservatism
 						traits = {
 							german_agent
@@ -1783,7 +1785,7 @@ peace_deals = {
 						create_country_leader = {
 							name = "Victoire"
 							picture = "gfx/leaders/GER/GER_Victoria_Louise.dds"
-							expire = "1935.1.1"
+							
 							ideology = oligarchism
 							female = yes
 							traits = {
@@ -1832,8 +1834,8 @@ peace_deals = {
 			surrender_progress > 0.7
 		}
 		visible = {
-			is_ai = yes
 			has_country_flag = FRA_socialist_france_flag
+			has_war_with = GER
 			any_other_country = {
 				original_tag = FRA
 				has_country_flag = FRA_nationalist_france_flag
@@ -1847,97 +1849,118 @@ peace_deals = {
 				add = 10000
 				has_war_with = GER
 			}
+			modifier = {
+				factor = 0
+				OR = {
+					is_in_faction_with = ENG
+					is_in_faction_with = ITA
+					is_in_faction_with = SOV
+				}
+				has_capitulated = no
+			}
 		}
 		target_trigger = {
 			FROM = {
-				tag = NFA
+				tag = GER
 			}
 		}
-		complete_effect = {
-			if = {
-				limit = {
-					has_war_with = GER
-				}
-				hidden_effect = {
-					every_owned_state = {
-						limit = {
-							is_controlled_by = GER
-						}
-						set_state_flag = german_french_occupation
-					}
-				}
-				white_peace = GER
-			}
-			white_peace = NFA
+		complete_effect = {			
 			hidden_effect = {
 				every_owned_state = {
 					limit = {
-						NOT = {
-							has_state_flag = german_french_occupation
-						}
+						is_controlled_by = NFA
 					}
-					transfer_state_to = NFA
-				}
-			}
-			effect_tooltip = {
-				NFA = {
-					annex_country = {
-						target = PREV
-					}
-				}
+					set_state_flag = nationalist_french_occupation
+				}									
 			}
 			if = {
 				limit = {
-					any_owned_state = {
-						has_state_flag = german_french_occupation
-					}
-				}
-				every_state = {
-					remove_core_of = PREV
-				}
-				else = {
-					hidden_effect = {
-						every_state = {
-							limit = {
-								has_state_flag = german_french_occupation
+					OR = {
+						AND = {
+							owns_state = 16
+							GER = {
+								controls_province = 11506
 							}
-							clr_state_flag = german_french_occupation
 						}
-						clr_country_flag = FRA_socialist_france_flag
-					}
-					GER = {
-						puppet = PREV
-					}
-					set_cosmetic_tag = FRP
-					set_party_name = {
-						ideology = fascism
-						long_name = GER_fascism_party_long
-						name = GER_fascism_party
-					}
-					create_country_leader = {
-						name = "Erich Ludendorff"
-						picture = "gfx/leaders/GER/GER_erich_ludendorff.dds" 
-						expire = "1935.1.1" 
-						ideology = stratocracy
-						traits = { great_war_hero german_agent foreign_leader }
-					}
-					set_politics = {
-						ruling_party = fascism
-						elections_allowed = no
-					}
-					set_popularities = {
-						fascism = 100
-					}
-					every_owned_state = {
+						AND = {
+							NOT = {
+								owns_state = 16
+							}
+							any_owned_state = {
+								OR = {
+									state = 14
+									state = 19
+									state = 21
+								}
+								is_controlled_by = GER
+							}
+						}
+					}	
+				}
+				hidden_effect = {
+					#clr_country_flag = FRA_socialist_france_flag	#breaks NFA focus tree and crashes the game
+					if = {
 						limit = {
-							is_claimed_by = GER
+							GER = {
+								OR = {
+									has_government = neutrality
+									has_idea = GER_idea_wilhelm_ii
+								}
+							}
 						}
-						transfer_state_to = GER
+						set_cosmetic_tag = FRP
+						set_party_name = {
+							ideology = fascism
+							long_name = GER_fascism_party_long
+							name = GER_fascism_party
+						}
+						create_country_leader = {
+							name = "Erich Ludendorff"
+							picture = "gfx/leaders/GER/GER_erich_ludendorff.dds" 
+							 
+							ideology = stratocracy
+							traits = { great_war_hero german_agent foreign_leader }
+						}
+						create_country_leader = {
+							name = "Victoire"
+							picture = "gfx/leaders/GER/GER_Victoria_Louise.png"
+							
+							ideology = oligarchism
+							female = yes
+							traits = {
+								victoria_iii
+								german_agent
+								foreign_leader
+							}
+						}
+						set_party_name = {
+							ideology = neutrality
+							long_name = GER_neutrality_party
+							name = GER_neutrality_party
+						}
+						set_party_name = {
+							ideology = democratic
+							long_name = FRA_gouvernement_provisoire
+							name = FRA_gouvernement_provisoire
+						}
+						set_politics = {
+							ruling_party = neutrality
+							elections_allowed = no
+						}
+						set_popularities = {
+							democratic = 14
+							neutrality = 52
+							fascism = 34
+							communism = 10
+						}
 					}
 					if = {
 						limit = {
 							BEL = {
-								is_subject_of = GER
+								OR = {
+									is_subject_of = GER
+									is_in_faction_with = GER									
+								}	
 							}
 						}
 						every_owned_state = {
@@ -1947,6 +1970,57 @@ peace_deals = {
 							transfer_state_to = BEL
 						}
 					}
+					if = {
+						limit = {
+							HOL = {
+								OR = {
+									is_subject_of = GER
+									is_in_faction_with = GER									
+								}	
+								has_war_with = FRA
+							}
+						}
+						every_owned_state = {
+							limit = {
+								is_claimed_by = HOL
+							}
+							transfer_state_to = HOL
+						}
+					}
+					every_owned_state = {
+						limit = {
+							is_controlled_by = GER
+						}
+						set_state_controller_to = ROOT
+					}
+				}
+				GER = {
+					puppet = ROOT
+				}
+				else = {
+					every_other_country = {
+						limit = {
+							has_war_with = FRA
+						}
+						ROOT = {
+							white_peace = PREV
+						}
+					}
+				}
+			}	
+			hidden_effect = {
+				every_owned_state = {
+					limit = {
+						is_claimed_by = GER
+					}
+					transfer_state_to = GER
+				}
+				every_owned_state = {
+					limit = {
+						has_state_flag = nationalist_french_occupation
+					}
+					transfer_state_to = NFA
+					clr_state_flag = nationalist_french_occupation
 				}
 			}
 		}
@@ -2194,27 +2268,21 @@ political_actions = {
 			original_tag = FRA
 		}
 		available = {
-			has_country_flag = FRA_nationalist_france_flag
-			owns_state = 16
-			has_war = no
-			NOT = {
-				any_country = {
-					exists = yes
-					has_country_flag = FRA_socialist_france_flag
-				}
+			16 = {
+				is_owned_and_controlled_by = PREV
+				is_capital = no
 			}
 		}
 		visible = {
 			has_country_flag = FRA_nationalist_france_flag
-			owns_state = 16
 		}
 		fire_only_once = yes
 		ai_will_do = {
-			factor = 100
+			factor = 1000
 		}
-		cost = 50
+		cost = 75
 		complete_effect = {
-			set_capital = { state = 16}
+			set_capital = { state = 16 }
 		}
 	}
 }
@@ -2613,3 +2681,66 @@ FRC_interwar_internationale_category = {
 	}
 }
 
+interwar_decisions = {
+	FRA_take_down_kapp_luttwitz = {
+		icon = GFX_decision_generic_ignite_civil_war
+		allowed = {
+			original_tag = FRA
+		}
+		available = {
+			has_war = no
+			GER = {
+				has_war = no
+				is_subject = no
+				is_neighbor_of = PREV
+				has_country_flag = kapp_putsch
+			}
+		}
+		visible = {
+			has_global_flag = interbellum
+			has_country_flag = great_war_winner
+			any_other_country = {
+				original_tag = GER
+				has_country_flag = kapp_putsch
+			}
+			is_subject = no
+		}
+		fire_only_once = yes
+		cost = 250
+		ai_will_do = {
+			factor = 1000
+			modifier = {
+				factor = 0
+				has_war_support < 0.5
+			}
+			modifier = {
+				factor = 0
+				has_stability < 0.5
+			}
+			modifier = {
+				factor = 0
+				threat < 0.5
+			}
+		}
+		days_remove = 10
+		target_trigger = {
+			FROM = {
+				tag = GER
+			}
+		}
+		war_with_on_remove = GER
+		complete_effect = {
+			add_stability = -0.1
+			add_named_threat = {
+				threat = 10
+				name = FRA_take_down_kapp_luttwitz
+			}
+		}
+		remove_effect = {
+			declare_war_on = {
+				target = GER
+				type = topple_government
+			}
+		}
+	}
+}
