@@ -28,6 +28,6 @@ tags={
 	"Technologies"
 }
 name="The Great War Redux: On ne passe pas!"
-version="0.9"
+version="0.9.02"
 supported_version="1.11.*"
 remote_file_id="1946557392"
