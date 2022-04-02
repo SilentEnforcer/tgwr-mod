@@ -3,8 +3,14 @@ focus_tree = {
 	country = {
 		factor = 0
 		modifier = {
-			add = 10
-			tag = GER 
+			add = 10			
+			OR = {
+				tag = GER 
+				AND = {
+					original_tag = GER
+					has_country_flag = ruhr_uprising
+				}			
+			}
 		}
 	}
 	continuous_focus_position = {
@@ -1296,8 +1302,8 @@ focus_tree = {
 			}
 			add_doctrine_cost_reduction = {
 				name = GER_expand_staff
-				cost_reduction = 0.5
-				uses = 3
+				cost_reduction = 0.3
+				uses = 2
 				category = land_doctrine
 			}
 			add_doctrine_cost_reduction = {
@@ -2753,7 +2759,7 @@ focus_tree = {
 						create_country_leader = {
 							name = "Wilhelm Filchner"
 							picture = "gfx/leaders/GER/GER_wilhelm_filchener.png"
-							expire = "1935.1.1"
+							
 							ideology = oligarchism
 							traits = {
 								german_agent
@@ -2785,7 +2791,7 @@ focus_tree = {
 							create_country_leader = {
 								name = "Wilhelm Filchner"
 								picture = "gfx/leaders/GER/GER_wilhelm_filchener.png"
-								expire = "1935.1.1"
+								
 								ideology = oligarchism
 								traits = {
 									german_agent
@@ -4878,41 +4884,24 @@ focus_tree = {
 		x = 1
 		y = 6
 		available = {
-			owns_state = 4
+			controls_state = 4
 		}
 		completion_reward = {
-			add_state_core = 4
-			add_state_core = 152
-			add_state_core = 153
-			add_state_core = 39
-			add_state_core = 147
-			if = {
+			every_state = {
 				limit = {
-					owns_state = 102
-				}
-				add_state_core = 102
-			}
-			if = {
-				limit = {
-					owns_state = 736
-				}
-				add_state_core = 736
-			}
-			if = {
-				limit = {
-					owns_state = 244
-				}
-				add_state_core = 244
-			}
-			if = {
-				limit = {
-					HUN = {
-						NOT = {
-							has_country_flag = hungarian_revanchism
-						}
+					OR = {
+						state = 4
+						state = 39
+						state = 102
+						state = 147
+						state = 152
+						state = 153
+						state = 244
+						state = 736
 					}
 				}
-				country_event = ww1_germany.22
+				remove_claim_by = ROOT
+				add_core_of = ROOT
 			}
 		}
 		ai_will_do = {
@@ -5048,24 +5037,14 @@ focus_tree = {
 		}
 		available = {
 			is_subject = no
-			AUH = {
-				exists = no
-			}
-			HUN = {
-				exists = yes
-			}
+			NOT = { country_exists = AUH }
+			country_exists = HUN
 		}
 		bypass = {
+			country_exists = AUH
 			OR = {
 				has_war_with = HUN
-				AND = {
-					NOT = {
-						country_exists = HUN
-					}
-					NOT = {
-						country_exists = AUH
-					}
-				}
+				NOT = { country_exists = HUN }
 			}
 		}
 		x = 2
@@ -5103,11 +5082,17 @@ focus_tree = {
 		y = 7
 		available = {
 			is_subject = no
-			AUH = {
-				exists = no
+			OR = {
+				NOT = { country_exists = AUH }
+				AND = {
+					AUH = {
+						has_war_with = ROOT
+						is_in_faction_with = FRA
+					}
+					has_global_flag = kis_war
+					NOT = { has_global_flag = great_war_ends }
+				}
 			}
-		}
-		bypass = {
 		}
 		available_if_capitulated = yes
 		completion_reward = {
@@ -5120,11 +5105,20 @@ focus_tree = {
 			}
 			if = {
 				limit = {
-					NOT = {
-						CZE = {
-							is_subject_of = ROOT
-						}
-					}
+					has_subject = CZE
+				}
+				add_named_threat = {
+					threat = 2
+					name = GER_bohemia_integration
+				}
+				annex_country = {
+					target = CZE
+					transfer_troops = yes
+				}
+			}
+			else_if = {
+				limit = {
+					country_exists = CZE
 				}
 				add_named_threat = {
 					threat = 5
@@ -5135,26 +5129,24 @@ focus_tree = {
 					target = CZE
 				}
 			}
-			if = {
-				limit = {
-					CZE = {
-						is_subject_of = ROOT
-					}
-				}
+			else = {
 				add_named_threat = {
 					threat = 2
 					name = GER_bohemia_integration
 				}
-				annex_country = {
-					target = CZE
-					transfer_troops = no
-				}
 			}
-			add_state_core = 9
-			add_state_core = 69
-			add_state_core = 74
-			add_state_core = 72
-			add_state_core = 75
+			every_state = {
+				limit = {
+					OR = {
+						state = 9
+						state = 69
+						state = 72
+						state = 74
+						state = 75
+					}
+				}
+				add_core_of = PREV
+			}
 		}
 		ai_will_do = {
 			factor = 100
@@ -5174,18 +5166,12 @@ focus_tree = {
 		y = 7
 		available_if_capitulated = yes
 		available = {
-			AUH = {
-				exists = no
-			}
+			NOT = { country_exists = AUH }
 			HUN = {
-				NOT = {
-					has_war_with = ROOT
-				}
 				is_in_faction = no
 				NOT = {
+					has_war_with = ROOT
 					has_idea = AUH_ww1_House_Habsburg_Lorraine
-				}
-				NOT = {
 					has_country_leader = {
 						character = HUN_franz_joseph_i
 					}
@@ -5315,13 +5301,15 @@ focus_tree = {
 			OR = {
 				FRA = {
 					is_subject_of = ROOT
-
 				}
 				FRA = {
 					exists = no
 				}
 				has_country_flag = great_war_winner
 			}
+			NOT = {
+				has_country_flag = great_war_loser
+			}	
 		}
 		mutually_exclusive = {
 			focus = GER_HRE_focus
@@ -6597,6 +6585,11 @@ focus_tree = {
 		available = {
 			is_subject = no
 			has_global_flag = frankfurt_treaty
+			has_country_flag = interbellum
+			OR = {
+				is_in_faction = no
+				is_faction_leader = yes
+			}	
 		}
 		completion_reward = {
 			if = {
