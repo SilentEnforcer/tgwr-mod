@@ -32,8 +32,20 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		tag = SOV
-		VLN = { exists = yes }
-		has_global_flag = ukrainian_civil_war
+		VLN = { 
+			exists = yes 
+			is_subject = no
+			has_war_with = UKR
+			has_government = SOV
+			NOT = {
+				has_war_with = SOV
+				is_in_faction_with = SOV
+			}
+		}
+		OR = {
+			has_global_flag = ukrainian_civil_war
+			has_war_with = UKR
+		}
 	}
 	
 	mean_time_to_happen = { days = 25 }
@@ -41,16 +53,15 @@ country_event = {
 	option = {
 		name = ww1_soviet.3.a
 		SOV = { add_to_faction = VLN }
-		add_popularity = {
-			ideology = neutrality
-			popularity = 0.05
-		}
 		ai_chance = { factor = 100 }
 	}
 	option = {
 		name = ww1_soviet.3.b
 		add_stability = -0.05
-		declare_war_on = { target = VLN type = annex_everything }
+		declare_war_on = {
+			target = VLN
+			type = annex_everything
+		}
 		ai_chance = { factor = 0 }
 	}
 }
@@ -61,44 +72,117 @@ country_event = {
 	title = ww1_soviet.4.t
 	desc = ww1_soviet.4.d
 	id = ww1_soviet.4
-	picture = GFX_report_event_generic_sign_treaty1
-	
+	picture = GFX_report_tsar_family
 	fire_only_once = yes
 	is_triggered_only = yes
-	trigger = {
-        SOV = { 
-			has_government = communism 
-		    has_war_with = RUS
-		}
-	}
 	option = {
 		name = ww1_soviet.4.a
 		set_global_flag = nicholas_ii_is_dead
 		add_political_power = -50
 		news_event = { id = ww1_soviet.5 } #Царь убит большевиками.
-		ai_chance = { factor = 100 }
+		hidden_effect = {
+			RUS = { retire_character = RUS_nikolai_ii }
+			# Kill him effectively
+		}
+		ai_chance = {
+			factor = 100
+			modifier = {
+				factor = 0
+				OR = {
+					has_game_rule = {
+						rule = tsar_fate
+						option = TSAR_IN_BRITAIN
+					}
+					has_game_rule = {
+						rule = tsar_fate
+						option = TSAR_RETURNED
+					}
+				}
+				OR = {
+					ENG = {
+						exists = yes
+						NOT = { has_government = communism }
+					}
+					RUS = {
+						exists = yes
+						NOT = {
+							has_government = communism
+							is_in_faction_with = PREV
+							is_subject_of = PREV
+						}
+					}
+				}
+			}
+		}
 	}
 	option = {
 		name = ww1_soviet.4.b
 		if = {
 			limit = { 
 				ENG = {
+					exists = yes
 					NOT = { has_government = communism } 
 				}
 			}
 			ENG = { country_event = { id = ww1_england.34 days = 3 } } #Царь бежал в Англию.
 		}
-		if = {
-			limit = { 
-				ENG = { has_government = communism }
+		else_if = {
+			limit = {
+				RUS = {
+					exists = yes
+					NOT = {
+						has_government = communism
+						is_in_faction_with = PREV
+						is_subject_of = PREV
+					}
+				}
 			}
 			RUS = { country_event = { id = ww1_soviet.7 days = 3 } } #Царь спасен Белой Армией.
+		}
+		trigger = {
+			OR = {
+				ENG = {
+					exists = yes
+					NOT = { has_government = communism }
+				}
+				RUS = {
+					exists = yes
+					NOT = {
+						has_government = communism
+						is_in_faction_with = PREV
+						is_subject_of = PREV
+					}
+				}
+			}
 		}
 		ai_chance = { 
 			factor = 25
 			modifier = {
 				is_historical_focus_on = yes
+				NOT = {
+					has_game_rule = {
+						rule = tsar_fate
+						option = TSAR_IN_BRITAIN
+					}
+					has_game_rule = {
+						rule = tsar_fate
+						option = TSAR_RETURNED
+					}
+				}
 				factor = 0
+			}
+			modifier = {
+				factor = 1000
+				OR = {
+					has_game_rule = {
+						rule = tsar_fate
+						option = TSAR_IN_BRITAIN
+					}
+					has_game_rule = {
+						rule = tsar_fate
+						option = TSAR_RETURNED
+					}
+				}
 			}
 		}
 	}
@@ -146,23 +230,45 @@ country_event = {
 			popularity = 0.1
 		}
 		add_political_power = 75
-		ai_chance = { factor = 100 }
+		hidden_effect = {
+			# Nikolai is in Britain, not Russia
+			RUS = { retire_character = RUS_nikolai_ii }
+		}
+		ai_chance = {
+			factor = 100
+			modifier = {
+				factor = 0
+				has_game_rule = {
+					rule = tsar_fate
+					option = TSAR_RETURNED
+				}
+			}
+		}
 	}
 	option = {
 		name = ww1_soviet.6.b #Помочь царю вернуться в Россию.
 		RUS = { country_event = { id = ww1_soviet.7 } }
-		ai_chance = { factor = 100 }
+		ai_chance = {
+			factor = 100
+			modifier = {
+				factor = 0
+				has_game_rule = {
+					rule = tsar_fate
+					option = TSAR_IN_BRITAIN
+				}
+			}
+		}
 	}
 }
+
 # TSAR IN WHITE RUSSIA
-###############
+#########################
 country_event = {
 	title = ww1_soviet.7.t
 	desc = ww1_soviet.7.d
 	id = ww1_soviet.7
 	picture = GFX_report_event_generic_military_parade
 	
-	fire_only_once = yes
 	is_triggered_only = yes
 	
 	option = {
@@ -172,43 +278,67 @@ country_event = {
 			popularity = 0.1
 		}
 		add_political_power = 75
-		set_global_flag = nicholas_ii_saved
-		ai_chance = { factor = 50 }
+		hidden_effect = {
+			set_global_flag = nicholas_ii_saved
+		}
+		ai_chance = {
+			factor = 50
+			modifier = {
+				factor = 0
+				has_completed_focus = RUS_white_movenment
+				OR = {
+					has_government = fascism
+					has_government = neutrality
+				}
+			}
+		}
 	}
 	option = {
 		name = ww1_soviet.7.b #Реставрация монархии.
 		trigger = {
 			has_completed_focus = RUS_white_movenment
 		}
-		RUS = {
-			set_politics = {
-				ruling_party = neutrality
-				elections_allowed = no
-			}
-			set_popularities = {
-				democratic = 5
-				neutrality = 63
-				fascism = 32
-				communism = 0
-			}
-			create_country_leader = {
-				name = "Nikolai II"
-				picture = "gfx/leaders/RUS_nicholas_romanov.dds"
-				expire = "1935.1.1"
-				ideology = autocracy
-				traits = {
-					trait_autocracy
+		set_politics = {
+			ruling_party = neutrality
+			elections_allowed = no
+		}
+		set_popularities = {
+			democratic = 5
+			neutrality = 63
+			fascism = 32
+			communism = 0
+		}
+		set_party_name = {
+			ideology = neutrality
+			long_name = RUS_neutrality_party
+			name = RUS_neutrality_party
+		}
+		drop_cosmetic_tag = yes
+		hidden_effect = {
+			set_global_flag = nicholas_ii_saved
+			set_global_flag = restoration_of_russian_monarchy
+			RUS_nikolai_ii = {
+				set_portraits = {
+					civilian = {
+						large = "gfx/leaders/RUS/RUS_nicholas_romanov_dictator.png"
+					}
 				}
+				add_country_leader_role = {
+					country_leader = {
+						ideology = autocracy
+						traits = { autocratic_imperialist anti_communist }
+					}
+				}
+				promote_character = autocracy
 			}
 		}
 		news_event = { id = ww1_soviet.8 }
-		set_global_flag = nicholas_ii_saved
-		set_global_flag = restoration_of_russian_monarchy
 		ai_chance = { factor = 100 }
 	}
 }
+
 # TSAR RETURNS TO RUSSIA
-###############
+###########################
 news_event = {
 	title = ww1_soviet.8.t
 	desc = ww1_soviet.8.d
@@ -415,11 +545,11 @@ country_event = {
 				}
 				create_country_leader = {
 					name = "People's Council"
-					picture = "gfx/leaders/SOV/SOV_provisional_goverment.tga"
-					expire = "1935.1.1"
+					picture = "gfx/leaders/RUS/RUS_Anarchy.png"
+					
 					ideology = authoritarian_democracy
 					traits = {
-						trait_authoritarian_democracy
+						
 					}
 				}
 				add_ideas = SOV_idea_kronstadt
@@ -521,7 +651,7 @@ country_event = {
 	title = ww1_soviet.15.t
 	desc = ww1_soviet.15.d
 	id = ww1_soviet.15
-	picture = GFX_report_event_yugoslavia_partisans
+	picture = GFX_report_polish_sov_ww1
 	
 	fire_only_once = yes
 	is_triggered_only = yes
@@ -536,13 +666,14 @@ country_event = {
 			ruling_party = communism
 			elections_allowed = no
 		}
-		retire_ideology_leader = communism
-		create_country_leader = {
-			name = "Felix Dzerzhinsky"
-			picture = "gfx/leaders/POL/POL_felix_dzerzhinsky.dds" 
-			expire = "1935.1.1" 
-			ideology = vanguardism
-			traits = { prince_of_terror trait_vanguardism } 
+		POL_felix_dzerzhinsky = {
+			add_country_leader_role = {
+				country_leader = {
+					ideology = vanguardism
+					traits = { prince_of_terror }
+				}
+			}
+			promote_character = vanguardism
 		}
 		set_party_name = { ideology = communism name = POL_polrewkom_party long_name = POL_polrewkom_party_long }
 		set_cosmetic_tag = POL_SOVIET
@@ -618,6 +749,7 @@ country_event = {
 			}
 		}
 		declare_war_on = { target = SOV type = take_claimed_state }
+		set_global_flag = polish_soviet_war
 		every_country = {
 			limit = {
 				owns_state = 95
@@ -646,8 +778,30 @@ country_event = {
 				transfer_state = 808
 			}
 		}
+		add_ideas = POL_idea_polish_reclamation
+		add_ideas = idea_soviet_westward_offensive
 		SOV = { 
 			country_event = { id = ww1_soviet.16 } 
+		}
+		FRA = {
+			if = {
+				limit = {
+					has_country_flag = great_war_winner
+					NOT = {
+						has_government = communism
+					}
+				}
+			}
+			hidden_effect = {
+				set_rule = {
+					can_send_volunteers = yes
+				}
+				add_ai_strategy = {
+					id = PREV
+					type = send_volunteers_desire
+					value = 100
+				}
+			}
 		}
 		hidden_effect = {
 			news_event = { id = ww1_soviet.17 } 
@@ -673,7 +827,7 @@ country_event = {
 	title = ww1_soviet.16.t
 	desc = ww1_soviet.16.d
 	id = ww1_soviet.16
-	picture = GFX_report_event_yugoslavia_partisans
+	picture = GFX_report_polish_sov_ww1
 	
 	fire_only_once = yes
 	is_triggered_only = yes
@@ -689,7 +843,7 @@ news_event = {
 	title = ww1_soviet.17.t
 	desc = ww1_soviet.17.d
 	id = ww1_soviet.17
-	picture = GFX_news_event_023
+	picture = GFX_news_event_polish_soviet_war
 	
 	major = yes
 	is_triggered_only = yes
@@ -774,7 +928,7 @@ country_event = {
 	}
 }
 # POLISH-SOVIET WAR - RUSSIA ASK FOR PEACE
-##########################
+#############################################
 country_event = {
 	title = ww1_soviet.20.t
 	desc = ww1_soviet.20.d
@@ -786,15 +940,112 @@ country_event = {
 	
 	option = {
 		name = ww1_soviet.18.a #yes
+		
+		# HAS UKRAINE DEFEATED?
+		every_other_country = {
+			limit = {
+				original_tag = UKR
+				OR = {
+					is_subject_of = SOV
+					has_government = communism
+					has_capitulated = yes
+					is_in_faction_with = SOV
+				}
+			}
+			hidden_effect = { set_country_flag = riga_peace }
+		}
+		if = {
+			limit = {
+				NOT = { country_exists = UKR }
+			}
+			hidden_effect = { UKR = { set_country_flag = riga_peace } }
+		}
+		
+		# HAS BELARUS DEFEATED?
+		every_other_country = {
+			limit = {
+				original_tag = BLR
+				OR = {
+					is_subject_of = SOV
+					has_government = communism
+					has_capitulated = yes
+					is_in_faction_with = SOV
+				}
+			}
+			hidden_effect = { set_country_flag = riga_peace }
+		}
+		if = {
+			limit = {
+				NOT = { country_exists = BLR }
+			}
+			hidden_effect = { BLR = { set_country_flag = riga_peace } }
+		}
+		
+		# END OF SOVIET WESTWARD OFFENSIVE
 		every_country = {
-		    limit = {
-				is_in_faction_with = SOV
+			limit = {
+				OR = {
+					tag = EST
+					tag = LAT
+					tag = LIT
+				}
+				has_war_with = SOV
+			}
+			white_peace = SOV
+		}
+		LAT = {
+			if = {
+				limit = {
+					is_subject = no
+					NOT = {
+						is_in_faction_with = PREV
+						owns_state = 96
+					}
+				}
+				hidden_effect = {
+					every_state = {
+						limit = {
+							state = 96
+							OR = {
+								is_owned_by = RUS
+								is_owned_by = SOV
+							}
+						}
+						transfer_state_to = PREV
+					}
+				}
+			}
+		}
+		
+		# END OF POLISH-SOVIET WAR
+		every_country = {
+			limit = {
+				OR = {
+					tag = SOV
+					is_in_faction_with = SOV
+				}
 			}
 			white_peace = POL
 		}
-		SOV = { white_peace = POL }
-		POL = {
-			every_state = {
+		
+		# POLISH EXPANSIONISM
+		every_country = {
+			limit = {
+				OR = {
+					AND = {
+						original_tag = UKR
+						has_country_flag = riga_peace
+					}
+					AND = {
+						original_tag = BLR
+						has_country_flag = riga_peace
+					}
+					original_tag = SOV
+					original_tag = RUS
+					original_tag = LIT
+				}
+			}
+			every_owned_state = {
 				limit = {
 					OR = {
 						state = 93
@@ -807,24 +1058,117 @@ country_event = {
 						state = 89
 						state = 562
 						state = 73
-					}	
-				    OR = {
-						is_owned_by = UKR
-						is_owned_by = BLR
-						is_owned_by = SOV
-						is_owned_by = RUS
-						is_owned_by = LIT
-					}					 					
+					}
 				}
-				POL = {
-					transfer_state = PREV
+				transfer_state_to = POL
+			}
+		}
+		
+		# NO FACTIONS INTERWAR
+		if = {
+			limit = { POL = { is_in_faction = yes } is_faction_leader = no }
+			POL = { leave_faction = yes }
+		}
+		
+		# FATE OF UKRAINE AND BELARUS
+		# it is because they are not original country but civil war country with wrong colour and mechanics.
+		hidden_effect = {
+			every_other_country = {
+				limit = {
+					OR = {
+						original_tag = UKR
+						original_tag = BLR
+					}
+					exists = yes
+				}
+				if = {
+					limit = {
+						has_country_flag = riga_peace
+					}
+					SOV = {
+						if = {
+							limit = {
+								has_completed_focus = SOV_USSR
+							}
+							annex_country = {
+								target = PREV
+								transfer_troops = yes
+							}
+						}
+						else_if = {
+							limit = {
+								PREV = {
+									NOT = { is_subject_of = PREV }
+								}
+							}
+							puppet = PREV
+						}
+					}
+				}
+				else = {
+					if = {
+						limit = {
+							original_tag = UKR
+						}
+						UKR = {
+							annex_country = {
+								target = PREV
+							}
+							set_politics = {
+								ruling_party = democratic
+								elections_allowed = yes
+							}
+							set_popularities = {
+								democratic = 50
+								fascism = 0
+								communism = 40
+								neutrality = 10
+							}
+							set_party_name = {
+								ideology = democratic
+								long_name = UKR_directory_party							
+								name = UKR_directory_party
+							}
+							drop_cosmetic_tag = yes
+						}
+					}
+					if = {
+						limit = {
+							original_tag = BLR
+						}
+						BLR = {
+							annex_country = {
+								target = PREV
+							}
+							set_politics = {
+								ruling_party = neutrality
+								elections_allowed = no
+							}
+							set_popularities = {
+								fascism = 2
+								communism = 41
+								democratic = 4
+								neutrality = 53
+							}
+							drop_cosmetic_tag = yes
+						}
+					}
 				}
 			}
-		}	
-		if = {
-			limit = { POL = { is_in_faction = yes } is_faction_leader = no}
-			POL = { leave_faction = yes }
-		}	
+		}
+		
+		# FRENCO-POLISH ALLIANCE
+		FRA = {
+			if = {
+				limit = {
+					has_country_flag = great_war_winner
+				}
+				country_event = ww1_soviet.38
+			}
+		}
+		
+		# NEWS EVENT
+		news_event = ww1_soviet.39
 		ai_chance = { factor = 100 }
 	}
 	option = {
@@ -864,10 +1208,10 @@ country_event = {
 		name = ww1_soviet.22.a #Arrest them
 		create_country_leader = {
 			name = "Leon Trotsky"
-			picture = "gfx/leaders/SOV/SOV_leon_trotsky.dds"
-			expire = "1935.1.1"
+			picture = "gfx/leaders/SOV/Portrait_Leon_Trotsky.dds"
+			
 			ideology = vanguardism
-			traits = { permanent_revolutionary trait_vanguardism}
+			traits = { permanent_revolutionary }
 		}
 		add_popularity = {
 			ideology = communism
@@ -879,10 +1223,10 @@ country_event = {
 		name = ww1_soviet.22.b #Reform communist party
 		create_country_leader = {
 			name = "Nikolai Bukharin"
-			picture = "gfx/leaders/SOV/SOV_nikolai_bukharin.dds"
-			expire = "1935.1.1"
+			picture = "gfx/leaders/SOV/SOV_nikolai_bukharin.png"
+			
 			ideology = market_socialism
-			traits = { socialite_connections trait_market_socialism }
+			traits = { socialite_connections  }
 		}
 		add_stability = 0.05
 		ai_chance = { factor = 50 }
@@ -915,11 +1259,11 @@ country_event = {
 		}
 		create_country_leader = {
 			name = "People's Council"
-			picture = "gfx/leaders/SOV/SOV_provisional_goverment.tga"
-			expire = "1935.1.1"
+			picture = "gfx/leaders/RUS/RUS_Anarchy.png"
+			
 			ideology = authoritarian_democracy
 			traits = {
-				trait_authoritarian_democracy
+				
 			}
 		}
 		if = {
@@ -1010,11 +1354,11 @@ country_event = {
 				}
 				create_country_leader = {
 					name = "People's Council"
-					picture = "gfx/leaders/SOV/SOV_provisional_goverment.tga"
-					expire = "1935.1.1"
+					picture = "gfx/leaders/RUS/RUS_Anarchy.png"
+					
 					ideology = authoritarian_democracy
 					traits = {
-						trait_authoritarian_democracy
+						
 					}
 				}
 				add_ideas = SOV_idea_kronstadt
@@ -1055,12 +1399,16 @@ country_event = {
 	option = {
 		name = ww1_soviet.27.b
 		ai_chance = {
-			base = 0
+			factor = 10
 			modifier = {
-				add = 100
+				factor = 0
 				has_army_manpower = {
-					size > 500000
+					size < 500000
 				}
+			}
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
 			}
 		}
 	}
@@ -1131,7 +1479,7 @@ country_event = {
 	trigger = {
 		original_tag = SOV
 		has_country_leader = {
-			name = "Vladimir Lenin"
+			character = SOV_vladimir_lenin
 			ruling_only = yes
 		}
 		date > 1924.1.1
@@ -1147,7 +1495,7 @@ country_event = {
 			idea = SOV_idea_power_struggle
 			days = 1000
 		}
-		kill_country_leader = yes
+		#kill_country_leader = yes
 		if = {
 			limit = {
 				NOT = { has_global_flag = successor_bukharin }
@@ -1159,7 +1507,7 @@ country_event = {
 				expire = "1936.1.1"
 				ideology = vanguardism
 				traits = {
-					trait_vanguardism
+					
 				}
 			}
 		}
@@ -1169,10 +1517,10 @@ country_event = {
 			}
 			create_country_leader = {
 				name = "Leon Trotsky"
-				picture = "gfx/leaders/SOV/SOV_leon_trotsky.dds"
+				picture = "gfx/leaders/SOV/Portrait_Leon_Trotsky.dds"
 				expire = "1936.1.1"
 				ideology = vanguardism
-				traits = { triumphant_revolutionary trait_vanguardism }
+				traits = { permanent_revolutionary  }
 			}
 		}
 		if = {
@@ -1181,10 +1529,10 @@ country_event = {
 			}
 			create_country_leader = {
 				name = "Nikolai Bukharin"
-				picture = "gfx/leaders/SOV/SOV_nikolai_bukharin.dds"
-				expire = "1935.1.1"
+				picture = "gfx/leaders/SOV/SOV_nikolai_bukharin.png"
+				
 				ideology = market_socialism
-				traits = { socialite_connections trait_market_socialism }
+				traits = { socialite_connections  }
 			}
 		}
 		ai_chance = {
@@ -1285,6 +1633,812 @@ country_event = {
 		ai_chance = {
 			factor = 100
 		}
+	}
+}
+
+# FREE TERRITORY SURVIVES
+############################
+country_event = {
+	id = ww1_soviet.33
+	title = ww1_soviet.33.t
+	desc = ww1_soviet.33.d
+	is_triggered_only = yes
+	option = {
+		every_country = {
+			limit = {
+				has_war_with = VLN
+				OR = {
+					tag = SOV
+					is_subject_of = SOV
+					is_in_faction_with = SOV
+				}
+			}
+			white_peace = VLN
+		}	
+		every_other_country = {
+			limit = {
+				OR = {
+					tag = SOV
+					is_subject_of = SOV
+					is_in_faction_with = SOV
+				}
+			}
+			every_owned_state = {
+				limit = {
+					is_fully_controlled_by = VLN
+					OR = {
+						is_core_of = RUS
+						is_core_of = UKR
+					}
+				}
+				VLN = {
+					transfer_state = PREV
+				}
+			}
+		}
+	}
+}
+
+# INVADE ESTONIA
+###################
+country_event = {
+	id = ww1_soviet.34
+	title = ww1_soviet.34.t
+	desc = ww1_soviet.34.d
+	trigger = {
+		tag = SOV
+		EST = {
+			exists = yes
+			is_subject = no
+			is_in_faction = no
+			is_neighbor_of = PREV
+			NOT = {
+				has_government = communism
+			}
+		}
+	}
+	fire_only_once = yes
+	mean_time_to_happen = { days = 30 }
+	option = {
+		name = ww1_soviet.34.a
+		declare_war_on = {
+			target = EST
+			type = annex_everything
+		}
+		hidden_effect = {
+			EST = {
+				add_ideas = idea_soviet_westward_offensive
+				add_ideas = idea_soviet_liberation_war
+				division_template = {
+					name = "Miilits"
+					regiments = {
+						infantry = {
+							x = 0
+							y = 0
+						}
+						infantry = {
+							x = 0
+							y = 1
+						}
+						infantry = {
+							x = 0
+							y = 2
+						}
+						infantry = {
+							x = 1
+							y = 0
+						}
+						infantry = {
+							x = 1
+							y = 1
+						}
+						infantry = {
+							x = 1
+							y = 2
+						}
+					}
+				}
+				capital_scope = {
+					create_unit = {
+						division = "name = \"Rapla miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
+						owner = EST
+					}
+					create_unit = {
+						division = "name = \"Lääne miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
+						owner = EST
+					}
+					create_unit = {
+						division = "name = \"Lääne-Viru miilits\" division_template = \"Miilits\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
+						owner = EST
+					}
+					create_unit = {
+						division = "name = \"Valga miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
+						owner = EST
+					}
+					create_unit = {
+						division = "name = \"Võru miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
+						owner = EST
+					}
+					create_unit = {
+						division = "name = \"Viljandi miilits\" division_template = \"Miilits\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
+						owner = EST
+					}
+					create_unit = {
+						division = "name = \"Saare miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
+						owner = EST
+					}
+					create_unit = {
+						division = "name = \"Järva miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
+						owner = EST
+					}
+					create_unit = {
+						division = "name = \"Jõgeva miilits\" division_template = \"Miilits\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
+						owner = EST
+					}
+					create_unit = {
+						division = "name = \"Ida-Viru miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
+						owner = EST
+					}
+					create_unit = {
+						division = "name = \"Tartu miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
+						owner = EST
+					}
+					create_unit = {
+						division = "name = \"Pärnu miilits\" division_template = \"Miilits\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
+						owner = EST
+					}
+					create_unit = {
+						division = "name = \"Põlva miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
+						owner = EST
+					}
+					create_unit = {
+						division = "name = \"Harju miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
+						owner = EST
+					}
+					create_unit = {
+						division = "name = \"Hiiu miilits\" division_template = \"Miilits\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
+						owner = EST
+					}
+				}
+			}
+		}
+		ai_chance = {
+			factor = 100
+			modifier = {
+				factor = 0
+				surrender_progress > 0.3
+			}
+		}
+	}
+	option = {
+		name = ww1_soviet.34.b
+	}
+}
+
+# INVADE LATVIA
+##################
+country_event = {
+	id = ww1_soviet.35
+	title = ww1_soviet.35.t
+	desc = ww1_soviet.35.d
+	trigger = {
+		tag = SOV
+		LAT = {
+			exists = yes
+			is_subject = no
+			is_in_faction = no
+			is_neighbor_of = PREV
+			NOT = {
+				has_government = communism
+			}
+		}
+	}
+	fire_only_once = yes
+	mean_time_to_happen = { days = 30 }
+	option = {
+		name = ww1_soviet.34.a
+		declare_war_on = {
+			target = LAT
+			type = annex_everything
+		}
+		hidden_effect = {
+			LAT = {
+				add_ideas = idea_soviet_westward_offensive
+				add_ideas = idea_soviet_liberation_war
+				division_template = {
+					name = "Milicija"
+					regiments = {
+						infantry = {
+							x = 0
+							y = 0
+						}
+						infantry = {
+							x = 0
+							y = 1
+						}
+						infantry = {
+							x = 0
+							y = 2
+						}
+						infantry = {
+							x = 1
+							y = 0
+						}
+						infantry = {
+							x = 1
+							y = 1
+						}
+						infantry = {
+							x = 1
+							y = 2
+						}
+					}
+				}
+				capital_scope = {
+					create_unit = {
+						division = "name = \"Kurzemes milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
+						owner = LAT
+					}
+					create_unit = {
+						division = "name = \"Zemgales milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
+						owner = LAT
+					}
+					create_unit = {
+						division = "name = \"Latgales milicija\" division_template = \"Milicija\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
+						owner = LAT
+					}
+					create_unit = {
+						division = "name = \"Vidzemes milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
+						owner = LAT
+					}
+				}
+			}
+		}
+		ai_chance = {
+			factor = 100
+			modifier = {
+				factor = 0
+				surrender_progress > 0.3
+			}
+		}
+	}
+	option = {
+		name = ww1_soviet.34.b
+	}
+}
+
+# UNITED INTERNATIONAL
+#########################
+country_event = {
+	id = ww1_soviet.36
+	title = ww1_soviet.36.t
+	desc = ww1_soviet.36.d
+	trigger = {
+		is_ai = no
+		is_major = yes
+		is_faction_leader = yes
+		has_global_flag = interbellum
+		has_government = communism
+		has_war = no
+		capital_scope = { is_on_continent = europe }
+		GER = { has_country_flag = great_war_winner }
+		OR = {
+			NOT = { country_exists = GER }
+			has_subject = GER
+		}
+		any_other_country = {
+			has_government = communism
+			is_major = yes
+			is_faction_leader = yes
+			NOT = {
+				has_war_with = PREV
+				has_country_flag = great_war_winner
+			}
+			capital_scope = { is_on_continent = europe }
+			has_war = no
+		}
+		if = {
+			limit = {
+				original_tag = SOV
+			}
+			has_completed_focus = SOV_comintern
+		}
+	}
+	fire_only_once = yes
+	mean_time_to_happen = { days = 45 }
+	option = {
+		name = ww1_soviet.36.a
+		every_other_country = {
+			limit = {
+				has_government = communism
+				is_major = yes
+				is_faction_leader = yes
+				NOT = {
+					has_war_with = PREV
+					has_country_flag = great_war_winner
+				}
+				capital_scope = { is_on_continent = europe }
+				has_war = no
+			}
+			country_event = ww1_soviet.37
+		}
+	}
+	option = {
+		name = ww1_soviet.36.b
+	}
+}
+
+# UNITED INTERNATIONAL - ANSWER
+##################################
+country_event = {
+	id = ww1_soviet.37
+	title = ww1_soviet.36.t
+	desc = ww1_soviet.37.d
+	is_triggered_only = yes
+	option = {
+		name = ww1_soviet.37.a
+		FROM = {
+			every_other_country = {
+				limit = {
+					OR = {
+						is_in_faction_with = PREV.PREV
+						is_subject_of = PREV.PREV
+					}
+				}
+				PREV = { add_to_faction = PREV }
+			}
+			add_to_faction = PREV
+		}
+		ai_chance = {
+			factor = 100
+			modifier = {
+				factor = 0
+				has_opinion = {
+					target = FROM
+					value < 70
+				}
+			}
+		}
+	}
+	option = {
+		name = ww1_soviet.37.b
+		ai_chance = {
+			base = 1
+		}
+	}
+}
+
+# FRANCE BACKS POLAND?
+##################################
+country_event = {
+	id = ww1_soviet.38
+	title = ww1_soviet.38.t
+	desc = ww1_soviet.38.d
+	is_triggered_only = yes
+	option = {
+		name = ww1_soviet.38.a
+		give_guarantee = FROM
+		ai_chance = {
+			factor = 100
+			modifier = {
+				factor = 0
+				has_government = communism
+			}
+		}
+	}
+	option = {
+		name = ww1_soviet.38.b
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 1
+				has_government = communism
+			}
+		}
+	}
+}
+
+# PEACE OF RIGA - NEWS
+#########################
+news_event = {
+	id = ww1_soviet.39
+	title = ww1_soviet.39.t
+	desc = ww1_soviet.39.d
+	is_triggered_only = yes
+	major = yes
+	picture = GFX_news_event_peace_of_riga
+	option = {
+		name = ww1_soviet.39.a
+		trigger = {
+			OR = {
+				tag = SOV
+				has_government = communism
+				is_subject_of = SOV
+				is_in_faction_with = SOV
+			}
+		}
+	}
+	option = {
+		name = ww1_soviet.39.a
+		trigger = {
+			NOT = {
+				tag = SOV
+				has_government = communism
+				is_subject_of = SOV
+				is_in_faction_with = SOV
+			}
+		}
+	}
+}
+
+# INVADE LITHUANIA
+#####################
+country_event = {
+	id = ww1_soviet.40
+	title = ww1_soviet.40.t
+	desc = ww1_soviet.40.d
+	trigger = {
+		tag = SOV
+		LIT = {
+			exists = yes
+			is_subject = no
+			is_in_faction = no
+			OR = {
+				is_neighbor_of = PREV
+				any_other_country = {
+					OR = {
+						is_subject_of = PREV.PREV
+						is_in_faction_with = PREV.PEV
+					}
+					is_neighbor_of = PREV
+				}
+			}
+			NOT = {
+				has_government = communism
+			}
+		}
+	}
+	fire_only_once = yes
+	mean_time_to_happen = { days = 30 }
+	option = {
+		name = ww1_soviet.34.a
+		declare_war_on = {
+			target = LIT
+			type = annex_everything
+		}
+		hidden_effect = {
+			LIT = {
+				add_ideas = idea_soviet_westward_offensive
+				add_ideas = idea_soviet_liberation_war
+				division_template = {
+					name = "Milicija"
+					regiments = {
+						infantry = {
+							x = 0
+							y = 0
+						}
+						infantry = {
+							x = 0
+							y = 1
+						}
+						infantry = {
+							x = 0
+							y = 2
+						}
+						infantry = {
+							x = 1
+							y = 0
+						}
+						infantry = {
+							x = 1
+							y = 1
+						}
+						infantry = {
+							x = 1
+							y = 2
+						}
+					}
+				}
+				capital_scope = {
+					create_unit = {
+						division = "name = \"Klaipėdos milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
+						owner = LIT
+					}
+					create_unit = {
+						division = "name = \"Alytaus milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
+						owner = LIT
+					}
+					create_unit = {
+						division = "name = \"Marijampolės milicija\" division_template = \"Milicija\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
+						owner = LIT
+					}
+					create_unit = {
+						division = "name = \"Vilniaus milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
+						owner = LIT
+					}
+					create_unit = {
+						division = "name = \"Šiaulių milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
+						owner = LIT
+					}
+					create_unit = {
+						division = "name = \"Utenos milicija\" division_template = \"Milicija\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
+						owner = LIT
+					}
+					create_unit = {
+						division = "name = \"Kauno milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
+						owner = LIT
+					}
+					create_unit = {
+						division = "name = \"Tauragės milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
+						owner = LIT
+					}
+					create_unit = {
+						division = "name = \"Telšių milicija\" division_template = \"Milicija\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
+						owner = LIT
+					}
+					create_unit = {
+						division = "name = \"Panevėžio milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
+						owner = LIT
+					}
+				}
+				every_owned_state = {
+					limit = {
+						OR = {
+							state = 97
+							state = 773
+						}
+					}
+					POL = {
+						if = {
+							limit = {
+								exists = yes
+								is_subject = no
+								is_neighbor_of = PREV.PREV
+								NOT = {
+									is_in_faction_with = SOV
+								}
+							}
+							transfer_state = PREV
+						}
+					}	
+				}
+			}
+		}
+		ai_chance = {
+			factor = 100
+			modifier = {
+				factor = 0
+				surrender_progress > 0.3
+			}
+		}
+	}
+	option = {
+		name = ww1_soviet.34.b
+	}
+}
+
+# LITBEL
+###########
+country_event = {
+	id = ww1_soviet.41
+	title = ww1_soviet.41.t
+	desc = ww1_soviet.41.d
+	trigger = {
+		tag = SOV
+		has_government = communism
+		has_war = no
+		LIT = {
+			has_government = communism
+			is_subject_of = PREV
+			NOT = {
+				has_cosmetic_tag = LITBEL
+			}
+		}
+		BLR = {
+			has_government = communism
+			is_subject_of = PREV
+		}
+	}
+	fire_only_once = yes
+	mean_time_to_happen = { days = 10 }
+	option = {
+		name = ww1_soviet.41.a
+		LIT = {
+			annex_country = {
+				target = BLR
+				transfer_troops = yes
+			}
+			set_cosmetic_tag = LITBEL
+		}
+		every_state = {
+			limit = {
+				is_core_of = BLR
+			}
+			add_core_of = LIT
+		}
+		every_state = {
+			limit = {
+				OWNER = {
+					OR = {
+						TAG = ROOT
+						is_subject_of = ROOT
+					}
+				}	
+				OR = {
+					is_core_of = LIT
+					is_core_of = BLR				
+				}
+				AND = {				
+					OR = {
+						is_owned_by = BLR
+						is_owned_by = LIT
+						NOT = {
+							state = 204
+							state = 241
+							state = 243
+							state = 207						
+						}
+					}					
+				}
+			}
+			transfer_state_to = LIT
+		}		
+		ai_chance = {
+			factor = 100
+		}
+	}
+	option = {
+		name = ww1_soviet.41.b
+		ai_chance = {
+			factor = 100
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+			}
+		}
+	}
+}
+
+# NO LITBEL
+##############
+country_event = {
+	id = ww1_soviet.42
+	hidden = yes
+	trigger = {
+		original_tag = LIT
+		has_cosmetic_tag = LITBEL
+		NOT = {
+			any_owned_state = {
+				is_core_of = BLR
+			}
+		}
+	}
+	mean_time_to_happen = { days = 0 }
+	immediate = {
+		drop_cosmetic_tag = yes
+		every_state = {
+			limit = {
+				is_core_of = LIT
+				is_core_of = BLR
+				NOT = {
+					state = 784
+				}
+			}
+			remove_core_of = LIT
+		}
+	}
+}
+
+# FIX LATVIAN SSR
+####################
+country_event = {
+	id = ww1_soviet.43
+	hidden = yes
+	trigger = {
+		tag = SOV
+		has_government = communism
+		has_subject = COU
+		has_subject = LAT
+	}
+	mean_time_to_happen = { days = 0 }
+	fire_only_once = yes
+	immediate = {
+		LAT = {
+			annex_country = {
+				target = COU
+				transfer_troops = yes
+			}
+		}
+	}
+}
+
+# TSAR IN VICTORIOUS WHITE RUSSIA WITHOUT EXECUTION
+######################################################
+country_event = {
+	title = ww1_soviet.7.t
+	desc = ww1_soviet.7.d
+	id = ww1_soviet.44
+	picture = GFX_report_event_generic_military_parade
+	
+	fire_only_once = yes
+	trigger = {
+		original_tag = RUS
+		has_country_flag = russian_civil_war_winner
+		NOT = {
+			has_government = communism
+			has_global_flag = nicholas_ii_is_dead
+			has_global_flag = nicholas_ii_saved
+			has_country_leader = {
+				character = RUS_nikolai_ii
+				ruling_only = yes
+			}
+		}
+	}
+	mean_time_to_happen = { days = 10 }
+	
+	option = {
+		name = ww1_soviet.7.a # Царь спасен.
+		add_popularity = {
+			ideology = neutrality
+			popularity = 0.1
+		}
+		add_political_power = 75
+		hidden_effect = {
+			set_global_flag = nicholas_ii_saved
+		}
+		ai_chance = {
+			factor = 50
+			modifier = {
+				factor = 0
+				has_completed_focus = RUS_white_movenment
+				OR = {
+					has_government = fascism
+					has_government = neutrality
+				}
+			}
+		}
+	}
+	option = {
+		name = ww1_soviet.7.b #Реставрация монархии.
+		trigger = {
+			has_completed_focus = RUS_white_movenment
+		}
+		set_politics = {
+			ruling_party = neutrality
+			elections_allowed = no
+		}
+		set_popularities = {
+			democratic = 5
+			neutrality = 63
+			fascism = 32
+			communism = 0
+		}
+		set_party_name = {
+			ideology = neutrality
+			long_name = RUS_neutrality_party
+			name = RUS_neutrality_party
+		}
+		drop_cosmetic_tag = yes
+		hidden_effect = {
+			set_global_flag = nicholas_ii_saved
+			set_global_flag = restoration_of_russian_monarchy
+			RUS_nikolai_ii = {
+				set_portraits = {
+					civilian = {
+						large = "gfx/leaders/RUS/RUS_nicholas_romanov_dictator.png"
+					}
+				}
+				add_country_leader_role = {
+					country_leader = {
+						ideology = autocracy
+						traits = { autocratic_imperialist anti_communist }
+					}
+				}
+				promote_character = autocracy
+			}
+		}
+		news_event = { id = ww1_soviet.8 }
+		ai_chance = { factor = 100 }
 	}
 }
 

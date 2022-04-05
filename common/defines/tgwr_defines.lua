@@ -34,3 +34,6 @@ NDefines.NMilitary.DIG_IN_FACTOR = 0.04
 NDefines.NMilitary.UNIT_DIGIN_SPEED = 0.5
 
 NDefines.NAI.MAX_DISTANCE_NAVAL_INVASION = 150.0
+NDefines.NDiplomacy.IDEOLOGY_JOIN_FACTION_MIN_LEVEL = 0
+
+NDefines.NRailwayGun.RAILWAY_GUN_RANGE = 15							-- The range of railway guns in pixels (Vanilla is 30)

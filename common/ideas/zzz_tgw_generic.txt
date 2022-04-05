@@ -3,21 +3,19 @@ ideas = {
 		idea_victors_of_wwi = {
 			allowed = { always = no }
 			allowed_civil_war = {
-				always = no
+				always = yes
 			}
 			removal_cost = -1
-            picture = generic_victors_of_ww1
-			research_bonus = {
-				land_doctrine = -0.75
-				air_doctrine = -0.75
-				naval_doctrine = -0.75
-            }
+         		picture = generic_victors_of_ww1
 			modifier = {
+				land_doctrine_cost_factor = 0.75
+				air_doctrine_cost_factor = 0.75
+				naval_doctrine_cost_factor = 0.75
 				ai_focus_defense_factor = 1.0
 				ai_get_ally_desire_factor = -1.0			
 				ai_desired_divisions_factor = -0.8
 			}
-        }
+		}
 		idea_armistice = {
 			picture = generic_constitutional_guarantees
 			allowed = { always = no }
@@ -36,15 +34,21 @@ ideas = {
 					has_country_flag = end_the_armistice
 					has_civil_war = yes
 				}
-				OR = {
-					has_global_flag = versallies_treaty
-					has_global_flag = frankfurt_treaty
-				}
+				has_global_flag = interbellum
 			}
 			on_remove = {
-				every_country = {
-					limit = { is_faction_leader = yes has_country_flag = great_war_winner }
-					country_event = ww1_generic.27
+				if = {
+					limit = {
+						has_country_flag = great_war_loser
+						has_country_flag = end_the_armistice
+					}
+					every_other_country = {
+						limit = { is_major = yes has_country_flag = great_war_winner }
+						country_event = ww1_generic.27
+					}
+				}
+				set_rule = {
+					can_send_volunteers = yes
 				}
 			}
 			rule = {
@@ -52,6 +56,7 @@ ideas = {
 				can_only_justify_war_on_threat_country = yes
 				can_join_factions = no
 				can_create_factions = no
+				can_send_volunteers = no
 			}
 		}
 		idea_army_restrictions = {
@@ -66,19 +71,23 @@ ideas = {
 					has_country_flag = remove_restrictions_idea
 					has_civil_war = yes
 				}
-				OR = {
-					has_global_flag = versallies_treaty
-					has_global_flag = frankfurt_treaty
+				NOT = {
+					original_tag = GER
 				}
+				has_global_flag = interbellum
 			}
 			on_remove = {
 				country_lock_all_division_template = no
-				random_country = {
-					limit = { is_faction_leader = yes has_country_flag = great_war_winner }
-					country_event = ww1_generic.28
+				if = {
+					limit = {
+						has_country_flag = great_war_loser
+					}
+					every_other_country = {
+						limit = { is_major = yes has_country_flag = great_war_winner }
+						country_event = ww1_generic.28
+					}
 				}
 			}
-			
 			modifier = {
 				ai_desired_divisions_factor = -1.0
 				industrial_capacity_factory = -0.25
@@ -86,44 +95,16 @@ ideas = {
 				custom_modifier_tooltip = idea_army_restrictions_tt
 			}
 		}
-		idea_great_war_armistice = { #??? Was in Belgium
-		    picture = ENG_the_war_to_end_all_wars
-			allowed = {
-                always = no
-            }			
-            removal_cost = -1 
-			available = {
-				has_war = no
-			}
-			rule = {
-				can_join_factions = no
-			}
-			modifier = {		
-			}
-        }
 		idea_production_restrictions = {
 			picture = generic_constitutional_guarantees
 			allowed = { always = no }
 			removal_cost = -1
 			allowed_civil_war = {
-				always = no
+				always = yes
 			}
 			available = { has_defensive_war = no }
 			modifier = {
 				consumer_goods_factor = 0.15
-			}
-		}
-		ww1_Scramble_for_Africa = {
-			allowed = { always = no } 
-			removal_cost = -1
-			available = {
-				NOT = {
-					has_global_flag = great_war_ends
-				}
-			}
-			modifier = {
-				justify_war_goal_time = -0.10
-				custom_modifier_tooltip = scramble_for_africa_tt
 			}
 		}
 		idea_spanish_flu = {
@@ -154,7 +135,7 @@ ideas = {
 		idea_famine = {
 			picture = ENG_the_war_to_end_all_wars
 			allowed_civil_war = {
-				always = no
+				always = yes
 			}
 			available = {
 				NOT = { has_idea = SOV_idea_famine }
@@ -195,10 +176,27 @@ ideas = {
 		idea_farm_crisis = {
 			picture = generic_agrarian_society
 			removal_cost = -1
-			
+			available = {
+				NOT = {
+					has_idea = idea_farm_crisis_2
+				}
+			}
 			modifier = {
 				consumer_goods_factor = 0.15
                 stability_factor = -0.15
+                production_lack_of_resource_penalty_factor = -0.5
+				production_speed_buildings_factor = -0.2
+			}
+		}
+
+		idea_farm_crisis_2 = {
+			picture = generic_agrarian_society
+			name = idea_farm_crisis
+			removal_cost = -1
+			
+			modifier = {
+				consumer_goods_factor = 0.05
+                party_popularity_stability_factor = -0.3
                 production_lack_of_resource_penalty_factor = -0.5
 				production_speed_buildings_factor = -0.2
 			}
@@ -529,7 +527,7 @@ ideas = {
 				always = no
 			}
 			allowed_civil_war = {
-				always = no
+				always = yes
 			}
 			removal_cost = -1
 			picture = MTG_naval_treaty_adherent
@@ -537,6 +535,41 @@ ideas = {
 				production_cost_max_ship_hull_cruiser = 5300
 				production_cost_max_ship_hull_heavy = 10000
 				production_cost_max_ship_hull_carrier = 9500
+			}
+		}
+		idea_soviet_liberation_war = {
+			picture = CZE_planning_bonus
+			allowed = {
+				always = no
+			}
+			available = {
+				has_war_with = SOV
+			}
+			removal_cost = -1
+			targeted_modifier = {
+				tag = SOV
+				attack_bonus_against = 0.7
+				defense_bonus_against = 1.0
+			}
+		}
+		idea_soviet_westward_offensive = {
+			picture = generic_communism_drift_bonus
+			allowed = {
+				always = no
+			}
+			available = {
+				has_war_with = SOV
+			}
+			removal_cost = -1
+			rule = {
+				can_not_declare_war = yes
+				can_only_justify_war_on_threat_country = yes
+				can_join_factions = no
+				can_create_factions = no
+			}
+			modifier = {
+				communism_drift = -0.1
+				communism_acceptance = -100
 			}
 		}
 	}

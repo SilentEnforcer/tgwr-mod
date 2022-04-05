@@ -13,7 +13,7 @@ country_event = {
 		has_war = no		
 		has_global_flag = versallies_treaty
 		has_country_leader = {
-			name = "Nikolai II"
+			character = RUS_nikolai_ii
 			ruling_only = no
 		}
 		OR = {
@@ -30,9 +30,11 @@ country_event = {
 		}
 		NOT = {
 			has_global_flag = support_spartacists
+			has_global_flag = spartakist_in_bavaria
 		}
 		GER = {
 			exists = yes
+        		has_country_flag = great_war_loser
 			NOT = {
 				has_government = communism
 			}
@@ -69,6 +71,19 @@ country_event = {
 				}
 			}
 			ENG = {
+				country_event = {
+					id = prussian.3
+					days = 1
+				}
+			}
+		}
+                if = {
+			limit = {
+				AUH = {
+					has_country_flag = great_war_winner
+				}
+			}
+			AUH = {
 				country_event = {
 					id = prussian.3
 					days = 1
@@ -181,7 +196,7 @@ news_event = {
 				}
 				create_dynamic_country = {
 					original_tag = GER
-					set_capital = { state = 343 }					#Koln
+					set_capital = { state = 343 }	#Koln
 					set_politics = {
 						ruling_party = democratic
 						elections_allowed = yes
@@ -194,7 +209,6 @@ news_event = {
 					}
 					set_country_flag = great_war_loser
 					set_country_flag = GER_rhine_federation_flag
-					set_cosmetic_tag = RHN
 					every_state = {
 						limit = {
 							is_core_of = GER
@@ -257,15 +271,22 @@ news_event = {
 					}
 				}
 				RHN = {
-					set_politics = {
-						ruling_party = fascism
-						elections_allowed = yes
-					}
-					set_popularities = {
-						democratic = 34
-						neutrality = 15
-						fascism = 36
-						communism = 15
+					if = {
+						limit = {
+							NOT = {
+								has_government = communism
+							}
+						}
+						set_politics = {
+							ruling_party = fascism
+							elections_allowed = yes
+						}
+						set_popularities = {
+							democratic = 34
+							neutrality = 15
+							fascism = 36
+							communism = 15
+						}
 					}
 					set_party_name = {
 						ideology = fascism
@@ -278,24 +299,21 @@ news_event = {
 						name = GER_democratic_party_zentrum
 					}
 					create_country_leader = {
-						name = "French Military Government"
-						picture = "gfx/leaders/FRA/FRA_provisional_government.dds"
-						expire = "1935.1.1"
+						name = "GER_french_military_government"
+						picture = "gfx/leaders/FRA/FRA_provisional_government.png"
+						
 						ideology = stratocracy
-						traits = {
-							trait_stratocracy
-						}
+						traits = { foreign_leader }
 					}
 					create_country_leader = {
-						name = "Konrad Adenauer"
-						picture = "gfx/leaders/GER/GER_Konrad_Adenauer.dds"
-						expire = "1935.1.1"
+						name = "GER_konrad_adenauer"
+						picture = "gfx/leaders/GER/GER_Konrad_Adenauer.png"
+						
 						ideology = conservatism
-						traits = {
-							trait_conservatism
-						}
+						traits = { }
 					}
 					add_ideas = democratic_influence
+					set_cosmetic_tag = RHN
 				}
 			}
 			HAN = {
@@ -340,14 +358,15 @@ news_event = {
 				}
 				create_country_leader = {
 					name = "Friedrich Ebert"
-					picture = "gfx/leaders/GER/GER_friedrich_ebert.dds"
-					expire = "1935.1.1"
+					picture = "gfx/leaders/GER/GER_friedrich_ebert.png"
+					
 					ideology = socialism
 					traits = {
-						trait_socialism
+						
 					}
 				}
-				set_capital = { state = 58	 }			#Hamburg, because it is not Hannover
+				set_capital = { state = 58 }
+				#Hamburg, because it is not Hannover
 				set_cosmetic_tag = HAN_niederdeutschland
 				add_ideas = SHL_kiel_canal_profits
 			}
@@ -383,12 +402,11 @@ news_event = {
 							state = 5
 							state = 85
 							state = 86
-							state = 188
 							state = 404
 							state = 763
 						}
 					}
-					PREV = { transfer_state = PREV }
+					transfer_state_to = PREV
 				}
 				release = BAY
 				release = SAX
@@ -404,6 +422,17 @@ news_event = {
 						has_id = 34316
 					}
 					set_nationality = BAY
+				}
+				GER_wilhelm_ii = {
+					add_country_leader_role = {
+						country_leader = {
+							# He is not emperor anymore
+							# desc = "GER_wilhelm_ii_desc"
+							ideology = autocracy
+							traits = { unpopular_monarch }
+						}
+					}
+					promote_character = autocracy
 				}
 				set_cosmetic_tag = PRE
 				load_focus_tree = {
@@ -428,7 +457,7 @@ news_event = {
 			}
 			BAY = {
 				set_politics = {
-					ruling_party = democratic
+					ruling_party = neutrality
 					elections_allowed = yes
 				}
 				set_popularities = {
@@ -467,6 +496,9 @@ news_event = {
 					FRA = {
 						has_country_flag = agreed_on_treaty_of_berlin
 					}
+                                        NOT = {
+                                                AUH = { has_country_flag = agreed_on_treaty_of_berlin }
+                                        }
 				}
 				FRA = {
 					puppet = WUR
@@ -482,6 +514,27 @@ news_event = {
 					}
 				}
 			}
+                        else_if = {
+                                limit = {
+                                        AUH = {
+                                                has_country_flag = agreed_on_treaty_of_berlin
+                                        }
+                                }
+                                AUH = {
+                                        if = {
+                                                limit = {
+                                                        has_dlc = "Together for Victory"
+                                                }
+                                                set_autonomy = {
+                                                        target = WUR
+                                                        autonomous_state = autonomy_dominion
+                                                }
+                                                else = {
+                                                        puppet = WUR
+                                                }
+                                        }
+                                }
+                        }
 			if = {
 				limit = {
 					FRA = {
@@ -531,35 +584,17 @@ news_event = {
 								long_name = GER_democratic_party_zentrum_long
 								name = GER_democratic_party_zentrum
 							}
-							create_country_leader = {
-								name = "Prinz Maximilian von Baden"
-								picture = "gfx/leaders/GER/GER_Maximilian_von_Baden.dds"
-								expire = "1935.1.1"
-								ideology = conservatism
-								traits = {
-									trait_conservatism
+							add_country_leader_role = {
+								character = GER_prinz_maximilian_von_baden
+								country_leader = {
+									ideology = conservatism
 								}
 							}
+							promote_character = GER_prinz_maximilian_von_baden
 							add_ideas = GER_idea_wilhelm_ii
 						}
 					}
 				}
-			}
-			if = {
-				limit = {
-					OR = {
-						NOT = {
-							FRA = {
-								has_country_flag = agreed_on_treaty_of_berlin
-							}
-						}
-						NOT = {
-							ENG = {
-								has_country_flag = agreed_on_treaty_of_berlin
-							}
-						}
-					}
-				}				
 			}
 			if = {
 				limit = {
@@ -824,6 +859,26 @@ news_event = {
 					transfer_state = 794
 				}
 			}
+                        AUH = {
+                                if = {
+                                        limit = {
+                                                has_country_flag = agreed_on_treaty_of_berlin
+                                        }
+                                        if = {
+                                                limit = {
+                                                        has_dlc = "Together for Victory"
+                                                }
+                                                set_autonomy = {
+                                                        target = BAY
+                                                        autonomous_state = autonomy_dominion
+                                                        freedom_level = 0.8
+                                                }
+                                                else = {
+                                                        puppet = BAY
+                                                }
+                                        }
+                                }
+                        }
 		}
 	}
 	option = {
@@ -1013,6 +1068,7 @@ country_event = {
 					has_trait = ENG_royalist
 					has_trait = old_guard
 					has_trait = politically_connected
+					has_trait = old_guard_navy
 				}
 			}
 		}
@@ -1422,315 +1478,6 @@ news_event = {
 	}
 }
 
-# REICHSKANZLER - GEORG MICHAELIS
-#####################################
-country_event = {
-	id = prussian.20
-	fire_only_once = yes
-	hidden = yes
-	trigger = {
-		original_tag = GER
-		has_country_leader = {
-			name = "Theobald von Bethmann-Hollweg"
-			ruling_only = no
-		}
-		date > 1917.7.14
-		date < 1917.11.1
-		NOT = {
-			has_country_flag = great_war_loser
-		}
-	}
-	mean_time_to_happen = {
-		days = 0
-	}
-	immediate = {
-		retire_ideology_leader = democratic
-		create_country_leader = {
-			name = "Georg Michaelis"
-			picture = "gfx/leaders/GER/GER_Georg_Michaelis.dds"
-			expire = "1935.1.1"
-			ideology = conservatism
-			traits = {
-				trait_conservatism
-			}
-		}
-	}
-}
-
-# REICHSKANZLER - GEORG VON HERTLING
-#####################################
-country_event = {
-	id = prussian.21
-	fire_only_once = yes
-	hidden = yes
-	trigger = {
-		original_tag = GER
-		has_country_leader = {
-			name = "Georg Michaelis"
-			ruling_only = no
-		}
-		date > 1917.10.24
-		date < 1918.10.30
-		NOT = {
-			has_country_flag = great_war_loser
-		}
-	}
-	mean_time_to_happen = {
-		days = 0
-	}
-	immediate = {
-		retire_ideology_leader = democratic
-		create_country_leader = {
-			name = "Georg von Hertling"
-			picture = "gfx/leaders/GER/GER_Georg_von_Hertling.dds"
-			expire = "1935.1.1"
-			ideology = conservatism
-			traits = {
-				trait_conservatism
-			}
-		}
-	}
-}
-
-# REICHSKANZLER - PRINZ MAXIMILIAN VON BADEN
-##############################################
-country_event = {
-	id = prussian.22
-	fire_only_once = yes
-	hidden = yes
-	trigger = {
-		original_tag = GER
-		OR = {
-			has_country_leader = {
-				name = "Theobald von Bethmann-Hollweg"
-				ruling_only = no
-			}
-			has_country_leader = {
-				name = "Georg Michaelis"
-				ruling_only = no
-			}
-			has_country_leader = {
-				name = "Georg von Hertling"
-				ruling_only = no
-			}
-		}
-		has_country_flag = great_war_loser
-	}
-	mean_time_to_happen = {
-		days = 0
-	}
-	immediate = {
-		retire_ideology_leader = democratic
-		create_country_leader = {
-			name = "Prinz Maximilian von Baden"
-			picture = "gfx/leaders/GER/GER_Maximilian_von_Baden.dds"
-			expire = "1935.1.1"
-			ideology = conservatism
-			traits = {
-				trait_conservatism
-			}
-		}
-	}
-}
-
-# REICHSKANZLER - ALFRED VON TIRPITZ
-##############################################
-country_event = {
-	id = prussian.23
-	fire_only_once = yes
-	hidden = yes
-	trigger = {
-		original_tag = GER
-		has_country_leader = {
-			name = "Erich Ludendorff"
-			ruling_only = yes
-		}
-		has_government = democratic
-		date > 1923.7.24
-		date < 1930.6.3
-		NOT = {
-			has_country_flag = great_war_loser
-		}
-	}
-	mean_time_to_happen = {
-		days = 0
-	}
-	immediate = {
-		retire_ideology_leader = democratic
-		create_country_leader = {
-			name = "Alfred von Tirpitz"
-			picture = "gfx/leaders/GER/GER_Alfred_Tirpitz.dds"
-			expire = "1935.1.1"
-			ideology = conservatism
-			traits = {
-				trait_conservatism
-			}
-		}
-	}
-}
-
-# REICHSKANZLER - FRIEDRICH EBERT
-##################################
-country_event = {
-	id = prussian.24
-	fire_only_once = yes
-	hidden = yes
-	trigger = {
-		original_tag = GER
-		NOT = {
-			has_country_leader = {
-				name = "Friedrich Ebert"
-			}
-		}
-		has_global_flag = weimar_republic
-		NOT = {
-			has_global_flag = prussian_blue
-		}
-	}
-	mean_time_to_happen = {
-		days = 0
-	}
-	immediate = {
-		retire_ideology_leader = democratic
-		create_country_leader = {
-			name = "Friedrich Ebert"
-			picture = "gfx/leaders/GER/GER_friedrich_ebert.dds"
-			expire = "1935.1.1"
-			ideology = socialism
-			traits = {
-				trait_socialism
-			}
-		}
-		set_party_name = {
-			ideology = democratic
-			long_name = GER_democratic_party_long
-			name = GER_democratic_party
-		}
-	}
-}
-
-# REICHSKANZLER - ERICH LUDENDORFF
-####################################
-country_event = {
-	id = prussian.25
-	fire_only_once = yes
-	hidden = yes
-	trigger = {
-		original_tag = GER
-		has_country_leader = {
-			name = "Georg von Hertling"
-		}
-		date > 1918.10.30
-		date < 1923.7.24
-		NOT = {
-			has_country_flag = great_war_loser
-		}
-	}
-	mean_time_to_happen = {
-		days = 0
-	}
-	immediate = {
-		retire_ideology_leader = democratic
-		create_country_leader = {
-			name = "Erich Ludendorff"
-			picture = "gfx/leaders/GER/GER_Erich_Ludendorff.dds"
-			expire = "1935.1.1"
-			ideology = conservatism
-			traits = {
-				trait_conservatism
-			}
-		}
-		set_party_name = {
-			ideology = democratic
-			long_name = GER_democratic_party_nationalist_long
-			name = GER_democratic_party_nationalist
-		}
-	}
-}
-
-# REICHSKANZLER - FRANZ VON PAPEN
-####################################
-country_event = {
-	id = prussian.26
-	title = prussian.26.t
-	desc = prussian.26.d
-	fire_only_once = yes
-	trigger = {
-		tag = GER
-		has_country_leader = {
-			name = "Alfred von Tirpitz"
-		}
-		date > 1930.6.3
-		NOT = {
-			has_country_flag = great_war_loser
-		}
-	}
-	mean_time_to_happen = {
-		days = 0
-	}
-	immediate = {
-		hidden_effect = {
-			kill_ideology_leader = democratic
-			create_country_leader = {
-				name = "Franz von Papen"
-				picture = "gfx/leaders/GER/GER_Franz_von_Papen.dds"
-				expire = "1935.1.1"
-				ideology = conservatism
-				traits = {
-					trait_conservatism
-				}
-			}
-			set_party_name = {
-				ideology = democratic
-				long_name = GER_democratic_party_conservative_long
-				name = GER_democratic_party_conservative
-			}
-		}
-	}
-	option = {
-		name = prussian.26.a
-	}
-}
-
-# REICHSPRAESIDENT - PAUL VON HINDENBURG
-###########################################
-country_event = {
-	id = prussian.27
-	fire_only_once = yes
-	hidden = yes
-	trigger = {
-		tag = GER
-		has_country_leader = {
-			name = "Friedrich Ebert"
-			ruling_only = yes
-		}
-		date > 1925.5.12
-		date < 1934.8.2
-		has_country_flag = great_war_loser
-	}
-	mean_time_to_happen = {
-		days = 0
-	}
-	immediate = {
-		retire_ideology_leader = democratic
-		create_country_leader = {
-			name = "Paul von Hindenburg"
-			picture = "gfx/leaders/GER/GER_Paul_von_Hindenburg.dds"
-			expire = "1935.1.1"
-			ideology = conservatism
-			traits = {
-				trait_conservatism
-			}
-		}
-		# He is independent (BRUH)
-		set_party_name = {
-			ideology = democratic
-			long_name = GER_reichstag_long
-			name = GER_reichstag
-		}
-	}
-}
-
 # Otto von Habsburg for Federal State of Austria
 #####################################################
 country_event = {
@@ -1740,27 +1487,45 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		original_tag = AUS
-		# It is already gone alterative with Prussian Blue, so why not?
 		has_global_flag = prussian_blue
+		has_government = fascism
 		has_country_leader = {
-			name = "Engelbert Dollfuss"
+			character = AUS_engelbert_dollfuss
 			ruling_only = yes
 		}
+		has_cosmetic_tag = AUS_vaterland
+		
 		date > 1932.11.20
+	}
+	mean_time_to_happen = {
+		days = 120
+		modifier = {
+			factor = 0.5
+			is_historical_focus_on = no
+		}
 	}
 	option = {
 		name = prussian.28.a
 		ai_chance = {
 			factor = 100
 		}
-		create_country_leader = {
-			name = "Otto von Habsburg"
-			picture = GFX_Portrait_hungary_otto_von_hapsburg
-			expire = "1935.1.1"
-			ideology = fascism_ideology
-			traits = {
-				trait_fascism
+		hidden_effect = {
+			AUS_otto_von_habsburg = {
+				add_country_leader_role = {
+					country_leader = {
+						ideology = neutrality
+					}
+					country_leader = {
+						ideology = fascism_ideology
+					}
+				}
+				set_character_name = "AUH_otto_von_habsburg"
+				promote_character = neutrality
+				promote_character = fascism_ideology
 			}
+		}
+		effect_tooltip = {
+			promote_character = AUS_otto_von_habsburg
 		}
 	}
 	option = {
@@ -1786,7 +1551,10 @@ country_event = {
 		NOT = {
 			has_government = communism
 		}
-		is_subject = no
+		OR = {
+                        is_subject = no
+                        is_subject_of = AUH
+                }
 		communism > 0.5
 	}
 	option = {
@@ -1794,6 +1562,32 @@ country_event = {
 		news_event = prussian.5
 		ai_chance = {
 			factor = 100
+		}
+                hidden_effect = {
+			every_other_country = {
+				limit = {
+					original_tag = GER
+					tag = WUR
+					tag = HAN
+					tag = SAX
+					NOT = {
+						has_government = communism
+					}
+				}
+				add_opinion_modifier = {
+					target = BAY
+					modifier = HOI4TGW_Opinion_hostile_diplomatic_relations
+				}
+			}
+                        if = {
+                                limit = {
+                                        is_subject_of = AUH
+                                }
+                                AUH = {
+                                        end_puppet = PREV
+                                        country_event = prussian.30
+                                }
+                        }
 		}
 		set_politics = {
 			ruling_party = communism
@@ -1817,23 +1611,6 @@ country_event = {
 			}
 		}
 		create_faction = komintern
-		hidden_effect = {
-			every_other_country = {
-				limit = {
-					original_tag = GER
-					tag = WUR
-					tag = HAN
-					tag = SAX
-					NOT = {
-						has_government = communism
-					}
-				}
-				add_opinion_modifier = {
-					target = BAY
-					modifier = HOI4TGW_Opinion_hostile_diplomatic_relations
-				}
-			}
-		}
 	}
 	option = {
 		name = prussian.29.b
@@ -1845,4 +1622,72 @@ country_event = {
 			size = 0.5
 		}
 	}
+}
+
+# Austrian Reaction to Bavarian Revolution
+country_event = {
+        id = prussian.30
+        title = prussian.30.t
+        desc = prussian.30.d
+        is_triggered_only = yes
+        option = {
+                name = prussian.30.a
+                add_popularity = {
+                        ideology = communism
+                        popularity = 0.10
+                }
+                declare_war_on = {
+                        target = FROM
+                        type = puppet_wargoal_focus
+                }
+                if = {
+                        limit = {
+                                OR = {
+                                        has_stability < 0.4
+                                        communism > 0.35
+                                }
+                        }
+                        hidden_effect = {
+                            start_civil_war = {
+                                ideology = communism
+                                size = 0.30
+                                keep_unit_leaders_trigger = {
+                                     OR = {
+                                        has_trait = trait_royal
+										has_trait = ENG_royalist
+                                        has_trait = old_guard
+                                        has_trait = politically_connected
+										has_trait = old_guard_navy
+									}
+                                }
+                            }
+                        }
+                }
+                ai_chance = {
+                        base = 10
+                        modifier = {
+                                add = -5
+                                communism > 0.3
+                        }
+                        modifier = {
+                                factor = 0
+                                has_government = communism
+                        }
+                }
+        }
+        option = {
+                name = prussian.30.b
+                add_war_support = -0.10
+                add_popularity = {
+                        ideology = communism
+                        popularity = 0.15
+                }
+                ai_chance = {
+                        base = 10
+                        modifier = {
+                                add = 10
+                                has_government = fascism
+                        }
+                }
+        }
 }
