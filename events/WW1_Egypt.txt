@@ -1,5 +1,7 @@
 add_namespace = ww1_egypt
 
+# EGYPTIAN REVOLUTION
+#####################
 country_event = {
 	id = ww1_egypt.1
 	title = interwar_news.5.t
@@ -7,14 +9,25 @@ country_event = {
 	picture = GFX_report_event_india_protests
 
 	fire_only_once = yes
-	is_triggered_only = yes
+
 	trigger = {
-		original_tag = EGY
+		tag = EGY
+		has_global_flag = interbellum
 		has_war = no
 		is_subject_of = ENG
 		NOT = {	has_global_flag = egyptian_revolution }
-		date > 1919.1.1
+		date > 1919.10.1
+		ENG = {
+			has_war = no
+			NOT = {
+				has_country_flag = great_war_loser
+			}
+		}	
 	}
+	
+	mean_time_to_happen = {
+			days = 5
+		}
 
 	immediate = {
 		set_global_flag = egyptian_revolution
@@ -22,30 +35,10 @@ country_event = {
 
 	option = {
 		name = ww1_egypt.1.a
-		ENG = {
-			end_puppet = EGY
-			remove_from_faction = EGY
-			declare_war_on = {
-				target = EGY
-				type = annex_everything
-			}
-		}
+		ENG = { country_event = { id = ww1_egypt.4 days = 1 hours = 1 } }
 		news_event = { id = interwar_news.5 days = 1 }
-		ai_chance = {
-			factor = 0
-		}
-	}
-	option = {
-		name = ww1_egypt.1.b
-		ENG = {
-			annex_country = {
-				target = EGY
-				transfer_troops = no
-			}
-		}
-		news_event = { id = interwar_news.5 days = 1 }
-		ai_chance = {
-			factor = 100
+		add_autonomy_score = {
+			value = 50
 		}
 	}
 }
@@ -66,8 +59,8 @@ country_event = {
 		retire_country_leader = yes
 		create_country_leader = {
 			name = "Hussein Kamel"
-			picture = "gfx/leaders/EGY/EGY_hussein_kamel.dds"
-			expire = "1935.1.1"
+			picture = "gfx/leaders/EGY/EGY_hussein_kamel.png"
+			
 			ideology = despotism
 			traits = {
 				
@@ -99,45 +92,85 @@ country_event = {
 		retire_country_leader = yes
 		create_country_leader = {
 			name = "Fuad I Muhammad Ali"
-			picture = "gfx/leaders/EGY/EGY_fuad_i.dds"
-			expire = "1935.1.1"
+			picture = "gfx/leaders/EGY/EGY_fuad_i.png"
+			
 			ideology = despotism
-			traits = {
-				
-			}
-		}
-		if = {
-			limit = { has_global_flag = EGY_sultanate }
-			set_cosmetic_tag = EGY_kingdom
 		}
 	}
 }
+# EGYPTIAN REVOLUTION - UK RESPONCE
+#####################
 country_event = {
 	id = ww1_egypt.4
 	title = interwar_news.5.t
-	desc = interwar_news.5.d
+	desc = ww1_egypt.4.d
 	picture = GFX_report_event_india_protests
 
 	is_triggered_only = yes
 	fire_only_once = yes
 
-	immediate = {
-		set_global_flag = egyptian_revolution
-	}
 
 	option = {
-		name = ww1_egypt.1.a
-		ENG = {
-			end_puppet = EGY
-			remove_from_faction = EGY
-			declare_war_on = {
-				target = EGY
-				type = annex_everything
-			}
-		}
-		news_event = { id = interwar_news.5 days = 1 }
+		name = ww1_egypt.4.a
+		add_political_power = -50
+		add_command_power = -50
 		ai_chance = {
 			factor = 1
+		}
+		if = {
+			limit = {
+				ENG_edmund_allenby = { is_unit_leader = yes is_country_leader = no }
+			}
+			ENG_edmund_allenby = {
+				set_nationality = EGY
+				if = {
+					limit = {
+						is_field_marshal = no									
+					}
+					promote_leader = yes
+				}
+			}
+		}
+		unlock_decision_tooltip = ENG_recognize_egyptian_independence
+		set_global_flag = egyptian_revolution_suppressed
+	}
+	option = {
+		name = ww1_egypt.4.b
+		add_political_power = 50
+		end_puppet = EGY
+		give_guarantee = EGY
+		EGY = {
+			set_cosmetic_tag = EGY_kingdom
+			if = {
+				limit = {
+					has_government = neutrality
+				}
+				set_country_leader_ideology = autocracy
+			}
+			add_ideas = ENG_british_officers_independent_egypt
+			country_lock_all_division_template = no	
+			add_popularity = {
+				ideology = democratic
+				popularity = 0.3
+			}
+			give_military_access = ENG
+		}
+		every_owned_state = {
+			limit = {
+				NOT = {
+					state = 447
+				}	
+				OR = {
+					is_core_of = EGY
+					is_core_of = SUD
+					is_claimed_by = EGY
+				}
+			}
+			transfer_state_to = EGY
+		}
+
+		ai_chance = {
+			factor = 0
 		}
 	}
 }

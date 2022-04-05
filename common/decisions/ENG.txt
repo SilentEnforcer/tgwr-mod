@@ -335,9 +335,155 @@ ENG_pacification_of_darfur = {
 
 political_actions = {
 
+	ENG_sack_louis_mountbatten = {
+
+		icon = eng_support_imperialist_coup
+
+		allowed = {
+			original_tag = ENG
+		}
+
+		available = {
+			OR = {
+				has_government = democratic
+				has_government = fascism
+			}
+			has_war_with = GER
+		}
+
+		visible = {
+			ENG_louis_alexander_mountbatten = { is_unit_leader = yes }
+			has_global_flag = kis_war
+		}
+
+		fire_only_once = yes
+
+		cost = 0
+
+		complete_effect = {
+			if = {
+				limit = {
+					has_government = democratic
+				}
+				effect_tooltip = {
+					retire_character = ENG_louis_alexander_mountbatten
+					add_war_support = 0.05
+					add_stability = 0.025
+				}
+				hidden_effect = {
+					country_event = { id = ww1_england.213 }
+				}
+				else = {
+					retire_character = ENG_louis_alexander_mountbatten
+					add_war_support = 0.05
+					add_stability = 0.025
+				}
+			}
+		}
+
+		ai_will_do = {
+			base = 0
+			modifier = {
+				date > 1914.10.27
+				add = 100
+			}
+		}
+
+
+	}	
+
+
+	ENG_recognize_egyptian_independence = {
+
+		icon = eng_trade_unions_support
+
+		allowed = {
+			original_tag = ENG
+		}
+
+		available = {
+			has_war = no			
+		}
+
+		visible = {
+			has_subject = EGY
+			has_global_flag = egyptian_revolution_suppressed
+		}
+		
+		target_trigger = {
+			FROM = {
+				tag = EGY
+			}
+		}	
+
+		cost = 50
+
+		complete_effect = {
+			EGY = {
+				set_cosmetic_tag = EGY_kingdom
+				if = {
+					limit = {
+						has_government = democratic
+					}
+					set_country_leader_ideology = autocracy
+				}	
+			}
+			EGY = {
+				set_cosmetic_tag = EGY_kingdom
+				add_ideas = ENG_british_officers_independent_egypt
+				country_lock_all_division_template = no	
+				add_popularity = {
+					ideology = democratic
+					popularity = 0.3
+				}
+			}
+			if = {
+				limit = {
+					has_dlc = "Together for Victory"
+					NOT = {
+						EGY = {
+							has_autonomy_state = autonomy_dominion
+						}
+					}
+				}
+				set_autonomy = {
+					target = EGY
+					autonomy_state = autonomy_dominion
+				}
+				hidden_effect = {
+					EGY = {
+						set_politics = {
+							ruling_party = neutrality
+							last_election = "1910.1.1"
+							election_frequency = 48
+							elections_allowed = no
+						}
+						set_popularities = {
+							fascism = 0
+							communism = 0
+							democratic = 48
+							neutrality = 52
+						}
+						set_country_leader_ideology = autocracy
+					}					
+				}
+			}
+		}
+
+		ai_will_do = {
+			base = 100
+			modifier = {
+				factor = 0
+				date < 1922.2.28
+			}
+		}
+
+
+	}
+
 	ENG_prince_david_leadership = {
 
-		icon = decision_eng_support_imperialist_coup
+		icon = eng_support_imperialist_coup
 
 		allowed = {
 			original_tag = ENG
@@ -357,7 +503,7 @@ political_actions = {
 		complete_effect = {
 			create_field_marshal = {
 				name = "Prince David" 
-				portrait_path = "gfx/leaders/ENG/ENG_edward_viii.dds" 
+				portrait_path = "gfx/leaders/ENG/ENG_edward_viii.png" 
 				traits = { politically_connected media_personality trait_royal trait_cautious inspirational_leader }
 				skill = 2
 				attack_skill = 2
@@ -385,7 +531,7 @@ political_actions = {
 
 	ENG_form_the_raf = {
 
-		icon = decision_generic_air
+		icon = generic_air
 
 		allowed = {
 			original_tag = ENG
@@ -529,46 +675,84 @@ political_actions = {
 			}
 		}
 	}
-	ENG_send_knox_to_russia = {
-
-		icon = generic_prepare_civil_war
-	
+	ENG_engage_french_civil_war = {
+		icon = GFX_decision_generic_ignite_civil_war
 		allowed = {
-			tag = ENG
+			original_tag = ENG
 		}
-		
 		available = {
-			country_exists = RUS
-			RUS = {
-				NOT = {
-					has_government = communism
+			any_country = {
+				has_country_flag = FRA_socialist_france_flag
+				any_country = {
+					has_country_flag = FRA_nationalist_france_flag
+					has_war_with = PREV
 				}
 			}
-			NOT = {
-				has_war_with = RUS
-			}
+			has_war = no
+			has_war_support > 0.5
+			has_stability > 0.5
+			has_global_flag = frankfurt_treaty
 		}
-
-		cost = 10
-		
 		visible = {
-			NOT = {
-				has_war_with = RUS
-				has_country_flag = eng_decision_knox_in_russia
+			is_historical_focus_on = no
+			any_country = {
+				has_country_flag = FRA_socialist_france_flag
+				is_neighbor_of = PREV
+				NOT = {
+					is_in_faction_with = PREV
+					is_subject_of = PREV
+				}
+			}
+			any_country = {
+				has_country_flag = FRA_nationalist_france_flag
+				is_neighbor_of = PREV
+				NOT = {
+					is_in_faction_with = PREV
+					is_subject_of = PREV
+				}
+			}
+			has_country_flag = great_war_winner
+			any_owned_state = {
+				is_on_continent = europe
+				is_core_of = FRA
 			}
 		}
-		
-		complete_effect = {
-			RUS = { country_event = { id = ww1_england.209 hours = 5 } }
-			add_war_support = 0.05
-			set_country_flag = eng_decision_knox_in_russia
+		fire_only_once = yes
+		cost = 400
+		days_remove = 30
+		target_trigger = {
+			FROM = {
+				original_tag = FRA
+				OR = {
+					has_country_flag = FRA_socialist_france_flag
+					has_country_flag = FRA_nationalist_france_flag
+				}
+			}
 		}
-
+		#war_with_on_remove = FRC
+		#war_with_on_remove = NFA
+		complete_effect = {
+			add_stability = -0.2
+			add_named_threat = {
+				threat = 10
+				name = ENG_engage_french_civil_war
+			}
+		}
+		remove_effect = {
+			declare_war_on = {
+				target = FRC
+				type = annex_everything
+			}
+			declare_war_on = {
+				target = NFA
+				type = annex_everything
+			}
+		}
 		ai_will_do = {
-			factor = 100
+			base = 0
 			modifier = {
-				factor = 0
-				date < 1911.1.6
+				add = 1
+				has_government = fascism
 			}
 		}
 	}
@@ -641,9 +825,7 @@ operations = {
 					prioritize = {
 						413
 					}
-					ENG = {
-						transfer_state = PREV
-					}
+					transfer_state_to = ENG
 				}
 				random_state = {
 					limit = {
@@ -657,9 +839,7 @@ operations = {
 					prioritize = {
 						410
 					}
-					ENG = {
-						transfer_state = PREV
-					}
+					transfer_state_to = ENG
 				}
 				every_state = {
 					limit = {
@@ -670,9 +850,7 @@ operations = {
 						}
 						
 					}
-					RUS = {
-						transfer_state = PREV
-					}
+					transfer_state_to = RUS
 				}
 				RUS = { country_event = ww1_russia.72 }
 			}
@@ -695,6 +873,63 @@ operations = {
 			}
 		}
 	}	
+	ENG_send_knox_to_russia = {
+
+		icon = generic_prepare_civil_war
+
+		allowed = {
+			tag = ENG
+		}
+
+		target_trigger = {
+			FROM = {
+				tag = RUS
+			}
+		}
+
+		available = {
+			NOT = {
+				has_war_with = RUS
+			}
+			RUS = {
+				OR = {
+					NOT = {
+						has_government = communism
+					}
+					has_government = ROOT
+					has_government = neutrality
+				}				
+			}
+		}
+
+		custom_cost_trigger = {
+			command_power > 14
+		}
+		custom_cost_text = TUR_decision_cost_kurd_rebels
+
+		visible = {
+			NOT = {
+				has_war_with = RUS
+			}
+			ENG_alfred_knox = {
+				is_unit_leader = yes
+			}
+		}
+
+		complete_effect = {
+			add_command_power = -15
+			RUS = { country_event = { id = ww1_england.209 hours = 5 } }
+			add_war_support = 0.02
+		}
+
+		ai_will_do = {
+			factor = 100
+			modifier = {
+				factor = 0
+				date < 1911.1.6
+			}
+		}
+	}
 }
 
 ENG_interwar_entente_category = {
