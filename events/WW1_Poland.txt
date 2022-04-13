@@ -1,4 +1,4 @@
-﻿add_namespace = ww1_poland
+add_namespace = ww1_poland
 
 # Russian Color
 ####################
@@ -7,8 +7,11 @@ country_event = {
 	
 	trigger = {
 		tag = POL
-		POL = { is_subject_of = RUS }
-		NOT = { has_global_flag = POL_RUS }
+		is_subject_of = RUS
+		RUS = {
+			NOT = { has_government = communism }
+		}
+		NOT = { has_cosmetic_tag = POL_RUS }
 	}	
 	mean_time_to_happen = {
 		days = 0
@@ -18,7 +21,6 @@ country_event = {
 
 	immediate = {
 		set_cosmetic_tag = POL_RUS
-		set_global_flag = POL_RUS
 	}
 }
 
@@ -30,7 +32,7 @@ country_event = {
 	trigger = {
 		tag = POL
 		NOT = { POL = { is_subject_of = RUS } }
-		has_global_flag = POL_RUS
+		has_cosmetic_tag = POL_RUS
 	}	
 	mean_time_to_happen = {
 		days = 0
@@ -40,7 +42,6 @@ country_event = {
 
 	immediate = {
 		drop_cosmetic_tag = yes
-		clr_global_flag = POL_RUS
 	}
 }
 
@@ -53,9 +54,14 @@ country_event = {
 		tag = POL
 		exists = yes
 		is_subject = no
+		has_war = no
 		GAL = {
 			exists = yes
-			is_subject = no
+			OR = {
+				is_subject = no
+				is_subject_of = PREV
+			}
+			has_war = no
 		}
 	}
 	mean_time_to_happen = {
@@ -75,6 +81,8 @@ country_event = {
 					WUK = {
 						exists = yes
 						is_subject = no
+						is_in_faction = no
+						has_war = no
 					}
 				}
 				annex_country = {
@@ -109,17 +117,17 @@ country_event = {
 				GER = { has_country_flag = great_war_loser }
 				NOT = { has_global_flag = versallies_treaty }
 			}
-        }
+       		}
 	}
 	mean_time_to_happen = { days = 1 }
 	option = {
 		name = ww1_poland.1.a
 		if = {
-		    limit = {
-		    	is_subject_of = GER
-		    }
-		    GER = { end_puppet = POL }
-		    leave_faction = yes
+			limit = {
+				is_subject_of = GER
+			}
+			GER = { end_puppet = POL }
+			leave_faction = yes
 		}
 		if = {
 			limit = {
@@ -172,7 +180,8 @@ country_event = {
 			NOT = {
 				has_government = communism
 			}	
-		}	
+		}
+		has_war = no
 	}
 	option = {
 		name = ww1_poland.2.a
@@ -183,9 +192,26 @@ country_event = {
 				transfer_troops = yes
 			}
 		}
-		set_autonomy = {
-			target = POL
-			autonomy_state = autonomy_tgwr_crownland
+		if = {
+			limit = {
+				original_tag = AUH
+			}
+			if = {
+				limit = {
+					has_government = neutrality
+					OR = {
+						has_dlc = "Together for Victory"
+						has_dlc = "Waking the Tiger"
+					}
+				}
+				set_autonomy = {
+					target = POL
+					autonomy_state = autonomy_tgwr_crownland
+				}
+			}
+			else = {
+				add_political_power = 100
+			}
 		}
 		if = {
 			limit = {
@@ -201,7 +227,7 @@ country_event = {
 		name = ww1_poland.2.b
 		ai_chance = { factor = 5 }
 		end_puppet = POL
-		POL = {leave_faction = yes }
+		POL = { leave_faction = yes }
 		hidden_effect = {
 			POL = {
 				set_politics = {
@@ -238,36 +264,45 @@ country_event = {
 # Soviet Poland
 ####################
 country_event = {
-    id = ww1_poland.3
+	id = ww1_poland.3
 	title = ww1_poland.3.t
 	desc = ww1_poland.3.d
 	picture = GFX_report_event_soviet_soldiers
 	trigger = {
 		original_tag = POL
-		exists = yes
-		OR = {
-			NOT = { has_country_leader = { character = POL_jozef_pilsudski ruling_only = yes } }
-			is_subject_of = SOV
-		}
-		NOT = { has_cosmetic_tag = POL_SOVIET }
 		has_government = communism
-		SOV = {has_government = communism}
+		NOT = { has_cosmetic_tag = POL_SOVIET }	
 		OR = {
-		    is_subject_of = SOV
-			is_in_faction_with = SOV
-        }
+			OVERLORD = {
+				has_government = communism
+				OR = {
+					original_tag = SOV
+					AND = {
+						original_tag = RUS
+						OR  = {
+							has_cosmetic_tag = RUS_soviet
+							has_cosmetic_tag = RUS_absolutism #Soviet Empire (((((
+						}
+					}	
+				}			
+			}
+			AND = {
+				NOT = { has_country_leader = { character = POL_jozef_pilsudski ruling_only = yes } }
+				is_in_faction_with = SOV
+			}	
+		}
 	}
 	mean_time_to_happen = { days = 17 }	
 	option = {
 		name = ww1_poland.3.a
 		POL_felix_dzerzhinsky = {
 			add_country_leader_role = {
+				promote_leader = yes
 				country_leader = {
 					ideology = vanguardism
 					traits = { prince_of_terror }
 				}
 			}
-			promote_character = vanguardism
 		}
 		set_party_name = { ideology = communism name = POL_polrewkom_party long_name = POL_polrewkom_party_long }
 		set_cosmetic_tag = POL_SOVIET	
@@ -494,6 +529,15 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_poland.9.a #Wittelsbach
+		every_possible_country = {
+			limit = {
+				has_unit_leader = 34316
+			}
+			GER_lepold_von_bayern = {
+				set_character_name = POL_leopold_i
+				set_nationality = ROOT
+			}
+		}
 		POL_leopold_i = {
 			add_country_leader_role = {
 				country_leader = {
@@ -502,18 +546,7 @@ country_event = {
 				}
 			}
 			promote_character = autocracy
-		}
-		every_country = {
-			limit = {
-				has_unit_leader = 34316
-			}
-			every_unit_leader = {
-				limit = {
-					has_id = 34316
-				}
-				set_nationality = ROOT
-			}
-		}
+		}		
 		set_party_name = {
 			ideology = neutrality
 			name = BAY_neutrality_party
@@ -525,6 +558,15 @@ country_event = {
 	}
 	option = {
 		name = ww1_poland.9.b #Württemberg
+		every_possible_country = {
+			limit = {
+				has_unit_leader = 34337
+			}
+			GER_albrecht_von_wurttemberg = {
+				set_character_name = POL_albrecht_i
+				set_nationality = ROOT
+			}
+		}
 		POL_albrecht_i = {
 			add_country_leader_role = {
 				country_leader = {
@@ -533,18 +575,7 @@ country_event = {
 				}
 			}
 			promote_character = autocracy
-		}
-		every_country = {
-			limit = {
-				has_unit_leader = 34337
-			}
-			every_unit_leader = {
-				limit = {
-					has_id = 34337
-				}
-				set_nationality = ROOT
-			}
-		}
+		}		
 		set_party_name = {
 			ideology = neutrality
 			name = WUR_neutrality_party
@@ -609,6 +640,7 @@ country_event = {
 			owns_state = 763
 			NOT = {
 				is_subject_of = PREV
+				is_in_faction_with = PREV
 			}
 		}
 		has_war = yes
@@ -640,6 +672,7 @@ country_event = {
 			owns_state = 763
 			NOT = {
 				is_subject_of = PREV
+				is_in_faction_with = PREV
 			}
 		}
 		has_war = no
@@ -657,5 +690,22 @@ country_event = {
 		404 = {
 			set_demilitarized_zone = yes
 		}
+	}
+}
+
+# PUPPET POLAND RELEASED
+###########################
+country_event = {
+	id = ww1_poland.12
+	title = ww1_poland.12.t
+	desc = ww1_poland.12.d
+	is_triggered_only = yes
+	option = {
+		name = ww1_poland.12.a
+	}
+	option = {
+		name = ww1_poland.12.b
+		POL = { change_tag_from = PREV }
+		ai_chance = { factor = 0 }
 	}
 }
