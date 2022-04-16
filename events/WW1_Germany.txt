@@ -380,7 +380,7 @@ country_event = {
 		has_global_flag = weimar_republic
 		has_country_flag = great_war_loser
 		NOT = {
-		    has_global_flag = prussian_blue
+			has_global_flag = prussian_blue
 		}	
 		NOT = { has_government = communism }
 	}
@@ -690,6 +690,7 @@ country_event = {
 						state = 54
 					}
 				}
+				set_cosmetic_tag = GER_civil_war
 				keep_unit_leaders_trigger = {
 					NOT = {
 						has_trait = trait_royal
@@ -1254,20 +1255,34 @@ country_event = {
 }
 
 # PARTITION OF AUSTRIA - FATE OF FRANZ JOSEPH
-#########################
+################################################
 country_event = {
 	id = ww1_germany.22
 	title = ww1_germany.22.t
 	desc = ww1_germany.22.d
 	picture = GFX_report_event_hungary_parliament
 	fire_only_once = yes
-	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		has_global_flag = brothers_war
+		NOT = {
+			country_exists = AUH
+			HUN = {
+				has_country_flag = hungarian_revanchism
+			}
+		}
+		owns_state = 4
+		owns_state = 152
+		owns_state = 153
+		has_completed_focus = GER_german_cisleithania
+	}
+	mean_time_to_happen = { days = 0 }
 	option = {
 		name = ww1_germany.22.a
 		add_stability = -0.1
 		add_political_power = 75
 		ai_chance = {
-			factor = 50
+			factor = 75
 		}
 	}
 	option = {
@@ -1277,11 +1292,6 @@ country_event = {
 		set_country_flag = ger_kingdom_of_austria
 		AUS = {
 			hidden_effect = {
-				set_cosmetic_tag = AUS_GER
-				set_politics = {
-					ruling_party = neutrality
-					elections_allowed = no
-				}
 				every_state = {
 					limit = {
 						is_owned_by = GER
@@ -1296,9 +1306,35 @@ country_event = {
 							state = 736
 						}
 					}
-					add_core_of = AUS
+					add_core_of = PREV
+					transfer_state_to = PREV
 				}
 			}
+			if = {
+				limit = {
+					has_dlc = "Together for Victory"	
+				}
+				PREV = {
+					set_autonomy = {
+						target = PREV
+						autonomous_state = autonomy_dominion
+					}
+				}
+				else = {
+					PREV = { puppet = PREV } 
+				}
+			}
+			set_politics = {
+				ruling_party = neutrality
+				elections_allowed = no
+			}
+			set_popularities = {
+				fascism = 10
+				communism = 2
+				democratic = 24
+				neutrality = 64
+			}
+			set_cosmetic_tag = AUS_GER
 			set_party_name = {
 				ideology = neutrality
 				long_name = AUH_neutrality_party_long
@@ -1343,7 +1379,7 @@ country_event = {
 			}			
 		}
 		ai_chance = {
-			factor = 50
+			factor = 10
 		}
 	}
 }
@@ -3161,32 +3197,14 @@ country_event = {
 	fire_only_once = yes
 	option = {
 		name = ww1_germany.59.a
-		kill_ideology_leader = communism
+		retire_character = SOV_vladimir_lenin
 		if = {
 			limit = {
 				date < 1919.2.16
 			}
-			create_country_leader = {
-				name = "Yakov Sverdlov"
-				picture = "gfx/leaders/SOV/SOV_yakov_sverdlov.png"
-				
-				ideology = vanguardism
-				traits = {
-					prince_of_terror
-					
-				}
-			}
+			promote_character = SOV_yakov_sverdlov
 			else = {
-				create_country_leader = {
-					name = "Leon Trotsky"
-					picture = "gfx/leaders/SOV/SOV_lev_trotsky_army.png"
-					
-					ideology = vanguardism
-					traits = {
-						permanent_revolutionary
-						
-					}
-				}
+				promote_character = SOV_leon_trotsky
 			}
 		}
 		add_stability = -0.35
@@ -3875,6 +3893,7 @@ country_event = {
 				receiver = GER
 				state = 46
 			}
+			add_ideas = ROM_idea_german_control
 			add_ideas = idea_army_restrictions
 			unlock_national_focus = join_cp
 			unlock_national_focus = join_entente
@@ -4359,8 +4378,21 @@ country_event = {
 	title = ww1_germany.84.t
 	desc = ww1_germany.84.d
 	picture = GFX_report_event_german_reichstag_gathering
-	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		has_country_flag = great_war_loser
+		has_global_flag = versallies_treaty
+		has_war = no
+		has_government = democratic
+		NOT = {
+			has_global_flag = prussian_blue
+			has_global_flag = spartakist_in_bavaria
+			has_subject = FRA
+		}
+		is_subject = no
+	}
 	fire_only_once = yes
+	mean_time_to_happen = { days = 12 }
 	option = {
 		name = ww1_germany.84.a
 		hidden_effect = {
@@ -4397,6 +4429,10 @@ country_event = {
 		NOT = {
 			has_global_flag = great_war_ends
 		}
+		NOT = {
+			has_cosmetic_tag = GER_norddeutscher_bund
+		}
+		is_puppet = no
 		fascism > 0.3
 		has_completed_focus = GER_oberster_kriegsherr
 	}
@@ -5192,7 +5228,9 @@ country_event = {
 		NOT = {
 			has_country_leader = {
 				character = GER_friedrich_ebert
-				ruling_only = yes
+			}
+			has_country_leader = {
+				character = GER_august_bebel
 			}
 		}
 		has_global_flag = weimar_republic
@@ -5352,30 +5390,14 @@ country_event = {
 	}
 }
 
-# KAPP-LÜTTWITZ PUTSCH - DISBANDING THE ARMY
-###############################################
+# KAPP-LÜTTWITZ PUTSCH - DISBANDING THE FREIKORPS
+####################################################
 country_event = {
 	id = ww1_germany.108
 	title = ww1_germany.108.t
 	desc = ww1_germany.108.d
 	picture = GFX_report_event_german_reichstag_gathering
-	fire_only_once = yes
-	trigger = {
-		tag = GER
-		has_country_flag = great_war_loser
-		has_global_flag = versallies_treaty
-		has_war = no
-		has_government = democratic
-		NOT = {
-			has_global_flag = prussian_blue
-			has_global_flag = spartakist_in_bavaria
-			has_subject = FRA
-		}
-		is_subject = no
-	}
-	mean_time_to_happen = {
-		days = 30
-	}
+	is_triggered_only = yes
 	immediate = {
 		hidden_effect = {
 			complete_national_focus = GER_veteran_organisation
@@ -5517,6 +5539,7 @@ country_event = {
 					has_unit_leader_flag = kapp_putsch
 				}
 			}
+			set_cosmetic_tag = GER_civil_war
 			hidden_effect = {
 				remove_ideas = strikes_3
 				if = {
@@ -5676,7 +5699,6 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_germany.111.a
-		country_event = ww1_germany.84
 		if = {
 			limit = {
 				owns_state = 57
@@ -5818,56 +5840,9 @@ news_event = {
 	id = ww1_germany.113
 	title = ww1_germany.113.t
 	desc = ww1_germany.113.d
-	picture = GFX_news_event_ger_civil_war
+	picture = GFX_news_event_generic_parliament
 	major = yes
-	trigger = {
-		has_global_flag = interbellum
-		NOT = {
-			has_global_flag = prussian_blue
-		}
-		FRA = {
-			has_country_flag = great_war_winner
-			any_owned_state = {
-				is_core_of = PREV.PREV
-				NOT = {
-					is_core_of = PREV
-				}
-			}
-		}
-		GER = {
-			is_neighbor_of = FRA
-			has_country_flag = great_war_loser
-			has_completed_focus = GER_resist_to_occupation
-			has_idea = GER_idea_reparations_dawes
-			NOT = {
-				has_idea = strikes_3
-			}
-		}
-	}
-	fire_only_once = yes
-	immediate = {
-	    hidden_effect = {
-			every_state = {
-				limit = {
-					OR = {
-						is_owned_by = FRA
-						is_owned_by = ENG
-						is_owned_by = BEL
-					}			
-					is_core_of = ROOT
-					NOT = {
-						is_core_of = FRA
-						is_core_of = ENG
-						is_core_of = BEL
-					}
-				}
-				GER = {
- 					transfer_state = PREV
- 				}
- 				set_demilitarized_zone = yes
-			}
-		}
-	}
+	is_triggered_only = yes
 	option = {
 		name = ww1_germany.113.a
 		trigger = {
