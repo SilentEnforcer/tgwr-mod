@@ -5400,7 +5400,7 @@ country_event = {
 		hidden_effect = {
 			KMT = {
 				start_civil_war = {
-					ideology = democratic
+					ideology = neutrality
 					size = 0.3
 					states = {
 						593
@@ -5420,10 +5420,34 @@ country_event = {
 								country_leader = {
 									ideology = social_liberalism
 								}
+								country_leader = {
+									ideology = authoritarian_democracy
+								}
+								country_leader = {
+									ideology = stratocracy
+								}
+								country_leader = {
+									ideology = reformist_socialism
+								}
 							}
 						}
 						set_party_name = {
 							ideology = democratic
+							long_name = CHI_zhigong_party
+							name = CHI_zhigong_party
+						}
+						set_party_name = {
+							ideology = neutrality
+							long_name = CHI_zhigong_party
+							name = CHI_zhigong_party
+						}
+						set_party_name = {
+							ideology = fascism
+							long_name = CHI_zhigong_party
+							name = CHI_zhigong_party
+						}
+						set_party_name = {
+							ideology = communism
 							long_name = CHI_zhigong_party
 							name = CHI_zhigong_party
 						}
@@ -5439,6 +5463,7 @@ country_event = {
 								enemy = PREV
 							}
 						}
+						unlock_national_focus = CHI_focus_zhigongdang
 					}
 				}
 			}
@@ -7248,10 +7273,6 @@ country_event = {
 						target = FNG
 						transfer_troops = no
 					}
-					country_event = {
-						id = ww1_china.79
-						days = 14
-					}
 				}
 			}
 			every_country = {
@@ -8302,22 +8323,15 @@ country_event = {
 	id = ww1_china.71
 	title = ww1_china.71.t
 	desc = ww1_china.71.d
-	trigger = {
-		has_country_flag = CHI_kuomintang_flag
-		any_country = {
-			has_country_flag = CHI_left_kuomintang_flag
-		}
-		has_global_flag = northern_expedition_end
-	}
-	mean_time_to_happen = {
-		days = 3
-	}
-	fire_only_once = yes
+	is_triggered_only = yes
 	option = {
 		name = ww1_china.71.a
 		hidden_effect = {
 			set_global_flag = nanjing_wuhan_integration
 			WHN = {
+				every_unit_leader = {
+					set_nationality = PREV
+				}
 				GDC_wang_jingwei = {
 					set_nationality = PREV
 				}
@@ -9322,6 +9336,222 @@ country_event = {
 			}
 			CHI_sun_yatsen = {
 				set_nationality = CHI
+			}
+		}
+	}
+}
+
+# ALIGN WITH NATIONALISTS
+############################
+country_event = {
+	id = ww1_china.91
+	title = ww1_china.91.t
+	desc = ww1_china.91.d
+	is_triggered_only = yes
+	option = { # WON'T ACCEPT
+		name = ww1_china.91.a
+		ai_chance = {
+			base = 20
+		}
+	}
+	option = { # JOIN ANHUI-FENGTIAN FACTION
+		name = ww1_china.91.b
+		trigger = {
+			NOT = { is_in_faction_with = FROM }
+		}
+		FROM = { add_to_faction = PREV }
+		ai_chance = {
+			base = 40
+			modifier = {
+				add = 20
+				any_other_country = {
+					is_china_or_warlord = no
+					has_war_with = PREV
+					has_war_with = FROM
+				}
+			}
+		}
+	}
+	option = { # LEGITIMATED GOVERNMENT ANHUI-FENGTIAN
+		name = ww1_china.91.c
+		every_unit_leader = {
+			set_nationality = FROM
+		}
+		transfer_navy = {
+			target = FROM
+		}
+		FROM = {
+			annex_country = {
+				target = PREV
+				transfer_troops = yes
+			}
+		}
+		ai_chance = {
+			base = 1
+			modifier = {
+				add = 10
+				strength_ratio = {
+					tag = FROM
+					ratio < 0.7
+				}
+			}
+			modifier = {
+				factor = 0
+				strength_ratio = {
+					tag = FROM
+					ratio > 1.5
+				}
+			}
+		}
+	}
+}
+
+# NATIONALISTS JOIN ANHUI-FENGTIAN
+#####################################
+country_event = {
+	id = ww1_china.92
+	title = ww1_china.92.t
+	desc = ww1_china.92.d
+	is_triggered_only = yes
+	option = { # NOICE
+		name = ww1_china.92.a
+		add_stability = 0.1
+		add_political_power = 100
+	}
+}
+
+# NATIONALISTS DENIED TO JOIN ANHUI-FENGTIAN
+###############################################
+country_event = {
+	id = ww1_china.93
+	title = ww1_china.93.t
+	desc = ww1_china.93.d
+	is_triggered_only = yes
+	option = { # DAMN
+		name = ww1_china.93.a
+		every_state = {
+			limit = {
+				is_core_of = KMT
+			}
+			add_core_of = PREV
+		}
+		every_state = {
+			limit = {
+				is_claimed_by = KMT
+			}
+			add_claim_by = PREV
+		}
+	}
+}
+
+# CHINESE FEDERALISTS
+########################
+country_event = {
+	id = ww1_china.94
+	title = ww1_china.94.t
+	desc = ww1_china.94.d
+	is_triggered_only = yes
+	option = { # LET'S DO IT
+		name = ww1_china.94.a
+		add_political_power = 100
+		add_opinion_modifier = {
+			target = FROM
+			modifier = HOI4TGW_Opinion_influence_faction
+		}
+		diplomatic_relation = {
+			country = FROM
+			relation = non_aggression_pact
+		}
+		FROM = {
+			add_political_power = 30
+			add_opinion_modifier = {
+				target = PREV
+				modifier = HOI4TGW_Opinion_influence_faction
+			}
+			diplomatic_relation = {
+				country = PREV
+				relation = non_aggression_pact
+			}
+			add_to_faction = PREV
+		}
+		ai_chance = {
+			base = 30
+			modifier = {
+				add = 15
+				has_opinion = {
+					target = FROM
+					value > 50
+				}
+			}
+			modifier = {
+				add = 10
+				OR = {
+					has_country_leader = {
+						character = HNC_zhao_hengti
+						ruling_only = yes
+					}
+					has_country_leader = {
+						character = SIK_sheng_shicai
+						ruling_only = yes
+					}
+					has_country_leader = {
+						character = YUN_tang_jiyao
+						ruling_only = yes
+					}
+					has_country_leader = {
+						character = SDC_wu_peifu
+						ruling_only = yes
+					}
+					original_tag = SCC
+				}
+			}
+		}
+	}
+	option = { # NOT GONNA ALLOW YOU
+		name = ww1_china.94.b
+		add_political_power = 70
+		add_war_support = 0.1
+		add_opinion_modifier = {
+			target = FROM
+			modifier = HOI4TGW_Opinion_diplomats_malus
+		}
+		FROM = {
+			add_political_power = -30
+			add_war_support = 0.05
+			add_opinion_modifier = {
+				target = PREV
+				modifier = HOI4TGW_Opinion_diplomats_malus
+			}
+		}
+		if = {
+			limit = {
+				is_in_faction_with = FROM
+			}
+			leave_faction = yes
+		}
+		ai_chance = {
+			base = 30
+			modifier = {
+				add = 30
+				has_opinion = {
+					target = FROM
+					value < 0
+				}
+			}
+			modifier = {
+				add = 70
+				has_government = communism
+			}
+			modifier = {
+				add = 70
+				has_government = fascism
+			}
+			modifier = {
+				add = 10
+				any_other_country = {
+					is_china_or_warlord = yes
+					has_war_with = PREV
+				}
 			}
 		}
 	}
