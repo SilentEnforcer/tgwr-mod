@@ -4623,6 +4623,7 @@ country_event = {
 		}
 		add_manpower = -700
 		set_country_flag = has_supported_the_AUH_civil_war
+		set_country_flag = has_supported_the_AUH_civil_war_austrian_side
 		transfer_state = 244
 		HUN = {
 			country_event = {
@@ -5204,15 +5205,8 @@ country_event = {
 				}
 			}
 			AUH = {
-				add_political_power = 25
 				transfer_state = PREV
 			}
-			add_dynamic_modifier = {
-				modifier = AUH_austrian_integration
-			}
-			
-			
-			
 		}
 	}
 }
@@ -5433,7 +5427,26 @@ country_event = {
 			transfer_state = 208
 			transfer_state = 163
 			transfer_state = 103
-			transfer_state = 575
+			
+		}
+		if = {
+			limit = {
+				owns_state = 104
+			}
+			BOS = {
+				transfer_state = 104
+			}
+		}
+		if = {
+			limit = {
+				575 = {
+					is_controlled_by_ROOT_or_subject = yes
+				}
+			}
+			#give it to CRO
+			CRO = {
+				transfer_state = 575
+			}
 		}
 		if = {
 			limit = {
@@ -5517,6 +5530,197 @@ country_event = {
 		name = ww1_auh.86.b
 		ai_chance = {
 			factor = 0
+		}
+	}
+}
+
+
+#######
+# counter serbian annexation of AUH territory in case of GER intervention in civil war
+##############
+country_event = {
+	id = ww1_auh.87
+	title = ww1_auh.87.t
+	desc = ww1_auh.87.d
+	picture = GFX_report_event_generic_usa_treaty
+	trigger = {
+		tag = AUH
+		AUH = {
+			is_puppet = no
+			has_war = no
+			exists = yes
+			NOT = {
+				has_country_flag = AUH_territory_rebalanced_after_serbian_intervention
+			}
+		}
+		SER = {
+			has_country_flag = has_supported_the_AUH_civil_war
+			has_country_flag = SER_has_acted_against_HUN_interests
+		}
+	}
+	option = {
+		name = ww1_auh.87.a	
+		set_country_flag = AUH_territory_rebalanced_after_serbian_intervention
+		set_global_flag = AUH_HUN_civil_war_ends
+		ai_chance = {
+			factor = 100
+		}
+		if = {
+			limit = {
+				45 = {
+					is_owned_by = SER
+				}
+				107 = {
+					is_owned_by = SER
+				}
+				575 = {
+					OR = {
+						is_owned_by = AUH
+						is_owned_by = CRO
+					}
+				}
+			}
+			SER = {
+				transfer_state = 575
+			}
+		}
+		every_state = {
+			limit = { 
+				OR = {
+					is_claimed_by = AUH
+					is_core_of = AUH
+				}
+				NOT = {
+					is_core_of = SER
+				}
+				CONTROLLER = {
+					OR = {
+						is_subject_of = SER
+						tag = SER
+					}
+				}
+			}
+			AUH = {
+				transfer_state = PREV
+			}
+			
+		}
+	}
+}
+
+#######
+# if transylvania survive to AUH - HUN civil war
+##############
+country_event = {
+	id = ww1_auh.88
+	title = ww1_auh.88.t
+	desc = ww1_auh.88.d
+	picture = GFX_report_event_generic_usa_treaty
+	trigger = {
+		tag = AUH
+		NOT = {
+			has_global_flag = AUH_choose_what_to_do_with_TRA
+		}
+		AUH = {
+			is_puppet = no
+			has_war = no
+			exists = yes
+			has_country_flag = AUH_HUN_civil_war_ends
+		}
+		TRA = {
+			exists = yes
+			NOT = {
+				is_puppet_of = AUH
+			}
+		}
+	}
+	immediate = {
+		set_global_flag = AUH_choose_what_to_do_with_TRA
+	}
+	## TRA must die
+	option = {
+		name = ww1_auh.88.a	
+		create_wargoal = {
+			target = TRA
+			type = annex_everything
+		}
+		diplomatic_relation = {
+			country = TRA
+			relation = non_aggression_pact
+			active = no
+		}
+		TRA = {
+			diplomatic_relation = {
+				country = AUH
+				relation = non_aggression_pact
+				active = no
+			}
+		}
+		ai_chance = {
+			factor = 100
+		}
+	}
+	## transylvania can still exists
+	option = {
+		name = ww1_auh.88.b
+		add_political_power = -100
+		add_stability = -0.10
+		ai_chance = {
+			factor = 5
+		}
+	}
+}
+
+#######
+# Integration of Hungary
+##############
+country_event = {
+	id = ww1_auh.89
+	title = ww1_auh.89.t
+	desc = ww1_auh.89.d
+	picture = GFX_report_event_generic_usa_treaty
+	mean_time_to_happen = {
+		days = 40
+	}
+	trigger = {
+		tag = AUH
+		AUH = {
+			is_puppet = no
+			has_war = no
+			exists = yes
+			has_country_flag = AUH_HUN_civil_war_ends
+		}
+		HUN = {
+			exists = no
+		}
+	}
+	## HUN is under austrian integration BECOME THE AUSTRIAN EMPIRE
+	option = {
+		name = ww1_auh.89.a	
+		set_cosmetic_tag = AUH_EMP
+		every_state = {
+			limit = {
+				is_core_of = HUN
+			}
+			add_dynamic_modifier = {
+				modifier = AUH_austrian_integration
+			}
+		}
+		ai_chance = {
+			factor = 100
+		}
+	}
+	## HUN is cored, stay the austria hungary
+	option = {
+		name = ww1_auh.89.a	
+		every_state = {
+			limit = {
+				is_core_of = HUN
+			}
+			add_core_of = AUH
+		}
+		ai_chance = {
+			factor = 50
 		}
 	}
 }
