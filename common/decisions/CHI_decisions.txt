@@ -58,15 +58,16 @@ CHI_xinhai_revolution = {
 			}
 			has_government = neutrality
 		}
-		custom_cost_trigger = {
-			command_power > 14
-		}
-		custom_cost_text = TUR_decision_cost_kurd_rebels
+		#custom_cost_trigger = {
+		#	command_power > 14
+		#}
+		#custom_cost_text = TUR_decision_cost_kurd_rebels
+		cost = 15
 		days_remove = 10
 		fire_only_once = yes
-		complete_effect = {
-			add_command_power = -15
-		}	
+		#complete_effect = {
+		#	add_command_power = -15
+		#}	
 		remove_effect = {
 			add_war_support = 0.1
 			add_popularity = {
@@ -833,34 +834,19 @@ CHI_warlord_era = {
 			original_tag = JXC
 		}
 		available = {
-			owns_state = 600
-			has_government = communism
-			any_country = {
-				OR = {
-					has_country_leader = {
-						name = "Chiang Kai-shek"
-						ruling_only = yes
-					}
-					has_country_flag = CHI_kuomintang_flag
-				}
-				has_war_with = ROOT
+			any_other_country = {
+				is_china_or_warlord = yes
+				owns_state = 622
 			}
-			surrender_progress > 0.1
 		}
 		visible = {
-			owns_state = 600
-			has_government = communism
-			any_country = {
-				OR = {
-					has_country_leader = {
-						name = "Chiang Kai-shek"
-						ruling_only = yes
-					}
-					has_country_flag = CHI_kuomintang_flag
-				}
+			has_country_flag = CHI_soviet_republic_flag
+			any_other_country = {
+				is_china_or_warlord = yes
 				has_war_with = ROOT
 			}
 		}
+		days_remove = 200
 		fire_only_once = yes
 		ai_will_do = {
 			base = 0
@@ -869,123 +855,209 @@ CHI_warlord_era = {
 				surrender_progress > 0.15
 			}
 		}
+		cancel_trigger = {
+			OR = {
+				has_capitulated = yes
+				has_war = no
+			}
+		}
 		complete_effect = {
-			if = {
-				limit = {
-					PRC = {
-						exists = yes
-						owns_state = 622
+			hidden_effect = {
+				if = {
+					limit = {
+						country_exists = PRC
 					}
-				}
-				PRC = {
-					set_country_flag = long_march_start
-					change_tag_from = CSR
-					leave_faction = yes
-					every_country = {
-						limit = {
-							has_war_with = PRC
+					PRC = {
+						leave_faction = yes
+						every_other_country = {
+							limit = {
+								has_war_with = PREV
+							}
+							white_peace = PREV
 						}
-						white_peace = PRC
+						set_politics = {
+							ruling_party = neutrality
+							elections_allowed = no
+						}
+						set_popularities = {
+							neutrality = 40
+							democratic = 32
+							communism = 23
+							fascism = 5
+						}
+						every_unit_leader = {
+							limit = {
+								has_id = 15096
+							}
+							set_nationality = PREV
+						}
+						PRC_yang_hucheng = {
+							add_country_leader_role = {
+								promote_leader = yes
+								country_leader = {
+									ideology = despotism
+								}
+								country_leader = {
+									ideology = stratocracy
+								}
+							}
+						}
 					}
 				}
 			}
-			else = {
-				PRC = {
-					transfer_state = 622
-					add_state_core = 622
-					set_country_flag = long_march_start
-					change_tag_from = CSR
-					leave_faction = yes
-					every_country = {
-						limit = {
-							has_war_with = PRC
-						}
-						white_peace = PRC
-					}
+		}
+		remove_effect = {
+			every_country = {
+				limit = {
+					is_china_or_warlord = yes
 				}
+				news_event = ww1_china.36
 			}
 			PRC = {
+				add_state_core = 622
+				transfer_state = 622
+				hidden_effect = {
+					leave_faction = yes
+					every_other_country = {
+						limit = {
+							has_war_with = PREV
+						}
+						white_peace = PREV
+					}
+					set_country_flag = long_march
+					inherit_technology = PREV
+				}
 				set_politics = {
-					ruling_party = neutrality
+					ruling_party = communism
 					elections_allowed = no
 				}
 				set_popularities = {
-					neutrality = 40
-					democratic = 32
-					communism = 23
-					fascism = 5
+					democratic = 0
+					neutrality = 0
+					fascism = 0
+					communism = 100
+				}
+				every_country = {
+					limit = {
+						is_china_or_warlord = yes
+					}
+					every_state = {
+						limit = {
+							is_core_of = PREV
+						}
+						add_core_of = PREV.PREV
+					}
+					every_state = {
+						limit = {
+							is_claimed_by = PREV
+						}
+						add_claim_by = PREV.PREV
+					}
+				}
+			}
+			hidden_effect = {
+				retire_character = PRC_yang_hucheng
+				every_other_country = {
+					limit = {
+						has_country_flag = CHI_kuomintang_flag
+					}
+					every_unit_leader = {
+						limit = {
+							has_id = 15096
+						}
+						set_nationality = PREV
+					}
+				}
+				transfer_units_fraction = {
+					target = PRC
+					size = 0.7
+				}
+				set_party_name = {
+					ideology = communism
+					long_name = CHI_communist_party_long
+					name = CHI_communist_party
 				}
 				create_country_leader = {
-					name = "Yang Hucheng"
-					picture = "gfx/leaders/CHI/CHI_yang_hucheng.png"
-					expire = 1935.1.1
-					ideology = despotism
+					name = "PRC_mao_zedong"
+					picture = "GFX_portrait_prc_mao_zedong"
+					ideology = vanguardism
 					traits = {
-						
+						cornered_fox
 					}
 				}
-				every_unit_leader = {
-					limit = {
-						has_id = 15096
+				add_ideas = {
+					closed_economy
+					service_by_requirement
+					partial_economic_mobilisation
+				}
+				create_field_marshal = {
+					name = "PRC_mao_zedong"
+					gfx = "GFX_portrait_prc_mao_zedong"
+					traits = {
+						defensive_doctrine
+						trait_cautious
+						politically_connected
 					}
-					set_nationality = PRC
+					skill = 4
+					attack_skill = 2
+					defense_skill = 4
+					planning_skill = 3
+					logistics_skill = 4
 				}
-			}
-			every_state = {
-				limit = {
-					is_core_of = CSR
+				create_corps_commander = {
+					name = "PRC_zhu_de"
+					gfx = "GFX_portrait_prc_zhu_de"
+					traits = {
+						infantry_officer
+						organizer
+					}
+					skill = 4
+					attack_skill = 3
+					defense_skill = 3
+					planning_skill = 3
+					logistics_skill = 4
 				}
-				remove_core_of = CSR
-			}
-			every_country = {
-				limit = {
-					is_neighbor_of = PRC
+				create_corps_commander = {
+					name = "PRC_chen_yi"
+					gfx = "GFX_portrait_prc_chen_yi"
+					traits = {
+						infantry_officer
+					}
+					skill = 3
+					attack_skill = 4
+					defense_skill = 3
+					planning_skill = 2
+					logistics_skill = 2
 				}
-				set_truce = {
-					target = PRC
-					days = 365
+				create_corps_commander = {
+					name = "PRC_peng_duhuai"
+					gfx = "GFX_portrait_prc_peng_dehuai"
+					traits = {
+						infantry_officer
+						trait_mountaineer
+					}
+					skill = 4
+					attack_skill = 3
+					defense_skill = 5
+					planning_skill = 3
+					logistics_skill = 2
 				}
-			}
-			KMT = {
-				annex_country = {
-					target = CSR
-					transfer_troops = no
+				create_corps_commander = {
+					name = "PRC_lin_biao"
+					portrait_path = "gfx/leaders/Asia/Portrait_Asia_Generic_warlord1.dds"
+					traits = {
+						infantry_officer
+						trait_mountaineer
+					}
+					skill = 5
+					attack_skill = 4
+					defense_skill = 5
+					planning_skill = 3
+					logistics_skill = 4
 				}
+				set_cosmetic_tag = PRC_communist
 			}
-		}
-	}
-	CHI_long_march_timer = {
-		icon = generic_nationalism
-		days_mission_timeout = 365
-		activation = {
-			original_tag = PRC
-			has_country_flag = long_march_start
-			NOT = {
-				has_country_flag = long_march_end
-			}
-		}
-		allowed = {
-			original_tag = PRC
-		}
-		available = {
-			OR = {
-				has_war = yes
-				NOT = {
-					owns_state = 622
-				}
-			}
-		}
-		visible = {
-			original_tag = PRC
-			has_country_flag = long_march_start
-			NOT = {
-				has_country_flag = long_march_end
-			}
-		}
-		fire_only_once = yes
-		is_good = yes
-		timeout_effect = {
-			set_country_flag = long_march_end
+			PRC = { change_tag_from = PREV }
 		}
 	}
 	CHI_new_guangxi_clique = {
@@ -1012,10 +1084,14 @@ CHI_warlord_era = {
 				CHI = {
 					add_state_core = 599
 				}
+				every_possible_country = {
+					retire_character = QIN_lu_rongting
+					retire_character = GXC_lu_rongting
+				}
 			}
-			GXC = {
-				transfer_state = 599
+			GXC = {		
 				add_state_core = 599
+				transfer_state = 599
 			}
 			puppet = GXC
 			GXC = {             
@@ -1029,33 +1105,13 @@ CHI_warlord_era = {
 					fascism = 0
 					communism = 10
 				}
-				create_country_leader = {
-					name = "Li Zongren"
-					picture = "gfx/leaders/GXC/Portrait_Guanxi_Clique_Li_Zongren.dds"
-					expire = "1965.1.1"
-					ideology = authoritarian_democracy 
-					traits = {
-						
-					}
-				}
-				create_corps_commander = {
-					name = "Chen Jitang"
-					portrait_path = "gfx/leaders/Asia/Portrait_Asia_Generic_land_1.dds"
-					traits = {
-					}
-					skill = 3
-					attack_skill = 2
-					defense_skill = 3
-					planning_skill = 3
-					logistics_skill = 2
-				}
-				remove_unit_leader = 73047
+				promote_character = GXC_li_zongren
 				set_cosmetic_tag = GXC_KMT	
 				set_party_name = { 
 					ideology = neutrality 
 					long_name = CHI_kuomintang_party 
 					name = CHI_kuomintang_party 
-				}		
+				}
 			}
 		}
 		ai_will_do = {
@@ -1077,7 +1133,7 @@ CHI_warlord_era = {
 		available = {
 			has_country_flag = CHI_kuomintang_flag
 			has_country_leader = {
-				name = "Chiang Kai-shek"
+				character = GDC_chiang_kaishek
 				ruling_only = yes
 			}
 			OR = {
@@ -1477,7 +1533,7 @@ CHI_warlord_era = {
 				is_subject = no
 				has_war = no
 				has_country_leader = {
-					name = "Zhang Zuolin"
+					character = FNG_zhang_zuolin
 					ruling_only = yes
 				}
 			}
@@ -1493,7 +1549,7 @@ CHI_warlord_era = {
 			FNG = {
 				is_subject = no
 				has_country_leader = {
-					name = "Zhang Zuolin"
+					character = FNG_zhang_zuolin
 					ruling_only = yes
 				}
 			}
@@ -1525,7 +1581,7 @@ CHI_warlord_era = {
 			any_country = {
 				has_country_flag = CHI_kuomintang_flag
 				has_country_leader = {
-					name = "Chiang Kai-shek"
+					character = GDC_chiang_kaishek
 					ruling_only = yes
 				}
 			}
@@ -1555,7 +1611,7 @@ CHI_warlord_era = {
 			any_country = {
 				has_country_flag = CHI_kuomintang_flag
 				has_country_leader = {
-					name = "Chiang Kai-shek"
+					character = GDC_chiang_kaishek
 					ruling_only = yes
 				}
 			}
@@ -2000,8 +2056,8 @@ CHI_chinese_warlords = {
 			else_if = {
 				limit = {
 					has_country_leader = {
-						 name = "Chen Jiongming"
-						 ruling_only = yes
+						character = GDC_chen_jiongming
+						ruling_only = yes
 					}
 				}
 				# Chen's China need to be named as 'United Provinces'
@@ -3280,6 +3336,7 @@ CHI_chinese_warlords = {
 				exists = yes
 				NOT = {
 					has_country_leader = {
+						character = KUM_maqsud_shah
 						name = "Maqsud Shah"
 						ruling_only = no
 					}
@@ -3291,7 +3348,7 @@ CHI_chinese_warlords = {
 				}
 				SIK = {
 					has_country_leader = {
-						name = "Jin Shuren"
+						character = SIK_jin_shuren
 						ruling_only = yes
 					}
 				}
@@ -3393,7 +3450,7 @@ CHI_chinese_warlords = {
 			has_war_with = SIK
 			SIK = {
 				has_country_leader = {
-					name = "Sheng Shicai"
+					character = SIK_sheng_shicai
 					ruling_only = yes
 				}
 			}

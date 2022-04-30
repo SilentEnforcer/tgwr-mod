@@ -1,4 +1,4 @@
-﻿add_namespace = ww1_poland
+add_namespace = ww1_poland
 
 # Russian Color
 ####################
@@ -7,8 +7,11 @@ country_event = {
 	
 	trigger = {
 		tag = POL
-		POL = { is_subject_of = RUS }
-		NOT = { has_global_flag = POL_RUS }
+		is_subject_of = RUS
+		RUS = {
+			NOT = { has_government = communism }
+		}
+		NOT = { has_cosmetic_tag = POL_RUS }
 	}	
 	mean_time_to_happen = {
 		days = 0
@@ -18,7 +21,6 @@ country_event = {
 
 	immediate = {
 		set_cosmetic_tag = POL_RUS
-		set_global_flag = POL_RUS
 	}
 }
 
@@ -30,7 +32,7 @@ country_event = {
 	trigger = {
 		tag = POL
 		NOT = { POL = { is_subject_of = RUS } }
-		has_global_flag = POL_RUS
+		has_cosmetic_tag = POL_RUS
 	}	
 	mean_time_to_happen = {
 		days = 0
@@ -40,7 +42,6 @@ country_event = {
 
 	immediate = {
 		drop_cosmetic_tag = yes
-		clr_global_flag = POL_RUS
 	}
 }
 
@@ -53,9 +54,14 @@ country_event = {
 		tag = POL
 		exists = yes
 		is_subject = no
+		has_war = no
 		GAL = {
 			exists = yes
-			is_subject = no
+			OR = {
+				is_subject = no
+				is_subject_of = PREV
+			}
+			has_war = no
 		}
 	}
 	mean_time_to_happen = {
@@ -75,6 +81,8 @@ country_event = {
 					WUK = {
 						exists = yes
 						is_subject = no
+						is_in_faction = no
+						has_war = no
 					}
 				}
 				annex_country = {
@@ -109,17 +117,17 @@ country_event = {
 				GER = { has_country_flag = great_war_loser }
 				NOT = { has_global_flag = versallies_treaty }
 			}
-        }
+       		}
 	}
 	mean_time_to_happen = { days = 1 }
 	option = {
 		name = ww1_poland.1.a
 		if = {
-		    limit = {
-		    	is_subject_of = GER
-		    }
-		    GER = { end_puppet = POL }
-		    leave_faction = yes
+			limit = {
+				is_subject_of = GER
+			}
+			GER = { end_puppet = POL }
+			leave_faction = yes
 		}
 		if = {
 			limit = {
@@ -140,6 +148,13 @@ country_event = {
 				focus = POL_declare_a_republic
 				uncomplete_children = yes
 			}
+		}
+		if = {
+			limit = {
+				is_subject_of = GER
+			}
+			GER = { end_puppet = POL }
+			leave_faction = yes
 		}
 		if = {
 			limit = {
@@ -172,7 +187,8 @@ country_event = {
 			NOT = {
 				has_government = communism
 			}	
-		}	
+		}
+		has_war = no
 	}
 	option = {
 		name = ww1_poland.2.a
@@ -183,9 +199,26 @@ country_event = {
 				transfer_troops = yes
 			}
 		}
-		set_autonomy = {
-			target = POL
-			autonomy_state = autonomy_tgwr_crownland
+		if = {
+			limit = {
+				original_tag = AUH
+			}
+			if = {
+				limit = {
+					has_government = neutrality
+					OR = {
+						has_dlc = "Together for Victory"
+						has_dlc = "Waking the Tiger"
+					}
+				}
+				set_autonomy = {
+					target = POL
+					autonomy_state = autonomy_tgwr_crownland
+				}
+			}
+			else = {
+				add_political_power = 100
+			}
 		}
 		if = {
 			limit = {
@@ -201,7 +234,7 @@ country_event = {
 		name = ww1_poland.2.b
 		ai_chance = { factor = 5 }
 		end_puppet = POL
-		POL = {leave_faction = yes }
+		POL = { leave_faction = yes }
 		hidden_effect = {
 			POL = {
 				set_politics = {
@@ -238,7 +271,7 @@ country_event = {
 # Soviet Poland
 ####################
 country_event = {
-    id = ww1_poland.3
+	id = ww1_poland.3
 	title = ww1_poland.3.t
 	desc = ww1_poland.3.d
 	picture = GFX_report_event_soviet_soldiers
@@ -315,96 +348,159 @@ country_event = {
 		ai_chance = { factor = 100 }
 		if = {
 			limit = {
-				NOT = {
-					has_subject = UKR
-				}
+				has_subject = MOL
+				has_subject = GAL
 			}
-			every_owned_state = {
+			every_state = {
 				limit = {
-					is_core_of = GAL
-					is_core_of = FROM
-				}
-				transfer_state_to = FROM
-			}
-			if = {
-				limit = {
-					has_subject = GAL
-				}
-				FROM = {
-					annex_country = {
-						target = GAL
-						transfer_troops = yes
+					is_owned_by = GAL
+					is_core_of = MOL
+					OR = {
+						is_core_of = GAL
+						state = 80
+						state = 867
 					}
 				}
+				transfer_state_to = MOL
 			}
-		}
-		else = {
-			if = {
+			else_if = {
 				limit = {
+					has_subject = TRA
 					has_subject = GAL
 				}
 				every_state = {
 					limit = {
+						is_owned_by = GAL
+						is_core_of = ROM
 						OR = {
-							is_owned_by = PREV
+							is_core_of = GAL
+							state = 80
+							state = 867
+						}
+					}
+					transfer_state_to = TRA
+				}
+				else_if = {
+					limit = {
+						has_subject = ROM
+						has_subject = GAL
+					}
+					every_state = {
+						limit = {
 							is_owned_by = GAL
+							is_core_of = ROM
+							OR = {
+								is_core_of = GAL
+								state = 80
+								state = 867
+							}
 						}
-						is_core_of = UKR
-						is_core_of = GAL
-						NOT = {
-							state = 73
-							state = 237
-						}
+						transfer_state_to = ROM
 					}
-					transfer_state_to = UKR
-				}
-				FROM = {
-					annex_country = {
-						target = GAL
-						transfer_troops = yes
-					}
-				}
-			}
-			else = {
-				every_owned_state = {
-					limit = {
-						is_core_of = UKR
-						is_core_of = GAL
-						NOT = {
-							state = 73
-							state = 237
-						}
-					}
-					transfer_state_to = UKR
-				}
-				every_owned_state = {
-					limit = {
-						OR = {
-							state = 73
-							state = 237
-						}
-					}
-					transfer_state_to = FROM
 				}
 			}
 		}
 		if = {
 			limit = {
-				NOT = { has_subject = FROM }
+				has_subject = CZE
+				has_subject = GAL
 			}
-			if = {
+			every_state = {
 				limit = {
-					has_dlc = "Together for Victory"
+					is_owned_by = GAL
+					is_core_of = CZE
 				}
-				set_autonomy = {
-					target = FROM
-					autonomous_state = autonomy_dominion
-					freedom_level = 0.1
-				}
-				else = { puppet = FROM }
+				transfer_state_to = CZE
 			}
 		}
-		FROM = { country_event = ww1_poland.6 }
+		if = {
+			limit = {
+				has_subject = WUK
+			}
+			every_state = {
+				limit = {
+					OR = {
+						is_owned_by = AUH
+						AND = {
+							is_owned_by = GAL
+							GAL = {
+								is_subject_of = AUH
+							}	
+						}
+					}	
+					OR = {
+						is_core_of = UKR
+						is_core_of = MOL
+					}
+					OR = {
+						is_core_of = GAL
+						state = 80
+						state = 867
+					}
+					NOT = {
+						is_core_of = POL
+					}					
+				}
+				transfer_state_to = WUK
+			}
+			else_if = {
+				limit = {
+					has_subject = UKR
+				}
+				every_state = {
+					limit = {
+						OR = {
+							is_owned_by = AUH
+							AND = {
+								is_owned_by = GAL
+								GAL = {
+									is_subject_of = AUH
+								}	
+							}
+						}							
+						OR = {
+							is_core_of = UKR
+							is_core_of = MOL
+						}
+						OR = {
+							is_core_of = GAL
+							state = 80
+							state = 867
+						}
+						NOT = {
+							is_core_of = POL
+						}
+					}
+					transfer_state_to = UKR
+				}
+			}
+		}
+		if = {
+			limit = {
+				has_subject = GAL
+			}
+			FROM = {
+				annex_country = {
+					target = GAL
+					transfer_troops = yes
+				}
+			}
+			else = {
+				every_owned_state = {
+					limit = {
+						is_core_of = GAL
+						NOT = {
+							is_core_of = CZE
+						}					
+						OR = {
+							is_core_of = POL
+							is_core_of = UKR
+						}
+					}
+					transfer_state_to = FROM
+				}			
+			}
+		}
 	}
 	option = {
 		name = ww1_poland.2.b
@@ -614,6 +710,7 @@ country_event = {
 			owns_state = 763
 			NOT = {
 				is_subject_of = PREV
+				is_in_faction_with = PREV
 			}
 		}
 		has_war = yes
@@ -645,6 +742,7 @@ country_event = {
 			owns_state = 763
 			NOT = {
 				is_subject_of = PREV
+				is_in_faction_with = PREV
 			}
 		}
 		has_war = no
@@ -662,5 +760,22 @@ country_event = {
 		404 = {
 			set_demilitarized_zone = yes
 		}
+	}
+}
+
+# PUPPET POLAND RELEASED
+###########################
+country_event = {
+	id = ww1_poland.12
+	title = ww1_poland.12.t
+	desc = ww1_poland.12.d
+	is_triggered_only = yes
+	option = {
+		name = ww1_poland.12.a
+	}
+	option = {
+		name = ww1_poland.12.b
+		POL = { change_tag_from = PREV }
+		ai_chance = { factor = 0 }
 	}
 }
