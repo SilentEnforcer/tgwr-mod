@@ -362,7 +362,7 @@ political_actions = {
 		}
 		fire_only_once = yes
 		complete_effect = {
-			set_capital = { state = 219}
+			set_capital = { state = 219 }
 		}
 	}
 	RUS_call_unclded = {
@@ -748,35 +748,68 @@ RUS_tsar_decision = {
 		ai_will_do = {
 			factor = 1
 			modifier = {
-				is_historical_focus_on = yes
+				factor = 0
+				OR = {
+					AND = {
+						is_historical_focus_on = yes
+						has_game_rule = {
+							rule = russian_revolution_path 
+							option = DEFAULT
+						}
+					}
+					has_country_flag = RUS_AI_RANDOM_HISTORICAL
+					has_game_rule = {
+						rule = RUS_ai_behavior 
+						option = HISTORICAL
+					}
+					has_country_flag = RUS_REV_AI_RANDOM_HISTORICAL
+					has_game_rule = {
+						rule = russian_revolution_path 
+						option = HISTORICAL
+					}
+					has_country_flag = RUS_REV_AI_RANDOM_KORNILOV_IN_POWER
+					has_game_rule = {
+						rule = russian_revolution_path
+						option = KORNILOV_IN_POWER
+					}
+					has_country_flag = RUS_REV_AI_RANDOM_KERENSKY_DICTATORSHIP
+					has_game_rule = {
+						rule = russian_revolution_path
+						option = KERENSKY_DICTATORSHIP
+					}
+				}
 				NOT = {
+					has_country_flag = RUS_REV_AI_RANDOM_TSAR_MIKHAIL_CROWNED
 					has_game_rule = {
 						rule = russian_revolution_path
 						option = TSAR_MIKHAIL_CROWNED
 					}
-				}
-				factor = 0
+				}				
 			}
 			modifier = {
+				factor = 0
 				is_historical_focus_on = no
 				OR = {
 					has_stability < 0.5
 					has_war_support < 0.5
 				}
 				NOT = {
+					has_country_flag = RUS_REV_AI_RANDOM_TSAR_MIKHAIL_CROWNED
 					has_game_rule = {
 						rule = russian_revolution_path
 						option = TSAR_MIKHAIL_CROWNED
 					}
-				}
-				factor = 0
+				}				
 			}
 			modifier = {
-				has_game_rule = {
-					rule = russian_revolution_path
-					option = TSAR_MIKHAIL_CROWNED
-				}
 				factor = 1000
+				OR = {
+					has_country_flag = RUS_REV_AI_RANDOM_TSAR_MIKHAIL_CROWNED
+					has_game_rule = {
+						rule = russian_revolution_path
+						option = TSAR_MIKHAIL_CROWNED
+					}
+				}				
 			}
 		}
 
@@ -2154,8 +2187,15 @@ RUS_release_country = {
 			set_global_flag = poland_released
 			POL = {
 				set_country_flag = released_by_russia
-				set_cosmetic_tag = POL_RUS
-		    }
+				if = {
+					limit = {
+						PREV = {
+							NOT = { has_government = communism }
+						}
+					}
+					set_cosmetic_tag = POL_RUS
+				}
+			}
 			if = {
 				limit = {
 					has_government = neutrality
@@ -2163,13 +2203,13 @@ RUS_release_country = {
 				POL = {
 					POL_roman_dmowski = {
 						promote_character = {
-							Ideology = authoritarian_democracy
+							ideology = authoritarian_democracy
 						}
 					}	
 					set_party_name = {
 						ideology = neutrality
-						name = POL_fascism_party
-						long_name = POL_fascism_party_long
+						name = POL_democratic_party
+						long_name = POL_democratic_party_long
 					}
 				}
 			}
@@ -2180,13 +2220,13 @@ RUS_release_country = {
 				POL = {
 					POL_roman_dmowski = {
 						promote_character = {
-							Ideology = conservatism
+							ideology = conservatism
 						}
 					}
 					set_party_name = {
 						ideology = democratic
-						name = POL_fascism_party
-						long_name = POL_fascism_party_long
+						name = POL_democratic_party
+						long_name = POL_democratic_party_long
 					}
 				}
 			}
@@ -2232,6 +2272,7 @@ RUS_release_country = {
 					puppet = POL
 				}
 			}
+			country_event = ww1_poland.12
 		}
 	}
 	RUS_release_UKR = {
@@ -2963,3 +3004,63 @@ RUS_release_country = {
 		is_good = no
 	}
 }
+economy_decisions = {
+	RUS_restore_KVZhD_control = {
+		icon = infiltrate_state
+
+		allowed = {
+			OR = {
+				original_tag = RUS
+				original_tag = SOV
+			}
+		}
+
+		target_trigger = {
+			FROM = {
+				is_china_or_warlord = yes
+				NOT = {
+					gives_military_access_to = ROOT
+					is_in_faction_with = ROOT
+					is_subject_of = ROOT
+				}
+				controls_KVZhD = yes
+			}
+		}
+		visible = {
+			hidden_trigger = {
+				is_subject = no
+				has_capitulated = no
+				any_country = {
+					OR = {
+						tag = ROOT
+						is_subject_of = ROOT
+					}				
+					owns_state = 583
+					controls_state = 583
+				}
+				any_country = {
+					OR = {
+						tag = ROOT
+						is_subject_of = ROOT
+					}
+					owns_state = 408
+					controls_state = 408
+				}
+			}					
+		}
+
+		days_remove = 5
+
+		ai_will_do = {
+			factor = 100
+		}
+
+		cancel_if_not_visible = yes
+		remove_effect = {
+			FROM = {
+				give_military_access = 	ROOT
+			}
+		}
+	}
+}
+

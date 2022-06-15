@@ -193,7 +193,17 @@ crisis = {
 			EST = { NOT = { has_government = communism } }
 		}		
 		timeout_effect = {
-			SOV = { white_peace = EST }
+			every_country = {
+				limit = {
+					has_war_with = EST
+					OR = {
+						tag = PREV
+						is_in_faction_with = PREV
+						is_subject_of = PREV
+					}
+				}
+				white_peace = EST
+			}
 		}		
 		fire_only_once = yes
 		days_mission_timeout = 100
@@ -232,7 +242,29 @@ crisis = {
 			LAT = { NOT = { has_government = communism } }
 		}		
 		timeout_effect = {
-			SOV = { white_peace = LAT }
+			every_country = {
+				limit = {
+					has_war_with = LAT
+					OR = {
+						tag = PREV
+						is_in_faction_with = PREV
+						is_subject_of = PREV
+					}
+				}
+				white_peace = LAT
+			}
+			hidden_effect = {
+				every_state = {
+					limit = {
+						state = 96
+						OR = {
+							is_owned_by = RUS
+							is_owned_by = SOV
+						}
+					}
+					transfer_state_to = LAT
+				}
+			}
 		}		
 		fire_only_once = yes
 		days_mission_timeout = 100
@@ -274,7 +306,17 @@ crisis = {
 			}
 		}		
 		timeout_effect = {
-			SOV = { white_peace = LIT }
+			every_country = {
+				limit = {
+					has_war_with = LIT
+					OR = {
+						tag = PREV
+						is_in_faction_with = PREV
+						is_subject_of = PREV
+					}
+				}
+				white_peace = LIT
+			}
 		}		
 		fire_only_once = yes
 		days_mission_timeout = 100
@@ -299,8 +341,7 @@ SOV_decision_soviet_republics = {
 			has_completed_focus = SOV_soviet_republics
 			MON = {
 				has_country_leader = {
-					name = "Roman von Ungern-Sternberg"
-					ruling_only = yes
+					character = MON_roman_ungernsternberg
 				}
 				is_subject = no
 			}
@@ -360,7 +401,7 @@ SOV_decision_soviet_republics = {
 				hidden_effect = {
 					MON = {
 					    drop_cosmetic_tag = yes
-						retire_ideology_leader = fascism
+						retire_character = MON_roman_ungernsternberg
 						set_party_name = { 
 						    ideology = fascism 
 						    long_name = MON_fascism_party 
@@ -370,6 +411,9 @@ SOV_decision_soviet_republics = {
 					set_province_name = {
 						id = 4801
 						name = ULANBATOR_PROV
+					}
+					RUS = {
+						retire_character = RUS_roman_ungern_sternberg
 					}
 				}	
 				else = {
@@ -605,50 +649,53 @@ SOV_decision_soviet_republics = {
 						type = civil_war
 					}
 				}
-			}
-			if = {
-				limit = {
-					OR = {
-						UKR = { has_government = ROOT }
-						UKR = { is_in_faction_with = ROOT }
-					}
-				}
-				puppet = UKR
-				hidden_effect = {
-					UKR = {
-						if = {
-							limit = {
-								has_government = communism
-							}	
-							promote_character = UKR_yuriy_pyatakov
-							set_party_name = {
-								ideology = communism
-								name = UKR_communist_party
-								long_name = UKR_communist_party_long
-							}
-							set_cosmetic_tag = UKR_SOV
+				else_if = {
+					limit = {
+						OR = {
+							UKR = { has_government = ROOT }
+							UKR = { is_in_faction_with = ROOT }
 						}
 					}
-				}
-				every_state = {
-					limit = {
-						is_owned_by = UKR
-						is_core_of = ROOT
-					}
-					transfer_state_to = ROOT
-				}
-				if = {
-					limit = {
-						BLR = {
-							exists = yes
+					puppet = UKR
+					hidden_effect = {
+						UKR = {
+							if = {
+								limit = {
+									has_government = communism
+								}	
+								promote_character = UKR_yuriy_pyatakov
+								set_party_name = {
+									ideology = communism
+									name = UKR_communist_party
+									long_name = UKR_communist_party_long
+								}
+								set_cosmetic_tag = UKR_SOV
+							}
 						}
 					}
 					every_state = {
 						limit = {
 							is_owned_by = UKR
-							is_core_of = BLR
+							is_core_of = ROOT
+							NOT = {
+								is_core_of = BLR
+							}
 						}
-						transfer_state_to = BLR
+						transfer_state_to = ROOT
+					}
+					if = {
+						limit = {
+							BLR = {
+								exists = yes
+							}
+						}
+						every_state = {
+							limit = {
+								is_owned_by = UKR
+								is_core_of = BLR
+							}
+							transfer_state_to = BLR
+						}
 					}
 				}
 			}
@@ -1616,6 +1663,32 @@ SOV_red_terror_category = {
 		}
 		ai_will_do = {
 			factor = 0
+		}
+	}
+}
+foreign_politics = {
+	SOV_play_makhnovshchina = {
+		icon = border_war
+        allowed = {
+			OR = {
+				original_tag = UKR
+				tag = SOV
+			}
+		}
+		target_trigger = {
+			FROM = {
+				tag = VLN
+			}
+		}	
+		visible = {
+			is_ai = no
+			VLN = {
+				is_ai = yes
+			}
+		}
+		fire_only_once = yes
+		complete_effect = {
+			VLN = { change_tag_from = ROOT }
 		}
 	}
 }
