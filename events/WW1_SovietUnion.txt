@@ -637,7 +637,7 @@ country_event = {
 	}
 }
 # POLISH-SOVIET WAR: ULTIMATUM
-##########################
+#################################
 country_event = {
 	title = ww1_soviet.15.t
 	desc = ww1_soviet.15.d
@@ -678,18 +678,52 @@ country_event = {
 	}
 	option = {
 		name = ww1_soviet.15.b
-		remove_ideas = { SOV_idea_influence_of_revolution }
+		if = {
+			limit = {
+				has_idea = SOV_idea_influence_of_revolution
+			}
+			remove_ideas = { SOV_idea_influence_of_revolution }
+		}
 		add_war_support = 0.25
-		transfer_state = 784 #Вильно
-		transfer_state = 97 
-		transfer_state = 773 
-		transfer_state = 766 
-		add_state_core = 784
-		add_state_core = 95
-		add_state_core = 94
-		add_state_core = 93
-		add_state_core = 808
-		add_state_core = 773
+		every_state = {
+			limit = {
+				OR = {
+					state = 93
+					state = 94
+					state = 95
+					state = 773
+					state = 784
+					state = 808
+				}
+			}
+			add_core_of = PREV
+		}
+		every_other_country = {
+			limit = {
+				NOT = {
+					original_tag = SOV
+					is_in_faction_with = SOV
+					has_war_with = PREV
+				}
+				OR = {
+					owns_state = 97
+					owns_state = 773
+					owns_state = 766
+					owns_state = 784
+				}
+			}
+			every_owned_state = {
+				limit = {
+					OR = {
+						state = 97
+						state = 773
+						state = 766
+						state = 784
+					}
+				}
+				transfer_state_to = PREV.PREV
+			}
+		}
 		division_template = {
 			name = "Dywizja Strzelców Polskich"
 			division_names_group = POL_INF_01
@@ -739,14 +773,18 @@ country_event = {
 				owner = POL
 			}
 		}
-		declare_war_on = { target = SOV type = take_claimed_state }
-		set_global_flag = polish_soviet_war
-		every_country = {
+		declare_war_on = {
+			target = SOV
+			type = take_claimed_state
+		}
+		hidden_effect = { set_global_flag = polish_soviet_war }
+		every_other_country = {
 			limit = {
 				owns_state = 95
 				NOT = { 
-					has_war_with = POL 
-					is_subject_of = SOV
+					has_war_with = PREV
+					is_in_faction_with = SOV
+					original_tag = SOV
 				}
 			}
 			POL = {
@@ -759,14 +797,21 @@ country_event = {
 				}
 			}
 		}
-		random_country = {
+		every_other_country = {
 			limit = {
 				controls_state = 808
-				NOT = { has_war_with = POL }
-				NOT = { is_in_faction_with = SOV }
 			}
-			POL = { 
-				transfer_state = 808
+			if = {
+				limit = {
+					NOT = {
+						has_war_with = POL
+						is_in_faction_with = SOV
+						original_tag = SOV
+					}
+				}
+				POL = {
+					transfer_state = 808
+				}
 			}
 		}
 		add_ideas = POL_idea_polish_reclamation
@@ -813,7 +858,7 @@ country_event = {
 	}
 }
 # POLISH-SOVIET WAR - POLAND ATTACKS
-##########################
+#######################################
 country_event = {
 	title = ww1_soviet.16.t
 	desc = ww1_soviet.16.d
@@ -1776,31 +1821,25 @@ country_event = {
 	title = ww1_soviet.36.t
 	desc = ww1_soviet.36.d
 	picture = GFX_report_event_generic_communist_congress
-	trigger = {
-		original_tag = FRA
-		has_global_flag = interbellum
-		is_faction_leader = yes
-		has_government = communism
-		has_capitulated = no
-		GER = {
-			OR = {
-				exists = no
-				has_government = communism
-				has_country_flag = great_war_loser
-			}
-		}
-		SOV = {
-			is_subject = no
-			has_government = communism
-			is_faction_leader = yes
-			NOT = { has_war_with = PREV }
-		}
-	}
-	mean_time_to_happen = { days = 45 }
+	is_triggered_only = yes
 	option = {
 		name = ww1_soviet.36.a
 		SOV = {
-			country_event = ww1_soviet.37
+			if = {
+				limit = {
+					exists = yes
+				}
+				country_event = ww1_soviet.37
+			}
+		}
+		RUS = {
+			if = {
+				limit = {
+					exists = yes
+					has_government = communism
+				}
+				country_event = ww1_soviet.37
+			}
 		}
 	}
 	option = {
@@ -1831,12 +1870,12 @@ country_event = {
 			add_to_faction = PREV
 		}
 		ai_chance = {
-			factor = 100
+			base = 100
 			modifier = {
-				factor = 0
+				add = 30
 				has_opinion = {
 					target = FROM
-					value < 70
+					value > 75
 				}
 			}
 		}
@@ -1845,6 +1884,13 @@ country_event = {
 		name = ww1_soviet.37.b
 		ai_chance = {
 			base = 1
+			modifier = {
+				add = 50
+				has_opinion = {
+					target = FROM
+					value < 50
+				}
+			}
 		}
 	}
 }
@@ -2363,7 +2409,10 @@ country_event = {
 			}
 			every_owned_state = {
 				limit = {
-					is_core_of = BLR
+					OR = {
+						is_core_of = BLR
+						state = 97
+					}
 				}
 				transfer_state_to = BLR
 			}
@@ -2371,7 +2420,10 @@ country_event = {
 		else = {
 			every_owned_state = {
 				limit = {
-					is_core_of = BLR
+					OR = {
+						is_core_of = BLR
+						state = 97
+					}
 				}
 				transfer_state_to = SOV
 			}
