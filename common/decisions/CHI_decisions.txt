@@ -1854,17 +1854,30 @@ CHI_chinese_warlords = {
 			is_subject = no
 			has_war = no
 			RUS = {
-			OR = {
-			has_civil_war = yes
-				has_war_with = SOV
-			is_subject_of = ROOT
-			AND = { exists = no NOT = { country_exists = SOV } }
-			}
+				OR = {
+					has_civil_war = yes
+					has_war_with = SOV
+					is_subject_of = ROOT
+					AND = {
+						exists = no
+						NOT = { country_exists = SOV }
+					}
+					AND = {
+						has_country_flag = great_war_loser
+						NOT = { ROOT = { has_country_flag = great_war_loser } }
+					}
+				}
 			}
 			MON = {
 				exists = yes
+				is_neighbor_of = ROOT
+				NOT = {
+					has_country_leader = {
+						character = MON_roman_ungernsternberg
+						ruling_only = yes
+					}
+				}
 			}
-			is_neighbor_of = MON
 		}
 		cost = 75
 		days_remove = 10
@@ -1952,6 +1965,8 @@ CHI_chinese_warlords = {
 			}
 		}
 		available = {
+			has_capitulated = no
+			is_subject = no
 			owns_state = 591
 			owns_state = 592
 			owns_state = 593
@@ -2044,6 +2059,9 @@ CHI_chinese_warlords = {
 					}
 				}
 			}
+			## COUNTRY NAME SELECTION ##
+			# United Provinces of China
+			## Federalist Chen Jiongming
 			if = {
 				limit = {
 					has_country_leader = {
@@ -2051,38 +2069,54 @@ CHI_chinese_warlords = {
 						ruling_only = yes
 					}
 				}
-				# Chen's China need to be named as 'United Provinces'
 				set_cosmetic_tag = CHI_reformed_democratic
 			}
-			# Chinese Soviet Republic before the Long March
+			# Kuomintang
+			## Republic of China
 			else_if = {
 				limit = {
-					has_government = communism
-					NOT = {
-						has_country_flag = long_march
+					OR = {
+						has_cosmetic_tag = KMT_BEIPING
+						has_cosmetic_tag = KMT_WUHAN
+						has_cosmetic_tag = KMT_NANJING
+						has_cosmetic_tag = CPG
+						has_cosmetic_tag = GXC_KMT
 					}
-				}
-				set_cosmetic_tag = CSR
-			}
-			# People's Republic of China after the Long March
-			else_if = {
-				limit = {
-					has_government = communism
-					has_country_flag = long_march
-				}
-				set_cosmetic_tag = CHI_united_communism
-			}
-			# Kuomintang Unification
-			else_if = {
-				limit = {
-					has_cosmetic_tag = KMT_BEIPING
-					has_cosmetic_tag = KMT_WUHAN
-					has_cosmetic_tag = KMT_NANJING
-					has_cosmetic_tag = CPG
 				}
 				set_cosmetic_tag = CHI_united
 			}
-			# Qing Unification: WOW
+			# Communists
+			## Chinese Soviet Republic or People's Republic of China
+			else_if = {
+				limit = {
+					has_government = communism
+				}
+				if = {
+					limit = {
+						has_country_flag = long_march
+					}
+					set_cosmetic_tag = CHI_united_communism
+					else = {
+						set_cosmetic_tag = CSR
+					}
+				}
+			}
+			# Major cliques
+			## They would just unify China under the legitimate government of the Republic of China
+			else_if = {
+				limit = {
+					OR = {
+						original_tag = ANC
+						original_tag = SDC
+						original_tag = FNG
+						original_tag = GXC
+						original_tag = SHX
+					}
+				}
+				set_cosmetic_tag = CHI
+			}
+			# Qing
+			## No more republic, but restorate the Great Qing
 			else_if = {
 				limit = {
 					has_cosmetic_tag = QIN_government
@@ -2149,30 +2183,33 @@ CHI_chinese_warlords = {
 				remove_claim_by = CHI
 				add_claim_by = ROOT
 			}
-			# Matter of captial: Nanjing, Beijing, Wuhan
+			## MATTER OF CAPITAL ##
+			# Southern base
 			if = {
 				limit = {
 					OR = {
-						has_government = democratic
 						original_tag = GXC
 						original_tag = GDC
 						original_tag = YUN
 						original_tag = HNC
+						has_cosmetic_tag = KMT_NANJING
+						has_cosmetic_tag = CPG
+						has_cosmetic_tag = GXC_KMT
 					}
 				}
-				set_capital = { state = 598} #Nanjing
+				set_capital = { state = 598 } #Nanjing
 			}
-			# Special case )))))))))
+			# Wuhan
 			else_if = {
 				limit = {
 					has_cosmetic_tag = KMT_WUHAN
 				}
-				set_capital = { state = 620} #Wuhan
+				set_capital = { state = 620 } #Wuhan
 			}
 			else = {
-				set_capital = { state = 608} #Beijing
+				set_capital = { state = 608 } #Beijing
 			}
-			# Zhili Qing
+			# Qing ideas
 			if = {
 				limit = {
 					has_idea = QIN_idea_low_legitimacy
@@ -2189,9 +2226,11 @@ CHI_chinese_warlords = {
 				}
 				remove_ideas = CHI_idea_warlord_neutrality
 			}
+			# news event
+			news_event = ww1_china.105
 		}
 		ai_will_do = {
-			factor = 100
+			factor = 1000
 		}
 	}
 	CHI_SHX_take_suiyuan = {
@@ -3901,6 +3940,7 @@ CHI_chinese_warlords = {
 				remove_claim_by = SCC
 			}
 			set_global_flag = warlord_era_end
+			news_event = ww1_china.105
 		}
 		ai_will_do = {
 			factor = 1000
@@ -3977,38 +4017,26 @@ CHI_chinese_warlords = {
 			original_tag = SDC
 		}
 		visible = {
-			QIN = {
-				exists = no
-			}
-			CHI = {
-				exists = no
-			}
 			has_global_flag = warlord_era
-			has_global_flag = zhili_anhui_war
-			owns_state = 608
-			owns_state = 614
+			NOT = {
+				country_exists = QIN
+				country_exists = CHI
+			}
 		}
 		available = {
-			QIN = {
-				exists = no
+			NOT = {
+				country_exists = QIN
+				country_exists = CHI
+				country_exists = ANC
+				has_cosmetic_tag = QIN_government
+				MAN = { has_country_leader_with_trait = warrior_code }
+				has_country_flag = reunited_china
 			}
-			CHI = {
-				exists = no
-			}
-			has_global_flag = warlord_era
-			has_global_flag = zhili_anhui_war
 			has_global_flag = great_war_ends
-			GER = {
-				has_country_flag = great_war_winner
-				has_government = neutrality
-			}
 			is_subject = no
 			has_war = no
 			owns_state = 608
 			owns_state = 614
-			NOT = {
-				has_cosmetic_tag = QIN_government
-			}
 		}
 		cost = 200
 		fire_only_once = yes
@@ -4017,6 +4045,7 @@ CHI_chinese_warlords = {
 			add_ideas = QIN_idea_xuantong
 			add_ideas = QIN_idea_low_legitimacy
 			add_ideas = CHI_idea_beiyang_government
+			add_ideas = QIN_idea_fractured_empire
 			hidden_effect = {
 				every_state = {
 					limit = {
@@ -4049,12 +4078,15 @@ CHI_chinese_warlords = {
 			}
 		}
 		ai_will_do = {
-			factor = 0
+			base = 0
 			modifier = {
-				factor = 1000
-				neutrality > 0.9
-				has_stability > 0.5
-				has_war_support > 0.7
+				add = 10
+				GER = {
+					has_country_flag = great_war_winner
+					NOT = {
+						has_war_with = ROOT
+					}
+				}
 			}
 		}
 	}
