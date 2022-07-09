@@ -637,7 +637,7 @@ country_event = {
 	}
 }
 # POLISH-SOVIET WAR: ULTIMATUM
-##########################
+#################################
 country_event = {
 	title = ww1_soviet.15.t
 	desc = ww1_soviet.15.d
@@ -678,18 +678,52 @@ country_event = {
 	}
 	option = {
 		name = ww1_soviet.15.b
-		remove_ideas = { SOV_idea_influence_of_revolution }
+		if = {
+			limit = {
+				has_idea = SOV_idea_influence_of_revolution
+			}
+			remove_ideas = { SOV_idea_influence_of_revolution }
+		}
 		add_war_support = 0.25
-		transfer_state = 784 #Вильно
-		transfer_state = 97 
-		transfer_state = 773 
-		transfer_state = 766 
-		add_state_core = 784
-		add_state_core = 95
-		add_state_core = 94
-		add_state_core = 93
-		add_state_core = 808
-		add_state_core = 773
+		every_state = {
+			limit = {
+				OR = {
+					state = 93
+					state = 94
+					state = 95
+					state = 773
+					state = 784
+					state = 808
+				}
+			}
+			add_core_of = PREV
+		}
+		every_other_country = {
+			limit = {
+				NOT = {
+					original_tag = SOV
+					is_in_faction_with = SOV
+					has_war_with = PREV
+				}
+				OR = {
+					owns_state = 97
+					owns_state = 773
+					owns_state = 766
+					owns_state = 784
+				}
+			}
+			every_owned_state = {
+				limit = {
+					OR = {
+						state = 97
+						state = 773
+						state = 766
+						#state = 784
+					}
+				}
+				transfer_state_to = PREV.PREV
+			}
+		}
 		division_template = {
 			name = "Dywizja Strzelców Polskich"
 			division_names_group = POL_INF_01
@@ -739,14 +773,18 @@ country_event = {
 				owner = POL
 			}
 		}
-		declare_war_on = { target = SOV type = take_claimed_state }
-		set_global_flag = polish_soviet_war
-		every_country = {
+		declare_war_on = {
+			target = SOV
+			type = take_claimed_state
+		}
+		hidden_effect = { set_global_flag = polish_soviet_war }
+		every_other_country = {
 			limit = {
 				owns_state = 95
 				NOT = { 
-					has_war_with = POL 
-					is_subject_of = SOV
+					has_war_with = PREV
+					is_in_faction_with = SOV
+					original_tag = SOV
 				}
 			}
 			POL = {
@@ -759,14 +797,21 @@ country_event = {
 				}
 			}
 		}
-		random_country = {
+		every_other_country = {
 			limit = {
 				controls_state = 808
-				NOT = { has_war_with = POL }
-				NOT = { is_in_faction_with = SOV }
 			}
-			POL = { 
-				transfer_state = 808
+			if = {
+				limit = {
+					NOT = {
+						has_war_with = POL
+						is_in_faction_with = SOV
+						original_tag = SOV
+					}
+				}
+				POL = {
+					transfer_state = 808
+				}
 			}
 		}
 		add_ideas = POL_idea_polish_reclamation
@@ -813,7 +858,7 @@ country_event = {
 	}
 }
 # POLISH-SOVIET WAR - POLAND ATTACKS
-##########################
+#######################################
 country_event = {
 	title = ww1_soviet.16.t
 	desc = ww1_soviet.16.d
@@ -864,35 +909,26 @@ country_event = {
 	option = {
 		name = ww1_soviet.18.a #yes
 		every_country = {
-		    limit = {
-				is_in_faction_with = SOV
+			limit = {
+				OR = {
+					is_in_faction_with = SOV
+					is_subject_of = SOV
+				}
+				has_war_with = POL
 			}
 			white_peace = POL
+			set_truce = {
+				target = POL
+				days = 200
+			}
 		}
 		white_peace = POL
-		if = {
-			limit = { POL = { is_in_faction = yes } is_faction_leader = no }
-			POL = { leave_faction = yes }
+		set_truce = {
+			target = POL
+			days = 200
 		}
-		if = {
-			limit = {
-				LIT = { exists = yes }
-				POL = { owns_state = 784 }
-			}
-			LIT = { transfer_state = 784 }
-		}
-		if = {
-			limit = {
-				UKR = { exists = yes }
-				POL = {
-					owns_state = 93 
-					owns_state = 808
-				}
-			}
-			UKR = {
-				transfer_state = 808
-				transfer_state = 93
-			}
+		POL = {
+			country_event = ww1_soviet.45
 		}
 		ai_chance = { factor = 100 }
 	}
@@ -902,6 +938,7 @@ country_event = {
 		ai_chance = { factor = 0 }
 	}
 }
+
 # POLISH-SOVIET WAR - RUSSIA SAYS NO.
 ##########################
 country_event = {
@@ -932,44 +969,38 @@ country_event = {
 	option = {
 		name = ww1_soviet.18.a #yes
 		
-		# HAS UKRAINE DEFEATED?
-		every_other_country = {
-			limit = {
-				original_tag = UKR
-				OR = {
-					is_subject_of = SOV
-					has_government = communism
-					has_capitulated = yes
-					is_in_faction_with = SOV
+		hidden_effect = {
+			# WAS UKRAINE DEFEATED?
+			every_country = {
+				limit = {
+					original_tag = UKR
+					OR = {
+						exists = no
+						is_subject_of = SOV
+						has_government = communism
+						has_capitulated = yes
+						is_in_faction_with = SOV
+						has_war_with = POL
+					}
 				}
+				set_country_flag = riga_peace
 			}
-			hidden_effect = { set_country_flag = riga_peace }
-		}
-		if = {
-			limit = {
-				NOT = { country_exists = UKR }
-			}
-			hidden_effect = { UKR = { set_country_flag = riga_peace } }
-		}
-		
-		# HAS BELARUS DEFEATED?
-		every_other_country = {
-			limit = {
-				original_tag = BLR
-				OR = {
-					is_subject_of = SOV
-					has_government = communism
-					has_capitulated = yes
-					is_in_faction_with = SOV
+			
+			# WAS BELARUS DEFEATED?
+			every_country = {
+				limit = {
+					original_tag = BLR
+					OR = {
+						exists = no
+						is_subject_of = SOV
+						has_government = communism
+						has_capitulated = yes
+						is_in_faction_with = SOV
+						has_war_with = POL
+					}
 				}
+				set_country_flag = riga_peace
 			}
-			hidden_effect = { set_country_flag = riga_peace }
-		}
-		if = {
-			limit = {
-				NOT = { country_exists = BLR }
-			}
-			hidden_effect = { BLR = { set_country_flag = riga_peace } }
 		}
 		
 		# END OF SOVIET WESTWARD OFFENSIVE
@@ -989,21 +1020,19 @@ country_event = {
 				limit = {
 					is_subject = no
 					NOT = {
-						is_in_faction_with = PREV
+						is_in_faction_with = SOV
 						owns_state = 96
 					}
 				}
-				hidden_effect = {
-					every_state = {
-						limit = {
-							state = 96
-							OR = {
-								is_owned_by = RUS
-								is_owned_by = SOV
-							}
+				every_state = {
+					limit = {
+						state = 96
+						OR = {
+							is_owned_by = RUS
+							is_owned_by = SOV
 						}
-						transfer_state_to = PREV
 					}
+					transfer_state_to = PREV
 				}
 			}
 		}
@@ -1014,6 +1043,7 @@ country_event = {
 				OR = {
 					tag = SOV
 					is_in_faction_with = SOV
+					is_subject_of = SOV
 				}
 			}
 			white_peace = POL
@@ -1023,17 +1053,10 @@ country_event = {
 		every_country = {
 			limit = {
 				OR = {
-					AND = {
-						original_tag = UKR
-						has_country_flag = riga_peace
-					}
-					AND = {
-						original_tag = BLR
-						has_country_flag = riga_peace
-					}
 					original_tag = SOV
 					original_tag = RUS
 					original_tag = LIT
+					has_country_flag = riga_peace
 				}
 			}
 			every_owned_state = {
@@ -1056,93 +1079,18 @@ country_event = {
 		}
 		
 		# NO FACTIONS INTERWAR
-		if = {
-			limit = { POL = { is_in_faction = yes } is_faction_leader = no }
-			POL = { leave_faction = yes }
-		}
-		
-		# FATE OF UKRAINE AND BELARUS
-		# it is because they are not original country but civil war country with wrong colour and mechanics.
-		hidden_effect = {
-			every_other_country = {
+		POL = {
+			if = {
 				limit = {
-					OR = {
-						original_tag = UKR
-						original_tag = BLR
-					}
-					exists = yes
+					is_in_faction = yes
 				}
 				if = {
 					limit = {
-						has_country_flag = riga_peace
+						is_faction_leader = no
 					}
-					SOV = {
-						if = {
-							limit = {
-								has_completed_focus = SOV_USSR
-							}
-							annex_country = {
-								target = PREV
-								transfer_troops = yes
-							}
-						}
-						else_if = {
-							limit = {
-								PREV = {
-									NOT = { is_subject_of = PREV }
-								}
-							}
-							puppet = PREV
-						}
-					}
-				}
-				else = {
-					if = {
-						limit = {
-							original_tag = UKR
-						}
-						UKR = {
-							annex_country = {
-								target = PREV
-							}
-							set_politics = {
-								ruling_party = democratic
-								elections_allowed = yes
-							}
-							set_popularities = {
-								democratic = 50
-								fascism = 0
-								communism = 40
-								neutrality = 10
-							}
-							set_party_name = {
-								ideology = democratic
-								long_name = UKR_directory_party							
-								name = UKR_directory_party
-							}
-							drop_cosmetic_tag = yes
-						}
-					}
-					if = {
-						limit = {
-							original_tag = BLR
-						}
-						BLR = {
-							annex_country = {
-								target = PREV
-							}
-							set_politics = {
-								ruling_party = neutrality
-								elections_allowed = no
-							}
-							set_popularities = {
-								fascism = 2
-								communism = 41
-								democratic = 4
-								neutrality = 53
-							}
-							drop_cosmetic_tag = yes
-						}
+					leave_faction = yes
+					else = {
+						dismantle_faction = yes #just for sure
 					}
 				}
 			}
@@ -1157,6 +1105,16 @@ country_event = {
 				country_event = ww1_soviet.38
 			}
 		}
+		
+		hidden_effect = { set_global_flag = miracle_on_the_vistula }
+		
+		SOV = {
+			add_stability = -0.10
+			add_political_power = -100
+		}
+		
+		add_stability = 0.10
+		add_political_power = 200
 		
 		# NEWS EVENT
 		news_event = ww1_soviet.39
@@ -1234,14 +1192,6 @@ country_event = {
 				neutrality = 41
 				fascism = 0
 				communism = 29
-			}
-			RUS = {
-				RUS_boris_savinkov = {
-					remove_country_leader_role = {
-						ideology = agrarian_socialism
-					}
-					set_nationality = ROOT
-				}
 			}
 			retire_character = SOV_vladimir_lenin
 			if = {
@@ -1596,6 +1546,7 @@ country_event = {
 	id = ww1_soviet.33
 	title = ww1_soviet.33.t
 	desc = ww1_soviet.33.d
+	picture = GFX_report_event_generic_communist_congress
 	is_triggered_only = yes
 	option = {
 		every_country = {
@@ -1633,21 +1584,52 @@ country_event = {
 	}
 }
 
-# INVADE ESTONIA
-###################
+# INVADE ESTONIA/LATVIA/LITHUANIA
+####################################
 country_event = {
 	id = ww1_soviet.34
 	title = ww1_soviet.34.t
 	desc = ww1_soviet.34.d
+	picture = GFX_report_event_generic_communist_congress
 	trigger = {
 		tag = SOV
-		EST = {
-			exists = yes
-			is_subject = no
-			is_in_faction = no
-			is_neighbor_of = PREV
-			NOT = {
-				has_government = communism
+		OR = {
+			EST = {
+				exists = yes
+				is_subject = no
+				is_in_faction = no
+				is_neighbor_of = PREV
+				NOT = {
+					has_government = communism
+				}
+			}
+			LAT = {
+				exists = yes
+				is_subject = no
+				is_in_faction = no
+				is_neighbor_of = PREV
+				NOT = {
+					has_government = communism
+				}
+			}
+			LIT = {
+				exists = yes
+				is_subject = no
+				is_in_faction = no
+				OR = {
+					is_neighbor_of = PREV
+					any_other_country = {
+						OR = {
+							is_subject_of = ROOT
+							is_in_faction_with = ROOT
+							has_war_with = ROOT
+						}
+						is_neighbor_of = PREV
+					}
+				}
+				NOT = {
+					has_government = communism
+				}
 			}
 		}
 	}
@@ -1655,103 +1637,290 @@ country_event = {
 	mean_time_to_happen = { days = 30 }
 	option = {
 		name = ww1_soviet.34.a
-		declare_war_on = {
-			target = EST
-			type = annex_everything
-		}
-		hidden_effect = {
-			EST = {
-				add_ideas = idea_soviet_westward_offensive
-				add_ideas = idea_soviet_liberation_war
-				division_template = {
-					name = "Miilits"
-					regiments = {
-						infantry = {
-							x = 0
-							y = 0
+		if = {
+			limit = {
+				EST = {
+					exists = yes
+					is_subject = no
+					is_in_faction = no
+					is_neighbor_of = PREV
+					NOT = {
+						has_government = communism
+					}
+				}
+			}
+			declare_war_on = {
+				target = EST
+				type = annex_everything
+			}
+			hidden_effect = {
+				EST = {
+					add_ideas = idea_soviet_westward_offensive
+					add_ideas = idea_soviet_liberation_war
+					division_template = {
+						name = "Miilits"
+						regiments = {
+							infantry = {
+								x = 0
+								y = 0
+							}
+							infantry = {
+								x = 0
+								y = 1
+							}
+							infantry = {
+								x = 0
+								y = 2
+							}
+							infantry = {
+								x = 1
+								y = 0
+							}
+							infantry = {
+								x = 1
+								y = 1
+							}
+							infantry = {
+								x = 1
+								y = 2
+							}
 						}
-						infantry = {
-							x = 0
-							y = 1
+					}
+					capital_scope = {
+						create_unit = {
+							division = "name = \"Rapla miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
+							owner = EST
 						}
-						infantry = {
-							x = 0
-							y = 2
+						create_unit = {
+							division = "name = \"Lääne miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
+							owner = EST
 						}
-						infantry = {
-							x = 1
-							y = 0
+						create_unit = {
+							division = "name = \"Lääne-Viru miilits\" division_template = \"Miilits\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
+							owner = EST
 						}
-						infantry = {
-							x = 1
-							y = 1
+						create_unit = {
+							division = "name = \"Valga miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
+							owner = EST
 						}
-						infantry = {
-							x = 1
-							y = 2
+						create_unit = {
+							division = "name = \"Võru miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
+							owner = EST
+						}
+						create_unit = {
+							division = "name = \"Viljandi miilits\" division_template = \"Miilits\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
+							owner = EST
+						}
+						create_unit = {
+							division = "name = \"Saare miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
+							owner = EST
+						}
+						create_unit = {
+							division = "name = \"Järva miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
+							owner = EST
+						}
+						create_unit = {
+							division = "name = \"Jõgeva miilits\" division_template = \"Miilits\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
+							owner = EST
+						}
+						create_unit = {
+							division = "name = \"Ida-Viru miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
+							owner = EST
+						}
+						create_unit = {
+							division = "name = \"Tartu miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
+							owner = EST
+						}
+						create_unit = {
+							division = "name = \"Pärnu miilits\" division_template = \"Miilits\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
+							owner = EST
+						}
+						create_unit = {
+							division = "name = \"Põlva miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
+							owner = EST
+						}
+						create_unit = {
+							division = "name = \"Harju miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
+							owner = EST
+						}
+						create_unit = {
+							division = "name = \"Hiiu miilits\" division_template = \"Miilits\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
+							owner = EST
 						}
 					}
 				}
-				capital_scope = {
-					create_unit = {
-						division = "name = \"Rapla miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
-						owner = EST
+			}
+		}
+		if = {
+			limit = {
+				LAT = {
+					exists = yes
+					is_subject = no
+					is_in_faction = no
+					is_neighbor_of = PREV
+					NOT = {
+						has_government = communism
 					}
-					create_unit = {
-						division = "name = \"Lääne miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
-						owner = EST
+				}
+			}
+			declare_war_on = {
+				target = LAT
+				type = annex_everything
+			}
+			hidden_effect = {
+				LAT = {
+					add_ideas = idea_soviet_westward_offensive
+					add_ideas = idea_soviet_liberation_war
+					division_template = {
+						name = "Milicija"
+						regiments = {
+							infantry = {
+								x = 0
+								y = 0
+							}
+							infantry = {
+								x = 0
+								y = 1
+							}
+							infantry = {
+								x = 0
+								y = 2
+							}
+							infantry = {
+								x = 1
+								y = 0
+							}
+							infantry = {
+								x = 1
+								y = 1
+							}
+							infantry = {
+								x = 1
+								y = 2
+							}
+						}
 					}
-					create_unit = {
-						division = "name = \"Lääne-Viru miilits\" division_template = \"Miilits\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
-						owner = EST
+					capital_scope = {
+						create_unit = {
+							division = "name = \"Kurzemes milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
+							owner = LAT
+						}
+						create_unit = {
+							division = "name = \"Zemgales milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
+							owner = LAT
+						}
+						create_unit = {
+							division = "name = \"Latgales milicija\" division_template = \"Milicija\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
+							owner = LAT
+						}
+						create_unit = {
+							division = "name = \"Vidzemes milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
+							owner = LAT
+						}
 					}
-					create_unit = {
-						division = "name = \"Valga miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
-						owner = EST
+				}
+			}
+		}
+		if = {
+			limit = {
+				LIT = {
+					exists = yes
+					is_subject = no
+					is_in_faction = no
+					OR = {
+						is_neighbor_of = PREV
+						any_other_country = {
+							OR = {
+								is_subject_of = ROOT
+								is_in_faction_with = ROOT
+								has_war_with = ROOT
+							}
+							is_neighbor_of = PREV
+						}
 					}
-					create_unit = {
-						division = "name = \"Võru miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
-						owner = EST
+					NOT = {
+						has_government = communism
 					}
-					create_unit = {
-						division = "name = \"Viljandi miilits\" division_template = \"Miilits\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
-						owner = EST
+				}
+			}
+			declare_war_on = {
+				target = LIT
+				type = annex_everything
+			}
+			hidden_effect = {
+				LIT = {
+					add_ideas = idea_soviet_westward_offensive
+					add_ideas = idea_soviet_liberation_war
+					division_template = {
+						name = "Milicija"
+						regiments = {
+							infantry = {
+								x = 0
+								y = 0
+							}
+							infantry = {
+								x = 0
+								y = 1
+							}
+							infantry = {
+								x = 0
+								y = 2
+							}
+							infantry = {
+								x = 1
+								y = 0
+							}
+							infantry = {
+								x = 1
+								y = 1
+							}
+							infantry = {
+								x = 1
+								y = 2
+							}
+						}
 					}
-					create_unit = {
-						division = "name = \"Saare miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
-						owner = EST
-					}
-					create_unit = {
-						division = "name = \"Järva miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
-						owner = EST
-					}
-					create_unit = {
-						division = "name = \"Jõgeva miilits\" division_template = \"Miilits\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
-						owner = EST
-					}
-					create_unit = {
-						division = "name = \"Ida-Viru miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
-						owner = EST
-					}
-					create_unit = {
-						division = "name = \"Tartu miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
-						owner = EST
-					}
-					create_unit = {
-						division = "name = \"Pärnu miilits\" division_template = \"Miilits\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
-						owner = EST
-					}
-					create_unit = {
-						division = "name = \"Põlva miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
-						owner = EST
-					}
-					create_unit = {
-						division = "name = \"Harju miilits\" division_template = \"Miilits\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
-						owner = EST
-					}
-					create_unit = {
-						division = "name = \"Hiiu miilits\" division_template = \"Miilits\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
-						owner = EST
+					capital_scope = {
+						create_unit = {
+							division = "name = \"Klaipėdos milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
+							owner = LIT
+						}
+						create_unit = {
+							division = "name = \"Alytaus milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
+							owner = LIT
+						}
+						create_unit = {
+							division = "name = \"Marijampolės milicija\" division_template = \"Milicija\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
+							owner = LIT
+						}
+						create_unit = {
+							division = "name = \"Vilniaus milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
+							owner = LIT
+						}
+						create_unit = {
+							division = "name = \"Šiaulių milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
+							owner = LIT
+						}
+						create_unit = {
+							division = "name = \"Utenos milicija\" division_template = \"Milicija\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
+							owner = LIT
+						}
+						create_unit = {
+							division = "name = \"Kauno milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
+							owner = LIT
+						}
+						create_unit = {
+							division = "name = \"Tauragės milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
+							owner = LIT
+						}
+						create_unit = {
+							division = "name = \"Telšių milicija\" division_template = \"Milicija\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
+							owner = LIT
+						}
+						create_unit = {
+							division = "name = \"Panevėžio milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
+							owner = LIT
+						}
 					}
 				}
 			}
@@ -1760,7 +1929,7 @@ country_event = {
 			factor = 100
 			modifier = {
 				factor = 0
-				surrender_progress > 0.3
+				surrender_progress > 0.4
 			}
 		}
 	}
@@ -1769,97 +1938,7 @@ country_event = {
 	}
 }
 
-# INVADE LATVIA
-##################
-country_event = {
-	id = ww1_soviet.35
-	title = ww1_soviet.35.t
-	desc = ww1_soviet.35.d
-	trigger = {
-		tag = SOV
-		LAT = {
-			exists = yes
-			is_subject = no
-			is_in_faction = no
-			is_neighbor_of = PREV
-			NOT = {
-				has_government = communism
-			}
-		}
-	}
-	fire_only_once = yes
-	mean_time_to_happen = { days = 30 }
-	option = {
-		name = ww1_soviet.34.a
-		declare_war_on = {
-			target = LAT
-			type = annex_everything
-		}
-		hidden_effect = {
-			LAT = {
-				add_ideas = idea_soviet_westward_offensive
-				add_ideas = idea_soviet_liberation_war
-				division_template = {
-					name = "Milicija"
-					regiments = {
-						infantry = {
-							x = 0
-							y = 0
-						}
-						infantry = {
-							x = 0
-							y = 1
-						}
-						infantry = {
-							x = 0
-							y = 2
-						}
-						infantry = {
-							x = 1
-							y = 0
-						}
-						infantry = {
-							x = 1
-							y = 1
-						}
-						infantry = {
-							x = 1
-							y = 2
-						}
-					}
-				}
-				capital_scope = {
-					create_unit = {
-						division = "name = \"Kurzemes milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
-						owner = LAT
-					}
-					create_unit = {
-						division = "name = \"Zemgales milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
-						owner = LAT
-					}
-					create_unit = {
-						division = "name = \"Latgales milicija\" division_template = \"Milicija\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
-						owner = LAT
-					}
-					create_unit = {
-						division = "name = \"Vidzemes milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
-						owner = LAT
-					}
-				}
-			}
-		}
-		ai_chance = {
-			factor = 100
-			modifier = {
-				factor = 0
-				surrender_progress > 0.3
-			}
-		}
-	}
-	option = {
-		name = ww1_soviet.34.b
-	}
-}
+# ww1_soviet.35
 
 # WORLD INTERNATIONALE
 #########################
@@ -1868,31 +1947,25 @@ country_event = {
 	title = ww1_soviet.36.t
 	desc = ww1_soviet.36.d
 	picture = GFX_report_event_generic_communist_congress
-	trigger = {
-		original_tag = FRA
-		has_global_flag = interbellum
-		is_faction_leader = yes
-		has_government = communism
-		has_capitulated = no
-		GER = {
-			OR = {
-				exists = no
-				has_government = communism
-				has_country_flag = great_war_loser
-			}
-		}
-		SOV = {
-			is_subject = no
-			has_government = communism
-			is_faction_leader = yes
-			NOT = { has_war_with = PREV }
-		}
-	}
-	mean_time_to_happen = { days = 45 }
+	is_triggered_only = yes
 	option = {
 		name = ww1_soviet.36.a
 		SOV = {
-			country_event = ww1_soviet.37
+			if = {
+				limit = {
+					exists = yes
+				}
+				country_event = ww1_soviet.37
+			}
+		}
+		RUS = {
+			if = {
+				limit = {
+					exists = yes
+					has_government = communism
+				}
+				country_event = ww1_soviet.37
+			}
 		}
 	}
 	option = {
@@ -1923,12 +1996,12 @@ country_event = {
 			add_to_faction = PREV
 		}
 		ai_chance = {
-			factor = 100
+			base = 100
 			modifier = {
-				factor = 0
+				add = 30
 				has_opinion = {
 					target = FROM
-					value < 70
+					value > 75
 				}
 			}
 		}
@@ -1937,6 +2010,13 @@ country_event = {
 		name = ww1_soviet.37.b
 		ai_chance = {
 			base = 1
+			modifier = {
+				add = 50
+				has_opinion = {
+					target = FROM
+					value < 50
+				}
+			}
 		}
 	}
 }
@@ -1947,6 +2027,7 @@ country_event = {
 	id = ww1_soviet.38
 	title = ww1_soviet.38.t
 	desc = ww1_soviet.38.d
+	picture = GFX_report_event_generic_read_write
 	is_triggered_only = yes
 	option = {
 		name = ww1_soviet.38.a
@@ -1976,13 +2057,25 @@ country_event = {
 news_event = {
 	id = ww1_soviet.39
 	title = ww1_soviet.39.t
-	desc = ww1_soviet.39.d
+	desc = {
+		text = ww1_soviet.39.desc
+		trigger = {
+			has_global_flag = miracle_on_the_vistula
+		}
+	}
+	desc = {
+		text = ww1_soviet.39.desc_alt
+		trigger = {
+			NOT = { has_global_flag = miracle_on_the_vistula }
+		}
+	}
 	is_triggered_only = yes
 	major = yes
 	picture = GFX_news_event_peace_of_riga
 	option = {
 		name = ww1_soviet.39.a
 		trigger = {
+			has_global_flag = miracle_on_the_vistula
 			OR = {
 				tag = SOV
 				has_government = communism
@@ -1992,9 +2085,34 @@ news_event = {
 		}
 	}
 	option = {
-		name = ww1_soviet.39.a
+		name = ww1_soviet.39.b
+		trigger = {
+			has_global_flag = miracle_on_the_vistula
+			NOT = {
+				tag = SOV
+				has_government = communism
+				is_subject_of = SOV
+				is_in_faction_with = SOV
+			}
+		}
+	}
+	option = {
+		name = ww1_soviet.39.c
+		trigger = {
+			NOT = { has_global_flag = miracle_on_the_vistula }
+			OR = {
+				tag = SOV
+				has_government = communism
+				is_subject_of = SOV
+				is_in_faction_with = SOV
+			}
+		}
+	}
+	option = {
+		name = ww1_soviet.39.d
 		trigger = {
 			NOT = {
+				has_global_flag = miracle_on_the_vistula
 				tag = SOV
 				has_government = communism
 				is_subject_of = SOV
@@ -2004,151 +2122,7 @@ news_event = {
 	}
 }
 
-# INVADE LITHUANIA
-#####################
-country_event = {
-	id = ww1_soviet.40
-	title = ww1_soviet.40.t
-	desc = ww1_soviet.40.d
-	trigger = {
-		tag = SOV
-		LIT = {
-			exists = yes
-			is_subject = no
-			is_in_faction = no
-			OR = {
-				is_neighbor_of = PREV
-				any_other_country = {
-					OR = {
-						is_subject_of = PREV.PREV
-						is_in_faction_with = PREV.PEV
-					}
-					is_neighbor_of = PREV
-				}
-			}
-			NOT = {
-				has_government = communism
-			}
-		}
-	}
-	fire_only_once = yes
-	mean_time_to_happen = { days = 30 }
-	option = {
-		name = ww1_soviet.34.a
-		declare_war_on = {
-			target = LIT
-			type = annex_everything
-		}
-		hidden_effect = {
-			LIT = {
-				add_ideas = idea_soviet_westward_offensive
-				add_ideas = idea_soviet_liberation_war
-				division_template = {
-					name = "Milicija"
-					regiments = {
-						infantry = {
-							x = 0
-							y = 0
-						}
-						infantry = {
-							x = 0
-							y = 1
-						}
-						infantry = {
-							x = 0
-							y = 2
-						}
-						infantry = {
-							x = 1
-							y = 0
-						}
-						infantry = {
-							x = 1
-							y = 1
-						}
-						infantry = {
-							x = 1
-							y = 2
-						}
-					}
-				}
-				capital_scope = {
-					create_unit = {
-						division = "name = \"Klaipėdos milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
-						owner = LIT
-					}
-					create_unit = {
-						division = "name = \"Alytaus milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
-						owner = LIT
-					}
-					create_unit = {
-						division = "name = \"Marijampolės milicija\" division_template = \"Milicija\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
-						owner = LIT
-					}
-					create_unit = {
-						division = "name = \"Vilniaus milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
-						owner = LIT
-					}
-					create_unit = {
-						division = "name = \"Šiaulių milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
-						owner = LIT
-					}
-					create_unit = {
-						division = "name = \"Utenos milicija\" division_template = \"Milicija\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
-						owner = LIT
-					}
-					create_unit = {
-						division = "name = \"Kauno milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
-						owner = LIT
-					}
-					create_unit = {
-						division = "name = \"Tauragės milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.6"
-						owner = LIT
-					}
-					create_unit = {
-						division = "name = \"Telšių milicija\" division_template = \"Milicija\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
-						owner = LIT
-					}
-					create_unit = {
-						division = "name = \"Panevėžio milicija\" division_template = \"Milicija\" start_experience_factor = 0.7 start_equipment_factor = 0.9"
-						owner = LIT
-					}
-				}
-				every_owned_state = {
-					limit = {
-						OR = {
-							state = 97
-							state = 773
-						}
-					}
-					POL = {
-						if = {
-							limit = {
-								exists = yes
-								is_subject = no
-								is_neighbor_of = PREV.PREV
-								NOT = {
-									is_in_faction_with = SOV
-								}
-							}
-							transfer_state = PREV
-						}
-					}	
-				}
-			}
-		}
-		ai_chance = {
-			factor = 100
-			modifier = {
-				factor = 0
-				surrender_progress > 0.3
-			}
-		}
-	}
-	option = {
-		name = ww1_soviet.34.b
-	}
-}
+# ww1_soviet.40
 
 # LITBEL
 ###########
@@ -2156,24 +2130,8 @@ country_event = {
 	id = ww1_soviet.41
 	title = ww1_soviet.41.t
 	desc = ww1_soviet.41.d
-	trigger = {
-		tag = SOV
-		has_government = communism
-		has_war = no
-		LIT = {
-			has_government = communism
-			is_subject_of = PREV
-			NOT = {
-				has_cosmetic_tag = LITBEL
-			}
-		}
-		BLR = {
-			has_government = communism
-			is_subject_of = PREV
-		}
-	}
-	fire_only_once = yes
-	mean_time_to_happen = { days = 10 }
+	picture = GFX_report_event_generic_communist_congress
+	is_triggered_only = yes
 	option = {
 		name = ww1_soviet.41.a
 		LIT = {
@@ -2209,19 +2167,9 @@ country_event = {
 				}
 			}
 			transfer_state_to = LIT
-		}		
-		ai_chance = {
-			factor = 100
 		}
-	}
-	option = {
-		name = ww1_soviet.41.b
 		ai_chance = {
 			factor = 100
-			modifier = {
-				factor = 0
-				is_historical_focus_on = yes
-			}
 		}
 	}
 }
@@ -2366,6 +2314,97 @@ country_event = {
 		}
 		news_event = { id = ww1_soviet.8 }
 		ai_chance = { factor = 100 }
+	}
+}
+
+# POLISH-SOVIET WAR - POLAND SUFFERS
+#######################################
+country_event = {
+	id = ww1_soviet.45
+	title = ww1_soviet.45.t
+	desc = ww1_soviet.45.d
+	is_triggered_only = yes
+	picture = GFX_report_event_generic_read_write
+	option = {
+		name = ww1_soviet.45.a
+		if = {
+			limit = {
+				is_in_faction = yes
+			}
+			if = {
+				limit = {
+					is_faction_leader = no
+				}
+				leave_faction = yes
+			}
+			else = {
+				dismantle_faction = yes
+			}
+		}
+		add_stability = -0.30
+		add_political_power = -200
+		if = {
+			limit = {
+				country_exists = LIT
+			}
+			every_owned_state = {
+				limit = {
+					is_core_of = LIT
+				}
+				transfer_state_to = LIT
+			}
+		}
+		if = {
+			limit = {
+				country_exists = UKR
+			}
+			every_owned_state = {
+				limit = {
+					OR = {
+						state = 93
+						state = 808
+					}
+				}
+				transfer_state_to = UKR
+			}
+		}
+		else = {
+			every_owned_state = {
+				limit = {
+					OR = {
+						state = 93
+						state = 808
+					}
+				}
+				transfer_state_to = SOV
+			}
+		}
+		if = {
+			limit = {
+				country_exists = BLR
+			}
+			every_owned_state = {
+				limit = {
+					OR = {
+						is_core_of = BLR
+						state = 97
+					}
+				}
+				transfer_state_to = BLR
+			}
+		}
+		else = {
+			every_owned_state = {
+				limit = {
+					OR = {
+						is_core_of = BLR
+						state = 97
+					}
+				}
+				transfer_state_to = SOV
+			}
+		}
+		news_event = ww1_soviet.39
 	}
 }
 
