@@ -50,49 +50,70 @@ country_event = {
 	trigger = {
 		tag = ROM
 		is_subject = no
-		AUH = {
-			exists = no
-		}
+		has_global_flag = great_war_ends
+		NOT = { has_country_flag = great_war_loser }
 		HUN = {
 			exists = yes
 			is_subject = no
-			NOT = {
-				has_war_with = ROM
+			is_neighbor_of = ROOT
+			NOT = { has_war_with = ROM }
+			OR = {
+				owns_state = 76
+				owns_state = 84
+				owns_state = 82
+				owns_state = 80
+				owns_state = 778
 			}
-			owns_state = 76
-			owns_state = 84
-			owns_state = 83
-			owns_state = 82
-			owns_state = 778
-		}
-		OR = {
-			has_global_flag = hungarian_revolution
-			HUN = {
+			OR = {
+				has_global_flag = hungarian_revolution
 				has_war = yes
 			}
+			has_country_flag = great_war_loser
 		}
 	}
 	option = {
 		name = ww1_romania.2.a
-		transfer_state = 76
-		transfer_state = 84
-		transfer_state = 83
-		transfer_state = 82
-		transfer_state = 80
-		transfer_state = 778
-		every_state = {
-			limit = {
-				is_owned_by = ROM
+		HUN = {
+			every_owned_state = {
+				limit = {
+					OR = {
+						state = 76
+						state = 84
+						state = 82
+						state = 80
+						state = 778
+						state = 866
+						state = 867
+						state = 868
+					}
+				}
+				remove_core_of = PREV
+				add_claim_by = PREV
+				add_core_of = ROOT
+				transfer_state_to = ROOT
 			}
-			remove_core_of = HUN
 		}
 		hidden_effect = {
-			add_state_core = 76
-			add_state_core = 84
-			add_state_core = 83
-			add_state_core = 82
-			add_state_core = 80
-			add_state_core = 778
+			SER = {
+				if = {
+					limit = {
+						NOT = { has_country_flag = great_war_loser }
+					}
+					HUN = {
+						every_owned_state = {
+							limit = {
+								OR = {
+									state = 45
+									state = 764
+								}
+							}
+							remove_core_of = PREV
+							add_claim_by = PREV
+							transfer_state_to = SER
+						}
+					}
+				}
+			}
 		}
 		ai_chance = {
 			factor = 100
@@ -294,18 +315,53 @@ country_event = {
 	}
 }
 
-#Dummy Event
-#country_event = { 
-#	id = ww1_romania.8
-#	title = ww1_romania.8.t
-#	desc = ww1_romania.8.d
-#}
+# Little Entente
+country_event = { 
+	id = ww1_romania.8
+	title = ww1_romania.8.t
+	desc = ww1_romania.8.d
+	picture = GFX_report_event_generic_read_write
+	is_triggered_only = yes
+	option = {
+		name = ww1_romania.8.a
+		give_guarantee = ROM
+		CZE = {
+			if = {
+				limit = {
+					exists = yes
+					is_subject = no
+					NOT = {
+						has_war_with = ROOT
+						any_other_country = {
+							has_war_with = ROOT
+							is_in_faction_with = PREV
+						}
+						has_government = communism
+						has_country_flag = great_war_loser
+					}
+				}
+				ROOT = { give_guarantee = PREV }
+			}
+		}
+	}
+	option = {
+		name = ww1_romania.8.b
+		ai_chance = {
+			factor = 1
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+			}
+		}
+	}
+}
 
 #Romanian reaction to Hungarian Revolution
 country_event = {
 	id = ww1_romania.9
 	title = ww1_romania.9.t
 	desc = ww1_romania.9.d
+	picture = GFX_report_event_ger_civil_war
 	fire_only_once = yes
 	is_triggered_only = yes
 	option = {
@@ -319,12 +375,18 @@ country_event = {
 		ai_chance = {
 			factor = 100
 		}
-		set_global_flag = ROM_HUN_war_1919
-		ROM = {
-			declare_war_on = {
-				target = HUN
-				type = take_core_state
+		hidden_effect = {
+			set_global_flag = ROM_HUN_war_1919
+			if = {
+				limit = {
+					is_in_faction = yes
+				}
+				leave_faction = yes
 			}
+		}
+		declare_war_on = {
+			target = FROM
+			type = take_core_state
 		}
 		CZE = {
 			if = {
@@ -333,8 +395,16 @@ country_event = {
 					is_subject = no
 					NOT = {
 						has_government = communism
-						has_war_with = ROM
-						is_in_faction_with = HUN
+						has_war_with = ROOT
+						is_in_faction_with = FROM
+					}
+				}
+				hidden_effect = {
+					if = {
+						limit = {
+							is_in_faction = yes
+						}
+						leave_faction = yes
 					}
 				}
 				every_state = {
@@ -366,6 +436,7 @@ country_event = {
 	id = ww1_romania.10
 	title = ww1_romania.10.t
 	desc = ww1_romania.10.d
+	picture = GFX_report_event_generic_sign_treaty1
 	fire_only_once = yes
 	is_triggered_only = yes
 	option = {
@@ -423,12 +494,22 @@ country_event = {
 				}
 				SER = { transfer_state = PREV }
 			}
-		}			
+			country_event = ww1_romania.8
+		}
 		HUN = {
 			drop_cosmetic_tag = yes
 			leave_faction = yes
 			country_event = ww1_hungary.2
 		}
+		FRA = {
+			if = {
+				limit = {
+					has_country_flag = great_war_winner
+				}
+				country_event = ww1_romania.8
+			}
+		}
+		add_ideas = neutrality_idea
 		hidden_effect = {
 			every_country = {
 				limit = {
@@ -441,10 +522,6 @@ country_event = {
 					active = no
 				}
 			}
-			# Interwar Diplomacy
-			ROM = {
-				add_ideas = neutrality_idea
-			}
 			if = {
 				limit = {
 					CZE = {
@@ -456,30 +533,6 @@ country_event = {
 				}
 				CZE = {
 					give_guarantee = ROM
-				}
-			}
-			if = {
-				limit = {
-					SER = {
-						has_country_flag = great_war_winner
-					}
-				}
-				ROM = {
-					give_guarantee = SER
-				}
-				CZE = {
-					give_guarantee = SER
-				}
-			}
-			if = {
-				limit = {
-					FRA = {
-						has_country_flag = great_war_winner
-					}
-				}
-				FRA = {
-					give_guarantee = ROM
-					give_guarantee = CZE
 				}
 			}
 		}
