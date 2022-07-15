@@ -56,17 +56,13 @@ country_event = {
 			exists = yes
 			is_subject = no
 			is_neighbor_of = ROOT
-			NOT = { has_war_with = ROM }
+			NOT = { has_war_with = ROOT }
 			OR = {
 				owns_state = 76
 				owns_state = 84
 				owns_state = 82
 				owns_state = 80
 				owns_state = 778
-			}
-			OR = {
-				has_global_flag = hungarian_revolution
-				has_war = yes
 			}
 			has_country_flag = great_war_loser
 		}
@@ -431,7 +427,7 @@ country_event = {
 	}
 }
 
-#white peace
+# Peace for Hungarian–Romanian War?
 country_event = {
 	id = ww1_romania.10
 	title = ww1_romania.10.t
@@ -444,61 +440,64 @@ country_event = {
 		ai_chance = {
 			factor = 100
 		}
-		every_state = {
-			limit = {
-				is_owned_by = HUN
-				is_core_of = ROM
-			}
-			ROM = { transfer_state = PREV }
-		}
-		if = {
-			limit = {
-				CZE = {
-					has_war_with = HUN
-				}
-			}
-			every_state = {
-				limit = {
-					is_owned_by = HUN
-					is_core_of = CZE
-				}
-				CZE = { transfer_state = PREV }
-			}
-		}
-		
-		every_country = {
-			limit = {
-				has_war_with = HUN
-			}
-			hidden_effect = {
-				set_country_flag = hungarian_romanian_war_winner
-			}
-			white_peace = HUN
-			set_truce = {
-				target = HUN
-				days = 365
-			}
-		}
-		if = {
-			limit = {
-				SER = {
-					exists = yes
-					is_subject = no
-					not = { has_country_flag = great_war_loser }
-				}
-			}
-			every_state = {
-				limit = {
-					is_owned_by = HUN
-					is_core_of = SER
-				}
-				SER = { transfer_state = PREV }
-			}
-			country_event = ww1_romania.8
-		}
 		HUN = {
+			every_owned_state = {
+				limit = {
+					is_core_of = ROM
+				}
+				transfer_state_to = ROM
+			}
+			if = {
+				limit = {
+					has_war_with = CZE
+				}
+				every_owned_state = {
+					limit = {
+						is_core_of = CZE
+					}
+					transfer_state_to = CZE
+				}
+				give_guarantee = ROM
+				ROM = { give_guarantee = CZE }
+			}
+			every_other_country = {
+				limit = {
+					has_war_with = PREV
+				}
+				hidden_effect = {
+					set_country_flag = hungarian_romanian_war_winner
+				}
+				white_peace = HUN
+				set_truce = {
+					target = HUN
+					days = 365
+				}
+			}
+			SER = {
+				if = {
+					limit = {
+						exists = yes
+						is_subject = no
+						NOT = { has_country_flag = great_war_loser }
+					}
+					PREV = {
+						every_owned_state = {
+							limit = {
+								is_core_of = SER
+							}
+							transfer_state_to = SER
+						}
+					}
+					country_event = ww1_romania.8
+				}
+			}
+			if = {
+				limit = {
+					is_in_faction = yes
+				}
+				leave_faction = yes
+			}
 			drop_cosmetic_tag = yes
-			leave_faction = yes
 			country_event = ww1_hungary.2
 		}
 		FRA = {
@@ -510,6 +509,7 @@ country_event = {
 			}
 		}
 		add_ideas = neutrality_idea
+		news_event = ww1_romania.17
 		hidden_effect = {
 			every_country = {
 				limit = {
@@ -520,19 +520,6 @@ country_event = {
 					country = HUN
 					relation = non_aggression_pact
 					active = no
-				}
-			}
-			if = {
-				limit = {
-					CZE = {
-						has_country_flag = hungarian_romanian_war_winner
-					}
-				}
-				ROM = {
-					give_guarantee = CZE
-				}
-				CZE = {
-					give_guarantee = ROM
 				}
 			}
 		}
@@ -785,6 +772,28 @@ country_event = {
 		add_opinion_modifier = {
 			target = FROM
 			modifier = HOI4TGW_Opinion_alliance_bonus
+		}
+	}
+}
+
+# Peace for Romanian-Hungarian War
+news_event = {
+	id = ww1_romania.17
+	title = ww1_romania.17.t
+	desc = ww1_romania.76.d
+	picture = GFX_news_event_cze_little_entente
+	major = yes
+	is_triggered_only = yes
+	option = {
+		name = ww1_romania.17.a
+		trigger = {
+			NOT = { tag = HUN }
+		}
+	}
+	option = {
+		name = ww1_romania.17.b
+		trigger = {
+			tag = HUN
 		}
 	}
 }

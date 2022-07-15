@@ -842,10 +842,56 @@ country_event = {
 		hidden_effect = {
 			news_event = { id = ww1_soviet.17 } 
 			RUS = {
-			    remove_state_core = 97
+				remove_state_core = 97
 			}
 			SOV = {
-			    remove_state_core = 97
+				remove_state_core = 97
+				if = {
+					limit = {
+						any_other_country = {
+							original_tag = BLR
+							is_subject_of = PREV
+						}
+					}
+					every_controlled_state = {
+						limit = {
+							is_core_of = BLR
+							NOT = {
+								is_owned_by = PREV
+							}
+						}
+						random_other_country = {
+							limit = {
+								original_tag = BLR
+								is_subject_of = PREV
+							}
+							set_state_controller = PREV
+						}
+					}
+				}
+				if = {
+					limit = {
+						any_other_country = {
+							original_tag = UKR
+							is_subject_of = PREV
+						}
+					}
+					every_controlled_state = {
+						limit = {
+							is_core_of = UKR
+							NOT = {
+								is_owned_by = PREV
+							}
+						}
+						random_other_country = {
+							limit = {
+								original_tag = UKR
+								is_subject_of = PREV
+							}
+							set_state_controller = PREV
+						}
+					}
+				}
 			}
 		}
 		ai_chance = {
@@ -1106,7 +1152,25 @@ country_event = {
 			}
 		}
 		
-		hidden_effect = { set_global_flag = miracle_on_the_vistula }
+		hidden_effect = {
+			POL = {
+				every_owned_state = {
+					limit = {
+						OR = {
+							is_core_of = RUS
+							is_core_of = SOV
+							is_claimed_by = SOV
+							is_claimed_by = RUS
+						}
+					}
+					remove_core_of = RUS
+					remove_core_of = SOV
+					is_claimed_by = SOV
+					is_claimed_by = RUS
+				}
+			}
+			set_global_flag = miracle_on_the_vistula
+		}
 		
 		SOV = {
 			add_stability = -0.10
@@ -1549,6 +1613,7 @@ country_event = {
 	picture = GFX_report_event_generic_communist_congress
 	is_triggered_only = yes
 	option = {
+		name = ww1_soviet.33.a
 		every_country = {
 			limit = {
 				has_war_with = VLN
@@ -1616,17 +1681,6 @@ country_event = {
 				exists = yes
 				is_subject = no
 				is_in_faction = no
-				OR = {
-					is_neighbor_of = PREV
-					any_other_country = {
-						OR = {
-							is_subject_of = ROOT
-							is_in_faction_with = ROOT
-							has_war_with = ROOT
-						}
-						is_neighbor_of = PREV
-					}
-				}
 				NOT = {
 					has_government = communism
 				}
@@ -1827,17 +1881,6 @@ country_event = {
 					exists = yes
 					is_subject = no
 					is_in_faction = no
-					OR = {
-						is_neighbor_of = PREV
-						any_other_country = {
-							OR = {
-								is_subject_of = ROOT
-								is_in_faction_with = ROOT
-								has_war_with = ROOT
-							}
-							is_neighbor_of = PREV
-						}
-					}
 					NOT = {
 						has_government = communism
 					}
@@ -2342,8 +2385,11 @@ country_event = {
 				dismantle_faction = yes
 			}
 		}
+
 		add_stability = -0.30
 		add_political_power = -200
+
+		# Lithuanian territories
 		if = {
 			limit = {
 				country_exists = LIT
@@ -2352,59 +2398,108 @@ country_event = {
 				limit = {
 					is_core_of = LIT
 				}
+				set_state_controller_to = SOV
 				transfer_state_to = LIT
 			}
-		}
-		if = {
-			limit = {
-				country_exists = UKR
-			}
-			every_owned_state = {
+			if = {
 				limit = {
-					OR = {
-						state = 93
-						state = 808
+					owns_state = 97
+					LIT = {
+						has_cosmetic_tag = LITBEL
 					}
 				}
+				LIT = { transfer_state = 97 }
+			}
+		}
+		else = {
+			every_owned_state = {
+				limit = {
+					is_core_of = LIT
+				}
+				transfer_state_to = SOV
+			}
+		}
+		
+		# Ukranian territories
+		every_owned_state = {
+			limit = {
+				OR = {
+					state = 93
+					state = 808
+					state = 562
+					state = 91
+					state = 89
+					state = 766
+				}
+			}
+			if = {
+				limit = {
+					any_other_country = {
+						original_tag = UKR
+						is_subject_of = SOV
+						exists = yes
+					}
+				}
+				random_country = {
+					limit = {
+						original_tag = UKR
+						is_subject_of = SOV
+					}
+					transfer_state = PREV
+				}
+			}
+			else_if = {
+				limit = {
+					country_exists = UKR
+				}
+				set_state_controller_to = SOV
 				transfer_state_to = UKR
 			}
-		}
-		else = {
-			every_owned_state = {
-				limit = {
-					OR = {
-						state = 93
-						state = 808
-					}
-				}
+			else = {
 				transfer_state_to = SOV
 			}
 		}
-		if = {
+
+		# Belorussian territories
+		every_owned_state = {
 			limit = {
-				country_exists = BLR
-			}
-			every_owned_state = {
-				limit = {
-					OR = {
-						is_core_of = BLR
-						state = 97
-					}
+				OR = {
+					is_core_of = BLR
+					state = 97
 				}
+			}
+			if = {
+				limit = {
+					country_exists = BLR
+				}
+				set_state_controller_to = SOV
 				transfer_state_to = BLR
 			}
-		}
-		else = {
-			every_owned_state = {
-				limit = {
-					OR = {
-						is_core_of = BLR
-						state = 97
-					}
-				}
+			else = {
 				transfer_state_to = SOV
 			}
 		}
+		
+		every_state = {
+			limit = {
+				NOT = {
+					is_owned_by = ROOT
+				}
+				is_claimed_by = ROOT
+			}
+			remove_claim_by = ROOT
+		}
+
+		# FRENCO-POLISH ALLIANCE
+		FRA = {
+			if = {
+				limit = {
+					has_country_flag = great_war_winner
+				}
+				country_event = ww1_soviet.38
+			}
+		}
+		
 		news_event = ww1_soviet.39
 	}
 }
