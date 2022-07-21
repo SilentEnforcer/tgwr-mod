@@ -105,6 +105,7 @@ foreign_politics = {
 		visible = {
 			is_subject = no
 		    SER = {
+				is_subject = no
 				is_faction_leader = yes
 				is_in_faction_with = BUL
 				has_war_with = AUH
@@ -362,7 +363,7 @@ political_actions = {
 		}
 		fire_only_once = yes
 		complete_effect = {
-			set_capital = { state = 219}
+			set_capital = { state = 219 }
 		}
 	}
 	RUS_call_unclded = {
@@ -748,35 +749,68 @@ RUS_tsar_decision = {
 		ai_will_do = {
 			factor = 1
 			modifier = {
-				is_historical_focus_on = yes
+				factor = 0
+				OR = {
+					AND = {
+						is_historical_focus_on = yes
+						has_game_rule = {
+							rule = russian_revolution_path 
+							option = DEFAULT
+						}
+					}
+					has_country_flag = RUS_AI_RANDOM_HISTORICAL
+					has_game_rule = {
+						rule = RUS_ai_behavior 
+						option = HISTORICAL
+					}
+					has_country_flag = RUS_REV_AI_RANDOM_HISTORICAL
+					has_game_rule = {
+						rule = russian_revolution_path 
+						option = HISTORICAL
+					}
+					has_country_flag = RUS_REV_AI_RANDOM_KORNILOV_IN_POWER
+					has_game_rule = {
+						rule = russian_revolution_path
+						option = KORNILOV_IN_POWER
+					}
+					has_country_flag = RUS_REV_AI_RANDOM_KERENSKY_DICTATORSHIP
+					has_game_rule = {
+						rule = russian_revolution_path
+						option = KERENSKY_DICTATORSHIP
+					}
+				}
 				NOT = {
+					has_country_flag = RUS_REV_AI_RANDOM_TSAR_MIKHAIL_CROWNED
 					has_game_rule = {
 						rule = russian_revolution_path
 						option = TSAR_MIKHAIL_CROWNED
 					}
-				}
-				factor = 0
+				}				
 			}
 			modifier = {
+				factor = 0
 				is_historical_focus_on = no
 				OR = {
 					has_stability < 0.5
 					has_war_support < 0.5
 				}
 				NOT = {
+					has_country_flag = RUS_REV_AI_RANDOM_TSAR_MIKHAIL_CROWNED
 					has_game_rule = {
 						rule = russian_revolution_path
 						option = TSAR_MIKHAIL_CROWNED
 					}
-				}
-				factor = 0
+				}				
 			}
 			modifier = {
-				has_game_rule = {
-					rule = russian_revolution_path
-					option = TSAR_MIKHAIL_CROWNED
-				}
 				factor = 1000
+				OR = {
+					has_country_flag = RUS_REV_AI_RANDOM_TSAR_MIKHAIL_CROWNED
+					has_game_rule = {
+						rule = russian_revolution_path
+						option = TSAR_MIKHAIL_CROWNED
+					}
+				}				
 			}
 		}
 
@@ -1606,6 +1640,57 @@ RUS_civil_war = {
 			modifier = {
 				factor = 0
 				surrender_progress > 0.25
+			}
+		}
+	}
+	RUS_invade_finland = {
+		icon = GFX_decision_generic_ignite_civil_war
+		allowed = {
+			tag = RUS
+		}
+		available = {
+			is_subject = no
+			FIN = {
+				is_subject = no
+				has_government = communism
+				has_civil_war = no
+			}
+			has_global_flag = interbellum
+		}
+		visible = {
+			FIN = {
+				is_neighbor_of = ROOT
+				NOT = {
+					has_war_with = ROOT
+					is_in_faction_with = ROOT
+				}
+			}
+			has_country_flag = russian_civil_war_winner
+			NOT = { has_government = communism }
+		}
+		fire_only_once = yes
+		cost = 100
+		days_remove = 30
+		target_trigger = {
+			FROM = {
+				tag = FIN
+			}
+		}
+		war_with_on_remove = FIN
+		remove_effect = {
+			country_event = ww1_finland.4
+		}
+		ai_will_do = {
+			base = 0
+			modifier = {
+				add = 100
+				strength_ratio = {
+					tag = FIN
+					ratio > 1
+				}
+				has_war_support > 0.3
+				has_stability > 0.3
+				has_war = no
 			}
 		}
 	}
