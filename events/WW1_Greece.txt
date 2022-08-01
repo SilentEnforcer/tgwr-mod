@@ -12,13 +12,24 @@ country_event = {
 	}
 	trigger = {
 		original_tag = GRE
-		has_country_leader = {
-			character = GRE_george_i
+		OR = {
+			has_country_leader = {
+				character = GRE_george_i
+			}
+			has_idea = GRE_idea_george_i
 		}
 		date > 1913.3.1
 	}
 	option = {
 		name = ww1_greece.1.a
+		hidden_effect = {
+			if = {
+				limit = {
+					has_idea = GRE_idea_george_i
+				}
+				add_ideas = GRE_idea_constantine
+			}
+		}
 		retire_character = GRE_george_i
 		GRE_constantine_i = {
 			set_character_name = GRE_constantine_i
@@ -288,21 +299,42 @@ country_event = {
 	trigger = {
 		original_tag = GRE
 		has_country_flag = join_balkan_league
-		AUH = {
-			has_war_with = SER
-		}
+		has_active_mission = european_crisis_mission
 		NOT = {
 			has_war_with = AUH
 		}
 		is_in_faction = no
 	}
+	mean_time_to_happen = {
+		days = 3
+	}
+	immediate = {
+		hidden_effect = {
+			add_country_leader_trait = standing_alone
+		}
+	}
 	option = {
 		#Support our ally Serbia
 		name = ww1_greece.14.a
-		add_to_war = {
-			targeted_alliance = SER
-			enemy = AUH
+		if = {
+			limit = {
+				OR = {
+					has_country_leader = {
+						character = GRE_constantine_i
+						ruling_only = yes
+					}
+					has_idea = GRE_idea_constantine
+				}
+			}
+			custom_effect_tooltip = ww1_greece.14.a.tt
+			hidden_effect = {
+				country_event = {
+					id = ww1_greece.30
+					days = 60
+				}
+			}
 		}
+		give_guarantee = SER
 		add_political_power = 50
 		ai_chance = {
 			factor = 5
@@ -358,14 +390,23 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		tag = GRE
-		is_in_faction_with = GER
+		has_war_with = FRA
+		has_global_flag = kis_war
 		has_country_flag = national_schism
 		NOT = {
 			has_country_flag = GRE_national_defense_flag
+			has_war_with = GER
+			has_global_flag = great_war_ends
 		}
 	}
 	immediate = {
 		hidden_effect = {
+			if = {
+				limit = {
+					has_country_leader_with_trait = standing_alone
+				}
+				remove_country_leader_trait = standing_alone
+			}
 			every_owned_state = {
 				set_demilitarized_zone = no
 			}
@@ -390,6 +431,22 @@ country_event = {
 		}
 		remove_ideas = GRE_idea_national_schism
 		remove_ideas = GRE_idea_dual_power
+		if = {
+			limit = {
+				has_country_leader = {
+					character = GRE_eleftherios_venizelos
+					ruling_only = yes
+				}
+			}
+			GRE_alexandros_zaimis = {
+				add_country_leader_role = {
+					promote_leader = yes
+					country_leader = {
+						ideology = conservatism
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -402,14 +459,23 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		tag = GRE
-		is_in_faction_with = FRA
+		has_war_with = GER
+		has_global_flag = kis_war
 		has_country_flag = national_schism
 		NOT = {
 			has_country_flag = GRE_national_defense_flag
+			has_war_with = FRA
+			has_global_flag = great_war_ends
 		}
 	}
 	immediate = {
 		hidden_effect = {
+			if = {
+				limit = {
+					has_country_leader_with_trait = standing_alone
+				}
+				remove_country_leader_trait = standing_alone
+			}
 			every_owned_state = {
 				set_demilitarized_zone = no
 			}
@@ -501,7 +567,7 @@ country_event = {
 		GRE_alexander = {
 			promote_character = yes
 		}
-		set_country_flag = GRE_alexander_king
+		add_ideas = GRE_idea_alexander
 		GRE_eleftherios_venizelos = {
 			promote_character = yes
 		}
@@ -522,22 +588,23 @@ country_event = {
 	trigger = {
 		tag = GRE
 		has_country_flag = national_schism
-		OR = {
-			has_global_flag = GER_capitulation
-			has_global_flag = FRA_capitulation
-			is_in_faction = yes
-			has_global_flag = great_war_ends
-		}
+		has_global_flag = interbellum
 		NOT = {
 			is_in_faction_with = FRA
-		}
-		NOT = {
 			is_in_faction_with = GER
 			has_country_flag = GRE_national_defense_flag
+			has_country_flag = great_war_loser
+			has_country_flag = great_war_winner
 		}
 	}
 	immediate = {
 		hidden_effect = {
+			if = {
+				limit = {
+					has_country_leader_with_trait = standing_alone
+				}
+				remove_country_leader_trait = standing_alone
+			}
 			every_owned_state = {
 				set_demilitarized_zone = no
 			}
@@ -648,7 +715,7 @@ country_event = {
 	}
 	option = {
 		name = ww1_greece.19.a
-		GRE = { country_event = ww1_greece.19 }
+		GRE = { country_event = ww1_greece.20 }
 		ai_chance = {
 			base = 50
 		}
@@ -762,15 +829,15 @@ country_event = {
 				give_guarantee = ROOT
 				ROOT = {
 					set_truce = {
-						target = THE
+						target = PREV
 						days = 365
 					}
 					diplomatic_relation = {
-						country = THE
+						country = PREV
 						relation = non_aggression_pact
 					}
 					transfer_units_fraction = {
-						target = THE
+						target = PREV
 						size = 0.40
 						keep_unit_leaders_trigger = {
 							OR = {
@@ -862,10 +929,12 @@ country_event = {
 	picture = GFX_report_event_europe_funeral
 	trigger = {
 		tag = GRE
-		has_country_flag = GRE_alexander_king
-		has_country_leader = {
-			character = GRE_alexander
-			ruling_only = no
+		OR = {
+			has_idea = GRE_idea_alexander
+			has_country_leader = {
+				character = GRE_alexander
+				ruling_only = no
+			}
 		}
 		NOT = {
 			has_government = communism
@@ -880,6 +949,12 @@ country_event = {
 		retire_character = GRE_alexander
 		set_country_flag = GRE_alexander_dead
 		hidden_effect = {
+			if = {
+				limit = {
+					has_idea = GRE_idea_alexander
+				}
+				remove_ideas = GRE_idea_alexander
+			}
 			GRE_pavlos_kountouriotis = {
 				add_country_leader_role = {
 					promote_leader = yes
@@ -920,6 +995,12 @@ country_event = {
 				remove_country_leader_role = {
 					ideology = authoritarian_democracy
 				}
+			}
+			if = {
+				limit = {
+					NOT = { has_government = neutrality }
+				}
+				add_ideas = GRE_idea_constantine
 			}
 		}
 		promote_character = GRE_constantine_i
@@ -1053,25 +1134,32 @@ country_event = {
 	trigger = {
 		tag = GRE
 		has_government = neutrality
-		has_country_flag = great_war_winner
-		FRA = {
-			has_country_flag = great_war_winner
-		}
 		has_country_leader = {
 			character = GRE_constantine_i
 			ruling_only = yes
 		}
-		any_other_country = {
-			original_tag = TUR
-			has_country_flag = TUR_national_movement_tag
-			OR = {
-				owns_state = 790
-				owns_state = 339
+		has_global_flag = interbellum
+		is_subject = no
+		OR = {
+			AND = {
+				has_country_flag = great_war_winner
+				FRA = {
+					has_country_flag = great_war_winner
+				}
+				any_other_country = {
+					original_tag = TUR
+					has_country_flag = TUR_national_movement_tag
+					OR = {
+						owns_state = 790
+						owns_state = 339
+					}
+					NOT = {
+						has_war_with = ROOT
+						is_subject_of = ROOT
+					}
+				}
 			}
-			NOT = {
-				has_war_with = ROOT
-				is_subject_of = ROOT
-			}
+			has_country_flag = great_war_loser
 		}
 	}
 	fire_only_once = yes
@@ -1117,6 +1205,10 @@ country_event = {
 				}
 			}
 		}
+		GRE_george_ii = {
+			set_character_name = GRE_george_ii
+		}
+		add_ideas = GRE_idea_george_ii
 	}
 }
 
@@ -1126,17 +1218,7 @@ country_event = {
 	title = ww1_greece.28.t
 	desc = ww1_greece.28.d
 	picture = GFX_report_event_gre_political_upheaval
-	trigger = {
-		tag = GRE
-		has_government = fascism
-		has_country_leader = {
-			character = GRE_nikolaos_plastiras
-			ruling_only = yes
-		}
-		has_war = no
-	}
-	mean_time_to_happen = { days = 590 }
-	fire_only_once = yes
+	is_triggered_only = yes
 	option = {
 		name = ww1_greece.28.a
 		hidden_effect = {
@@ -1174,6 +1256,9 @@ country_event = {
 				}
 			}
 		}
+		ai_chance = {
+			base = 5
+		}
 	}
 	option = {
 		name = ww1_greece.28.b
@@ -1200,8 +1285,110 @@ country_event = {
 		}
 		add_stability = -0.10
 		GRE_george_ii = {
-			set_character_name = GRE_george_ii
 			promote_character = yes
 		}
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 1
+				RUS = {
+					exists = yes
+					is_russia_a_monarchy = yes
+				}
+			}
+		}
+	}
+}
+
+# Leonardopoulos–Gargalidis coup d'état
+country_event = {
+	id = ww1_greece.29
+	title = ww1_greece.29.t
+	desc = ww1_greece.29.d
+	picture = GFX_report_event_gre_militaristic_march
+	is_triggered_only = yes
+	option = {
+		name = ww1_greece.29.a
+		remove_ideas = GRE_idea_george_ii
+		add_popularity = {
+			ideology = neutrality
+			popularity = -0.05
+		}
+		activate_mission = GRE_referendum_timer
+		add_political_power = -75
+		ai_chance = {
+			base = 5
+		}
+	}
+	option = {
+		name = ww1_greece.29.b
+		hidden_effect = {
+			set_party_name = {
+				ideology = fascism
+				long_name = GRE_greek_army_party
+				name = GRE_greek_army_party
+			}
+		}
+		set_party_name = {
+			ideology = neutrality
+			long_name = GRE_neutrality_party
+			name = GRE_neutrality_party
+		}
+		remove_country_leader_trait = standing_alone
+		set_politics = {
+			ruling_party = neutrality
+			elections_allowed = no
+		}
+		add_popularity = {
+			ideology = neutrality
+			popularity = 0.15
+		}
+		add_stability = -0.05
+		add_political_power = -100
+		GRE_george_ii = {
+			promote_character = yes
+		}
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 1
+				RUS = {
+					exists = yes
+					is_russia_a_monarchy = yes
+				}
+			}
+		}
+	}
+}
+
+# Loyalist Self-coup
+country_event = {
+	id = ww1_greece.30
+	title = ww1_greece.30.t
+	desc = ww1_greece.30.d
+	picture = GFX_report_event_gre_greek_cavalry
+	is_triggered_only = yes
+	option = {
+		name = ww1_greece.30.a
+		start_civil_war = {
+			ruling_party = democratic
+			ideology = neutrality
+			size = 0.5
+			states = {
+				47
+				168
+				182
+			}
+			keep_unit_leaders_trigger = {
+				OR = {
+					has_trait = trait_royal
+					has_trait = trait_royalist
+					has_trait = old_guard
+					has_trait = politically_connected
+					has_trait = old_guard_navy
+				}
+			}
+		}
+		set_cosmetic_tag = GRE_republic
 	}
 }
