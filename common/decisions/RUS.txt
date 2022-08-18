@@ -1,3 +1,97 @@
+operations = {
+	#INTERVENTION 1911
+	RUS_border_conflict_warning_PER_1911 = {
+		icon = border_war
+		allowed = { always = no } #Activated from effect
+		available = {
+			hidden_trigger = { always = no }
+		}
+		war_with_target_on_timeout = yes
+		days_mission_timeout = 30
+		fire_only_once = yes
+		is_good = no
+		highlight_states = {
+		highlight_state_targets = {
+			state = 420	
+		}
+		}
+		timeout_effect = {
+			#custom_effect_tooltip = escalation_possible_tooltip_for_defender
+			custom_effect_tooltip = effects_if_border_conflict_is_lost
+			effect_tooltip = {
+				PER = {
+					add_war_support = -0.05
+				}
+				RUS = {
+					add_war_support = 0.05
+					add_doctrine_cost_reduction = {
+						name = RUS_border_conflict_won
+						category = land_doctrine
+						cost_reduction = 0.25
+					}
+				}
+			}
+			hidden_effect = {
+				remove_targeted_decision = { target = RUS decision = RUS_border_conflict_warning_PER_1911 }
+			}
+		}
+	}
+	#МИССИЯ АГРЕССОРА - НАЧАЛО КОНФЛИКТА
+	RUS_escalate_incident_to_border_conflict_PER_1911 = {
+		icon = border_war
+		allowed = { always = no } #Activated from effect
+		available = {
+			hidden_trigger = { always = no }
+		}
+		highlight_states = {
+		highlight_state_targets = {
+			state = 420	
+		}
+		}
+		war_with_target_on_timeout = yes
+		days_mission_timeout = 30
+		fire_only_once = yes
+		is_good = no
+		
+		timeout_effect = {
+			hidden_effect = {
+				remove_targeted_decision = { target = PER decision = RUS_escalate_incident_to_border_conflict_PER_1911 }
+				419 = { set_border_war = no }
+				420 = { set_border_war = no }
+			}
+			start_border_war = {
+				change_state_after_war = no
+				attacker = {
+					state = 229
+					num_provinces = 3
+					on_win = ww1_russia.64
+					on_lose = ww1_russia.65
+					on_cancel = ww1_russia.65
+				}				
+				defender = {
+					state = 420
+					num_provinces = 2
+					on_win = ww1_russia.65
+					on_lose = ww1_russia.64
+					on_cancel = ww1_russia.65
+				}
+			}
+			hidden_effect = {
+				set_border_war_data = {
+					attacker = 229
+					defender = 420
+					attacker_modifier = 0.35
+					combat_width = 100
+				}
+				RUS = {
+					set_country_flag = { flag = persian_campaign_cooldown days = 90 value = 1 }
+				}
+			}
+		}
+	}
+	#RUS_1911_campaign_mission = {
+	#}
+}
 foreign_politics = {
 	RUS_help_SER = {
 		allowed = {
@@ -1546,6 +1640,57 @@ RUS_civil_war = {
 			modifier = {
 				factor = 0
 				surrender_progress > 0.25
+			}
+		}
+	}
+	RUS_invade_finland = {
+		icon = GFX_decision_generic_ignite_civil_war
+		allowed = {
+			tag = RUS
+		}
+		available = {
+			is_subject = no
+			FIN = {
+				is_subject = no
+				has_government = communism
+				has_civil_war = no
+			}
+			has_global_flag = interbellum
+		}
+		visible = {
+			FIN = {
+				is_neighbor_of = ROOT
+				NOT = {
+					has_war_with = ROOT
+					is_in_faction_with = ROOT
+				}
+			}
+			has_country_flag = russian_civil_war_winner
+			NOT = { has_government = communism }
+		}
+		fire_only_once = yes
+		cost = 100
+		days_remove = 30
+		target_trigger = {
+			FROM = {
+				tag = FIN
+			}
+		}
+		war_with_on_remove = FIN
+		remove_effect = {
+			country_event = ww1_finland.4
+		}
+		ai_will_do = {
+			base = 0
+			modifier = {
+				add = 100
+				strength_ratio = {
+					tag = FIN
+					ratio > 1
+				}
+				has_war_support > 0.3
+				has_stability > 0.3
+				has_war = no
 			}
 		}
 	}
