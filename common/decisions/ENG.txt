@@ -671,13 +671,19 @@ political_actions = {
 	ENG_invoke_the_alliance_of_1373 = {
 
 		icon = generic_prepare_civil_war
+
+		target_trigger = {
+			FROM = {
+				tag = POR
+			}
+		}
 	
 		allowed = {
 			tag = ENG
 		}
 		
 		available = {
-			POR = {
+			FROM = {
 				OR = {
 					has_government = ROOT
 					has_government = neutrality
@@ -698,27 +704,49 @@ political_actions = {
 			is_in_faction = yes
 			has_global_flag = kis_war
 			NOT = {
-				has_war_with = POR
 				has_global_flag = great_war_ends
-				has_government = communism
 			}
-			country_exists = POR
+			FROM = {
+				exists = yes
+				NOT = {
+					has_war_with = ROOT
+					is_in_faction_with = ROOT
+				}
+			}
+		}
+
+		cancel_trigger = {
+			FROM = {
+				OR = {
+					exists = no
+					has_war_with = ROOT
+					is_in_faction_with = ROOT
+					is_subject = yes
+					NOT = {
+						has_government = ROOT
+						has_government = neutrality
+					}
+					has_global_flag = great_war_ends
+				}
+			}
 		}
 		
+		days_remove = 500
+
 		complete_effect = {
-			POR = { country_event = generic.5 }
+			set_country_flag = british_mission_to_portugal
+		}
+
+		cancel_effect = {
+			clr_country_flag = british_mission_to_portugal
+		}
+
+		remove_effect = {
+			FROM = { country_event = ww1_portugal.19 }
 		}
 
 		ai_will_do = {
-			factor = 100
-			modifier = {
-				factor = 0
-				POR = {
-					any_home_area_neighbor_country = {
-						has_war_with = ENG
-					}
-				}
-			}
+			factor = 1000
 		}
 	}
 	ENG_engage_french_civil_war = {
@@ -1174,6 +1202,76 @@ ENG_british_civil_war_category = {
 			}
 			UOB = {
 				country_event = garibaldi.32
+			}
+		}
+	}
+}
+GER_agadir_crisis = {
+	ENG_agadir_involvement = {
+		icon = generic_nationalism
+		allowed = {
+			tag = ENG
+		}
+		available = {
+			NOT = {
+				has_global_flag = agadir_crisis_ends
+				has_global_flag = kis_war
+				has_war_with = GER
+				has_war_with = FRA
+			}
+			GER = { has_completed_focus = GER_moroccan_crisis }
+		}
+		visible = {
+			has_global_flag = agadir_crisis
+			NOT = {
+				has_global_flag = kis_war
+				has_global_flag = agadir_crisis_ends
+				is_in_faction_with = GER
+			}
+		}
+		cancel_trigger = {
+			OR = {
+				has_global_flag = agadir_crisis_ends
+				has_global_flag = kis_war
+				has_war_with = GER
+				has_war_with = FRA
+			}
+		}
+		fire_only_once = yes
+		days_remove = 10
+		remove_effect = {
+			FRA = { country_event = ww1_morocco.16 }
+			GER = { country_event = ww1_morocco.16 }
+			effect_tooltip = {
+				FRA = {
+					add_opinion_modifier = {
+						target = PREV
+						modifier = HOI4TGW_Opinion_diplomats_bonus
+					}
+				}
+				GER = {
+					add_opinion_modifier = {
+						target = PREV
+						modifier = HOI4TGW_Opinion_diplomats_malus
+					}
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 1000
+			modifier = {
+				factor = 0
+				has_opinion = {
+					target = GER
+					value > 50
+				}
+			}
+			modifier = {
+				factor = 0
+				has_opinion = {
+					target = FRA
+					value < 0
+				}
 			}
 		}
 	}
