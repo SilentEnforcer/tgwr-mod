@@ -174,6 +174,12 @@ focus_tree = {
 		available = {
 			is_faction_leader = yes
 			country_exists = AUH
+			if = {
+				limit = {
+					has_global_flag = kis_war
+				}
+				NOT = { is_in_faction_with = AUH }
+			}
 		}
 		bypass = {
 			AUH = {
@@ -1208,15 +1214,28 @@ focus_tree = {
 		available_if_capitulated = yes
 		available = {
 			is_faction_leader = yes
-			NOT = {
-				has_war_with = TUR
-			}
+			NOT = { has_global_flag = great_war_ends }
 			TUR = {
 				is_subject = no
 				is_in_faction = no
+				NOT = { has_war_with = ROOT }
+				if = {
+					limit = {
+						has_global_flag = kis_firstbalkan_war
+						NOT = {
+							has_global_flag = kis_firstbalkanwar_victory
+							SER = {
+								is_in_faction_with = FRA
+								is_in_faction_with = ROOT
+							}
+						}
+					}
+					NOT = { has_war_with = SER }
+				}
 			}
-			NOT = {
-				has_global_flag = great_war_ends
+			OR = {
+				TUR = { has_war = no }
+				has_global_flag = kis_war
 			}
 		}
 		bypass = {
@@ -1273,15 +1292,16 @@ focus_tree = {
 		available_if_capitulated = yes
 		available = {
 			is_faction_leader = yes
-			NOT = {
-				has_war_with = BUL
-			}
+			NOT = { has_global_flag = great_war_ends }
 			BUL = {
+				exists = yes
 				is_subject = no
 				is_in_faction = no
+				NOT = { has_war_with = ROOT }
 			}
-			NOT = {
-				has_global_flag = great_war_ends
+			OR = {
+				BUL = { has_war = no }
+				has_global_flag = kis_war
 			}
 		}
 		bypass = {
@@ -1603,29 +1623,77 @@ focus_tree = {
 			news_event = ww1_germany.28
 			hidden_effect = {
 				set_popularities = {
-					democratic = 37
-					neutrality = 45
-					fascism = 15
-					communism = 3
+					fascism = 12
+					communism = 10
+					democratic = 34
+					neutrality = 44
 				}
 				
 			}
-			GER_theobald_von_bethmannhollweg = {
+			if = {
+				limit = {
+					NOT = {
+						has_global_flag = GER_1912_Federal_Election
+					}	
+				}
 				add_country_leader_role = {
+					character = GER_hans_von_schwerin_lowitz
 					promote_leader = yes
 					country_leader = {
 						ideology = conservatism
+						traits = {
+							representative_of_farmers
+						}
 					}
 				}
-			}
-			set_politics = {
-				ruling_party = democratic
-				elections_allowed = no
-				long_name = GER_bundesrat
-				name = GER_bundesrat
-			}
-			set_cosmetic_tag = GER_1848
+				set_politics = {
+					ruling_party = democratic
+					elections_allowed = yes
+					long_name = GER_democratic_party_conservative_long
+					name = GER_democratic_party_conservative
+				}
+				else_if = {
+					limit = { date < 1918.5.25 }
+					add_country_leader_role = {
+						character = GER_johannes_kaempf
+						promote_leader = yes
+						country_leader = {
+							ideology = social_liberalism
+							traits = {
+								financial_expert
+							}
+						}
+					}
+					set_politics = {
+						ruling_party = democratic
+						elections_allowed = yes
+						long_name = GER_progressive_peoples_party_long
+						name = GER_progressive_peoples_party
+					}
+					else = {
+						add_country_leader_role = {
+							character = GER_constantin_fehrenbach
+							promote_leader = yes
+							country_leader = {
+								ideology = classical_liberalism
+								traits = {
+									appeaser
+								}
+							}
+						}
+						set_politics = {
+							ruling_party = democratic
+							elections_allowed = yes
+							long_name = GER_democratic_party_zentrum_long
+							name = GER_democratic_party_zentrum
+						}
+					}
+				}
+			}				
 			add_ideas = GER_idea_wilhelm_ii
+			hidden_effect = {
+				set_cosmetic_tag = GER_1848
+			}
 		}
 		ai_will_do = {
 			factor = 1
@@ -1842,7 +1910,7 @@ focus_tree = {
 				effect_tooltip = {
 					add_corps_commander_role = {
 						Character = GER_rudiger_von_der_goltz
-						traits={ media_personality ivander naval_liason }
+						traits={ media_personality naval_liason }
 						skill=2
 						attack_skill=1
 						defense_skill=1
@@ -1901,7 +1969,7 @@ focus_tree = {
 	}
 	focus = {
 		id = GER_secure_allied_monarchies
-		icon = GFX_focus_generic_home_defense
+		icon = GFX_focus_German_Crown
 		cost = 10
 		prerequisite = {
 			focus = GER_central_powers_conference
@@ -3422,7 +3490,7 @@ focus_tree = {
 	}
 	focus = {
 		id = GER_investing_in_cameroon
-		icon = GFX_focus_generic_industry_1
+		icon = GFX_focus_GER_investing_in_cameroon
 		cost = 10
 		prerequisite = {
 			focus = GER_claim_mittelafrika
@@ -3473,7 +3541,7 @@ focus_tree = {
 	}
 	focus = {
 		id = GER_investing_in_sudwestafrika
-		icon = GFX_focus_generic_industry_1
+		icon = GFX_focus_GER_investing_in_sudwestafrika
 		cost = 10
 		prerequisite = {
 			focus = GER_investing_in_cameroon
@@ -3639,7 +3707,7 @@ focus_tree = {
 	}
 	focus = {
 		id = GER_investing_in_ostafrika
-		icon = GFX_focus_generic_industry_1
+		icon = GFX_focus_GER_investing_in_ostafrika
 		cost = 10
 		prerequisite = {
 			focus = GER_investing_in_cameroon
@@ -4996,6 +5064,19 @@ focus_tree = {
 			add_ideas = {
 				GER_victors_of_wwi
 			}
+			hidden_effect = {
+				if = {
+					limit = {
+						has_country_leader = {
+							character = GER_erich_ludendorff
+							ruling_only = no
+						}
+					}
+					GER_erich_ludendorff = {
+						add_country_leader_trait = great_war_hero
+					}
+				}
+			}
 		}
 		ai_will_do = {
 			factor = 5
@@ -5372,6 +5453,9 @@ focus_tree = {
 		x = 8
 		y = 8
 		completion_reward = {
+			effect_tooltip = {
+				set_cosmetic_tag = GER_kaiserreich_flag
+			}
 			add_ideas = {
 				GER_victors_of_wwi
 			}
@@ -5395,6 +5479,17 @@ focus_tree = {
 				}
 				else = {
 					set_cosmetic_tag = GER_kaiserreich_flag
+				}
+				if = {
+					limit = {
+						has_country_leader = {
+							character = GER_erich_ludendorff
+							ruling_only = no
+						}
+					}
+					GER_erich_ludendorff = {
+						add_country_leader_trait = great_war_hero
+					}
 				}
 			}
 		}
@@ -6020,9 +6115,7 @@ focus_tree = {
 		}
 		completion_reward = {
 			GER_wilhelm_iii = {
-				set_character_name = {
-					name = "GER_wilhelm_iii"
-				}
+				set_character_name = GER_wilhelm_iii
 				promote_character = autocracy
 			}
 			add_ideas = GER_idea_wilhelm_ii
@@ -7228,6 +7321,20 @@ focus_tree = {
 		}
 		will_lead_to_war_with = POL
 		completion_reward = {
+			every_state = {
+				limit = {
+					OR = {
+						state = 5
+						state = 67
+						state = 85
+						state = 86
+						state = 404
+						state = 762
+						state = 763
+					}
+				}
+				add_core_of = ROOT
+			}
 			create_wargoal = {
 				type = puppet_wargoal_focus
 				target = POL
