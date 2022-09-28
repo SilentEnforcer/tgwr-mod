@@ -19,6 +19,8 @@ replace_path="common/units/names_divisions"
 replace_path="common/units/names_ships"
 replace_path="common/technology_sharing"
 replace_path="common/ideas"
+replace_path="common/peace_conference/ai_peace"
+replace_path="common/peace_conference/cost_modifiers"
 replace_path="map/strategicregions"
 replace_path="gfx/loadingscreens"
 tags={
@@ -29,6 +31,6 @@ tags={
 	"Technologies"
 }
 name="The Great War Redux"
-version="0.9.061"
-supported_version="1.11.*"
+version="0.9.07"
+supported_version="1.12.*"
 remote_file_id="1946557392"
