@@ -9,12 +9,12 @@ balkan_league_category = {
 		days_mission_timeout = 360
 		selectable_mission = no
 		activation = {
-			SER = {
-				has_country_leader = {
-					character = SER_milovan_milovanovic
-					ruling_only = yes
-				}
-			}
+			# SER = {
+			# 	has_country_leader = {
+			# 		character = SER_milovan_milovanovic
+			# 		ruling_only = yes
+			# 	}
+			# }
 			OR = {
 				SER = {
 					has_completed_focus = SER_treaty_with_Bulgaria
@@ -23,9 +23,16 @@ balkan_league_category = {
 					has_completed_focus = BUL_treaty_of_friendship
 				}
 			}
+			NOT = {
+				has_global_flag  = balkan_league_fail
+				has_global_flag = balkan_league_success
+			}
 			always = yes
 		}
 		available = {
+			has_war = yes
+		}
+		visible = {
 			any_state = {
 				OR = {
 					state = 106
@@ -66,26 +73,26 @@ balkan_league_category = {
 		}
 		visible = {
 			has_global_flag = rejected_macedonia
-			SER = {
-				OR = {
-					has_country_leader = {
-						character = SER_milovan_milovanovic
-						ruling_only = yes
-					}
-					has_country_leader = {
-						character = SER_ljubomir_stojanovic
-						ruling_only = yes
-					}
-				}
-			}
+			# SER = {
+			# 	# OR = {
+			# 	# 	has_country_leader = {
+			# 	# 		character = SER_milovan_milovanovic
+			# 	# 		ruling_only = yes
+			# 	# 	}
+			# 	# 	has_country_leader = {
+			# 	# 		character = SER_ljubomir_stojanovic
+			# 	# 		ruling_only = yes
+			# 	# 	}
+			# 	# }
+			# }
 			has_active_mission = balkan_league_mission
-			FROM = {
-				NOT = {
-					is_claimed_by = ROOT
-				}
-			}
+			# FROM = {
+			# 	NOT = {
+			# 		is_claimed_by = ROOT
+			# 	}
+			# }
 		}
-		on_map_mode = map_only
+		on_map_mode = map_and_decisions_view
 		state_target = yes
 		targets = {
 			106
@@ -250,19 +257,50 @@ balkan_league_category = {
 	}
 	attack_TUR = {
 		allowed = {
-			TAG = SER
-			TAG = BUL
-			TAG = GRE
-			TAG = MNT
+			OR = {
+				TAG = SER
+				TAG = BUL
+				TAG = GRE
+				TAG = MNT
+			}
 		}
 		available = {
-			SER = {
-				has_completed_focus = SER_start_the_races_TUR
+			OR = {
+				has_global_flag  = balkan_league_fail
+				has_global_flag = balkan_league_success
+				AND = {
+					is_in_faction_with = BUL
+					is_in_faction_with = GRE
+				}
+				AND = {
+					is_in_faction_with = SER
+					is_in_faction_with = GRE
+				}
+				AND = {
+					is_in_faction_with = BUL
+					is_in_faction_with = SER
+				}
 			}
 		}
 		visible = {
-			SER = {
-				has_completed_focus = SER_start_the_races_TUR
+			OR = {
+				has_global_flag  = balkan_league_fail
+				has_global_flag = balkan_league_success
+				AND = {
+					is_in_faction_with = BUL
+					is_in_faction_with = GRE
+				}
+				AND = {
+					is_in_faction_with = SER
+					is_in_faction_with = GRE
+				}
+				AND = {
+					is_in_faction_with = BUL
+					is_in_faction_with = SER
+				}
+			}
+			NOT = {
+				has_global_flag = kis_firstbalkan_war
 			}
 		}
 		cost = 20
@@ -299,6 +337,11 @@ balkan_league_category = {
 						}
 					}
 				}
+			}
+			modifier = {
+				is_historical_focus_on = yes
+				date < 1912.10.05
+				factor = 0
 			}
 		}
 		complete_effect = {
@@ -346,6 +389,11 @@ balkan_league_category = {
 		}
 		visible = {
 			has_global_flag = kis_firstbalkan_war
+			has_war = yes
+			NOT = {
+				has_global_flag = TUR_surrender_1st_balkan_war
+			}
+			tag = TUR
 		}
 		available = {
 			# any_owned_state = {
@@ -354,92 +402,68 @@ balkan_league_category = {
 			# 		is_controlled_by = TUR
 			# 	}
 			# }
+			tag = TUR
 		}
 		ai_will_do = {
 			base = 0
 			#idk to do modifier
+			## texas : Let me help you
+			modifier = {
+				surrender_progress > 0.12
+				add = 2
+			}
+			modifier = {
+				casualties > 200000
+				add = 2
+			}
+			modifier = {
+				casualties > 400000
+				add = 5
+			}
+			modifier = {
+				date > 1913.1.1
+				surrender_progress > 0.12
+				add = 30
+			}
 		}
-		fire_only_once = yes
+
 		complete_effect = {
+			set_global_flag = TUR_surrender_1st_balkan_war
 			add_war_support = -0.05
-			if = {
-				limit = {
-					BUL = {
-						is_faction_leader = yes
-					}
-				}
-				BUL = {
-					country_event = ww1_firstbalkan.4
-				}
-				else_if = {
-					limit = {
-						SER = {
-							is_faction_leader = yes
-						}
-					}
-					SER = {
-						country_event = ww1_firstbalkan.4
-					}
-					BUL = {
-						country_event = ww1_firstbalkan.4
-					}
+			BUL = {
+				country_event = {
+					days = 1
+					id = ww1_firstbalkan.4
 				}
 			}
-			hidden_effect = {
-				if = {
-					limit = {
-						has_government = democratic
-						has_active_mission = TUR_CUP_prepares_coup_mission
-					}
-					remove_mission = TUR_CUP_prepares_coup_mission
-					remove_mission = TUR_CUP_coup_averted
-					country_event = {
-						id = ww1_ottoman.27
-						days = 51
-					}
-				}
-			}
-		}
-	}
-	TUR_surrender_bw1_2 = { #After Ittihadist coup
-		allowed = {
-			original_tag = TUR
-		}
-		available = {
-			
-		}
-		visible = {
-			has_completed_focus = TUR_raid_on_the_sublime_porte
-		}
-		ai_will_do = {
-			base = 0
-		}
-		complete_effect = {
-			if = {
-				limit = {
-					BUL = {
-						is_faction_leader = yes
-					}
-				}
-				BUL = {
-					country_event = ww1_firstbalkan.6
-				}
-				else_if = {
-					limit = {
-						SER = {
-							is_faction_leader = yes
-						}
-					}
-					SER = {
-						country_event = ww1_firstbalkan.7
-					}
-				}
-			}
+			# hidden_effect = {
+			# 	if = {
+			# 		limit = {
+			# 			has_government = democratic
+			# 			has_active_mission = TUR_CUP_prepares_coup_mission
+			# 		}
+			# 		remove_mission = TUR_CUP_prepares_coup_mission
+			# 		remove_mission = TUR_CUP_coup_averted
+			# 		country_event = {
+			# 			id = ww1_ottoman.27
+			# 			days = 51
+			# 		}
+			# 	}
+			# }
 		}
 	}
 	london_conference = {
 		allowed = {
-			or = {
+			OR = {
+				original_tag = BUL
+				original_tag = SER
+				original_tag = TUR
+				original_tag = GRE
+				original_tag = MNT
+			}
+		}
+		visible = {
+			OR = {
 				original_tag = BUL
 				original_tag = SER
 				original_tag = TUR
@@ -452,22 +476,19 @@ balkan_league_category = {
 		}
 		available = {
 			TUR = {
-				OR = {
-					has_war_with = SER
-					has_war_with = BUL
-				}
+				has_war = yes
 			}
 		}
 		days_mission_timeout = 60
 		is_good = yes
 		timeout_effect = {
+			set_global_flag = kis_firstbalkanwar_victory
 			every_country = {
 				limit = {
-					original_tag = SER
-					original_tag = BUL
-					original_tag = GRE
-					original_tag = MNT
-					original_tag = TUR
+					OR = {
+						original_tag = TUR
+						is_puppet_of = TUR
+					}
 				}
 				country_event = ww1_firstbalkan.5
 			}
