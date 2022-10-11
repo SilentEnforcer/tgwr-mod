@@ -40,3 +40,11 @@ NDefines.NRailwayGun.RAILWAY_GUN_RANGE = 15							-- The range of railway guns i
 
 NDefines.NGraphics.VICTORY_POINT_MAP_ICON_TEXT_CUTOFF = {200, 350, 600}  	-- Vanilla is 100, 250, 500
 NDefines.NGraphics.VICTORY_POINTS_DISTANCE_CUTOFF = {300, 500, 1000} 		-- Vanilla is 300, 500, 1500
+
+
+NDefines.NSupply.NAVAL_DISTANCE_FACTOR_FOR_REINFORCEMENT_SPEED = 0.12
+NDefines.NSupply.NAVAL_BASE_INITIAL_SUPPLY_FLOW = 5
+NDefines.NSupply.CAPITAL_SUPPLY_DOCKYARDS = 0.6
+ 
+
+ 
