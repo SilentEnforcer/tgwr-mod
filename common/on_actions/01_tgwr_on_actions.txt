@@ -434,6 +434,27 @@ on_actions = {
 				limit = {
 					tag = TUR					#winner
 					FROM = {
+						tag = BUL
+					}					#loser
+					has_global_flag = kis_firstbalkan_war
+					NOT = {
+						has_global_flag = kis_firstbalkanwar_victory
+						has_global_flag = kis_firstbalkanwar_lose
+						has_global_flag = kis_secondbalkan_war
+					}
+				}
+				BUL = {
+					add_ideas = BUL_idea_first_national_catastrophe
+					add_timed_idea = {
+						idea = BUL_idea_refugee_crisis
+						days = 200
+					}
+				}
+			}
+			if = {
+				limit = {
+					tag = TUR					#winner
+					FROM = {
 						tag = SER
 					}					#loser
 					has_global_flag = kis_firstbalkan_war
@@ -446,26 +467,6 @@ on_actions = {
 				SER = {
 					remove_state_core = 106
 					remove_state_core = 203
-				}
-			}
-			if = {
-				limit = {
-					tag = TUR					#winner
-					FROM = {
-						tag = BUL
-					}					#loser
-					has_global_flag = kis_firstbalkan_war
-					NOT = {
-						has_global_flag = kis_firstbalkanwar_victory
-						has_global_flag = kis_secondbalkan_war
-					}
-				}
-				BUL = {
-					add_ideas = BUL_idea_first_national_catastrophe
-					add_timed_idea = {
-						idea = BUL_idea_refugee_crisis
-						days = 200
-					}
 				}
 			}
 			if = {
@@ -888,18 +889,61 @@ on_actions = {
 
 			### Chile ###
 			if = {
-			    limit = { original_tag = CHL }
+				limit = { original_tag = CHL }
 				country_event = ww1_chile.3 #1910
 				country_event = ww1_chile.5 #1915
-			    country_event = ww1_chile.7 #1920
+				country_event = ww1_chile.7 #1920
 			}
 
+			### Ottoman ###
 			if = {
 				limit = {
 					original_tag = TUR
 				}
 				country_event = ww1_ottoman.120
 				country_event = ww1_ottoman.127
+			}
+
+			### China ###
+			if = {
+				limit = { tag = CHI }
+				country_event = ww1_china.123
+			}
+
+			### Canada ###
+			if = {
+				limit = { original_tag = CAN }
+				country_event = canada.67
+			}
+			
+			### Germany ###
+			if = {
+				limit = {
+					tag = GER
+				}
+				country_event = ww1_germany.99
+			}
+			
+			### Korea ###
+			if = {
+				limit = {
+					tag = KOR
+				}
+				if = {
+					limit = {
+						OR = {
+							has_idea = KOR_idea_gwangmu
+							has_idea = KOR_idea_yunghui
+							has_idea = KOR_idea_uimin
+							has_idea = KOR_idea_uihwa
+						}
+					}
+					#constitutional elections; will do later
+					else = {
+						country_event = ww1_korea.17
+					}
+				}
+				
 			}
 		}
 		# USA EVENTS	
@@ -1279,15 +1323,7 @@ on_actions = {
 				}
 				USA = {
 					set_cosmetic_tag = USA_GER
-					create_country_leader = {
-						name = "Charles John Hexamerk"
-						picture = "gfx/leaders/USA/USA_Charles_John_Hexamer.png"
-						
-						ideology = oligarchism
-						traits = {
-							
-						}
-					}
+					promote_character = USA_charles_john_hexamerk
 				}
 			}
 			if = {
@@ -1785,7 +1821,13 @@ on_actions = {
 				AUH = {
 					set_cosmetic_tag = AUH_EMP
 					AUH_HUN_create_habsburg = yes
-				}				
+					PREV = {
+						set_politics = {
+							ruling_party = neutrality
+							elections_allowed = no
+						}
+					}
+				}
 			}
 			if = {
 				limit = {
@@ -1908,13 +1950,8 @@ on_actions = {
 							}
 							GER_wilhelm_karl_von_urach = {
 								set_character_name = LIT_mindaugas_ii
-								if = {
-									limit = {
-										is_field_marshal = no									
-									}
-									promote_leader = yes
-								}
-								set_nationality = LIT							
+								promote_leader = yes
+								set_nationality = LIT
 							}
 						}
 					}
@@ -2240,10 +2277,11 @@ on_actions = {
 						original_tag = RHN
 						original_tag = PRE
 						original_tag = MEK
-						original_tag = LUX
-						original_tag = DEN
 					}
-					is_subject_of = GER
+					OR = {
+						is_subject_of = GER
+						is_subject_of = BAY
+					}
 					has_government = communism
 				}
 				set_cosmetic_tag = GER_socialism
@@ -2712,6 +2750,12 @@ on_actions = {
 				AUH = {
 					set_cosmetic_tag = AUH_EMP
 					AUH_HUN_create_habsburg = yes
+					PREV = {
+						set_politics = {
+							ruling_party = neutrality
+							elections_allowed = no
+						}
+					}
 				}		
 			}
 			if = {
@@ -2815,12 +2859,7 @@ on_actions = {
 							}
 							GER_wilhelm_karl_von_urach = {
 								set_character_name = LIT_mindaugas_ii
-								if = {
-									limit = {
-										is_field_marshal = no									
-									}
-									promote_leader = yes
-								}
+								promote_leader = yes
 								set_nationality = LIT							
 							}
 						}
@@ -3156,10 +3195,13 @@ on_actions = {
 						original_tag = RHN
 						original_tag = PRE
 						original_tag = MEK
-						original_tag = LUX
-						original_tag = DEN
 					}
-					FROM = { tag = GER }
+					FROM = {
+						OR = {
+							tag = GER
+							tag = BAY
+						}
+					}
 					has_government = communism
 				}
 				set_cosmetic_tag = GER_socialism
@@ -3179,19 +3221,71 @@ on_actions = {
 			862 = {
 				remove_core_of = LIB
 			}
-			115 = {
-				damage_building = {
-					type = infrastructure
-					damage = 1
+			if = {
+				limit = {
+					date < 1914.1.1
 				}
-				damage_building = {
-					type = naval_base
-					damage = 1
-					province = 4159
+				115 = {
+					damage_building = {
+						type = infrastructure
+						damage = 1
+					}
+					damage_building = {
+						type = naval_base
+						damage = 1
+						province = 4159
+					}
+					damage_building = {
+						type = dockyard
+						damage = 1
+					}
 				}
-				damage_building = {
-					type = dockyard
-					damage = 1
+			}			
+			if = {
+				limit = {
+					date > 1914.1.1
+				}
+				ECU = {
+					start_civil_war = {
+						size = 0.3
+						keep_political_leader = no
+						keep_political_party_members = yes
+						hidden_effect = {
+							set_cosmetic_tag = ECU_civil_war
+							set_war_support = 0.7
+							set_province_controller = 8047
+							delete_unit = {
+								state = 649
+								disband = yes
+							}
+							add_manpower = 20000
+							load_oob = "ECU_civil_war"
+							ECU_carlos_concha = {
+								add_corps_commander_role = {
+									traits = {
+										inflexible_strategist
+										trickster
+										guerilla_fighter
+									}
+									skill = 2
+									attack_skill = 2
+									defense_skill = 2
+									planning_skill = 1
+									logistics_skill = 2
+									visible = {
+										is_country_leader = yes
+									}	
+								}
+							}	
+						}
+						ideology = democratic
+						keep_unit_leaders = {
+							27005
+						}
+						states = {
+							649
+						}
+					}
 				}
 			}
 			AUH = {
@@ -4103,7 +4197,151 @@ on_actions = {
 						has_war_with = PREV
 					}
 				}
-				country_event = ww1_china.38
+				set_politics = {
+					ruling_party = neutrality
+					elections_allowed = no
+				}
+				set_popularities = {
+					democratic = 31
+					neutrality = 63
+					fascism = 4
+					communism = 2
+				}
+				set_cosmetic_tag = NPA
+				set_party_name = {
+					ideology = neutrality
+					long_name = CHI_national_protection_army_long
+					name = CHI_national_protection_army
+				}
+				set_party_name = {
+					ideology = fascism
+					long_name = CHI_national_protection_army_long
+					name = CHI_national_protection_army
+				}
+				NPA = {
+					transfer_navy = {
+						target = CHI
+					}
+					every_unit_leader = {
+						set_nationality = CHI
+					}
+					CHI_cai_e = {
+						set_nationality = CHI
+					}
+					CHI_sun_yatsen = {
+						set_nationality = CHI
+					}
+					CHI_tang_jiyao = {
+						set_nationality = CHI
+					}
+					CHI_liang_qichao = {
+						set_nationality = CHI
+					}
+				}
+				annex_country = {
+					target = NPA
+					transfer_troops = yes
+				}
+				retire_character = QIN_yuan_shikai
+				retire_character = CHI_yuan_shikai
+				retire_character = CHI_yuan_keding
+				every_unit_leader = {
+					limit = {
+						has_trait = yuan_shikai_loyalist
+					}
+					remove_unit_leader_role = yes
+				}
+				CHI_tang_jiyao = {
+					add_country_leader_role = {
+						country_leader = {
+							ideology = authoritarian_democracy
+						}
+					}
+					add_country_leader_role = {
+						country_leader = {
+							ideology = stratocracy
+						}
+					}
+					promote_character = authoritarian_democracy
+					promote_character = stratocracy
+				}
+				if = {
+					limit = {
+						NOT = { has_global_flag = cai_e_dead }
+					}
+					CHI_cai_e = {
+						add_country_leader_role = {
+							country_leader = {
+								ideology = stratocracy
+								traits = {
+									revolutionary_general
+									generallissimo
+								}
+							}
+						}
+						add_country_leader_role = {
+							country_leader = {
+								ideology = authoritarian_democracy
+								traits = {
+									revolutionary_general
+									generallissimo
+								}
+							}
+						}
+						promote_character = stratocracy
+						promote_character = authoritarian_democracy
+					}
+				}
+				CHI_liang_qichao = {
+					add_country_leader_role = {
+						country_leader = {
+							ideology = conservatism
+							traits = { popular_figurehead gentle_scholar }
+						}
+					}
+					promote_character = conservatism
+				}
+				if = {
+					limit = {
+						NOT = { has_global_flag = sun_yatsen_dead }
+					}
+					CHI_sun_yatsen = {
+						add_country_leader_role = {
+							country_leader = {
+								ideology = socialism
+								traits = {
+									father_of_the_republic
+								}
+							}
+						}
+						add_country_leader_role = {
+							country_leader = {
+								ideology = reformist_socialism
+								traits = {
+									father_of_the_republic
+								}
+							}
+						}
+						promote_character = socialism
+						promote_character = reformist_socialism
+					}
+				}
+				set_country_flag = CHI_national_protection_flag
+			}
+			if = {
+				limit = {
+					original_tag = DAR
+					ENG = {
+						has_war_with = PREV
+						owns_state = 549
+					}
+				}
+				ENG = {
+					annex_country = {
+						target = DAR
+					}
+					country_event = ww1_england.190
+				}
 			}
 		}
 	}
@@ -4190,6 +4428,16 @@ on_actions = {
 			}
 			if = {
 				limit = {
+					original_tag = POR
+					OR = {
+						has_cosmetic_tag = POR_REP_provisional
+						has_cosmetic_tag = POR_constitutional
+					}
+				}
+				set_cosmetic_tag = POR_REP
+			}
+			if = {
+				limit = {
 					has_country_leader_with_trait = standing_alone
 				}
 				remove_country_leader_trait = standing_alone
@@ -4197,67 +4445,7 @@ on_actions = {
 		}
 	}
 	on_ruling_party_change = {
-		effect = {	
-			if = {
-				limit = {
-					has_idea = BEL_nationalist_sentiment_democrat
-					has_government = neutrality
-				}
-				swap_ideas = {
-					remove_idea = BEL_nationalist_sentiment_democrat
-					add_idea = BEL_nationalist_sentiment_monarch
-				}
-			}
-			if = {
-				limit = {
-					has_idea = BEL_nationalist_sentiment_democrat
-					has_government = communism
-				}
-				swap_ideas = {
-					remove_idea = BEL_nationalist_sentiment_democrat
-					add_idea = BEL_nationalist_sentiment_commie
-				}
-			}
-			if = {
-				limit = {
-					has_idea = BEL_nationalist_sentiment_monarch
-					has_government = democratic
-				}
-				swap_ideas = {
-					remove_idea = BEL_nationalist_sentiment_monarch
-					add_idea = BEL_nationalist_sentiment_democrat
-				}
-			}
-			if = {
-				limit = {
-					has_idea = BEL_nationalist_sentiment_monarch
-					has_government = communism
-				}
-				swap_ideas = {
-					remove_idea = BEL_nationalist_sentiment_monarch
-					add_idea = BEL_nationalist_sentiment_commie
-				}
-			}
-			if = {
-				limit = {
-					has_idea = BEL_nationalist_sentiment_commie
-					has_government = democratic
-				}
-				swap_ideas = {
-					remove_idea = BEL_nationalist_sentiment_commie
-					add_idea = BEL_nationalist_sentiment_democrat
-				}
-			}
-			if = {
-				limit = {
-					has_idea = BEL_nationalist_sentiment_commie
-					has_government = neutrality
-				}
-				swap_ideas = {
-					remove_idea = BEL_nationalist_sentiment_commie
-					add_idea = BEL_nationalist_sentiment_monarch
-				}
-			}		
+		effect = {					
 			if = {
 				limit = {
 					has_government = communism
@@ -4268,9 +4456,18 @@ on_actions = {
 						NOT = {
 							has_cosmetic_tag = GER_socialism
 							has_cosmetic_tag = GER_ruhr_revolt
+							has_cosmetic_tag = BAY_germany
 						}
 					}
-					set_cosmetic_tag = GER_socialism
+					if = {
+						limit = {
+							NOT = { has_country_leader_ideology = reformist_socialism }
+						}
+						set_cosmetic_tag = BAY_germany
+						else = {
+							set_cosmetic_tag = GER_socialism
+						}
+					}
 				}
 				if = {
 					limit = {
@@ -4407,22 +4604,16 @@ on_actions = {
 							original_tag = RHN
 							original_tag = PRE
 							original_tag = MEK
-							original_tag = LUX
-							original_tag = DEN
 						}
-						is_subject_of = GER
+						OR = {
+							is_subject_of = GER
+							is_subject_of = BAY
+						}
 						NOT = {
-							has_cosmetic_tag = GER_socialist
+							has_cosmetic_tag = GER_socialism
 						}
 					}
-					set_cosmetic_tag = GER_socialist
-				}
-				if = {
-					limit = {
-						original_tag = BEL
-						has_cosmetic_tag = BEL_flanders_wallonia
-					}
-					drop_cosmetic_tag = yes
+					set_cosmetic_tag = GER_socialism
 				}
 				if = {
 					limit = {
@@ -4526,21 +4717,40 @@ on_actions = {
 							has_cosmetic_tag = BEL_empire_cosmetic_tag
 						}
 						set_cosmetic_tag = BEL_empire_cosmetic_tag_communism
-					}
-					else_if = {
-						limit = {
-							has_cosmetic_tag = BEL_netherlands_cosmetic_tag
+						else_if = {
+							limit = {
+								has_cosmetic_tag = BEL_netherlands_cosmetic_tag
+							}
+							set_cosmetic_tag = BEL_netherlands_cosmetic_tag_communism
+							else_if = {
+								limit = {
+									has_cosmetic_tag = BEL_benelux_cosmetic_tag
+								}
+								set_cosmetic_tag = BEL_benelux_cosmetic_tag_communism
+								else = {
+									set_cosmetic_tag = BEL_communism
+								}
+							}
 						}
-						set_cosmetic_tag = BEL_netherlands_cosmetic_tag_communism
 					}
-					else_if = {
+					if = {
 						limit = {
-							has_cosmetic_tag = BEL_benelux_cosmetic_tag
+							OR = {
+								has_idea = BEL_nationalist_sentiment_monarch
+								has_idea = BEL_nationalist_sentiment_democrat
+							}
 						}
-						set_cosmetic_tag = BEL_benelux_cosmetic_tag_communism
+						remove_ideas = {
+							BEL_nationalist_sentiment_monarch
+							BEL_nationalist_sentiment_democrat
+						}	
+						add_ideas = BEL_nationalist_sentiment_commie
 					}
-					else = {
-						set_cosmetic_tag = BEL_communism
+					if = {
+						limit = {
+							has_cosmetic_tag = BEL_flanders_wallonia
+						}
+						drop_cosmetic_tag = yes
 					}
 				}
 				if = {
@@ -4560,6 +4770,70 @@ on_actions = {
 						original_tag = POR
 					}
 					set_cosmetic_tag = POR_socialism
+				}
+				if = {
+					limit = {
+						original_tag = SWE
+					}
+					if = {
+						limit = {
+							has_cosmetic_tag = SCA
+						}
+						set_cosmetic_tag = SCA_communism
+					}
+					else_if = {
+						limit = {
+							has_cosmetic_tag = SWE_NOR
+						}
+						set_cosmetic_tag = SWE_NOR_communism
+					}
+					else = {
+						set_cosmetic_tag = SWE_socialism
+					}
+				}
+				if = {
+					limit = {
+						original_tag = NOR
+					}
+					set_cosmetic_tag = NOR_socialism
+				}
+				if = {
+					limit = {
+						original_tag = DEN
+					}
+					set_cosmetic_tag = DEN_socialism
+				}
+				if = {
+					limit = {
+						original_tag = LUX
+					}
+					set_cosmetic_tag = GER_socialism
+				}
+				if = {
+					limit = {
+						original_tag = ALB
+					}
+					set_cosmetic_tag = ALB_socialism
+				}
+				if = {
+					limit = {
+						original_tag = JAP
+					}
+					set_party_name = {
+						ideology = communism
+						long_name = JAP_communism_party
+						name = JAP_communism_party
+					}
+					clr_country_flag = banned_communism_flag
+				}
+				if = {
+					limit = {
+						original_tag = KEN
+						has_cosmetic_tag = KEN_colonial
+					}
+					drop_cosmetic_tag = yes	
+					retire_ideology_leader = communism
+					retire_ideology_leader = democratic
 				}
 			}
 			if = {
@@ -4603,7 +4877,12 @@ on_actions = {
 							has_cosmetic_tag = BEL_benelux_cosmetic_tag_communism
 							has_cosmetic_tag = HOL_BAT
 							has_cosmetic_tag = SPR_socialism
-							has_cosmetic_tag = POR_socialism
+							has_cosmetic_tag = SWE_socialism
+							has_cosmetic_tag = SCA_communism
+							has_cosmetic_tag = SWE_NOR_communism
+							has_cosmetic_tag = NOR_socialism
+							has_cosmetic_tag = DEN_socialism
+							has_cosmetic_tag = ALB_socialism
 							AND = {
 								NOT = {
 									has_government = democratic
@@ -4731,6 +5010,21 @@ on_actions = {
 						drop_cosmetic_tag = yes
 					}
 				}
+				if = {
+					limit = {
+						original_tag = POR
+						has_cosmetic_tag = POR_socialism
+					}
+					if = {
+						limit = {
+							has_country_flag = portuguese_republic
+						}
+						set_cosmetic_tag = POR_REP
+					}
+					else = {
+						drop_cosmetic_tag = yes
+					}
+				}
 			}
 			if = {
 				limit = {
@@ -4781,7 +5075,13 @@ on_actions = {
 						long_name = BEL_army_party
 					}	
 					set_cosmetic_tag = BEL_neutrality 
-				}	
+				}
+				if = {
+					limit = {
+						original_tag = KEN
+					}
+					set_cosmetic_tag = KEN_colonial				
+				}
 			}
 			if = {
 				limit = {
@@ -4818,6 +5118,34 @@ on_actions = {
 			}								
 			if = {
 				limit = {
+					has_government = democratic
+				}
+				if = {
+					limit = {
+						original_tag = BEL
+						OR = {
+							has_idea = BEL_nationalist_sentiment_monarch
+							has_idea = BEL_nationalist_sentiment_commie
+						}
+					}
+					remove_ideas = {
+						BEL_nationalist_sentiment_monarch
+						BEL_nationalist_sentiment_commie
+					}	
+					add_ideas = BEL_nationalist_sentiment_democrat
+				}
+				if = {
+					limit = {
+						original_tag = KEN
+						has_cosmetic_tag = KEN_colonial
+					}
+					drop_cosmetic_tag = yes
+					retire_ideology_leader = democratic
+					retire_ideology_leader = communism
+				}
+			}
+			if = {
+				limit = {
 					has_government = neutrality
 				}
 				if = {
@@ -4841,7 +5169,27 @@ on_actions = {
 							}
 						}
 						set_cosmetic_tag = HUN_regency
+					}					
+				}
+				if = {
+					limit = {
+						original_tag = BEL
+						OR = {
+							has_idea = BEL_nationalist_sentiment_democrat
+							has_idea = BEL_nationalist_sentiment_commie
+						}
 					}
+					remove_ideas = {
+						BEL_nationalist_sentiment_democrat
+						BEL_nationalist_sentiment_commie
+					}	
+					add_ideas = BEL_nationalist_sentiment_monarch
+				}
+				if = {
+					limit = {
+						original_tag = KEN
+					}
+					set_cosmetic_tag = KEN_colonial			
 				}
 			}
 		}

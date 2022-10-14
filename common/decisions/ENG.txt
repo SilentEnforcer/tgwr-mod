@@ -671,13 +671,19 @@ political_actions = {
 	ENG_invoke_the_alliance_of_1373 = {
 
 		icon = generic_prepare_civil_war
+
+		target_trigger = {
+			FROM = {
+				tag = POR
+			}
+		}
 	
 		allowed = {
 			tag = ENG
 		}
 		
 		available = {
-			POR = {
+			FROM = {
 				OR = {
 					has_government = ROOT
 					has_government = neutrality
@@ -698,27 +704,49 @@ political_actions = {
 			is_in_faction = yes
 			has_global_flag = kis_war
 			NOT = {
-				has_war_with = POR
 				has_global_flag = great_war_ends
-				has_government = communism
 			}
-			country_exists = POR
+			FROM = {
+				exists = yes
+				NOT = {
+					has_war_with = ROOT
+					is_in_faction_with = ROOT
+				}
+			}
+		}
+
+		cancel_trigger = {
+			FROM = {
+				OR = {
+					exists = no
+					has_war_with = ROOT
+					is_in_faction_with = ROOT
+					is_subject = yes
+					NOT = {
+						has_government = ROOT
+						has_government = neutrality
+					}
+					has_global_flag = great_war_ends
+				}
+			}
 		}
 		
+		days_remove = 500
+
 		complete_effect = {
-			POR = { country_event = generic.5 }
+			set_country_flag = british_mission_to_portugal
+		}
+
+		cancel_effect = {
+			clr_country_flag = british_mission_to_portugal
+		}
+
+		remove_effect = {
+			FROM = { country_event = ww1_portugal.19 }
 		}
 
 		ai_will_do = {
-			factor = 100
-			modifier = {
-				factor = 0
-				POR = {
-					any_home_area_neighbor_country = {
-						has_war_with = ENG
-					}
-				}
-			}
+			factor = 1000
 		}
 	}
 	ENG_engage_french_civil_war = {
@@ -1115,6 +1143,9 @@ ENG_british_civil_war_category = {
 				}
 			}
 		}
+		target_trigger = {
+			FROM = { tag = BRE }
+		}
 		complete_effect = {
 			set_country_flag = supported_british_civil_war
 			army_experience = 5
@@ -1164,6 +1195,9 @@ ENG_british_civil_war_category = {
 				}
 			}
 		}
+		target_trigger = {
+			FROM = { tag = UOB }
+		}
 		complete_effect = {
 			set_country_flag = supported_british_civil_war
 			army_experience = 5
@@ -1175,6 +1209,139 @@ ENG_british_civil_war_category = {
 			UOB = {
 				country_event = garibaldi.32
 			}
+		}
+	}
+	ENG_scottish_revolt_timer = {
+		icon = revolt
+		allowed = {
+			OR = {
+				original_tag = SCO
+				original_tag = ENG
+			}
+		}
+		visible = {
+			OR = {
+				has_war_with = SCO
+				has_war_with = ENG
+			}
+		}		
+		available = {
+			OR = {
+				ENG = { NOT = { has_war_with = SCO } }
+				NOT = { country_exists = ENG }
+				NOT = { country_exists = SCO }
+				has_subject = SCO
+				has_subject = ENG
+			}
+		}		
+		activation = {
+			SCO = { has_war_with = ENG }
+		}
+		timeout_effect = {
+			ENG = { country_event = ww1_england.154 }
+		}		
+		fire_only_once = yes
+		days_mission_timeout = 365
+		is_good = no
+	}
+}
+GER_agadir_crisis = {
+	ENG_agadir_involvement = {
+		icon = generic_nationalism
+		allowed = {
+			tag = ENG
+		}
+		available = {
+			NOT = {
+				has_global_flag = agadir_crisis_ends
+				has_global_flag = kis_war
+				has_war_with = GER
+				has_war_with = FRA
+			}
+			GER = { has_completed_focus = GER_moroccan_crisis }
+		}
+		visible = {
+			has_global_flag = agadir_crisis
+			NOT = {
+				has_global_flag = kis_war
+				has_global_flag = agadir_crisis_ends
+				is_in_faction_with = GER
+			}
+		}
+		cancel_trigger = {
+			OR = {
+				has_global_flag = agadir_crisis_ends
+				has_global_flag = kis_war
+				has_war_with = GER
+				has_war_with = FRA
+			}
+		}
+		fire_only_once = yes
+		days_remove = 10
+		remove_effect = {
+			FRA = { country_event = ww1_morocco.16 }
+			GER = { country_event = ww1_morocco.16 }
+			effect_tooltip = {
+				FRA = {
+					add_opinion_modifier = {
+						target = PREV
+						modifier = HOI4TGW_Opinion_diplomats_bonus
+					}
+				}
+				GER = {
+					add_opinion_modifier = {
+						target = PREV
+						modifier = HOI4TGW_Opinion_diplomats_malus
+					}
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 1000
+			modifier = {
+				factor = 0
+				has_opinion = {
+					target = GER
+					value > 50
+				}
+			}
+			modifier = {
+				factor = 0
+				has_opinion = {
+					target = FRA
+					value < 0
+				}
+			}
+		}
+	}
+}
+foreign_influence = {
+	ENG_integrate_orange_order = {
+		icon = GFX_decision_generic_operation
+		allowed = { tag = ENG }
+		target_trigger = {
+			FROM = { tag = NIR }
+		}
+		available = {
+			has_war = no
+			NIR = { has_war = no }
+		}
+		visible = {
+			is_subject = no
+			NIR = {
+				has_cosmetic_tag = NIR_orange_order
+				is_subject = no
+			}
+			NOT = { has_government = communism }
+		}
+		cost = 0
+		days_remove = 120
+		ai_will_do = {
+			factor = 100
+		}
+		fire_only_once = no
+		remove_effect = {
+			NIR = { country_event = orange.4 }
 		}
 	}
 }

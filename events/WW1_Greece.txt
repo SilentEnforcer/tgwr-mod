@@ -199,12 +199,14 @@ country_event = {
 	id = ww1_greece.10
 	title = ww1_greece.10.t
 	desc = ww1_greece.10.d
-	picture = GFX_report_event_generic_naval_treaty
+	picture = GFX_report_event_usa_destroyers
 	fire_only_once = yes
 	trigger = {
 		tag = FRA
 		date > 1916.8.1
 		GRE = {
+			exists = yes
+			is_in_faction = no
 			has_war = no
 		}
 		FRA = {
@@ -222,6 +224,7 @@ country_event = {
 	}
 }
 
+# FRENCH CHOOSE TO SEIZE GREEK SHIPS
 country_event = {
 	id = ww1_greece.11
 	title = ww1_greece.11.t
@@ -234,20 +237,43 @@ country_event = {
 		FRA = {
 			country_event = ww1_greece.12
 		}
+		ai_chance = {
+			factor = 1
+			modifier = {
+				factor = 0
+				OR = {
+					is_in_faction_with = GER
+					has_war_with = FRA
+					has_government = fascism
+				}
+			}
+		}
 	}
 	option = {
 		name = ww1_greece.11.b
 		FRA = {
 			country_event = ww1_greece.13
 		}
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 100
+				OR = {
+					is_in_faction_with = GER
+					has_war_with = FRA
+					has_government = fascism
+				}
+			}
+		}
 	}
 }
 
+# FRENCH CHOOSE TO SEIZE GREEK SHIPS
 country_event = {
 	id = ww1_greece.12
 	title = ww1_greece.12.t
 	desc = ww1_greece.12.d
-	picture = GFX_report_event_generic_naval_treaty
+	picture = GFX_report_event_usa_destroyers
 	fire_only_once = yes
 	is_triggered_only = yes
 	option = {
@@ -277,15 +303,26 @@ country_event = {
 	}
 }
 
+# FRENCH CHOOSE TO SEIZE GREEK SHIPS
 country_event = {
 	id = ww1_greece.13
 	title = ww1_greece.13.t
 	desc = ww1_greece.13.d
-	picture = GFX_report_event_generic_naval_treaty
+	picture = GFX_report_event_usa_destroyers
 	fire_only_once = yes
 	is_triggered_only = yes
 	option = {
 		name = ww1_greece.12.a
+		add_opinion_modifier = {
+			target = FROM
+			modifier = HOI4TGW_Opinion_diplomats_malus
+		}
+		GRE = {
+			add_opinion_modifier = {
+				target = PREV
+				modifier = HOI4TGW_Opinion_diplomats_malus
+			}
+		}
 	}
 }
 
@@ -307,7 +344,7 @@ country_event = {
 				is_in_faction_with = ROOT
 				has_war_with = ROOT
 			}
-			has_defensive_war_with = BUL
+			has_war_with = BUL #defensive war check is not work idk
 		}
 		BUL = {
 			is_subject = no
@@ -366,6 +403,7 @@ country_event = {
 		}
 	}
 	option = {
+		name = ww1_greece.14.b
 		#We will stay neutral for now
 		add_political_power = -20
 		hidden_effect = {
@@ -418,7 +456,7 @@ country_event = {
 		}
 		add_ideas = GRE_idea_national_schism
 		add_ideas = GRE_idea_dual_power
-		activate_mission_tooltip = GRE_venizelist_coup_timer
+		activate_mission = GRE_venizelist_coup_timer
 	}
 }
 
@@ -440,6 +478,7 @@ country_event = {
 			has_global_flag = great_war_ends
 		}
 	}
+	mean_time_to_happen = { days = 0 }
 	immediate = {
 		hidden_effect = {
 			if = {
@@ -509,6 +548,7 @@ country_event = {
 			has_global_flag = great_war_ends
 		}
 	}
+	mean_time_to_happen = { days = 0 }
 	immediate = {
 		hidden_effect = {
 			if = {
@@ -616,6 +656,16 @@ country_event = {
 			ruling_party = democratic
 			elections_allowed = no
 		}
+		if = {
+			limit = {
+				democratic < 0.5
+			}
+			add_popularity = {
+				ideology = democratic
+				popularity = 0.25
+			}
+		}
+		news_event = kis_news.131
 	}
 }
 
@@ -638,6 +688,7 @@ country_event = {
 			has_country_flag = great_war_winner
 		}
 	}
+	mean_time_to_happen = { days = 0 }
 	immediate = {
 		hidden_effect = {
 			if = {
@@ -698,6 +749,12 @@ country_event = {
 					}
 					every_unit_leader = {
 						set_nationality = GRE
+					}
+					if = {
+						limit = {
+							has_country_flag = great_war_winner
+						}
+						GRE = { set_country_flag = great_war_winner }
 					}
 					transfer_units_fraction = {
 						target = GRE
@@ -880,16 +937,6 @@ country_event = {
 						country = PREV
 						relation = non_aggression_pact
 					}
-					transfer_units_fraction = {
-						target = PREV
-						size = 0.40
-						keep_unit_leaders_trigger = {
-							OR = {
-								has_trait = trait_royal
-								has_trait = trait_royalist
-							}
-						}
-					}
 					GRE_eleftherios_venizelos = {
 						set_nationality = THE
 					}
@@ -942,6 +989,16 @@ country_event = {
 				set_demilitarized_zone = no
 				transfer_state_to = THE
 			}
+			transfer_units_fraction = {
+				target = THE
+				size = 0.40
+				keep_unit_leaders_trigger = {
+					OR = {
+						has_trait = trait_royal
+						has_trait = trait_royalist
+					}
+				}
+			}
 			set_global_flag = venizelist_government_established
 		}
 	}
@@ -961,7 +1018,8 @@ country_event = {
 		remove_ideas = GRE_idea_dual_power
 		add_stability = -0.30
 		add_political_power = -200
-		activate_mission_tooltip = GRE_allied_landing_timer
+		activate_mission = GRE_allied_landing_timer
+		news_event = ww1_greece.50
 	}
 }
 
@@ -1048,6 +1106,10 @@ country_event = {
 			}
 		}
 		promote_character = GRE_constantine_i
+		set_politics = {
+			ruling_party = neutrality
+			elections_allowed = no
+		}
 		ai_chance = {
 			factor = 10
 			modifier = {
@@ -1082,6 +1144,7 @@ country_event = {
 			factor = 10
 			modifier = {
 				factor = 0
+				has_country_flag = great_war_winner
 			}
 		}
 	}
@@ -1118,6 +1181,7 @@ country_event = {
 			limit = {
 				owns_state = 803
 			}
+			
 			if = {
 				limit = {
 					country_exists = ALB
@@ -1521,9 +1585,9 @@ country_event = {
 	}
 }
 
-# stay neutral
+# prevent constantine i joining the great war early
 country_event = {
-	id = ww1_greece.35
+	id = ww1_greece.49
 	hidden = yes
 	trigger = {
 		tag = GRE
@@ -1542,5 +1606,50 @@ country_event = {
 	fire_only_once = yes
 	immediate = {
 		add_country_leader_trait = standing_alone
+		add_ideas = neutrality_idea
+	}
+}
+
+# Establishment of the State of National Defence
+news_event = {
+	id = ww1_greece.50
+	title = ww1_greece.21.t
+	desc = ww1_greece.50.d
+	picture = GFX_news_event_greek_civil_war
+	major = yes
+	is_triggered_only = yes
+	option = {
+		name = ww1_greece.50.a
+		trigger = {
+			OR = {
+				tag = GER
+				is_in_faction_with = GER
+				has_war_with = THE
+				tag = GRE
+			}
+		}
+	}
+	option = {
+		name = ww1_greece.50.b
+		trigger = {
+			OR = {
+				tag = FRA
+				is_in_faction_with = FRA
+				tag = THE
+			}
+		}
+	}
+	option = {
+		name = ww1_greece.50.c
+		trigger = {
+			NOT = {
+				tag = GER
+				is_in_faction_with = GER
+				has_war_with = THE
+				tag = GRE
+				tag = FRA
+				is_in_faction_with = FRA
+			}
+		}
 	}
 }

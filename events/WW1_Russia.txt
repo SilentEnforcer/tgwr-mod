@@ -58,6 +58,17 @@ country_event = {
 	is_triggered_only = yes
 	fire_only_once = yes
 	option = {
+		name = ww1_russia.4.b
+		set_global_flag = russia_ask_for_brest_litovsk
+		news_event = {
+			id = ww1_russia.6
+			days = 1
+		}
+		ai_chance = {
+			factor = 100
+		}
+	}
+	option = {
 		name = ww1_russia.4.a
 		declare_war_on = {
 			target = SOV
@@ -72,17 +83,6 @@ country_event = {
 		}
 		ai_chance = {
 			factor = 0
-		}
-	}
-	option = {
-		name = ww1_russia.4.b
-		set_global_flag = russia_ask_for_brest_litovsk
-		news_event = {
-			id = ww1_russia.6
-			days = 1
-		}
-		ai_chance = {
-			factor = 100
 		}
 	}
 }
@@ -2157,7 +2157,7 @@ country_event = {
 			KAZ = {
 				set_cosmetic_tag = KAZ_alash
 				set_province_name = {
-					id = 12594
+					id = 4661
 					name = ALASH_PROV
 				}
 				hidden_effect = {
@@ -3473,6 +3473,9 @@ country_event = {
 		tag = RUS
 		NOT = {
 			has_war_with = SER
+			has_global_flag = kis_war
+			has_global_flag = kis_firstbalkanwar_victory
+			has_global_flag = kis_firstbalkanwar_lose
 		}
 		SER = {
 			has_war_with = TUR
@@ -3658,6 +3661,12 @@ country_event = {
 				decision = RUS_escalate_incident_to_border_conflict_PER_1911
 			}
 		}
+		419 = {
+			set_border_war = yes
+		}
+		420 = {
+			set_border_war = yes
+		}
 		ai_chance = {
 			factor = 100
 		}
@@ -3668,14 +3677,8 @@ country_event = {
 	option = {
 		name = ww1_russia.62.b
 		add_war_support = -0.05
-		419 = {
-			set_border_war = no
-		}
-		420 = {
-			set_border_war = no
-		}
 		ai_chance = {
-			factor = 1
+			factor = 0
 		}
 	}
 }
@@ -3772,10 +3775,6 @@ country_event = {
 			tag = PER
 		}
 		add_war_support = -0.05
-		remove_state_claim = 229
-		remove_state_claim = 230
-		remove_state_claim = 823
-		remove_state_claim = 818
 		add_opinion_modifier = {
 			target = RUS
 			modifier = small_decrease
@@ -4523,7 +4522,7 @@ country_event = {
 			Character = RUS_grigori_rasputin
 			Promote_leader = yes
 			Country_leader = {
-				ideology=theocracy
+				ideology=theocracy_ideology
 				traits={ mysterious_manipulator  }
 				
 			}
@@ -5109,10 +5108,19 @@ country_event = {
 						is_owned_by = RUS
 					}
 				}
-				KUB = {
-					transfer_state = PREV
-					add_state_core = PREV
-				}					
+				add_core_of = KUB
+				if = {
+					limit = {
+						OR = {
+							is_controlled_by = SOV
+							is_controlled_by = RUS
+						}
+					}
+					transfer_state_to = KUB
+				}
+				else = {
+					set_state_owner_to = KUB
+				}
 			}
 			KUB = {
 				load_oob = "KUB_1918"
@@ -5184,10 +5192,19 @@ country_event = {
 						is_owned_by = RUS
 					}
 				}
-				DON = {
-					transfer_state = PREV
-					add_state_core = PREV
-				}							
+				add_core_of = DON
+				if = {
+					limit = {
+						OR = {
+							is_controlled_by = SOV
+							is_controlled_by = RUS
+						}
+					}
+					transfer_state_to = DON
+				}
+				else = {
+					set_state_owner_to = DON
+				}
 			}
 			DON = {
 				load_oob = "DON_1918"
@@ -5480,21 +5497,28 @@ news_event = {
 								add_country_leader_role = {
 									country_leader = {
 										ideology = autocracy
-										traits = { german_agent  }
+										traits = { foreign_leader german_agent }
 									}
 								}
 								promote_character = autocracy
 							}
+							ROOT = {
+								GER_albert_wilhelm_heinrich = {
+									set_character_name = BLR_genrikh
+									set_nationality = BLR
+								}
+							}
 							else = {
 								BLR_uladzimir = {
 									add_country_leader_role = {
+										promote_leader = yes
 										country_leader = {
 											ideology = autocracy
-											traits = { german_agent  }
 										}
 									}
 									promote_character = autocracy
 								}
+								ROOT = { retire_character = GER_albert_wilhelm_heinrich }
 							}
 						}
 					}
@@ -5529,6 +5553,12 @@ news_event = {
 					NOT = { country_exists = UKR }
 				}
 				set_global_flag = ukraine_released_by_germany
+			}
+			else_if = {
+				limit = {
+					RUS = { has_subject = UKR }
+				}
+				set_global_flag = russian_ukraine_autonomy
 			}
 			every_state = {
 				limit = {
@@ -6057,7 +6087,26 @@ news_event = {
 							}
 							transfer_state_to = TUR
 						}
-					}				
+					}
+					# Fix Khanate of Crimea
+					if = {
+						limit = {
+							OR = {
+								has_global_flag = ukraine_released_by_germany
+								has_global_flag = russian_ukraine_autonomy
+							}
+						}
+						every_state = {
+							limit = {
+								is_owned_by = UKR
+								OR = {
+									is_core_of = TUR
+									is_claimed_by = TUR
+								}
+							}
+							transfer_state_to = TUR
+						}
+					}
 				}
 			}
 			
