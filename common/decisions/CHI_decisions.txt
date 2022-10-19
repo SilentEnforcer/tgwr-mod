@@ -57,17 +57,17 @@ CHI_xinhai_revolution = {
 				has_global_flag = xinhai_revolution_ends
 			}
 			has_government = neutrality
-			command_power > 9
+			#command_power > 9
 		}
-		custom_cost_trigger = {
-			command_power > 9
-		}
-		custom_cost_text = command_power_more_than_10
+		#custom_cost_trigger = {
+		#	command_power > 9
+		#}
+		#custom_cost_text = command_power_more_than_10
 		days_remove = 10
 		fire_only_once = yes
-		complete_effect = {
-			add_command_power = -10
-		}	
+		#complete_effect = {
+		#	add_command_power = -10
+		#}	
 		remove_effect = {
 			add_war_support = 0.1
 			add_popularity = {
@@ -146,7 +146,7 @@ CHI_xinhai_revolution = {
 
 CHI_warlord_era = {
 	CHI_manchu_restoration_mission = {
-		icon = generic_nationalism
+		icon = revolt
 		days_mission_timeout = 10
 		activation = {
 			original_tag = CHI
@@ -181,7 +181,7 @@ CHI_warlord_era = {
 		}
 	}
 	CHI_warlord_era_mission = {
-		icon = generic_nationalism
+		icon = revolt
 		days_mission_timeout = 13		#historically fast
 		activation = {
 			has_global_flag = chinese_warlord_crisis
@@ -363,7 +363,7 @@ CHI_warlord_era = {
 		}
 	}
 	QIN_warlord_era_mission = {
-		icon = generic_nationalism
+		icon = revolt
 		days_mission_timeout = 30
 		activation = {
 			has_global_flag = chinese_warlord_crisis
@@ -394,6 +394,8 @@ CHI_warlord_era = {
 			set_global_flag = warlord_era
 			QIN = {
 				create_faction = qing_empire
+				set_cosmetic_tag = QIN_government
+				add_ideas = QIN_idea_fractured_empire
 			}
 		}
 	}
@@ -594,9 +596,10 @@ CHI_warlord_era = {
 					OR = {
 						GXC = { has_war_with = CHI }
 						country_exists = GXC
+						country_exists = CHI
 					}
 				}
-				CHI = { has_country_flag = chinese_government_crackdown  }
+				CHI = { has_country_flag = chinese_government_crackdown }
 			}
 			
 		}
@@ -610,10 +613,59 @@ CHI_warlord_era = {
 		is_good = no
 		timeout_effect = {
 			effect_tooltip = {
-				CHI = { white_peace = GXC }
+				CHI = {
+					white_peace = GXC
+					dismantle_faction = yes
+				}
+				GXC = { dismantle_faction = yes }
 			}
 			hidden_effect = {
-				country_event = ww1_china.40
+				CHI = {
+					every_other_country = {
+						limit = {
+							has_war_with = CHI
+							OR = {
+								is_in_faction_with = GXC
+								is_subject_of = GXC
+							}
+						}
+						white_peace = CHI
+						set_truce = {
+							target = CHI
+							days = 210
+						}
+					}
+					every_other_country = {
+						limit = {
+							has_war_with = GXC
+							OR = {
+								is_in_faction_with = CHI
+								is_subject_of = CHI
+							}
+						}
+						white_peace = GXC
+						set_truce = {
+							target = CHI
+							days = 210
+						}
+					}
+					if = {
+						limit = {
+							is_faction_leader = yes
+						}
+						dismantle_faction = yes
+					}
+					set_capital = { state = 608 }
+					country_event = ww1_china.40
+				}
+				GXC = {
+					if = {
+						limit = {
+							is_faction_leader = yes
+						}
+						dismantle_faction = yes
+					}
+				}
 			}
 		}
 	}
@@ -2266,6 +2318,7 @@ CHI_chinese_warlords = {
 						has_country_flag = great_war_loser
 						NOT = { ROOT = { has_country_flag = great_war_loser } }
 					}
+					has_capitulated = yes
 				}
 			}
 			MON = {
@@ -2444,7 +2497,10 @@ CHI_chinese_warlords = {
 			owns_state = 598
 			owns_state = 599
 			owns_state = 600
-			owns_state = 602
+			OR = {
+				owns_state = 602
+				HNC = { is_in_faction_with = ROOT }
+			}
 			owns_state = 606
 			owns_state = 607
 			owns_state = 608
@@ -4148,7 +4204,10 @@ CHI_chinese_warlords = {
 				if = {
 					limit = {
 						has_completed_focus = CHI_constitutional_monarchy
-						has_idea = QIN_idea_xuantong
+						OR = {
+							has_idea = QIN_idea_xuantong
+							has_idea = QIN_idea_xuantong_young
+						}
 					}
 					set_cosmetic_tag = QIN_democratic
 				}
@@ -4507,7 +4566,7 @@ CHI_chinese_warlords = {
 		fire_only_once = yes
 		complete_effect = {
 			set_cosmetic_tag = QIN_government
-			add_ideas = QIN_idea_xuantong
+			QIN_restore_xuantong = yes
 			add_ideas = QIN_idea_low_legitimacy
 			add_ideas = CHI_idea_beiyang_government
 			add_ideas = QIN_idea_fractured_empire
@@ -4758,46 +4817,51 @@ political_actions = {
 			base = 1000
 		}
 	}
-	# CHI_presidential_elections_timer = {
-	# 	icon = eng_propaganda_campaigns
-	# 	days_mission_timeout = 1825
-	# 	allowed = {
-	# 		tag = CHI
-	# 	}
-	# 	activation = {
-	# 		NOT = {
-	# 			has_government = fascism
-	# 			has_government = communism
-	# 			has_country_leader_ideology = autocracy
-	# 		}
-	# 		OR = {
-	# 			has_completed_focus = CHI_kuomintang
-	# 			has_country_flag = national_protection_government
-	# 		}
-	# 	}
-	# 	available = {
-	# 		OR = {
-	# 			NOT = {
-	# 				has_completed_focus = CHI_kuomintang
-	# 				has_country_flag = national_protection_government
-	# 			}
-	# 			has_government = fascism
-	# 			has_government = communism
-	# 			has_country_leader_ideology = autocracy
-	# 		}
-	# 	}
-	# 	visible = {
-	# 		NOT = {
-	# 			has_government = fascism
-	# 			has_government = communism
-	# 			has_country_leader_ideology = autocracy
-	# 		}
-	# 	}
-	# 	is_good = yes
-	# 	timeout_effect = {
-	# 		country_event = ww1_china.123
-	# 	}
-	# }
+	CHI_desicion_restore_xuantong = {
+		allowed = {
+			is_china_or_warlord = yes
+		}
+		visible = {
+			has_global_flag = puyi_age
+			OR = {
+				has_character = QIN_xuantong
+				has_character = CHI_xuantong
+				has_character = SDC_xuantong
+			}
+		}
+		available = {
+			has_idea = QIN_idea_xuantong
+			has_government = neutrality
+		}
+		cost = 50
+		fire_only_once = yes
+		complete_effect = {
+			if = {
+				limit = {
+					has_character = QIN_xuantong
+				}
+				promote_character = QIN_xuantong
+				hidden_effect = { remove_ideas = QIN_idea_xuantong }
+			}
+			else_if = {
+				limit = {
+					has_character = CHI_xuantong
+				}
+				promote_character = CHI_xuantong
+				hidden_effect = { remove_ideas = QIN_idea_xuantong }
+			}
+			else_if = {
+				limit = {
+					has_character = SDC_xuantong
+				}
+				promote_character = SDC_xuantong
+				hidden_effect = { remove_ideas = QIN_idea_xuantong }
+			}
+		}
+		ai_will_do = {
+			base = 0
+		}
+	}
 }
 
 GER_great_war = {
@@ -5142,7 +5206,7 @@ GER_great_war = {
 				}
 			}
 		}
-		cost = 75
+		cost = 25
 		days_remove = 120
 		fire_only_once = no
 		complete_effect = {
@@ -5364,4 +5428,88 @@ operations = {
 			}
 		}
 	}
+}
+
+CHI_occupation_actions = { 
+
+
+	CHI_breach_the_yellow_river = { 
+		icon = GFX_decision_hol_inundate_water_lines
+		
+		available = {
+			controls_state = 607
+			has_war_with = JAP
+			OR = {
+				NOT = { controls_state = 608 }
+				NOT = { controls_state = 614 }
+				NOT = { controls_state = 597 }
+				NOT = { controls_state = 598 }
+				NOT = { controls_state = 606 }
+			}
+		}
+		highlight_states = {
+			highlight_state_targets = {
+				state = 607
+			} 
+		}
+		
+		visible = {
+			controls_state = 607
+			is_china_or_warlord = yes
+			is_subject = no
+			NOT = { has_global_flag = chi_yellow_river_blown } #So warlords don't do this too
+		}
+		
+		fire_only_once = yes
+		
+		cost = 20
+
+		ai_will_do = {
+			base = 0
+			#Pretty damn important
+			modifier = {
+				add = 25
+				NOT = { controls_state = 608 }
+			}
+			modifier = {
+				add = 25
+				NOT = { controls_state = 614 }
+			}
+			modifier = {
+				add = 25
+				NOT = { controls_state = 597 }
+			}
+			modifier = {
+				add = 25
+				NOT = { controls_state = 598 }
+			}
+			modifier = {
+				add = 25
+				NOT = { controls_state = 606 }
+			}
+		}
+		
+		complete_effect = {
+			add_war_support = -0.05
+			every_owned_state = {
+				limit = {
+					OR = {
+						state = 606
+						state = 607
+						state = 598
+						state = 597
+					}
+				}
+				add_dynamic_modifier = {
+					modifier = yellow_river_blown
+					days = 730 
+				}
+			}
+			hidden_effect = { 
+				news_event = { id = news.409 } 
+				set_global_flag = chi_yellow_river_blown
+			}
+		}
+	}
+	
 }

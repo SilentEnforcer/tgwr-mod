@@ -16,6 +16,10 @@ country_event = {
 		has_defensive_war_with = SER
 		has_defensive_war_with = GRE
 		has_defensive_war_with = BUL
+		date < 1914.1.1
+		NOT = {
+			has_global_flag = kis_war
+		}	
 	}
 	fire_only_once = yes
 	option = {
@@ -320,7 +324,10 @@ country_event = {
 	trigger = {
 		tag = TUR
 		has_country_flag = great_war_winner
-		has_country_flag = ottomans_hold_cairo_and_alexandria
+		OR = {
+			has_country_flag = ottomans_hold_cairo_and_alexandria
+			has_subject = EGY
+		}
 		NOT = {
 			has_war_with = EGY
 		}
@@ -345,7 +352,12 @@ country_event = {
 				}
 			}
 			ENG = {
-				end_puppet = EGY
+				if = {
+					limit = {
+						has_subject = EGY
+					}
+					end_puppet = EGY
+				}
 			}
 			EGY = {
 				country_lock_all_division_template = no
@@ -385,45 +397,52 @@ country_event = {
 		}
 		if = {
 			limit = {
-				has_dlc = "Together for Victory"
+				NOT = { EGY = { is_subject_of = TUR } }
 			}
-			TUR = {
-				set_autonomy = {
-					target = EGY
-					autonomous_state = autonomy_dominion
-					freedom_level = 0.8
+			if = {
+				limit = {
+					has_dlc = "Together for Victory"
 				}
-			}
-			else = {
-				puppet = EGY
-			}
-			EGY = {
-				set_politics = {
-					ruling_party = neutrality
-					elections_allowed = no
-				}
-				set_popularities = {
-					democratic = 34
-					neutrality = 65
-				}
-				every_owned_state = {
-					limit = {
-						is_core_of = TUR
+				TUR = {
+					set_autonomy = {
+						target = EGY
+						autonomous_state = autonomy_dominion
+						freedom_level = 0.8
 					}
-					transfer_state_to = TUR
 				}
-				if = {
-					limit = {
-						NOT = {
-							any_owned_state = {
-								is_core_of = EGY
-							}
+				else = {
+					puppet = EGY
+				}
+				EGY = {
+					set_politics = {
+						ruling_party = neutrality
+						elections_allowed = no
+					}
+					set_popularities = {
+						democratic = 34
+						neutrality = 65
+					}
+				}
+			}
+		}
+		EGY = {
+			every_owned_state = {
+				limit = {
+					is_core_of = TUR
+				}
+				transfer_state_to = TUR
+			}
+			if = {
+				limit = {
+					NOT = {
+						any_owned_state = {
+							is_core_of = EGY
 						}
 					}
-					TUR = {
-						annex_country = {
-							target = EGY
-						}
+				}
+				TUR = {
+					annex_country = {
+						target = EGY
 					}
 				}
 			}
@@ -1872,7 +1891,7 @@ country_event = {
 }
 
 # Arabian Revolt - Deal with Faisal
-###################
+######################################
 country_event = {
 	id = ww1_ottoman.46
 	title = ww1_ottoman.46.t
@@ -1929,35 +1948,55 @@ country_event = {
 		every_country = {
 			limit = {
 				OR = {
-					original_tag = TUR
-					is_subject_of = TUR
-					is_in_faction_with = TUR
+					tag = ROOT
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
 				}
-				has_war = yes
+				has_war_with = HJZ
 			}
 			effect_tooltip = {
 				white_peace = HJZ
 			}
 			hidden_effect = {
 				HJZ = {
-					white_peace = PREV
 					if = {
 						limit = {
 							is_faction_leader = yes
 						}
 						dismantle_faction = yes
 					}
-					if = {
+					else_if = {
 						limit = {
 							is_in_faction = yes
 						}
 						leave_faction = yes
 					}
+					white_peace = PREV
+					set_truce = {
+						target = PREV
+						days = 365
+					}
 				}
 			}
 		}
+		SYR = {
+			give_military_access = HJZ
+			give_guarantee = HJZ
+		}
+		HJZ = {
+			give_military_access = SYR
+			give_guarantee = SYR
+		}
 		ai_chance = {
 			base = 5
+			modifier = {
+				base = -20
+				surrender_progress < 0.05
+			}
+			modifier = {
+				base = -20
+				HJZ = { has_capitulated = yes }
+			}
 			modifier = {
 				factor = 0
 				is_historical_focus_on = yes
@@ -1977,9 +2016,7 @@ country_event = {
 					}
 				}
 			}
-			TUR = {
-				remove_state_core = PREV
-			}
+			remove_core_of = TUR
 		}
 		ai_chance = {
 			base = 25
@@ -2821,6 +2858,7 @@ country_event = {
 		date > 1910.9.12
 		NOT = {
 			has_war_with = GER
+			has_global_flag = TUR_GER_battleship_purchase
 		}
 	}
 	option = {
@@ -2884,6 +2922,7 @@ country_event = {
 		ai_chance = {
 			factor = 100
 		}
+		set_global_flag = TUR_GER_battleship_purchase
 		GER = {
 			transfer_ship = {
 				prefer_name = "SMS Kurfürst Friedrich Wilhelm"
@@ -4364,10 +4403,7 @@ country_event = {
 			}
 			if = {
 				limit = {
-					OR = {
-						has_dlc = "Together for Victory"
-						has_dlc = "Waking the Tiger"
-					}
+					has_subject_autonomy_feature = yes
 				}
 				set_autonomy = {
 					target = AZR
@@ -4511,10 +4547,7 @@ country_event = {
 		name = ww1_ottoman.113.a
 		if = {
 			limit = {
-				OR = {
-					has_dlc = "Together for Victory"
-					has_dlc = "Waking the Tiger"
-				}
+				has_subject_autonomy_feature = yes
 			}
 			set_autonomy = {
 				target = GEO
@@ -4526,7 +4559,7 @@ country_event = {
 			}
 			else = {
 				puppet = GEO
-				add_ideas = protectorate
+				GEO = { add_ideas = protectorate }
 			}
 		}
 		hidden_effect = {
@@ -4771,6 +4804,9 @@ country_event = {
 				}
 				promote_leader = yes
 			}
+			remove_advisor_role = {
+				slot = political_advisor
+			}
 			add_advisor_role = {
 				advisor={
 					slot = political_advisor
@@ -4784,7 +4820,6 @@ country_event = {
 						has_country_flag = talat_enver_cemal 
 						has_country_leader = {
 							character = TUR_mehmed_talat
-							ruling_only = yes 
 						}
 					}
 					available = {
@@ -4793,7 +4828,6 @@ country_event = {
 							has_country_flag = talat_enver_cemal 
 							has_country_leader = {
 								character = TUR_mehmed_talat
-								ruling_only = yes 
 							}
 						}
 					}
@@ -4805,6 +4839,9 @@ country_event = {
 			}
 		}
 		TUR_ahmed_cemal = {
+			remove_advisor_role = {
+				slot = political_advisor
+			}
 			add_advisor_role = {
 				advisor={
 					slot = political_advisor
@@ -4818,7 +4855,6 @@ country_event = {
 						has_country_flag = talat_enver_cemal 
 						has_country_leader = {
 							character = TUR_mehmed_talat
-							ruling_only = yes 
 						}
 					}
 					available = {
@@ -4827,7 +4863,6 @@ country_event = {
 							has_country_flag = talat_enver_cemal 
 							has_country_leader = {
 								character = TUR_mehmed_talat
-								ruling_only = yes 
 							}
 						}
 					}
@@ -5018,6 +5053,7 @@ country_event = {
 		NOT = {
 			country_exists = YEM
 			has_government = communism
+			has_country_flag = daan_treaty_signed
 		}
 		any_owned_state = {
 			is_core_of = YEM
@@ -5043,6 +5079,7 @@ country_event = {
 		original_tag = TUR
 		date > 1911.11.1
 		NOT = {
+			has_country_flag = itilaf_formed
 			has_completed_focus = TUR_trial_of_freedom_and_accord
 			has_completed_focus = TUR_yildiz_teskilati
 		}
@@ -5162,8 +5199,11 @@ country_event = {
 	title = ww1_ottoman.123.t
 	desc = ww1_ottoman.123.d
 	trigger = {
-		original_tag = TUR
+		tag = TUR
 		date > 1910.9.1
+		NOT = {
+			has_country_flag = osf_formed
+		}		
 	}
 	mean_time_to_happen = {
 		days = 21
@@ -5171,12 +5211,13 @@ country_event = {
 	fire_only_once = yes
 	option = {
 		name = ww1_ottoman.123.a
+		set_country_flag = osf_formed
 		set_party_name = {
 			ideology = communism
 			name = TUR_socialist_party
 			long_name = TUR_socialist_party_long
 		}
-				promote_character = TUR_huseyin_hilmi
+		promote_character = TUR_huseyin_hilmi
 		add_popularity = {
 			ideology = communism
 			popularity = 0.04
@@ -5253,11 +5294,12 @@ country_event = {
 	id = ww1_ottoman.143
 	title = ww1_ottoman.143.t
 	desc = ww1_ottoman.143.d
+	picture = GFX_report_event_tur_turkish_soldiers
 	is_triggered_only = yes
 	option = {
 		name = ww1_ottoman.143.a
-		TUR = {
-			transfer_state = 104
+		FROM = {
+			effect_tooltip = { transfer_state = 104 }
 			country_event = {
 				id = ww1_ottoman.144
 				days = 1
@@ -5293,11 +5335,27 @@ country_event = {
 					ratio < 0.4
 				}
 			}
+			modifier = {
+				add = -15
+				has_opinion = {
+					target = FROM
+					value < 0
+				}
+			}
+			modifier = {
+				factor = 0
+				FROM = {
+					has_war_with = PREV
+				}
+			}
 		}
 	}
 	option = {
 		name = ww1_ottoman.143.b
-		TUR = {
+		trigger = {
+			NOT = { is_subject_of = FROM }
+		}
+		FROM = {
 			country_event = {
 				id = ww1_ottoman.145
 				days = 1
@@ -5309,34 +5367,42 @@ country_event = {
 	}
 }
 
+# Austria agreed to transfer Bosnia
 country_event = {
 	id = ww1_ottoman.144
 	title = ww1_ottoman.144.t
 	desc = ww1_ottoman.144.d
+	picture = GFX_report_event_generic_sign_treaty1
 	is_triggered_only = yes
 	option = {
 		name = ww1_ottoman.144.a
-		effect_tooltip = {
-			transfer_state = 104
-		}
-		ai_chance = {
-			factor = 5
-		}
+		transfer_state = 104
 	}
 }
 
+# Austria refused to transfer Bosnia
 country_event = {
 	id = ww1_ottoman.145
 	title = ww1_ottoman.145.t
 	desc = ww1_ottoman.145.d
+	picture = GFX_report_event_generic_sign_treaty1
 	is_triggered_only = yes
 	option = {
 		name = ww1_ottoman.145.a
-		effect_tooltip = {
-			transfer_state = 104
-		}
-		ai_chance = {
-			factor = 5
+		add_state_claim = 104
+		if = {
+			limit = {
+				NOT = {
+					is_in_faction_with = FROM
+					has_war_with = FROM
+					has_wargoal_against = FROM
+				}
+			}
+			add_wargoal = {
+				target = FROM
+				type = take_claimed_state
+				generator = { 104 }
+			}
 		}
 	}
 }
@@ -5346,6 +5412,7 @@ country_event = {
 	id = ww1_ottoman.124
 	title = ww1_ottoman.124.t
 	desc = ww1_ottoman.124.d
+	picture = GFX_report_event_tur_politician_march
 	is_triggered_only = yes
 	trigger = {
 		original_tag = TUR
@@ -5371,15 +5438,18 @@ country_event = {
 	id = ww1_ottoman.125
 	title = ww1_ottoman.125.t
 	desc = ww1_ottoman.125.d
+	picture = GFX_report_event_election_vote
 	fire_only_once = yes
 	trigger = {
-		original_tag = TUR
+		tag = TUR
 		date > 1912.1.18
+		has_government = neutrality
 		NOT = {
 			has_completed_focus = TUR_fate_of_general_assembly
 			has_completed_focus = TUR_dissolve_chamber_of_deputies
 			has_completed_focus = TUR_istirak_mukavemet
 			has_completed_focus = TUR_ittihadi_muhammedi
+			has_completed_focus = TUR_balkan_war
 		}
 	}
 	mean_time_to_happen = {
@@ -5404,6 +5474,7 @@ country_event = {
 	id = ww1_ottoman.126
 	title = ww1_ottoman.126.t
 	desc = ww1_ottoman.126.d
+	picture = GFX_report_event_tur_politician_march
 	is_triggered_only = yes
 	option = {
 		name = ww1_ottoman.126.a
@@ -5435,6 +5506,7 @@ country_event = {
 	id = ww1_ottoman.127
 	title = ww1_ottoman.127.t
 	desc = ww1_ottoman.127.d
+	picture = GFX_report_event_election_vote
 	trigger = {
 		original_tag = TUR
 		date > 1912.6.1
@@ -5467,6 +5539,7 @@ country_event = {
 	id = ww1_ottoman.128
 	title = ww1_ottoman.128.t
 	desc = ww1_ottoman.128.d
+	picture = GFX_report_event_generic_read_write
 	is_triggered_only = yes
 	option = {
 		name = ww1_ottoman.128.a
@@ -5491,6 +5564,7 @@ country_event = {
 	id = ww1_ottoman.129
 	title = ww1_ottoman.129.t
 	desc = ww1_ottoman.129.d
+	picture = GFX_report_event_military_planning
 	fire_only_once = yes
 	trigger = {
 		original_tag = TUR
@@ -5584,6 +5658,7 @@ country_event = {
 	id = ww1_ottoman.131
 	title = ww1_ottoman.131.t
 	desc = ww1_ottoman.131.d
+	picture = GFX_report_event_generic_sign_treaty2
 	trigger = {
 		has_country_leader = {
 						character = TUR_abdulhamid_ii

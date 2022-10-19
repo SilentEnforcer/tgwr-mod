@@ -1021,11 +1021,11 @@ country_event = {
 		division_template = {
 			name = "Militia"
 			regiments = {
-				infantry = {
+				militia = {
 					x = 0
 					y = 0
 				}
-				infantry = {
+				militia = {
 					x = 0
 					y = 1
 				}
@@ -1989,8 +1989,15 @@ country_event = {
 			}
 		}
 		date > 1911.1.1
+		NOT = {
+			has_global_flag = KOR_105_man_incident
+		}	
 	}
 	mean_time_to_happen = { days = 10 }
+	immediate = {
+		set_global_flag = KOR_105_man_incident
+	}	
+	
 	option = {
 		name = ww1_korea.49.a
 		ai_chance = {
@@ -2131,7 +2138,13 @@ country_event = {
 			}
 		}
 		date > 1914.5.23
+		NOT = {
+			has_global_flag = KOT_korean_independence_plot_1914
+		}	
 	}
+	immediate = {
+		set_global_flag = KOT_korean_independence_plot_1914
+	}	
 	option = {
 		name = ww1_korea.51.a
 		ai_chance = {
@@ -3271,6 +3284,74 @@ news_event = {
 		}
 		ai_chance = {
 			factor = 100
+		}
+	}
+}
+
+# Be sure Japan is invaded
+country_event = {
+	id = ww1_korea.67
+	hidden = yes
+	trigger = {
+		tag = KOR
+		has_global_flag = kis_war
+		NOT = {
+			has_global_flag = great_war_ends
+		}
+		OR = {
+			has_war_together_with = GER
+			has_war_together_with = FRA
+		}
+		JAP = {
+			has_war_with = PREV
+			has_capitulated = yes #is this meant to be no? will leave as is for now.
+			OR = {
+				has_war_together_with = GER
+				has_war_together_with = FRA
+			}
+		}
+		any_controlled_state = {
+			is_core_of = JAP
+		}
+		has_capitulated = no
+	}
+	fire_only_once = yes
+	immediate = {
+		set_country_flag = korean_expedition_on_japs
+	}
+}
+
+# Korean Japan
+country_event = {
+	id = ww1_korea.68
+	hidden = yes
+	trigger = {
+		tag = KOR
+		OR = {
+			has_global_flag = frankfurt_treaty
+			has_global_flag = versallies_treaty
+		}
+		has_country_flag = great_war_winner
+		has_country_flag = korean_expedition_on_japs
+		JAP = {
+			has_country_flag = great_war_loser
+		}
+	}
+	fire_only_once = yes
+	immediate = {
+		KOR = {
+			if = {
+				limit = {
+					has_subject_autonomy_feature = yes
+				}
+				set_autonomy = {
+					target = JAP
+					autonomy_state = autonomy_dominion
+				}
+				else = {
+					puppet = JAP
+				}
+			}
 		}
 	}
 }
