@@ -4399,6 +4399,7 @@ country_event = {
 					is_core_of = AZR
 					NOT = {
 						is_core_of = TUR
+						state = 818
 					}
 				}
 				transfer_state_to = PREV
@@ -4460,14 +4461,20 @@ country_event = {
 				transfer_state = PREV
 			}
 		}
-		if = {
+		every_state = {
 			limit = {
-				GEO = {
-					owns_state = 230
+				is_owned_by = GEO
+				OR = {
+					state = 230
+					state = 818
 				}
 			}
-			ARM = {
-				transfer_state = 230
+			transfer_state_to = ARM
+			if = {
+				limit = {
+					state = 818
+				}
+				818 = { set_border_war = yes }
 			}
 		}
 		GEO = {
@@ -6001,6 +6008,283 @@ news_event = {
 				has_country_flag = great_war_winner
 				has_country_flag = great_war_loser
 				has_subject = PAL
+			}
+		}
+	}
+}
+
+# 1919 Constantinople Conference
+country_event = {
+	id = ww1_ottoman.137
+	title = ww1_ottoman.137.t
+	desc = ww1_ottoman.137.d
+	picture = GFX_report_event_military_planning
+	is_triggered_only = yes
+	option = {
+		name = ww1_ottoman.137.a
+		set_global_flag = constantinople_conference
+		if = {
+			limit = {
+				GEO = {
+					exists = yes
+					NOT = { is_subject_of = ROOT }
+					is_neighbor_of = ROOT
+				}
+				PREV = { owns_state = 748 }
+			}
+			country_event = {
+				id = ww1_ottoman.138
+				days = 3
+			}
+		}
+		if = {
+			limit = {
+				AZR = {
+					exists = yes
+					NOT = { is_subject_of = ROOT }
+				}
+			}
+			country_event = {
+				id = ww1_ottoman.138
+				days = 3
+			}
+		}
+	}
+}
+
+# 1919 Constantinople Conference - Negotiations
+country_event = {
+	id = ww1_ottoman.138
+	title = ww1_ottoman.138.t
+	desc = ww1_ottoman.138.d
+	picture = GFX_report_event_generic_sign_treaty1
+	is_triggered_only = yes
+	immediate = {
+		hidden_effect = {
+			set_country_flag = costantinople_conference_attendant
+		}
+	}
+	option = {
+		name = ww1_ottoman.138.a
+		trigger = {
+			tag = GEO
+		}
+		FROM = {
+			country_event = {
+				id = ww1_ottoman.139
+				days = 1
+			}
+		}
+		ai_chance = {
+			factor = 100
+		}
+	}
+	option = {
+		name = ww1_ottoman.138.b
+		trigger = {
+			tag = AZR
+		}
+		effect_tooltip = {
+			818 = {
+				set_border_war = no
+				transfer_state_to = PREV
+			}
+			230 = {
+				transfer_state_to = FROM
+			}
+		}
+		set_country_flag = agreed_with_costantinople_conference
+		ai_chance = {
+			factor = 100
+			modifier = {
+				factor = 0
+				has_opinion = {
+					target = ARM
+					value > 15
+				}
+			}
+		}
+	}
+	option = {
+		name = ww1_ottoman.138.c
+		set_country_flag = disagreed_with_costantinople_conference
+		ai_chance = {
+			factor = 100
+			modifier = {
+				factor = 0
+				has_opinion = {
+					target = ARM
+					value < 15
+				}
+			}
+			modifier = {
+				factor = 0
+				tag = GEO
+				NOT = { owns_state = 748 }
+			}
+		}
+	}
+}
+
+# 1919 Constantinople Conference - Georgia demands Meskheti-Javakheti
+country_event = {
+	id = ww1_ottoman.139
+	title = ww1_ottoman.139.t
+	desc = ww1_ottoman.139.d
+	picture = GFX_report_event_generic_sign_treaty1
+	is_triggered_only = yes
+	option = {
+		name = ww1_ottoman.139.a
+		effect_tooltip = {
+			748 = {
+				remove_claim_by = ROOT
+				transfer_state_to = FROM
+			}
+		}
+		FROM = { set_country_flag = agreed_with_costantinople_conference }
+		ai_chance = {
+			base = 100
+			modifier = {
+				add = 30
+				FROM = { has_country_flag = great_war_winner }
+			}
+		}
+	}
+	option = {
+		name = ww1_ottoman.139.b
+		FROM = { set_country_flag = disagreed_with_costantinople_conference }
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 10
+				FROM = { has_country_flag = great_war_loser }
+			}
+		}
+	}
+}
+
+# 1919 Constantinople Conference - Success
+news_event = {
+	id = ww1_ottoman.140
+	title = ww1_ottoman.140.t
+	desc = ww1_ottoman.140.d
+	picture = GFX_news_event_treaty_of_batum
+	major = yes
+	trigger = {
+		tag = TUR
+		has_global_flag = constantinople_conference
+		NOT = {
+			has_global_flag = constantinople_conference_ends
+			any_other_country = {
+				has_country_flag = disagreed_with_costantinople_conference
+			}
+		}
+	}
+	mean_time_to_happen = { days = 30 }
+	immediate = {
+		hidden_effect = {
+			set_global_flag = constantinople_conference_ends
+			TUR = {
+				add_named_threat = {
+					threat = 3
+					name = ww1_ottoman.140.t
+				}
+			}
+			GEO = {
+				if = {
+					limit = {
+						has_country_flag = agreed_with_costantinople_conference
+					}
+					748 = {
+						remove_claim_by = TUR
+						transfer_state_to = PREV
+					}
+				}
+			}
+			818 = {
+				set_border_war = no
+				transfer_state_to = AZR
+			}
+			230 = {
+				transfer_state_to = TUR
+			}
+		}
+	}
+	option = {
+		name = ww1_ottoman.140.a
+		trigger = {
+			OR = {
+				tag = TUR
+				has_country_flag = agreed_with_costantinople_conference
+			}
+		}
+	}
+	option = {
+		name = ww1_ottoman.140.b
+		trigger = {
+			tag = ARM
+		}
+	}
+	option = {
+		name = ww1_ottoman.140.c
+		trigger = {
+			NOT = {
+				tag = TUR
+				has_country_flag = agreed_with_costantinople_conference
+				tag = ARM
+			}
+		}
+	}
+}
+
+# 1919 Constantinople Conference - Failed
+news_event = {
+	id = ww1_ottoman.141
+	title = ww1_ottoman.141.t
+	desc = ww1_ottoman.141.d
+	picture = GFX_news_event_treaty_of_batum
+	major = yes
+	trigger = {
+		tag = TUR
+		has_global_flag = constantinople_conference
+		any_other_country = {
+			has_country_flag = disagreed_with_costantinople_conference
+		}
+		NOT = {
+			has_global_flag = constantinople_conference_ends
+		}
+	}
+	mean_time_to_happen = { days = 30 }
+	immediate = {
+		hidden_effect = {
+			set_global_flag = constantinople_conference_ends
+			818 = {
+				set_border_war = no
+			}
+		}
+	}
+	option = {
+		name = ww1_ottoman.141.a
+		trigger = {
+			OR = {
+				tag = TUR
+				has_country_flag = agreed_with_costantinople_conference
+			}
+		}
+	}
+	option = {
+		name = ww1_ottoman.141.b
+		trigger = {
+			tag = ARM
+		}
+	}
+	option = {
+		name = ww1_ottoman.141.c
+		trigger = {
+			NOT = {
+				tag = TUR
+				has_country_flag = agreed_with_costantinople_conference
+				tag = ARM
 			}
 		}
 	}
