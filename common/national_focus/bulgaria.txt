@@ -9,15 +9,15 @@
 	}
 	continuous_focus_position = {
 		x = 2390
-		y = 675
+		y = 1575
 	}
 	default = no
 	focus = {
 		id = BUL_new_balkan_power
 		icon = GFX_focus_BUL_promote_bulgarian_nationalism
 		cost = 10
-		x = 5
-		y = 0
+		x = 0
+		y = -1
 		ai_will_do = {
 			factor = 10
 		}
@@ -55,6 +55,72 @@
 		}
 		search_filters = {
 			FOCUS_FILTER_MANPOWER
+		}
+	}
+    focus = {
+		id = BUL_treaty_of_friendship
+		icon = GFX_focus_deal_with_serbia
+		text = BUL_alliance_with_serbia
+		cost = 10
+		mutually_exclusive = {
+			focus = BUL_confront_great_serbia
+		}
+		prerequisite = {
+			focus = BUL_anti_ottoman_crusade
+		}
+		relative_position_id = BUL_anti_ottoman_crusade
+		x = -2
+		y = 1
+		completion_reward = {
+			add_political_power = 50
+			SER = {
+				country_event = {
+					id = ww1_balkan.1
+					hours = 5
+				}
+			}
+			set_global_flag = rejected_macedonia
+			custom_effect_tooltip = BUL_macedonia_influence_battle
+			BUL = {
+				set_country_flag = our_turn
+			}
+			set_variable = {
+				serbian_opinion = 0
+			}
+			set_variable = {
+				bulgarian_opinion = 0
+			}
+		}
+		bypass = {
+			SER = {
+				has_completed_focus = SER_balkan_alliance
+			}
+		}
+		available = {
+			SER = {
+				exists = yes
+			}
+			NOT = {
+				has_war_with = SER
+			}
+		}
+		ai_will_do = {
+			factor = 5000
+		}
+		bypass = {
+			OR = {
+				has_global_flag = kis_secondbalkan_war
+				788 = {
+					is_owned_by = ROOT
+				}
+				is_in_faction_with = SER
+				SER = {
+					has_completed_focus = SER_treaty_with_Bulgaria
+				}	
+			}
+		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL FOCUS_FILTER_POLITICAL
 		}
 	}
 	focus = {
@@ -180,17 +246,17 @@
 	focus = {
 		id = BUL_anti_ottoman_diplomacy
 		icon = GFX_goal_generic_attack_allies
-		cost = 10
+		cost = 5
 		prerequisite = {
 			focus = BUL_new_balkan_power
 		}
-		x = 5
+		relative_position_id = BUL_new_balkan_power
+		x = 0
 		y = 1
 		ai_will_do = {
 			factor = 15
 		}
 		completion_reward = {
-			add_political_power = 50
 			add_opinion_modifier = {
 				target = TUR
 				modifier = HOI4TGW_Opinion_hostile_diplomatic_relations
@@ -213,55 +279,183 @@
 		}
 	}
 	focus = {
-		id = BUL_treaty_of_friendship
-		icon = GFX_focus_deal_with_serbia
-		cost = 10
+		id = BUL_anti_ottoman_crusade
+		icon = GFX_focus_TUR_misak_i_milli
+		cost = 5
 		prerequisite = {
 			focus = BUL_anti_ottoman_diplomacy
 		}
-		x = 4
-		y = 2
-		completion_reward = {
-			add_political_power = 50
-			SER = {
-				country_event = {
-					id = ww1_balkan.1
-					hours = 5
-				}
-			}
-		}
-		bypass = {
-			SER = {
-				has_completed_focus = SER_balkan_alliance
-			}
-		}
-		available = {
-			SER = {
-				exists = yes
-			}
-			NOT = {
-				has_war_with = SER
-			}
-		}
+		relative_position_id = BUL_anti_ottoman_diplomacy
+		x = 0
+		y = 1
 		ai_will_do = {
-			factor = 2000
+			factor = 15
+		}
+		completion_reward = {
+			custom_effect_tooltip = balkan_league_negotiations_start_tt
+			activate_mission = balkan_league_mission
 		}
 		bypass = {
 			OR = {
-				has_global_flag = kis_secondbalkan_war
-				788 = {
-					is_owned_by = ROOT
+				TUR = {
+					exists = no
 				}
-				is_in_faction_with = SER
-				SER = {
-					has_completed_focus = SER_treaty_with_Bulgaria
-				}	
+				has_war_with = TUR
 			}
 		}
 		search_filters = {
 			FOCUS_FILTER_HISTORICAL FOCUS_FILTER_POLITICAL
 		}
 	}
+	focus = {
+		id = BUL_confront_great_serbia #send offer to autonomous Macedonia
+		icon = GFX_focus_confront_great_serbia
+		text = BUL_the_macedonian_question
+		cost = 5
+		prerequisite = {
+			focus = BUL_anti_ottoman_crusade
+		}
+		relative_position_id = BUL_anti_ottoman_crusade
+		x = 2
+		y = 1
+		available = {
+			is_subject = no
+		}
+		mutually_exclusive = {
+			focus = BUL_alliance_with_serbia
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				is_historical_focus_on = yes
+				factor = 0
+			}
+		}
+		completion_reward = {
+			SER = {
+				country_event = {
+					id = ww1_balkan.4
+					days = 3
+				}
+			}
+			custom_effect_tooltip = BUL_macedonian_deal
+			custom_effect_tooltip = escape_line
+			custom_effect_tooltip = BUL_macedonian_deal_if_accepted
+			hidden_effect = {
+				remove_opinion_modifier = {
+					target = SER
+					modifier = BUL_treaty_of_friendship
+				}
+				diplomatic_relation = {
+					country = SER
+					relation = guarantee
+					active = no
+				}
+				SER = {
+					add_ai_strategy = {
+						type = alliance
+						id = "BUL"
+						value = -400
+					}
+					remove_opinion_modifier = {
+						target = ROOT
+						modifier = BUL_treaty_of_friendship
+					}
+					diplomatic_relation = {
+						country = ROOT
+						relation = guarantee
+						active = no
+					}
+				}
+				diplomatic_relation = {
+					country = SER
+					relation = guarantee
+					active = no
+				}
+				
+			}
+		}
+	}
+
+	focus = {
+		id = BUL_lone_liberator #fight alone against ottomans
+		icon = GFX_focus_BUL_prussia_of_the_balkans
+		cost = 5
+		available = {
+			has_global_flag = balkan_league_fail
+		}
+		prerequisite = {
+			focus = BUL_confront_great_serbia
+		}
+		relative_position_id = BUL_confront_great_serbia
+		x = 1
+		y = 1
+		available = {
+			is_subject = no
+		}
+		ai_will_do = {
+			factor = 100
+		}
+		completion_reward = {
+			add_political_power = 150
+		}
+	}
+
+	focus = {
+		id = BUL_buy_weapons #buy weapons by decisions
+		icon = GFX_focus_generic_mountain_artillery
+		cost = 10
+		available = {
+		}
+		prerequisite = {
+			focus = BUL_lone_liberator
+		}
+		relative_position_id = BUL_lone_liberator
+		x = -1
+		y = 1
+		available = {
+			is_subject = no
+		}
+		ai_will_do = {
+			factor = 100
+		}
+		completion_reward = {
+			custom_effect_tooltip = BUL_buy_weapons_from_majors
+			set_country_flag = BUL_weapon_purchase_activated
+		}
+	}
+
+	focus = {
+		id = BUL_seek_rapprochement_with_auh #buy weapons by decisions
+		icon = GFX_focus_deal_with_austria_hungary
+		cost = 10
+		available = {
+		}
+		prerequisite = {
+			focus = BUL_lone_liberator
+		}
+		relative_position_id = BUL_lone_liberator
+		x = 1
+		y = 1
+		available = {
+			is_subject = no
+		}
+		ai_will_do = {
+			factor = 100
+		}
+		completion_reward = {
+			custom_effect_tooltip = BUL_AUH_could_support_us
+			set_country_flag = BUL_AUH_rapprochement_initied
+			AUH = {
+				country_event = {
+					id =  ww1_bulgaria.60
+					days = 2
+				}
+			}
+		}
+	}
+
+
 	focus = {
 		id = BUL_thieving_allies
 		icon = GFX_goal_generic_forceful_treaty
@@ -283,8 +477,9 @@
 			}
 			has_war = no
 		}
-		x = 3
-		y = 3
+		relative_position_id = BUL_treaty_of_friendship
+		x = -1
+		y = 1
 		ai_will_do = {
 			factor = 30
 		}
@@ -341,198 +536,65 @@
 		}
 	}
 	focus = {
-		id = BUL_confront_great_serbia #send offer to autonomous Macedonia
-		icon = GFX_focus_confront_great_serbia
-		cost = 5
-		prerequisite = {
-			focus = BUL_anti_ottoman_diplomacy
-		}
-		x = 6
-		y = 2
-		available = {
-			is_subject = no
-			# SER = {
-			# 	OR = {
-			# 		# has_country_leader = {
-			# 		# 	character = SER_milovan_milovanovic
-			# 		# 	ruling_only = yes
-			# 		# }
-			# 		# has_country_leader = {
-			# 		# 	character = SER_ljubomir_stojanovic
-			# 		# 	ruling_only = yes
-			# 		# }	
-			# 	}
-			# }
-		}
-		ai_will_do = {
-			factor = 1000
-		}
-		completion_reward = {
-			SER = {
-				country_event = {
-					id = ww1_balkan.4
-					days = 3
-				}
-			}
-			hidden_effect = {
-				remove_opinion_modifier = {
-					target = SER
-					modifier = BUL_treaty_of_friendship
-				}
-				diplomatic_relation = {
-					country = SER
-					relation = guarantee
-					active = no
-				}
-				SER = {
-					add_ai_strategy = {
-						type = alliance
-						id = "BUL"
-						value = -400
-					}
-					remove_opinion_modifier = {
-						target = ROOT
-						modifier = BUL_treaty_of_friendship
-					}
-					diplomatic_relation = {
-						country = ROOT
-						relation = guarantee
-						active = no
-					}
-				}
-				diplomatic_relation = {
-					country = SER
-					relation = guarantee
-					active = no
-				}
-				
-			}
-		}
-	}
-	focus = {
-		id = BUL_lozengradska_operacija
-		icon = GFX_focus_generic_provoke_border_clashes
+		id = BUL_united_headquarters
+		name= BUL_idea_united_bulgarian_headquarters
+		icon = GFX_focus_planning_bonus
 		cost = 5
 		prerequisite = {
 			focus = BUL_treaty_of_friendship
-			focus = BUL_confront_great_serbia
 		}
-		x = 5
-		y = 3
-		available = {
-			has_war_with = TUR
-		}
+		relative_position_id = BUL_treaty_of_friendship
+		x = 1
+		y = 1
 		ai_will_do = {
 			factor = 9
 		}
 		completion_reward = {
-			add_timed_idea = {
-				idea = BUL_idea_lozengradska_operacija
-				days = 70
-			}
-		}
-		bypass = {
-			OR = {
-				788 = {
-					is_owned_by = ROOT
-				}
-				has_global_flag = kis_secondbalkan_war
+			set_global_flag = BUL_united_balkan_HQ
+			custom_effect_tooltip = BUL_bonus_for_balkan_war
+			show_ideas_tooltip = {
+				BUL_idea_united_bulgarian_headquarters
 			}
 		}
 		search_filters = {
 			FOCUS_FILTER_HISTORICAL
 		}
 	}
-	focus = {
-		id = BUL_intervene_in_serbian_ottoman_war
-		icon = GFX_focus_remove_turk
-		cost = 5
-		prerequisite = {
-			focus = BUL_confront_great_serbia
-		}
-		x = 7
-		y = 3
-		bypass = {
-			OR = {
-				has_global_flag = kis_firstbalkanwar_victory
-				TUR = {
-					exists = no
-				}
-				has_war_with = TUR
-			}
-		}
-		available = {
-			is_subject = no
-			SER = {
-				has_war_with = TUR
-			}
-			has_global_flag = balkan_league_fail
-		}
-		ai_will_do = {
-			factor = 8
-		}
-		will_lead_to_war_with = TUR
-		completion_reward = {
-			hidden_effect = {
-				news_event = {
-					id = ww1_firstbalkan.103
-				}
-			}
-			set_country_flag = bulgarian_balkan_league_intervention
-			declare_war_on = {
-				target = TUR
-				type = take_claimed_state
-				generator = {
-					788
-				}
-			}
-			add_timed_idea = {
-				idea = war_of_liberation
-				days = 180
-			}
-			GRE = {
-				if = {
-					limit = {
-						OR = {
-							has_country_flag = join_bulgarian_balkan_league
-							is_in_faction_with = ROOT
-						}
-					}
-					add_to_war = {
-						targeted_alliance = ROOT
-						enemy = TUR
-					}
-					add_timed_idea = {
-						idea = war_of_liberation
-						days = 180
-					}
-					set_country_flag = bulgarian_balkan_league_intervention
-				}
-			}
-			MNT = {
-				if = {
-					limit = {
-						OR = {
-							has_country_flag = join_bulgarian_balkan_league
-							is_in_faction_with = ROOT
-						}
-					}
-					add_to_war = {
-						targeted_alliance = ROOT
-						enemy = TUR
-					}
-					# add_timed_idea = {
-					# 	idea = SER_idea_balkan_liberation
-					# 	days = 180
-					# }
-					set_country_flag = bulgarian_balkan_league_intervention
-				}
-			}
-		}
-		search_filters = {
-			FOCUS_FILTER_ANNEXATION
-		}
-	}
+	# focus = {
+	# 	id = BUL_lozengradska_operacija
+	# 	icon = GFX_focus_generic_provoke_border_clashes
+	# 	cost = 5
+	# 	prerequisite = {
+	# 		focus = BUL_treaty_of_friendship
+	# 		focus = BUL_confront_great_serbia
+	# 	}
+	# 	relative_position_id = BUL_treaty_of_friendship
+	# 	x = 1
+	# 	y = 1
+	# 	available = {
+	# 		has_war_with = TUR
+	# 	}
+	# 	ai_will_do = {
+	# 		factor = 9
+	# 	}
+	# 	completion_reward = {
+	# 		add_timed_idea = {
+	# 			idea = BUL_idea_lozengradska_operacija
+	# 			days = 70
+	# 		}
+	# 	}
+	# 	bypass = {
+	# 		OR = {
+	# 			788 = {
+	# 				is_owned_by = ROOT
+	# 			}
+	# 			has_global_flag = kis_secondbalkan_war
+	# 		}
+	# 	}
+	# 	search_filters = {
+	# 		FOCUS_FILTER_HISTORICAL
+	# 	}
+	# }
 	focus = {
 		id = BUL_war_with_serbia
 		icon = GFX_focus_attack_serbia
@@ -541,8 +603,9 @@
 			focus = BUL_intervene_in_serbian_ottoman_war
 			focus = BUL_thieving_allies
 		}
-		x = 5
-		y = 4
+		relative_position_id = BUL_thieving_allies
+		x = -1
+		y = 1
 		available = {
 			is_subject = no
 			NOT = {
