@@ -88,24 +88,70 @@ AUH_franzferdinand = {
 	RUS_start_mobilization = {
 		icon = GFX_decision_generic_ignite_civil_war
 		allowed = {
-			original_tag = RUS
+			tag = RUS
 		}
 		available = {
 			NOT = { has_war_with = AUH }
 		}
 		visible = {
-			is_in_faction_with = FRA
+			is_subject = no
+			has_capitulated = no
 			has_global_flag = archduke_dead_serbia
-			NOT = { has_global_flag = july_crisis_ends }
+			NOT = {
+				has_global_flag = july_crisis_ends
+				has_war_with = SER
+				is_in_faction_with = AUH
+			}
 		}
 		fire_only_once = yes
 		ai_will_do = {
-			factor = 400
+			base = 400
+			modifier = {
+				add = -200
+				NOT = {
+					is_in_faction_with = SER
+					is_in_faction_with = FRA
+				}
+			}
+			modifier = {
+				add = -200
+				is_in_faction_with = GER
+			}
+			modifier = {
+				add = -1000
+				has_government = communism
+				NOT = {
+					has_country_leader = {
+						character = RUS_nikolai_ii
+						ruling_only = yes
+					}
+				}
+				SER = {
+					OR = {
+						has_government = neutrality
+						has_idea = SER_idea_alexander_i
+						has_idea = SER_idea_alexander_i_1
+					}
+				}
+			}
+			modifier = {
+				add = -1000
+				is_russia_a_monarchy = yes
+				SER = {
+					has_government = communism
+				}
+			}
 		}
 		complete_effect = {
-			add_war_support = 0.05
-			FRA = { country_event = { id = ww1_franzferdinand.9 days = 2 } }
 			set_country_flag = RUS_mobilization_flag
+			add_war_support = 0.05
+			give_guarantee = SER
+			if = {
+				limit = {
+					is_in_faction_with = FRA
+				}
+				FRA = { country_event = { id = ww1_franzferdinand.9 days = 2 } }	
+			}
 		}
 	}
 }
@@ -585,8 +631,11 @@ AUH_greater_austria_category = {
 		}
 		visible = {
 			has_completed_focus = AUH_reform_czech_cisleithania
+			NOT = {
+				CZE = { has_country_flag = assimilated_to_austria }
+			}
 		}
-		fire_only_once = yes
+		fire_only_once = no
 		cost = 200
 		days_remove = 210
 		remove_effect = {
@@ -647,9 +696,12 @@ AUH_greater_austria_category = {
 					exists = no
 					is_subject_of = AUH
 				}
-			}	
+			}
+			NOT = {
+				GAL = { has_country_flag = assimilated_to_austria }
+			}
 		}
-		fire_only_once = yes
+		fire_only_once = no
 		cost = 200
 		days_remove = 210
 		remove_effect = {
@@ -782,8 +834,9 @@ AUH_greater_austria_category = {
 		}
 		visible = {
 			has_completed_focus = AUH_reform_transleithania
+			NOT = { HUN = { has_country_flag = assimilated_to_austria } }
 		}
-		fire_only_once = yes
+		fire_only_once = no
 		cost = 200
 		days_remove = 365
 		remove_effect = {
@@ -1022,12 +1075,13 @@ AUH_greater_austria_category = {
 			}
 		}
 		visible = {
-			has_completed_focus = AUH_form_illyria
-			CRO = {
-				is_subject_of = PREV
+			has_completed_focus = AUH_reform_croatian_region
+			has_subject = CRO
+			NOT = {
+				CRO = { has_country_flag = assimilated_to_austria }
 			}
 		}
-		fire_only_once = yes
+		fire_only_once = no
 		cost = 200
 		days_remove = 365
 		remove_effect = {
@@ -1047,7 +1101,7 @@ AUH_greater_austria_category = {
 					country_exists = CRO
 				}
 				NOT = {
-					CRO = { is_subject_of = ROOT }
+					has_subject = CRO
 				}
 				has_war = yes
 			}
@@ -1076,10 +1130,11 @@ AUH_greater_austria_category = {
 				is_subject_of = PREV
 				NOT = {
 					has_country_flag = great_war_loser
+					has_country_flag = assimilated_to_austria
 				}
 			}
 		}
-		fire_only_once = yes
+		fire_only_once = no
 		cost = 200
 		days_remove = 400
 		remove_effect = {
@@ -1122,9 +1177,13 @@ AUH_greater_austria_category = {
 			OR = {
 				owns_state = 102
 				owns_state = 736
+				has_subject = SLV
+			}
+			NOT = {
+				SLV = { has_country_flag = assimilated_to_austria }
 			}
 		}
-		fire_only_once = yes
+		fire_only_once = no
 		cost = 100
 		days_remove = 100
 		remove_effect = {
@@ -1206,9 +1265,12 @@ AUH_greater_austria_category = {
 					is_subject_of = ROOT
 					exists = no
 				}
-			}	
+				NOT = {
+					has_country_flag = assimilated_to_austria
+				}
+			}
 		}
-		fire_only_once = yes
+		fire_only_once = no
 		cost = 100
 		days_remove = 100
 		remove_effect = {
@@ -1231,9 +1293,7 @@ AUH_greater_austria_category = {
 			}
 			if = {
 				limit = {
-					VNC = {
-						is_subject = no
-					}
+					NOT = { has_subject = VNC }
 				}
 				if = {
 					limit = {
@@ -1257,18 +1317,13 @@ AUH_greater_austria_category = {
 			OR = {
 				NOT = {
 					owns_state = 159
-				}
-				NOT = {
 					owns_state = 160
-				}
-				NOT = {
 					owns_state = 244
+					has_subject = VNC
 				}
 				VNC = {
 					exists = yes
-					NOT = {
-						is_subject_of = AUH
-					}
+					NOT = { is_subject_of = PREV }
 				}
 				has_war = yes
 			}
@@ -1350,6 +1405,12 @@ peace_deals = {
 		}
 		visible = {
 			has_war_with = GER
+			OR = {
+				NOT = { has_global_flag = kis_war }
+				has_global_flag = interbellum
+			}
+			is_subject = no
+			has_capitulated = no
 		}
 		fire_only_once = yes
 		ai_will_do = {
