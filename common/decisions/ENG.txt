@@ -390,6 +390,50 @@ political_actions = {
 		}
 
 
+	}
+
+	ENG_shell_crisis = {
+
+		icon = generic_civil_support
+
+		allowed = {
+			original_tag = ENG
+		}
+
+		visible = {
+			has_country_flag = ENG_shell_crisis
+		}
+
+		available = {
+			num_of_military_factories > eng_shell_variable #check event ww1_england.217 to tweak as balance demands.
+		}
+
+		days_mission_timeout = 350
+		fire_only_once = yes
+		is_good = no
+
+
+		timeout_effect = {
+			add_war_support = -0.15
+			add_popularity = {
+				ideology = democratic
+				popularity = -0.15
+			}
+			add_timed_idea = {
+			    idea = ENG_shell_shortage
+			    days = 200
+			}
+			country_event = { id = ww1_england.218 days = 5 }
+		}
+
+		complete_effect = {
+			add_popularity = {
+				ideology = democratic
+				popularity = 0.05
+			}
+		}
+
+
 	}	
 
 
@@ -501,9 +545,8 @@ political_actions = {
 		cost = 50
 
 		complete_effect = {
-			create_field_marshal = {
-				name = "Prince David" 
-				portrait_path = "gfx/leaders/ENG/ENG_edward_viii.png" 
+			add_field_marshal_role = {
+				Character = ENG_edward_viii
 				traits = { politically_connected media_personality trait_royal trait_cautious inspirational_leader }
 				skill = 2
 				attack_skill = 2
@@ -628,51 +671,82 @@ political_actions = {
 	ENG_invoke_the_alliance_of_1373 = {
 
 		icon = generic_prepare_civil_war
+
+		target_trigger = {
+			FROM = {
+				tag = POR
+			}
+		}
 	
 		allowed = {
 			tag = ENG
 		}
 		
 		available = {
-			has_war = yes
-			has_global_flag = kis_war
-			NOT = {
-				has_global_flag = great_war_ends
-				has_government = communism
-			}
-			POR = {
+			FROM = {
 				OR = {
 					has_government = ROOT
 					has_government = neutrality
 				}
+				is_in_faction = no
+				is_subject = no
 			}
-			POR = { is_in_faction = no }
-			is_in_faction = yes
 		}
 
-		cost = 5
+		cost = 25
 		
 		visible = {
-			has_war = yes
+			is_subject = no
+			OR = {
+				has_war_with = GER
+				has_war_with = FRA
+			}
+			is_in_faction = yes
 			has_global_flag = kis_war
 			NOT = {
-				has_war_with = POR
 				has_global_flag = great_war_ends
+			}
+			FROM = {
+				exists = yes
+				NOT = {
+					has_war_with = ROOT
+					is_in_faction_with = ROOT
+				}
+			}
+		}
+
+		cancel_trigger = {
+			FROM = {
+				OR = {
+					exists = no
+					has_war_with = ROOT
+					is_in_faction_with = ROOT
+					is_subject = yes
+					NOT = {
+						has_government = ROOT
+						has_government = neutrality
+					}
+					has_global_flag = great_war_ends
+				}
 			}
 		}
 		
+		days_remove = 500
+
 		complete_effect = {
-			POR = { country_event = generic.5 }
+			set_country_flag = british_mission_to_portugal
+		}
+
+		cancel_effect = {
+			clr_country_flag = british_mission_to_portugal
+		}
+
+		remove_effect = {
+			FROM = { country_event = ww1_portugal.19 }
 		}
 
 		ai_will_do = {
-			factor = 100
-			modifier = {
-				factor = 0
-				any_enemy_country = {
-						original_tag = SPR
-				}
-			}
+			factor = 1000
 		}
 	}
 	ENG_engage_french_civil_war = {
@@ -905,7 +979,7 @@ operations = {
 		custom_cost_trigger = {
 			command_power > 14
 		}
-		custom_cost_text = TUR_decision_cost_kurd_rebels
+		custom_cost_text = command_power_more_than_25
 
 		visible = {
 			NOT = {
@@ -1028,6 +1102,246 @@ ENG_interwar_entente_category = {
 					}
 				}
 			}
+		}
+	}
+}
+
+ENG_british_civil_war_category = {
+	ENG_foreign_support_BRE = {
+		icon = ger_military_buildup
+		allowed = {
+			NOT = { original_tag = ENG }
+		}
+		visible = {
+			has_global_flag = british_civil_war
+			any_country = {
+				has_country_flag = ENG_socialist_britain_flag
+				has_war_with = BRE
+			}
+			NOT = { has_country_flag = supported_british_civil_war }
+		}
+		fire_only_once = yes
+		custom_cost_trigger = {
+			has_equipment = { infantry_equipment > 1999 }
+		}
+		custom_cost_text = 2000_infantry_equipment_1
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0
+				has_equipment = { infantry_equipment < 4000 }
+			}
+			modifier = {
+				factor = 0
+				has_war = yes
+			}
+			modifier = {
+				factor = 0
+				OR = {
+					has_government = communism
+					has_country_leader_ideology = national_syndicalism
+				}
+			}
+		}
+		target_trigger = {
+			FROM = { tag = BRE }
+		}
+		complete_effect = {
+			set_country_flag = supported_british_civil_war
+			army_experience = 5
+			send_equipment = {
+				target = BRE
+				type = infantry_equipment
+				amount = 2000
+			}
+			BRE = {
+				country_event = garibaldi.32
+			}
+		}
+	}
+	ENG_foreign_support_UOB = {
+		icon = ger_military_buildup
+		allowed = {
+			NOT = { original_tag = ENG }
+		}
+		visible = {
+			has_global_flag = british_civil_war
+			any_country = {
+				has_country_flag = ENG_socialist_britain_flag
+				has_war_with = BRE
+			}
+			NOT = { has_country_flag = supported_british_civil_war }
+		}
+		fire_only_once = yes
+		custom_cost_trigger = {
+			has_equipment = { infantry_equipment > 1999 }
+		}
+		custom_cost_text = 2000_infantry_equipment_1
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0
+				has_equipment = { infantry_equipment < 4000 }
+			}
+			modifier = {
+				factor = 0
+				has_war = yes
+			}
+			modifier = {
+				factor = 0
+				NOT = {
+					has_government = communism
+					has_country_leader_ideology = national_syndicalism
+				}
+			}
+		}
+		target_trigger = {
+			FROM = { tag = UOB }
+		}
+		complete_effect = {
+			set_country_flag = supported_british_civil_war
+			army_experience = 5
+			send_equipment = {
+				target = UOB
+				type = infantry_equipment
+				amount = 2000
+			}
+			UOB = {
+				country_event = garibaldi.32
+			}
+		}
+	}
+	ENG_scottish_revolt_timer = {
+		icon = revolt
+		allowed = {
+			OR = {
+				original_tag = SCO
+				original_tag = ENG
+			}
+		}
+		visible = {
+			OR = {
+				has_war_with = SCO
+				has_war_with = ENG
+			}
+		}		
+		available = {
+			OR = {
+				ENG = { NOT = { has_war_with = SCO } }
+				NOT = { country_exists = ENG }
+				NOT = { country_exists = SCO }
+				has_subject = SCO
+				has_subject = ENG
+			}
+		}		
+		activation = {
+			SCO = { has_war_with = ENG }
+		}
+		timeout_effect = {
+			ENG = { country_event = ww1_england.154 }
+		}		
+		fire_only_once = yes
+		days_mission_timeout = 365
+		is_good = no
+	}
+}
+GER_agadir_crisis = {
+	ENG_agadir_involvement = {
+		icon = generic_nationalism
+		allowed = {
+			tag = ENG
+		}
+		available = {
+			NOT = {
+				has_global_flag = agadir_crisis_ends
+				has_global_flag = kis_war
+				has_war_with = GER
+				has_war_with = FRA
+			}
+			GER = { has_completed_focus = GER_moroccan_crisis }
+		}
+		visible = {
+			has_global_flag = agadir_crisis
+			NOT = {
+				has_global_flag = kis_war
+				has_global_flag = agadir_crisis_ends
+				is_in_faction_with = GER
+			}
+		}
+		cancel_trigger = {
+			OR = {
+				has_global_flag = agadir_crisis_ends
+				has_global_flag = kis_war
+				has_war_with = GER
+				has_war_with = FRA
+			}
+		}
+		fire_only_once = yes
+		days_remove = 10
+		remove_effect = {
+			FRA = { country_event = ww1_morocco.16 }
+			GER = { country_event = ww1_morocco.16 }
+			effect_tooltip = {
+				FRA = {
+					add_opinion_modifier = {
+						target = PREV
+						modifier = HOI4TGW_Opinion_diplomats_bonus
+					}
+				}
+				GER = {
+					add_opinion_modifier = {
+						target = PREV
+						modifier = HOI4TGW_Opinion_diplomats_malus
+					}
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 1000
+			modifier = {
+				factor = 0
+				has_opinion = {
+					target = GER
+					value > 50
+				}
+			}
+			modifier = {
+				factor = 0
+				has_opinion = {
+					target = FRA
+					value < 0
+				}
+			}
+		}
+	}
+}
+foreign_influence = {
+	ENG_integrate_orange_order = {
+		icon = GFX_decision_generic_operation
+		allowed = { tag = ENG }
+		target_trigger = {
+			FROM = { tag = NIR }
+		}
+		available = {
+			has_war = no
+			NIR = { has_war = no }
+		}
+		visible = {
+			is_subject = no
+			NIR = {
+				has_cosmetic_tag = NIR_orange_order
+				is_subject = no
+			}
+			NOT = { has_government = communism }
+		}
+		cost = 0
+		days_remove = 120
+		ai_will_do = {
+			factor = 100
+		}
+		fire_only_once = no
+		remove_effect = {
+			NIR = { country_event = orange.4 }
 		}
 	}
 }

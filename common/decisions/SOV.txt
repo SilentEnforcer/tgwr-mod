@@ -23,7 +23,7 @@ political_actions = {
 peace_deals = {
 	SOV_sue_for_peace_POL = {	
 		allowed = {
-			original_tag = SOV
+			tag = SOV
 		}
 		target_trigger = {
 			FROM = {
@@ -31,35 +31,116 @@ peace_deals = {
 			}
 		}
 		available = {
-			SOV = {
-			        is_subject = no
-				has_war_with = POL
-				OR = {
-					surrender_progress > 0.5
-					POL = {
-						controls_state = 808
-						controls_state = 773
-						controls_state = 97
-						controls_state = 95
-					}
-				}
-			}
-			POL = { is_subject = no } 	
+			is_subject = no
+			POL = { is_subject = no }
 		}
 		visible = {
-			has_war_with = POL
+			is_subject = no
+			FROM = {
+				has_war_with = ROOT
+				is_subject = no
+			}
 			NOT = { has_global_flag = soviet_polish_war_truce }
 		}
 		cost = 0
 		fire_only_once = yes
 		ai_will_do = {
-			factor = 100
+			base = 0
+			# historical peace
+			modifier = {
+				add = 100
+				FROM = {
+					controls_state = 97
+					controls_state = 773
+					controls_state = 808
+					controls_state = 766
+					controls_state = 93
+					controls_state = 94
+					controls_state = 95
+				}
+			}
+			# deep into ukraine
+			modifier = {
+				add = 100
+				FROM = {
+					controls_state = 766
+					controls_state = 93
+					controls_state = 201
+				}
+			}
+			# deep into belarus
+			modifier = {
+				add = 100
+				FROM = {
+					controls_state = 773
+					controls_state = 95
+					controls_state = 206
+				}
+			}
+			# massive casualties
+			modifier = {
+				add = 100
+				casualties_inflicted_by = {
+					opponent = FROM
+					thousands > 60
+				}
+				FROM = {
+					surrender_progress < 0.01
+				}
+			}
+			# no condition to defend west front
+			modifier = {
+				add = 100
+				has_war_with = RUS
+				surrender_progress > 0.25
+			}
+			# damn
+			modifier = {
+				add = 100
+				surrender_progress > 0.30
+			}
 		}
 		complete_effect = {
 			POL = {
 				country_event = { id = ww1_soviet.20 } #Советы отступают.
 			}
 			set_global_flag = soviet_polish_war_truce
+		}
+	}
+	SOV_sue_for_peace_POL_GREATER = {	
+		allowed = {
+			tag = SOV
+		}
+		target_trigger = {
+			FROM = {
+				tag = POL
+			}
+		}
+		available = {
+			is_subject = no
+			POL = { is_subject = no }
+		}
+		visible = {
+			is_subject = no
+			FROM = {
+				has_war_with = ROOT
+				is_subject = no
+			}
+			has_global_flag = soviet_polish_war_truce
+		}
+		cost = 0
+		fire_only_once = yes
+		ai_will_do = {
+			base = 0
+			modifier = {
+				add = 100
+				surrender_progress > 0.50
+			}
+		}
+		complete_effect = {
+			POL = {
+				country_event = { id = ww1_soviet.46 }
+			}
 		}
 	}
 	SOV_sue_for_peace_VLN = {
@@ -161,7 +242,7 @@ crisis = {
 		is_good = yes
 	}
 	SOV_estonian_offensive_mission = {
-		icon = generic_ignite_civil_war		
+		icon = revolt
 		allowed = {
 			OR = {
 				original_tag = SOV
@@ -193,14 +274,45 @@ crisis = {
 			EST = { NOT = { has_government = communism } }
 		}		
 		timeout_effect = {
-			SOV = { white_peace = EST }
+			every_country = {
+				limit = {
+					has_war_with = EST
+					OR = {
+						tag = PREV
+						is_in_faction_with = PREV
+						is_subject_of = PREV
+					}
+				}
+				white_peace = EST
+				set_truce = {
+					target = EST
+					days = 365
+				}
+			}
+			EST = {
+				if = {
+					limit = {
+						is_in_faction = yes
+					}
+					leave_faction = yes
+				}
+				set_rule = {
+					can_join_factions = no
+				}
+				every_owned_state = {
+					remove_core_of = SOV
+					remove_core_of = RUS
+					remove_claim_by = SOV
+					remove_claim_by = RUS
+				}
+			}
 		}		
 		fire_only_once = yes
-		days_mission_timeout = 100
+		days_mission_timeout = 430
 		is_good = no
 	}
 	SOV_latvian_offensive_mission = {
-		icon = generic_ignite_civil_war		
+		icon = revolt
 		allowed = {
 			OR = {
 				original_tag = SOV
@@ -232,7 +344,38 @@ crisis = {
 			LAT = { NOT = { has_government = communism } }
 		}		
 		timeout_effect = {
-			SOV = { white_peace = LAT }
+			every_country = {
+				limit = {
+					has_war_with = LAT
+					OR = {
+						tag = PREV
+						is_in_faction_with = PREV
+						is_subject_of = PREV
+					}
+				}
+				white_peace = LAT
+				set_truce = {
+					target = LAT
+					days = 365
+				}
+			}
+			LAT = {
+				if = {
+					limit = {
+						is_in_faction = yes
+					}
+					leave_faction = yes
+				}
+				set_rule = {
+					can_join_factions = no
+				}
+				every_owned_state = {
+					remove_core_of = SOV
+					remove_core_of = RUS
+					remove_claim_by = SOV
+					remove_claim_by = RUS
+				}
+			}
 			hidden_effect = {
 				every_state = {
 					limit = {
@@ -247,11 +390,11 @@ crisis = {
 			}
 		}		
 		fire_only_once = yes
-		days_mission_timeout = 100
+		days_mission_timeout = 600
 		is_good = no
 	}
 	SOV_lithuanian_offensive_mission = {
-		icon = generic_ignite_civil_war		
+		icon = revolt
 		allowed = {
 			OR = {
 				original_tag = SOV
@@ -286,10 +429,41 @@ crisis = {
 			}
 		}		
 		timeout_effect = {
-			SOV = { white_peace = LIT }
+			every_country = {
+				limit = {
+					has_war_with = LIT
+					OR = {
+						tag = PREV
+						is_in_faction_with = PREV
+						is_subject_of = PREV
+					}
+				}
+				white_peace = LIT
+				set_truce = {
+					target = LIT
+					days = 365
+				}
+			}
+			LIT = {
+				if = {
+					limit = {
+						is_in_faction = yes
+					}
+					leave_faction = yes
+				}
+				set_rule = {
+					can_join_factions = no
+				}
+				every_owned_state = {
+					remove_core_of = SOV
+					remove_core_of = RUS
+					remove_claim_by = SOV
+					remove_claim_by = RUS
+				}
+			}
 		}		
 		fire_only_once = yes
-		days_mission_timeout = 100
+		days_mission_timeout = 260
 		is_good = no
 	}
 }
@@ -402,8 +576,8 @@ SOV_decision_soviet_republics = {
 			any_state = {
 				is_core_of = KAZ
 				NOT = {is_core_of = SOV}
- 			    is_fully_controlled_by = SOV
-    		}
+				is_fully_controlled_by = SOV
+    			}
 			OR = {
 				has_government = democratic
 				has_government = communism
@@ -431,12 +605,11 @@ SOV_decision_soviet_republics = {
 		icon = generic_ignite_civil_war
 		available = {
 			has_completed_focus = SOV_soviet_republics
-			country_exists = BLR
-			controls_state = 242
 			is_subject = no
 			FROM = {
-				is_subject = no
+				has_capitulated = no
 				has_civil_war = no
+				is_neighbor_of = ROOT
 			}
 			OR = {
 				has_government = democratic
@@ -446,6 +619,7 @@ SOV_decision_soviet_republics = {
 		target_trigger = {
 			FROM = {
 				tag = BLR
+				is_subject = no
 			}
 		}
 		cost = 25
@@ -457,13 +631,27 @@ SOV_decision_soviet_republics = {
 					OR = {
 						has_government = ROOT
 						is_in_faction = no
-				    }
+					}
 					NOT = {
 						is_in_faction_with = ROOT
+						has_war_with = POL
+						GER = { has_country_flag = great_war_loser }
 					}
 					has_war = yes
 				}
-				
+			}
+			modifier = {
+				add = 1000
+				FROM = {
+					POL = {
+						has_war_with = PREV
+						NOT = { is_in_faction_with = ROOT }
+					}
+				}
+			}
+			modifier = {
+				add = 1000
+				GER = { has_country_flag = great_war_loser }
 			}
 		}
 		fire_only_once = yes
@@ -475,12 +663,10 @@ SOV_decision_soviet_republics = {
 							has_government = ROOT
 							is_in_faction_with = ROOT
 							is_in_faction = no
-					    } 
+						} 
 					}
 				}
-				ROOT = {
-					puppet = BLR
-				}
+				puppet = BLR
 				every_state = {
 					limit = {
 						is_owned_by = BLR
@@ -503,25 +689,24 @@ SOV_decision_soviet_republics = {
 								always = yes
 							}
 						}
-					}
-					every_state = {
-						limit = {
-							is_owned_by = BLR
-							is_core_of = ROOT
+						every_owned_state = {
+							limit = {
+								is_core_of = ROOT
+							}
+							set_state_owner_to = ROOT
 						}
-						transfer_state_to = ROOT
-					}
-					random_country = {
-						limit = {
-							original_tag = BLR
-							has_government = ROOT
-						}
-						ROOT = {
-							puppet = PREV
-						}
-						declare_war_on = {
-							target = BLR
-							type = civil_war
+						random_other_country = {
+							limit = {
+								original_tag = BLR
+								has_government = ROOT
+							}
+							ROOT = {
+								puppet = PREV
+							}
+							declare_war_on = {
+								target = BLR
+								type = civil_war
+							}
 						}
 					}
 				}
@@ -535,8 +720,8 @@ SOV_decision_soviet_republics = {
 			country_exists = UKR
 			is_subject = no
 			UKR = {
-				is_subject = no
 				has_civil_war = no
+				has_capitulated = no
 			}
 			OR = {
 				has_government = democratic
@@ -546,6 +731,7 @@ SOV_decision_soviet_republics = {
 		target_trigger = {
 			FROM = {
 				tag = UKR
+				is_subject = no
 			}
 		}
 		cost = 25
@@ -563,7 +749,6 @@ SOV_decision_soviet_republics = {
 			modifier = {
 				factor = 0
 				FROM = {
-					has_government = ROOT
 					NOT = {
 						is_in_faction_with = ROOT
 					}
@@ -732,9 +917,7 @@ SOV_decision_soviet_republics = {
 			has_completed_focus = SOV_soviet_republics
 			is_subject = no
 			TRK = {
-				exists = yes		
                 has_capitulated = no
-				is_subject = no
 				has_civil_war = no
 			}
 			OR = {
@@ -745,6 +928,7 @@ SOV_decision_soviet_republics = {
 		target_trigger = {
 			FROM = {
 				tag = TRK
+				is_subject = no
 			}
 		}
 		cost = 25
@@ -753,7 +937,6 @@ SOV_decision_soviet_republics = {
 			modifier = {
 				factor = 0
 				FROM = {
-					has_government = ROOT
 					NOT = {
 						is_in_faction_with = ROOT
 					}
@@ -817,9 +1000,9 @@ SOV_decision_soviet_republics = {
 			country_exists = GEO
 			is_subject = no
 			FROM = {
-				is_subject = no
 				has_civil_war = no
 				is_in_faction = no
+				has_capitulated = no
 			}
 			OR = {
 				has_government = democratic
@@ -839,6 +1022,7 @@ SOV_decision_soviet_republics = {
 		target_trigger = {
 			FROM = {
 				tag = GEO
+				is_subject = no
 			}
 		}
 		cost = 25
@@ -847,7 +1031,6 @@ SOV_decision_soviet_republics = {
 			modifier = {
 				factor = 0
 				FROM = {
-					has_government = ROOT
 					NOT = {
 						is_in_faction_with = ROOT
 					}
@@ -893,6 +1076,7 @@ SOV_decision_soviet_republics = {
 		target_trigger = {
 			FROM = {
 				tag = ARM
+				is_subject = no
 			}
 		}
 		cost = 25
@@ -901,7 +1085,6 @@ SOV_decision_soviet_republics = {
 			modifier = {
 				factor = 0
 				FROM = {
-					has_government = ROOT
 					NOT = {
 						is_in_faction_with = ROOT
 					}
@@ -947,6 +1130,7 @@ SOV_decision_soviet_republics = {
 		target_trigger = {
 			FROM = {
 				tag = AZR
+				is_subject = no
 			}
 		}
 		fire_only_once = yes
@@ -956,7 +1140,6 @@ SOV_decision_soviet_republics = {
 			modifier = {
 				factor = 0
 				FROM = {
-					has_government = ROOT
 					NOT = {
 						is_in_faction_with = ROOT
 					}
@@ -978,7 +1161,7 @@ SOV_decision_soviet_republics = {
 			has_completed_focus = SOV_soviet_republics
 			country_exists = MOU
 			FROM = {
-				is_subject = no
+				has_capitulated = no
 				has_civil_war = no
 			}
 			is_subject = no
@@ -1000,6 +1183,7 @@ SOV_decision_soviet_republics = {
 		target_trigger = {
 			FROM = {
 				tag = MOU
+				is_subject = no
 			}
 		}
 		cost = 25
@@ -1008,7 +1192,6 @@ SOV_decision_soviet_republics = {
 			modifier = {
 				factor = 0
 				FROM = {
-					has_government = ROOT
 					NOT = {
 						is_in_faction_with = ROOT
 					}
@@ -1048,6 +1231,7 @@ SOV_decision_soviet_republics = {
 		target_trigger = {
 			FROM = {
 				tag = KHI
+				is_subject = no
 			}
 		}
 		cost = 25
@@ -1109,9 +1293,7 @@ SOV_decision_soviet_republics = {
 				has_subject = KHI
 			}
 			BUK = {
-				exists = yes		
                 has_capitulated = no
-				is_subject = no
 				has_civil_war = no
 			}
 			OR = {
@@ -1122,6 +1304,7 @@ SOV_decision_soviet_republics = {
 		target_trigger = {
 			FROM = {
 				tag = BUK
+				is_subject = no
 			}
 		}
 		cost = 25
@@ -1168,6 +1351,7 @@ SOV_decision_soviet_republics = {
 						keep_unit_leaders_trigger = {
 							always = yes
 						}
+						set_cosmetic_tag = SOV_puppet
 					}
 				}
 				random_country = {
@@ -1217,7 +1401,7 @@ SOV_decision_soviet_republics = {
 			}
 			is_subject = no
 			FROM = {
-				is_subject = no
+				has_capitulated = no
 				has_civil_war = no
 			}
 			OR = {
@@ -1228,6 +1412,7 @@ SOV_decision_soviet_republics = {
 		target_trigger = {
 			FROM = {
 				tag = LAT
+				is_subject = no
 			}
 		}
 		cost = 25
@@ -1245,7 +1430,6 @@ SOV_decision_soviet_republics = {
 			modifier = {
 				factor = 0
 				FROM = {
-					has_government = ROOT
 					NOT = {
 						is_in_faction_with = ROOT
 					}
@@ -1280,7 +1464,7 @@ SOV_decision_soviet_republics = {
 			}
 			is_subject = no
 			FROM = {
-				is_subject = no
+				has_capitulated = no
 				has_civil_war = no
 			}
 			OR = {
@@ -1291,6 +1475,7 @@ SOV_decision_soviet_republics = {
 		target_trigger = {
 			FROM = {
 				tag = LIT
+				is_subject = no
 			}
 		}
 		cost = 25
@@ -1308,7 +1493,6 @@ SOV_decision_soviet_republics = {
 			modifier = {
 				factor = 0
 				FROM = {
-					has_government = ROOT
 					NOT = {
 						is_in_faction_with = ROOT
 					}
@@ -1350,7 +1534,7 @@ SOV_decision_soviet_republics = {
 			}
 			is_subject = no
 			FROM = {
-				is_subject = no
+				has_capitulated = no
 				has_civil_war = no
 			}
 			OR = {
@@ -1361,6 +1545,7 @@ SOV_decision_soviet_republics = {
 		target_trigger = {
 			FROM = {
 				tag = EST
+				is_subject = no
 			}
 		}
 		cost = 25
@@ -1378,7 +1563,6 @@ SOV_decision_soviet_republics = {
 			modifier = {
 				factor = 0
 				FROM = {
-					has_government = ROOT
 					NOT = {
 						is_in_faction_with = ROOT
 					}
@@ -1400,6 +1584,253 @@ SOV_decision_soviet_republics = {
 					puppet = EST
 				}
 			}
+		}
+	}
+	SOV_form_litbel = {
+		icon = generic_ignite_civil_war
+		available = {	
+			hidden_trigger = {
+				189 = {
+					OR = {
+						is_owned_and_controlled_by = ROOT
+						any_other_country = {
+							is_subject_of = ROOT
+							owns_state = PREV
+							has_full_control_of_state = PREV
+						}
+					}
+				}
+				11 = {
+					OR = {
+						is_owned_and_controlled_by = ROOT
+						any_other_country = {
+							is_subject_of = ROOT
+							owns_state = PREV
+							has_full_control_of_state = PREV
+						}
+					}
+				}
+				784 = {
+					OR = {
+						is_owned_and_controlled_by = ROOT
+						any_other_country = {
+							is_subject_of = ROOT
+							owns_state = PREV
+							has_full_control_of_state = PREV
+						}
+					}
+				}
+				773 = {
+					OR = {
+						is_owned_by = ROOT
+						any_other_country = {
+							is_subject_of = ROOT
+							owns_state = PREV
+							has_full_control_of_state = PREV
+						}
+					}
+				}
+				95 = {
+					OR = {
+						is_owned_and_controlled_by = ROOT
+						any_other_country = {
+							is_subject_of = ROOT
+							owns_state = PREV
+							has_full_control_of_state = PREV
+						}
+					}
+				}
+				206 = {
+					OR = {
+						is_owned_and_controlled_by = ROOT
+						any_other_country = {
+							is_subject_of = ROOT
+							owns_state = PREV
+							has_full_control_of_state = PREV
+						}
+					}
+				}
+				194 = {
+					OR = {
+						is_owned_and_controlled_by = ROOT
+						any_other_country = {
+							is_subject_of = ROOT
+							owns_state = PREV
+							has_full_control_of_state = PREV
+						}
+					}
+				}
+				94 = {
+					OR = {
+						is_owned_and_controlled_by = ROOT
+						any_other_country = {
+							is_subject_of = ROOT
+							owns_state = PREV
+							has_full_control_of_state = PREV
+						}
+					}
+				}
+				808 = {
+					OR = {
+						is_owned_and_controlled_by = ROOT
+						any_other_country = {
+							is_subject_of = ROOT
+							owns_state = PREV
+							has_full_control_of_state = PREV
+						}
+					}
+				}
+			}
+		}
+		visible = {
+			has_completed_focus = SOV_soviet_republics
+			is_subject = no
+			OR = {
+				has_government = democratic
+				has_government = communism
+			}
+			LIT = {
+				OR = {
+					is_subject_of = ROOT
+					exists = no
+				}
+			}
+			BLR = {
+				OR = {
+					is_subject_of = ROOT
+					exists = no
+				}
+			}
+		}
+		cost = 25
+		ai_will_do = {
+			factor = 100
+			modifier = {
+				factor = 0
+				has_completed_focus = SOV_USSR
+			}
+		}
+		fire_only_once = yes
+		complete_effect = {
+			country_event = ww1_soviet.41
+		}
+	}
+	SOV_form_transcaucasian_sfsr = {
+		icon = generic_ignite_civil_war
+		available = {
+			231 = {
+				OR = {
+					is_owned_and_controlled_by = ROOT
+					any_other_country = {
+						OR = {
+							original_tag = GEO
+							original_tag = ARM
+							original_tag = AZR
+						}
+						is_subject_of = ROOT
+						owns_state = PREV
+						has_full_control_of_state = PREV
+					}
+				}
+			}
+			230 = {
+				OR = {
+					is_owned_and_controlled_by = ROOT
+					any_other_country = {
+						OR = {
+							original_tag = GEO
+							original_tag = ARM
+							original_tag = AZR
+						}
+						is_subject_of = ROOT
+						owns_state = PREV
+						has_full_control_of_state = PREV
+					}
+				}
+			}
+			818 = {
+				OR = {
+					is_owned_and_controlled_by = ROOT
+					any_other_country = {
+						OR = {
+							original_tag = GEO
+							original_tag = ARM
+							original_tag = AZR
+						}
+						is_subject_of = ROOT
+						owns_state = PREV
+						has_full_control_of_state = PREV
+					}
+				}
+			}
+			823 = {
+				OR = {
+					is_owned_and_controlled_by = ROOT
+					any_other_country = {
+						OR = {
+							original_tag = GEO
+							original_tag = ARM
+							original_tag = AZR
+						}
+						is_subject_of = ROOT
+						owns_state = PREV
+						has_full_control_of_state = PREV
+					}
+				}
+			}
+			229 = {
+				OR = {
+					is_owned_and_controlled_by = ROOT
+					any_other_country = {
+						OR = {
+							original_tag = GEO
+							original_tag = ARM
+							original_tag = AZR
+						}
+						is_subject_of = ROOT
+						owns_state = PREV
+						has_full_control_of_state = PREV
+					}
+				}
+			}
+		}
+		visible = {
+			has_completed_focus = SOV_soviet_republics
+			is_subject = no
+			OR = {
+				has_government = democratic
+				has_government = communism
+			}
+			GEO = {
+				OR = {
+					is_subject_of = ROOT
+					exists = no
+				}
+			}
+			ARM = {
+				OR = {
+					is_subject_of = ROOT
+					exists = no
+				}
+			}
+			AZR = {
+				OR = {
+					is_subject_of = ROOT
+					exists = no
+				}
+			}
+		}
+		cost = 25
+		ai_will_do = {
+			factor = 100
+			modifier = {
+				factor = 0
+				has_completed_focus = SOV_USSR
+			}
+		}
+		fire_only_once = yes
+		complete_effect = {
+			country_event = ww1_georgia.9
 		}
 	}
 }
@@ -1633,6 +2064,32 @@ SOV_red_terror_category = {
 		}
 		ai_will_do = {
 			factor = 0
+		}
+	}
+}
+foreign_politics = {
+	SOV_play_makhnovshchina = {
+		icon = border_war
+        allowed = {
+			OR = {
+				original_tag = UKR
+				tag = SOV
+			}
+		}
+		target_trigger = {
+			FROM = {
+				tag = VLN
+			}
+		}	
+		visible = {
+			is_ai = no
+			VLN = {
+				is_ai = yes
+			}
+		}
+		fire_only_once = yes
+		complete_effect = {
+			VLN = { change_tag_from = ROOT }
 		}
 	}
 }

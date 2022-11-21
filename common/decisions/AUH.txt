@@ -88,24 +88,70 @@ AUH_franzferdinand = {
 	RUS_start_mobilization = {
 		icon = GFX_decision_generic_ignite_civil_war
 		allowed = {
-			original_tag = RUS
+			tag = RUS
 		}
 		available = {
 			NOT = { has_war_with = AUH }
 		}
 		visible = {
-			is_in_faction_with = FRA
+			is_subject = no
+			has_capitulated = no
 			has_global_flag = archduke_dead_serbia
-			NOT = { has_global_flag = july_crisis_ends }
+			NOT = {
+				has_global_flag = july_crisis_ends
+				has_war_with = SER
+				is_in_faction_with = AUH
+			}
 		}
 		fire_only_once = yes
 		ai_will_do = {
-			factor = 400
+			base = 400
+			modifier = {
+				add = -200
+				NOT = {
+					is_in_faction_with = SER
+					is_in_faction_with = FRA
+				}
+			}
+			modifier = {
+				add = -200
+				is_in_faction_with = GER
+			}
+			modifier = {
+				add = -1000
+				has_government = communism
+				NOT = {
+					has_country_leader = {
+						character = RUS_nikolai_ii
+						ruling_only = yes
+					}
+				}
+				SER = {
+					OR = {
+						has_government = neutrality
+						has_idea = SER_idea_alexander_i
+						has_idea = SER_idea_alexander_i_1
+					}
+				}
+			}
+			modifier = {
+				add = -1000
+				is_russia_a_monarchy = yes
+				SER = {
+					has_government = communism
+				}
+			}
 		}
 		complete_effect = {
-			add_war_support = 0.05
-			FRA = { country_event = { id = ww1_franzferdinand.9 days = 2 } }
 			set_country_flag = RUS_mobilization_flag
+			add_war_support = 0.05
+			give_guarantee = SER
+			if = {
+				limit = {
+					is_in_faction_with = FRA
+				}
+				FRA = { country_event = { id = ww1_franzferdinand.9 days = 2 } }	
+			}
 		}
 	}
 }
@@ -585,8 +631,11 @@ AUH_greater_austria_category = {
 		}
 		visible = {
 			has_completed_focus = AUH_reform_czech_cisleithania
+			NOT = {
+				CZE = { has_country_flag = assimilated_to_austria }
+			}
 		}
-		fire_only_once = yes
+		fire_only_once = no
 		cost = 200
 		days_remove = 210
 		remove_effect = {
@@ -602,26 +651,13 @@ AUH_greater_austria_category = {
 					OR = {
 						state = 69
 						state = 74
+						state = 72
 					}
 				}
 				transfer_state_to = CZE
 			}
 			CZE = {
 				set_country_flag = assimilated_to_austria
-			}
-			if = {
-				limit = {
-					GAL = {
-						is_subject_of = PREV
-					}
-				}
-				every_state = {
-					limit = {
-						is_owned_by = CZE
-						is_core_of = GAL
-					}
-					transfer_state_to = GAL
-				}
 			}
 		}
 		cancel_trigger = {
@@ -655,8 +691,17 @@ AUH_greater_austria_category = {
 		}
 		visible = {
 			has_completed_focus = AUH_reform_polish_galicia
+			WUK = {
+				OR = {
+					exists = no
+					is_subject_of = AUH
+				}
+			}
+			NOT = {
+				GAL = { has_country_flag = assimilated_to_austria }
+			}
 		}
-		fire_only_once = yes
+		fire_only_once = no
 		cost = 200
 		days_remove = 210
 		remove_effect = {
@@ -690,10 +735,7 @@ AUH_greater_austria_category = {
 				}
 				if = {
 					limit = {
-						OR = {
-							has_dlc = "Together for Victory"
-							has_dlc = "Waking the Tiger"
-						}
+						has_subject_autonomy_feature = yes
 					}
 					set_autonomy = {
 						target = WUK
@@ -710,38 +752,55 @@ AUH_greater_austria_category = {
 			WUK = {
 				set_country_flag = assimilated_to_austria
 			}
-			every_state = {
-				limit = {
-					is_owned_by = GAL
-					is_core_of = ROM
-				}
-				transfer_state_to = TRA
-				add_core_of = TRA
-			}
 			if = {
 				limit = {
 					TRA = {
-						is_subject = no
+						OR = {
+							exists = no
+							is_subject_of = ROOT
+						}	
+					}				
+				}	
+				every_state = {
+					limit = {
+						is_owned_by = GAL
+						is_core_of = ROM
 					}
+					transfer_state_to = TRA
+					add_core_of = TRA
 				}
 				if = {
 					limit = {
-						OR = {
-							has_dlc = "Together for Victory"
-							has_dlc = "Waking the Tiger"
+						TRA = {
+							is_subject = no
 						}
 					}
-					set_autonomy = {
-						target = TRA
-						autonomous_state = autonomy_tgwr_crownland
+					if = {
+						limit = {
+							has_subject_autonomy_feature = yes
+						}
+						set_autonomy = {
+							target = TRA
+							autonomous_state = autonomy_tgwr_crownland
+						}
+						else = {
+							puppet = TRA
+						}
 					}
-					else = {
-						puppet = TRA
+					TRA = {
+						set_cosmetic_tag = TRA_AUH
 					}
 				}
-				TRA = {
-					set_cosmetic_tag = TRA_AUH
-				}
+				else = {
+					every_state = {
+						limit = {
+							is_owned_by = GAL
+							is_core_of = ROM
+						}
+						transfer_state_to = WUK
+						add_core_of = WUK
+					}				
+				}	
 			}
 		}
 		cancel_trigger = {
@@ -775,8 +834,9 @@ AUH_greater_austria_category = {
 		}
 		visible = {
 			has_completed_focus = AUH_reform_transleithania
+			NOT = { HUN = { has_country_flag = assimilated_to_austria } }
 		}
-		fire_only_once = yes
+		fire_only_once = no
 		cost = 200
 		days_remove = 365
 		remove_effect = {
@@ -789,121 +849,140 @@ AUH_greater_austria_category = {
 			every_state = {
 				limit = {
 					is_owned_by = HUN
-					OR = {
-						state = 147
-					}
+					state = 147
 				}
 				transfer_state_to = ROOT
 				add_core_of = ROOT
 			}
-			every_state = {
-				limit = {
-					is_owned_by = HUN
-					is_core_of = UKR
-				}
-				transfer_state_to = WUK
-				add_core_of = WUK
-			}
 			if = {
 				limit = {
 					WUK = {
-						is_subject = no
+						OR = {
+							exists = no
+							is_subject_of = ROOT
+						}	
+					}				
+				}
+				every_state = {
+					limit = {
+						is_owned_by = HUN
+						is_core_of = UKR
 					}
+					transfer_state_to = WUK
+					add_core_of = WUK
 				}
 				if = {
 					limit = {
-						OR = {
-							has_dlc = "Together for Victory"
-							has_dlc = "Waking the Tiger"
+						WUK = {
+							is_subject = no
 						}
 					}
-					set_autonomy = {
-						target = WUK
-						autonomous_state = autonomy_tgwr_crownland
+					if = {
+						limit = {
+							has_subject_autonomy_feature = yes
+						}
+						set_autonomy = {
+							target = WUK
+							autonomous_state = autonomy_tgwr_crownland
+						}
+						else = {
+							puppet = WUK
+						}
 					}
-					else = {
-						puppet = WUK
-					}
+					WUK = { set_cosmetic_tag = WUK_AUH }
 				}
-				WUK = { set_cosmetic_tag = WUK_AUH }
-			}
-			every_state = {
-				limit = {
-					is_owned_by = HUN
-					OR = {
-						state = 70
-						state = 71
-					}
-				}
-				transfer_state_to = SLO
-				add_core_of = SLO
 			}
 			if = {
 				limit = {
 					SLO = {
-						is_subject = no
+						OR = {
+							exists = no
+							is_subject_of = ROOT
+						}	
+					}				
+				}
+				every_state = {
+					limit = {
+						is_owned_by = HUN
+						OR = {
+							state = 70
+							state = 71
+						}
 					}
+					transfer_state_to = SLO
 				}
 				if = {
 					limit = {
-						OR = {
-							has_dlc = "Together for Victory"
-							has_dlc = "Waking the Tiger"
+						SLO = {
+							is_subject = no
 						}
 					}
-					set_autonomy = {
-						target = SLO
-						autonomous_state = autonomy_tgwr_crownland
+					if = {
+						limit = {
+							has_subject_autonomy_feature = yes
+						}
+						set_autonomy = {
+							target = SLO
+							autonomous_state = autonomy_tgwr_crownland
+						}
+						else = {
+							puppet = SLO
+						}
 					}
-					else = {
-						puppet = SLO
+					SLO = {
+						set_cosmetic_tag = SLO_AUH
 					}
 				}
 				SLO = {
-					set_cosmetic_tag = SLO_AUH
+					set_country_flag = assimilated_to_austria
 				}
-			}
-			SLO = {
-				set_country_flag = assimilated_to_austria
-			}
-			every_state = {
-				limit = {
-					is_owned_by = HUN
-					is_core_of = TRA
-					NOT = {
-						state = 778
-					}
-				}
-				transfer_state_to = TRA
-				add_core_of = TRA
 			}
 			if = {
 				limit = {
 					TRA = {
-						is_subject = no
+						OR = {
+							exists = no
+							is_subject_of = ROOT
+						}	
+					}				
+				}
+				every_state = {
+					limit = {
+						is_owned_by = HUN
+						is_core_of = TRA
+						NOT = {
+							state = 778
+							state = 83
+						}
 					}
+					transfer_state_to = TRA
+					add_core_of = TRA
 				}
 				if = {
 					limit = {
-						OR = {
-							has_dlc = "Together for Victory"
-							has_dlc = "Waking the Tiger"
+						TRA = {
+							is_subject = no
 						}
 					}
-					set_autonomy = {
-						target = TRA
-						autonomous_state = autonomy_tgwr_crownland
+					if = {
+						limit = {
+							has_subject_autonomy_feature = yes
+						}
+						set_autonomy = {
+							target = TRA
+							autonomous_state = autonomy_tgwr_crownland
+						}
+						else = {
+							puppet = TRA
+						}
 					}
-					else = {
-						puppet = TRA
+					TRA = {
+						set_cosmetic_tag = TRA_AUH
 					}
 				}
 				TRA = {
-					set_cosmetic_tag = TRA_AUH
+					set_country_flag = assimilated_to_austria
 				}
-			}
-			TRA = {
-				set_country_flag = assimilated_to_austria
 			}
 			every_state = {
 				limit = {
@@ -922,39 +1001,46 @@ AUH_greater_austria_category = {
 					}
 					transfer_state_to = SER
 					add_core_of = SER
-					else = {
+					else_if = {
+						limit = {
+							CRO = {
+								OR = {
+									is_subject_of = PREV
+									exists = no
+								}	
+							}
+						}
 						transfer_state_to = CRO
 						add_core_of = CRO
-					}
-				}
-			}
-			if = {
-				limit = {
-					CRO = {
-						is_subject = no
-					}
-				}
-				if = {
-					limit = {
-						OR = {
-							has_dlc = "Together for Victory"
-							has_dlc = "Waking the Tiger"
+						if = {
+							limit = {
+								CRO = {
+									is_subject = no
+								}
+							}
+							ROOT = {
+								if = {
+									limit = {
+										has_subject_autonomy_feature = yes
+									}
+									set_autonomy = {
+										target = CRO
+										autonomous_state = autonomy_tgwr_crownland
+									}
+									else = {
+										puppet = CRO
+									}
+								}
+							}							
+							CRO = {
+								set_cosmetic_tag = CRO_AUH
+							}
+						}
+						CRO = {
+							set_country_flag = assimilated_to_austria
 						}
 					}
-					set_autonomy = {
-						target = CRO
-						autonomous_state = autonomy_tgwr_crownland
-					}
-					else = {
-						puppet = CRO
-					}
 				}
-				CRO = {
-					set_cosmetic_tag = CRO_AUH
-				}
-			}
-			CRO = {
-				set_country_flag = assimilated_to_austria
 			}
 			HUN = {
 				set_country_flag = assimilated_to_austria
@@ -989,12 +1075,13 @@ AUH_greater_austria_category = {
 			}
 		}
 		visible = {
-			has_completed_focus = AUH_form_illyria
-			CRO = {
-				is_subject_of = PREV
+			has_completed_focus = AUH_reform_croatian_region
+			has_subject = CRO
+			NOT = {
+				CRO = { has_country_flag = assimilated_to_austria }
 			}
 		}
-		fire_only_once = yes
+		fire_only_once = no
 		cost = 200
 		days_remove = 365
 		remove_effect = {
@@ -1014,7 +1101,7 @@ AUH_greater_austria_category = {
 					country_exists = CRO
 				}
 				NOT = {
-					CRO = { is_subject_of = ROOT }
+					has_subject = CRO
 				}
 				has_war = yes
 			}
@@ -1043,10 +1130,11 @@ AUH_greater_austria_category = {
 				is_subject_of = PREV
 				NOT = {
 					has_country_flag = great_war_loser
+					has_country_flag = assimilated_to_austria
 				}
 			}
 		}
-		fire_only_once = yes
+		fire_only_once = no
 		cost = 200
 		days_remove = 400
 		remove_effect = {
@@ -1089,9 +1177,13 @@ AUH_greater_austria_category = {
 			OR = {
 				owns_state = 102
 				owns_state = 736
+				has_subject = SLV
+			}
+			NOT = {
+				SLV = { has_country_flag = assimilated_to_austria }
 			}
 		}
-		fire_only_once = yes
+		fire_only_once = no
 		cost = 100
 		days_remove = 100
 		remove_effect = {
@@ -1113,10 +1205,7 @@ AUH_greater_austria_category = {
 				}	
 				if = {
 					limit = {
-						OR = {
-							has_dlc = "Together for Victory"
-							has_dlc = "Waking the Tiger"
-						}
+						has_subject_autonomy_feature = yes
 					}
 					set_autonomy = {
 						target = SLV
@@ -1171,8 +1260,17 @@ AUH_greater_austria_category = {
 				owns_state = 159
 				owns_state = 160
 			}
+			VNC = {
+				OR = {
+					is_subject_of = ROOT
+					exists = no
+				}
+				NOT = {
+					has_country_flag = assimilated_to_austria
+				}
+			}
 		}
-		fire_only_once = yes
+		fire_only_once = no
 		cost = 100
 		days_remove = 100
 		remove_effect = {
@@ -1195,16 +1293,11 @@ AUH_greater_austria_category = {
 			}
 			if = {
 				limit = {
-					VNC = {
-						is_subject = no
-					}
+					NOT = { has_subject = VNC }
 				}
 				if = {
 					limit = {
-						OR = {
-							has_dlc = "Together for Victory"
-							has_dlc = "Waking the Tiger"
-						}
+						has_subject_autonomy_feature = yes
 					}
 					set_autonomy = {
 						target = VNC
@@ -1224,18 +1317,13 @@ AUH_greater_austria_category = {
 			OR = {
 				NOT = {
 					owns_state = 159
-				}
-				NOT = {
 					owns_state = 160
-				}
-				NOT = {
 					owns_state = 244
+					has_subject = VNC
 				}
 				VNC = {
 					exists = yes
-					NOT = {
-						is_subject_of = AUH
-					}
+					NOT = { is_subject_of = PREV }
 				}
 				has_war = yes
 			}
@@ -1256,15 +1344,10 @@ AUH_greater_austria_category = {
 		}
 		visible = {
 			has_completed_focus = AUH_reform_transleithania
-			any_country = {
+			any_other_country = {
 				exists = yes
 				has_country_flag = assimilated_to_austria
 				is_subject_of = PREV
-			}
-			NOT = {
-				has_cosmetic_tag = GER_HRE
-				has_cosmetic_tag = GER_suddeutscher_bund
-				has_cosmetic_tag = GER_confederation
 			}
 		}
 		fire_only_once = no
@@ -1322,6 +1405,12 @@ peace_deals = {
 		}
 		visible = {
 			has_war_with = GER
+			OR = {
+				NOT = { has_global_flag = kis_war }
+				has_global_flag = interbellum
+			}
+			is_subject = no
+			has_capitulated = no
 		}
 		fire_only_once = yes
 		ai_will_do = {
@@ -1351,3 +1440,89 @@ peace_deals = {
 	}
 }
 
+# interwar_decisions = {
+# 	AUH_decision_mitteleuropa_guarantee = {
+# 		allowed = {
+# 			tag = AUH
+# 		}
+# 		available = {
+# 			has_capitulated = no
+# 			GER = {
+# 				has_capitulated = no
+# 				surrender_progress > 0.3
+# 			}
+# 		}
+# 		visible = {
+# 			is_subject = no
+# 			has_country_flag = great_war_winner
+# 			GER = {
+# 				is_subject = no
+# 				has_country_flag = great_war_winner
+# 				has_completed_focus = GER_mitteleuropa_pact
+# 				NOT = {
+# 					has_war_with = ROOT
+# 					is_in_faction_with = ROOT
+# 				}
+# 			}
+# 		}
+# 		fire_only_once = yes
+# 		ai_will_do = {
+# 			base = 0
+# 			modifier = {
+# 				add = 1000
+# 				GER = {
+# 					surrender_progress > 0.5
+# 				}
+# 			}
+# 		}
+# 		target_trigger = {
+# 			FROM = {
+# 				has_war_with = GER
+# 				NOT = {
+# 					is_subject_of = ROOT
+# 					is_in_faction_with = ROOT
+# 				}
+# 			}
+# 		}
+# 		#war_with_on_remove = FROM
+# 		days_remove = 45
+# 		remove_effect = {
+# 			if = {
+# 				limit = {
+# 					is_in_faction = yes
+# 				}
+# 				if = {
+# 					limit = {
+# 						is_faction_leader = yes
+# 					}
+# 					GER = {
+# 						every_other_country = {
+# 							limit = {
+# 								OR = {
+# 									tag = ROOT
+# 									is_in_faction_with = ROOT
+# 								}
+# 							}
+# 							PREV = { add_to_faction = PREV }
+# 						}
+# 					}
+# 				}
+# 				else = {
+# 					GER = {
+# 						add_to_faction = ROOT
+# 					}
+# 				}
+# 			}
+# 			else = {
+# 				GER = {
+# 					add_to_faction = ROOT
+# 				}
+# 			}
+# 			declare_war_on = {
+# 				target = FROM
+# 				type = topple_government
+# 			}
+# 			news_event = ww1_auh.41
+# 		}
+# 	}
+# }

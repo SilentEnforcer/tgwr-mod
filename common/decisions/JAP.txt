@@ -1,35 +1,3 @@
-propaganda_efforts = {
-	JAP_rename_markus_island = {
-		allowed = {
-			original_tag = JAP
-		}
-		available = {
-			owns_state = 648
-			has_full_control_of_state = 648
-			NOT = {
-				has_global_flag = minamitorishima_flag
-			}
-		}
-		ai_will_do = {
-			factor = 100
-		}
-		cost = 10
-		visible = {
-			has_full_control_of_state = 648
-		}
-		fire_only_once = no
-		complete_effect = {
-			648 = {
-				add_core_of = ROOT
-				set_state_name = MINAMITORISHIMA_STATE
-				hidden_effect = {
-					set_global_flag = minamitorishima_flag
-				}
-			}
-		}
-	}
-}
-
 peace_deals = {
 	JAP_sue_for_peace_KOR = {
 		icon = generic_nationalism
@@ -57,21 +25,15 @@ peace_deals = {
 		allowed = {
 			OR = {
 				tag = JAP
-				original_tag = KOR
+				tag = KOR
 			}
 		}
 		available = {
 			JAP = {
 				OR = {
-					NOT = {
-						has_war_with = KOR
-					}
-					KOR = {
-						exists = no
-					}
-					KOR = {
-						is_subject_of = JAP
-					}
+					NOT = { has_war_with = KOR }
+					NOT = { country_exists = KOR }
+					has_subject = KOR
 				}
 				hidden_trigger = {
 					has_global_flag = JAP_sue_for_peace_KOR_trigger
@@ -124,21 +86,17 @@ peace_deals = {
 	}
 	JAP_sue_for_peace_FNG = {
 		allowed = {
-			original_tag = JAP
+			tag = JAP
 		}
 		available = {
-			has_war_with = FNG
-			any_country = {
-				has_country_flag = manchurian_incident
-				has_war_with = JAP
-			}
 			surrender_progress > 0.3
 		}
 		visible = {
 			has_war_with = FNG
-			any_country = {
+			any_other_country = {
 				has_country_flag = manchurian_incident
-				has_war_with = JAP
+				has_war_with = PREV
+				NOT = { has_war_with = FNG }
 			}
 		}
 		fire_only_once = yes
@@ -148,22 +106,18 @@ peace_deals = {
 				add = 1000
 				OR = {
 					AND = {
-						JAP = {
-							NOT = {
-								controls_state = 525
-								controls_state = 527
-								controls_state = 796
-								controls_state = 797
-								controls_state = 799
-								controls_state = 800
-								controls_state = 801
-							}
+						NOT = {
+							controls_state = 525
+							controls_state = 527
+							controls_state = 796
+							controls_state = 797
+							controls_state = 799
+							controls_state = 800
+							controls_state = 801
 						}
 						if = {
 							limit = {
-								KOR = {
-									is_subject_of = JAP
-								}
+								has_subject = KOR
 							}
 							KOR = {
 								has_capitulated = yes
@@ -178,42 +132,36 @@ peace_deals = {
 			}
 		}
 		complete_effect = {
-			every_country = {
+			every_other_country = {
 				limit = {
-					has_war_with = JAP
+					has_war_with = PREV
 					OR = {
-						has_country_flag = part_of_china
+						is_china_or_warlord = yes
 						has_country_flag = manchurian_incident
 					}
 				}
-				white_peace = JAP
+				white_peace = PREV
 			}
-			KOR = {
-				if = {
-					limit = {
-						is_subject_of = JAP
-					}
-					JAP = {
-						end_puppet = KOR
-					}
-					complete_national_focus = KOR_the_light_returned
+			if = {
+				limit = {
+					has_subject = KOR
 				}
-				JAP = {
-					every_owned_state = {
-						limit = {
-							is_core_of = KOR
-						}
-						transfer_state_to = KOR
-					}
-				}
+				end_puppet = KOR
+				KOR = { complete_national_focus = KOR_the_light_returned }
 			}
-			every_country = {
+			every_owned_state = {
+				limit = {
+					is_core_of = KOR
+				}
+				transfer_state_to = KOR
+			}
+			every_other_country = {
 				limit = {
 					has_country_flag = manchurian_incident
 				}
 				every_state = {
 					limit = {
-						is_owned_by = JAP
+						is_owned_by = PREV.PREV
 						OR = {
 							is_core_of = PREV
 							is_claimed_by = PREV
@@ -222,20 +170,128 @@ peace_deals = {
 					transfer_state_to = PREV
 				}
 				set_truce = {
-					target = JAP
+					target = PREV
 					days = 1825
 				}
 				hidden_effect = {
 					if = {
 						limit = {
+							OR = {
+								has_country_flag = CHI_kuomintang_flag
+								original_tag = SHX
+							}
+						}
+						every_possible_country = {
+							limit = {
+								is_china_or_warlord = yes
+								OR = {
+									AND = {
+										NOT = {
+											is_subject = yes
+											has_country_flag = CHI_soviet_republic_flag
+											has_country_flag = reunited_china
+										}
+										OR = {
+											original_tag = HNC
+											original_tag = SCC
+											original_tag = SDC
+											original_tag = JNC
+											original_tag = JXC
+											original_tag = ZHE
+											original_tag = GDC
+											original_tag = GZC
+										}
+									}
+									is_subject_of = PREV
+								}
+							}
+							every_state = {
+								limit = {
+									OR = {
+										is_core_of = PREV
+										is_claimed_by = PREV
+									}
+								}
+								remove_core_of = PREV
+								remove_claim_by = PREV
+							}
+							every_unit_leader = {
+								set_nationality = CHI
+							}
+							if = {
+								limit = {
+									exists = yes
+								}
+								transfer_navy = {
+									target = CHI
+								}
+								CHI = {
+									annex_country = {
+										target = PREV
+										transfer_troops = yes
+									}
+								}
+							}
+						}
+						every_state = {
+							limit = {
+								OR = {
+									is_core_of = PREV
+									is_claimed_by = PREV
+								}
+							}
+							remove_core_of = PREV
+							remove_claim_by = PREV
+						}
+						every_unit_leader = {
+							set_nationality = CHI
+						}
+						transfer_navy = {
+							target = CHI
+						}
+						CHI = {
+							kuomintang_united_china = yes
+							set_country_flag = manchurian_incident
+							set_truce = {
+								target = ROOT
+								days = 1825
+							}
+							annex_country = {
+								target = PREV
+								transfer_troops = yes
+							}
+							if = {
+								limit = {
+									PREV = {
+										original_tag = SHX
+									}
+								}
+								CHI_yan_xishan = {
+									add_country_leader_role = {
+										promote_leader = yes
+										country_leader = {
+											ideology = authoritarian_democracy
+											traits = { propaganda_expert }
+										}
+									}
+								}
+								set_capital = { state = 608 }
+							}
+						}
+					}
+					else_if = {
+						limit = {
 							has_country_flag = reunited_china
 						}
-						every_other_country = {
+						every_possible_country = {
 							limit = {
-								exists = no
+								is_china_or_warlord = yes
 								OR = {
-									has_country_flag = part_of_china
-									original_tag = CHI
+									exists = no
+									is_subject_of = PREV
+								}
+								NOT = {
+									tag = PREV
 								}
 							}
 							every_unit_leader = {
@@ -243,694 +299,106 @@ peace_deals = {
 							}
 							every_state = {
 								remove_core_of = PREV
+								remove_claim_by = PREV
 							}
-						}
-					}
-					else_if = {
-						limit = {
-							has_country_flag = CHI_kuomintang_flag
-						}
-						every_state = {
-							limit = {
-								OR = {
-									is_core_of = CHI
-									is_core_of = QIN
-									is_core_of = ANC
-									is_core_of = XSM
-									is_core_of = SHX
-									is_core_of = SIK
-									is_core_of = FNG
-									is_core_of = PRC
-									is_core_of = SDC
-									is_core_of = JNC
-									is_core_of = JXC
-									is_core_of = SCC
-									is_core_of = ZHE
-									is_core_of = GDC
-									is_core_of = GXC
-									is_core_of = YUN
-									is_core_of = HNC
-									is_core_of = GZC
-									is_core_of = GMJ
-									is_core_of = KMT
+							if = {
+								limit = {
+									exists = yes
 								}
-							}
-							remove_core_of = PREV
-							add_core_of = CHI
-						}
-						every_state = {
-							limit = {
-								OR = {
-									is_claimed_by = CHI
-									is_claimed_by = QIN
-									is_claimed_by = ANC
-									is_claimed_by = XSM
-									is_claimed_by = SHX
-									is_claimed_by = SIK
-									is_claimed_by = FNG
-									is_claimed_by = PRC
-									is_claimed_by = SDC
-									is_claimed_by = JNC
-									is_claimed_by = JXC
-									is_claimed_by = SCC
-									is_claimed_by = ZHE
-									is_claimed_by = GDC
-									is_claimed_by = GXC
-									is_claimed_by = YUN
-									is_claimed_by = HNC
-									is_claimed_by = GZC
-									is_claimed_by = GMJ
-									is_claimed_by = KMT
+								transfer_navy = {
+									target = PREV
 								}
-							}
-							remove_claim_by = PREV
-							add_claim_by = CHI
-						}
-						CHI = {
-							annex_country = {
-								target = KMT
-								transfer_troops = yes
+								PREV = {
+									annex_country = {
+										target = PREV
+										transfer_troops = yes
+									}
+								}
 							}
 						}
 					}
 					else = {
-						every_state = {
+						every_possible_country = {
 							limit = {
+								is_china_or_warlord = yes
 								OR = {
-									is_core_of = CHI
-									is_core_of = QIN
-									is_core_of = ANC
-									is_core_of = XSM
-									is_core_of = SHX
-									is_core_of = SIK
-									is_core_of = FNG
-									is_core_of = PRC
-									is_core_of = SDC
-									is_core_of = JNC
-									is_core_of = JXC
-									is_core_of = SCC
-									is_core_of = ZHE
-									is_core_of = GDC
-									is_core_of = GXC
-									is_core_of = YUN
-									is_core_of = HNC
-									is_core_of = GZC
-									is_core_of = GMJ
+									is_subject = no
+									is_subject_of = PREV
 								}
-							}
-							add_core_of = PREV
-						}
-						every_state = {
-							limit = {
-								OR = {
-									is_claimed_by = CHI
-									is_claimed_by = QIN
-									is_claimed_by = ANC
-									is_claimed_by = XSM
-									is_claimed_by = SHX
-									is_claimed_by = SIK
-									is_claimed_by = FNG
-									is_claimed_by = PRC
-									is_claimed_by = SDC
-									is_claimed_by = JNC
-									is_claimed_by = JXC
-									is_claimed_by = SCC
-									is_claimed_by = ZHE
-									is_claimed_by = GDC
-									is_claimed_by = GXC
-									is_claimed_by = YUN
-									is_claimed_by = HNC
-									is_claimed_by = GZC
-									is_claimed_by = GMJ
-								}
-							}
-							add_claim_by = PREV
-						}
-					}
-				}
-				every_country = {
-					limit = {
-						has_country_flag = CHI_kuomintang_flag
-					}
-					CHI = {
-						change_tag_from = KMT
-					}
-				}
-				CHI = {
-					set_cosmetic_tag = CHI_united
-					remove_ideas = CHI_idea_government_divided
-					set_politics = {
-						ruling_party = neutrality
-						elections_allowed = no
-					}
-					set_popularities = {
-						neutrality = 100
-					}
-					set_party_name = {
-						ideology = neutrality
-						long_name = CHI_kuomintang_party
-						name = CHI_kuomintang_party
-					}
-					add_country_leader_role = {
-						character = CHI_chiang_kaishek
-						country_leader = {
-							
-							ideology = authoritarian_democracy
-							traits = {
-								generallissimo
-								
-							}
-						}
-					}
-					CHI_chiang_kaishek = {
-						promote_character = {
-							ideology = authoritarian_democracy
-						}
-					}
-					add_country_leader_role = {
-						character = CHI_zhang_guotao
-						country_leader = {
-							
-							ideology = vanguardism
-							traits = {
-								cornered_fox
-								
-							}
-						}
-					}
-					promote_character = CHI_zhang_guotao
-					add_country_leader_role = {
-						character = CHI_wang_jingwei
-						country_leader = {
-							
-							ideology = fascism_ideology
-							traits = {
-								
-							}
-						}
-					}
-					CHI_wang_jingwei = {
-						promote_character = {
-							ideology = fascism_ideology
-						}
-					}
-					add_country_leader_role = {
-						character = CHI_weng_wenhao
-						country_leader = {
-							
-							ideology = socialism
-							traits = {
-								
-							}
-						}
-					}
-					promote_character = CHI_weng_wenhao
-					create_field_marshal = {
-						name = "Tu Yu-ming"
-						gfx = "GFX_portrait_chi_du_yuming"
-						traits = {
-							defensive_doctrine
-							trait_cautious
-							armor_officer
-							harsh_leader
-						}
-						skill = 4
-						attack_skill = 4
-						defense_skill = 4
-						planning_skill = 2
-						logistics_skill = 3
-					}
-					create_field_marshal = {
-						name = "Hsueh Yueh"
-						gfx = "GFX_portrait_chi_xue_yue"
-						traits = {
-							offensive_doctrine
-							trait_reckless
-							brilliant_strategist
-							war_hero
-						}
-						skill = 3
-						attack_skill = 3
-						defense_skill = 3
-						planning_skill = 1
-						logistics_skill = 3
-					}
-					create_field_marshal = {
-						name = "Tai An-lan"
-						gfx = "GFX_portrait_chi_tai_an_lan"
-						traits = {
-							offensive_doctrine
-							trait_reckless
-							career_officer
-						}
-						skill = 3
-						attack_skill = 3
-						defense_skill = 3
-						planning_skill = 3
-						logistics_skill = 1
-					}
-					create_field_marshal = {
-						name = "Wang Yao-wu"
-						gfx = "GFX_portrait_chi_wang_yaowu"
-						traits = {
-							defensive_doctrine
-							trait_cautious
-							infantry_officer
-						}
-						skill = 2
-						attack_skill = 2
-						defense_skill = 1
-						planning_skill = 2
-						logistics_skill = 2
-					}
-					create_corps_commander = {
-						name = "Sun Li Jen"
-						gfx = "GFX_portrait_chi_sun_li_jen"
-						traits = {
-							brilliant_strategist
-						}
-						skill = 4
-						attack_skill = 5
-						defense_skill = 4
-						planning_skill = 2
-						logistics_skill = 2
-					}
-					create_corps_commander = {
-						name = "Hu Zongnan"
-						gfx = "GFX_portrait_chi_hu_zongnan"
-						traits = {
-							politically_connected
-						}
-						skill = 4
-						attack_skill = 4
-						defense_skill = 3
-						planning_skill = 3
-						logistics_skill = 3
-					}
-					create_corps_commander = {
-						name = "Gu Zhutong"
-						gfx = "GFX_portrait_chi_gu_zhutong"
-						traits = {
-							career_officer
-						}
-						skill = 3
-						attack_skill = 3
-						defense_skill = 3
-						planning_skill = 2
-						logistics_skill = 2
-					}
-					create_corps_commander = {
-						name = "Wei Lihuang"
-						gfx = "GFX_portrait_chi_wei_lihuang"
-						traits = {
-							infantry_officer
-						}
-						skill = 3
-						attack_skill = 3
-						defense_skill = 3
-						planning_skill = 2
-						logistics_skill = 2
-					}
-					create_corps_commander = {
-						name = "Fu Zuoyi"
-						gfx = "GFX_portrait_chi_fu_zuoyi"
-						traits = {
-						}
-						skill = 3
-						attack_skill = 3
-						defense_skill = 3
-						planning_skill = 2
-						logistics_skill = 2
-					}
-					create_field_marshal = {
-						name = "Zhang Xueliang"
-						gfx = "GFX_portrait_chi_zhang_xueliang"
-						traits = {
-						}
-						skill = 3
-						attack_skill = 3
-						defense_skill = 3
-						planning_skill = 2
-						logistics_skill = 2
-					}
-					set_truce = {
-						target = JAP
-						days = 1825
-					}
-					if = {
-						limit = {
-							HNC = {
-								exists = yes
 								NOT = {
-									has_country_flag = reunited_china
+									has_war_with = PREV
+									tag = PREV
 								}
 							}
-						}
-						HNC = {
-							every_unit_leader = {
-								set_nationality = PREV
+							every_state = {
+								limit = {
+									is_core_of = PREV
+								}
+								add_core_of = PREV.PREV
+							}
+							every_state = {
+								limit = {
+									is_claimed_by = PREV
+								}
+								add_claim_by = PREV.PREV
 							}
 						}
-						annex_country = {
-							target = HNC
-							transfer_troops = yes
+					}
+					every_possible_country = {
+						limit = {
+							has_idea = CHI_idea_warlord_neutrality
 						}
+						remove_ideas = CHI_idea_warlord_neutrality
 					}
 					if = {
 						limit = {
-							SCC = {
-								exists = yes
-								NOT = {
-									has_country_flag = reunited_china
-								}
+							OR = {
+								has_country_flag = CHI_kuomintang_flag
+								original_tag = SHX
 							}
 						}
-						SCC = {
-							every_unit_leader = {
-								set_nationality = PREV
-							}
-						}
-						annex_country = {
-							target = SCC
-							transfer_troops = yes
-						}
+						CHI = { change_tag_from = PREV }
 					}
-					if = {
-						limit = {
-							SDC = {
-								exists = yes
-								NOT = {
-									has_country_flag = reunited_china
-								}
-							}
-						}
-						SDC = {
-							every_unit_leader = {
-								set_nationality = PREV
-							}
-						}
-						annex_country = {
-							target = SDC
-							transfer_troops = yes
-						}
-					}
-					if = {
-						limit = {
-							JNC = {
-								exists = yes
-								NOT = {
-									has_country_flag = reunited_china
-								}
-							}
-						}
-						JNC = {
-							every_unit_leader = {
-								set_nationality = PREV
-							}
-						}
-						annex_country = {
-							target = JNC
-							transfer_troops = yes
-						}
-					}
-					if = {
-						limit = {
-							JXC = {
-								exists = yes
-								NOT = {
-									has_country_flag = reunited_china
-								}
-							}
-						}
-						JXC = {
-							every_unit_leader = {
-								set_nationality = PREV
-							}
-						}
-						annex_country = {
-							target = JXC
-							transfer_troops = yes
-						}
-					}
-					if = {
-						limit = {
-							ZHE = {
-								exists = yes
-								NOT = {
-									has_country_flag = reunited_china
-								}
-							}
-						}
-						ZHE = {
-							every_unit_leader = {
-								set_nationality = PREV
-							}
-						}
-						annex_country = {
-							target = ZHE
-							transfer_troops = yes
-						}
-					}
-					if = {
-						limit = {
-							GDC = {
-								exists = yes
-								NOT = {
-									has_country_flag = reunited_china
-								}
-							}
-						}
-						GDC = {
-							every_unit_leader = {
-								set_nationality = PREV
-							}
-						}
-						annex_country = {
-							target = GDC
-							transfer_troops = yes
-						}
-					}
-					if = {
-						limit = {
-							GZC = {
-								exists = yes
-								NOT = {
-									has_country_flag = reunited_china
-								}
-							}
-						}
-						GZC = {
-							every_unit_leader = {
-								set_nationality = PREV
-							}
-						}
-						annex_country = {
-							target = GZC
-							transfer_troops = yes
-						}
-					}
-					if = {
-						limit = {
-							owns_state = 283
-							XSM = {
-								exists = yes
-								NOT = {
-									has_country_flag = reunited_china
-								}
-							}
-						}
-						XSM = {
-							every_unit_leader = {
-								set_nationality = PREV
-							}
-						}
-						XSM = {
-							transfer_state = 283
-							add_state_core = 283
-						}
-					}
-					if = {
-						limit = {
-							SHX = {
-								has_country_flag = manchurian_incident
-							}
-						}
-						annex_country = {
-							target = SHX
-							transfer_troops = yes
-						}
-						annex_country = {
-							target = GMJ
-							transfer_troops = yes
-						}
-						every_state = {
-							limit = {
-								is_core_of = SHX
-							}
-							remove_core_of = SHX
-						}
-						set_capital = { state = 608 }
-						add_country_leader_role = {
-							character = CHI_yan_xishan
-							country_leader = {
-								
-								ideology = authoritarian_democracy
-								traits = {
-									propaganda_expert
-									
-								}
-							}
-						}
-						CHI_yan_xishan = {
-							promote_character = {
-								ideology = authoritarian_democracy
-							}
-						}
-						change_tag_from = SHX
-						change_tag_from = GMJ
-					}
-				}
-				every_state = {
-					limit = {
-						is_core_of = XSM
-						NOT = {
-							XSM = {
-								has_country_flag = reunited_china
-							}
-							is_owned_by = XSM
-						}
-					}
-					remove_core_of = XSM
-				}
-				every_state = {
-					limit = {
-						is_core_of = GMJ
-						NOT = {
-							GMJ = {
-								has_country_flag = reunited_china
-							}
-						}
-					}
-					remove_core_of = GMJ
-				}
-				every_state = {
-					limit = {
-						is_core_of = FNG
-					}
-					remove_core_of = FNG
-				}
-				every_state = {
-					limit = {
-						is_core_of = ANC
-						NOT = {
-							ANC = {
-								has_country_flag = reunited_china
-							}
-						}
-					}
-					remove_core_of = ANC
-				}
-				every_state = {
-					limit = {
-						is_core_of = SDC
-						NOT = {
-							SDC = {
-								has_country_flag = reunited_china
-							}
-						}
-					}
-					remove_core_of = SDC
-				}
-				every_state = {
-					limit = {
-						is_core_of = SCC
-						NOT = {
-							SCC = {
-								has_country_flag = reunited_china
-							}
-						}
-					}
-					remove_core_of = SCC
-				}
-				every_state = {
-					limit = {
-						is_core_of = GZC
-						NOT = {
-							GZC = {
-								has_country_flag = reunited_china
-							}
-						}
-					}
-					remove_core_of = GZC
-				}
-				every_state = {
-					limit = {
-						is_core_of = HNC
-						NOT = {
-							HNC = {
-								has_country_flag = reunited_china
-							}
-						}
-					}
-					remove_core_of = HNC
-				}
-				every_country = {
-					limit = {
-						has_idea = CHI_idea_warlord_neutrality
-					}
-					remove_ideas = CHI_idea_warlord_neutrality
 				}
 			}
 		}
 	}
 	JAP_sue_for_peace_CHI = {
 		allowed = {
-			original_tag = JAP
+			tag = JAP
 		}
 		available = {
 			MAN = {
 				has_capitulated = yes
 			}
-			surrender_progress > 0.3
 		}
 		visible = {
-			any_country = {
+			any_other_country = {
 				has_country_flag = manchurian_incident
-				has_war_with = JAP
+				has_war_with = PREV
 			}
-			MAN = {
-				is_subject_of = PREV
-			}
-			FNG = {
-				exists = no
-			}
+			has_subject = MAN
+			NOT = { country_exists = FNG }
 		}
 		fire_only_once = yes
 		ai_will_do = {
 			base = 0
 			modifier = {
 				add = 1000
-				MAN = {
-					has_capitulated = yes
-				}
 				OR = {
 					AND = {
-						JAP = {
-							NOT = {
-								controls_state = 525
-								controls_state = 527
-								controls_state = 796
-								controls_state = 797
-								controls_state = 799
-								controls_state = 800
-								controls_state = 801
-							}
+						NOT = {
+							controls_state = 525
+							controls_state = 527
+							controls_state = 796
+							controls_state = 797
+							controls_state = 799
+							controls_state = 800
+							controls_state = 801
 						}
 						if = {
 							limit = {
-								KOR = {
-									is_subject_of = JAP
-								}
+								has_subject = KOR
 							}
 							KOR = {
 								has_capitulated = yes
@@ -945,36 +413,30 @@ peace_deals = {
 			}
 		}
 		complete_effect = {
-			every_country = {
+			every_other_country = {
 				limit = {
 					has_war_with = PREV
-					OR = {
-						has_country_flag = part_of_china
-						has_country_flag = manchurian_incident
-					}
+					is_china_or_warlord = yes
 				}
 				white_peace = PREV
-			}
-			KOR = {
-				if = {
-					limit = {
-						is_subject_of = PREV
-					}
-					PREV = {
-						end_puppet = PREV
-					}
-					complete_national_focus = KOR_the_light_returned
-				}
-				PREV = {
-					every_owned_state = {
-						limit = {
-							is_core_of = PREV
-						}
-						transfer_state_to = PREV
-					}
+				set_truce = {
+					target = PREV
+					days = 1825
 				}
 			}
 			end_puppet = MAN
+			if = {
+				limit = {
+					has_subject = KOR
+				}
+				end_puppet = KOR
+			}
+			every_owned_state = {
+				limit = {
+					is_core_of = KOR
+				}
+				transfer_state_to = KOR
+			}
 			every_owned_state = {
 				limit = {
 					OR = {
@@ -986,819 +448,86 @@ peace_deals = {
 				}
 				transfer_state_to = MAN
 			}
-			every_country = {
+			every_other_country = {
 				limit = {
 					has_country_flag = manchurian_incident
 				}
-				if = {
-					limit = {
-						NOT = {
-							has_government = communism
-						}
-					}
-					if = {
-						limit = {
-							PRC = {
-								has_government = communism
-							}
-						}
-						every_state = {
-							limit = {
-								is_core_of = PREV
-							}
-							add_core_of = PRC
-						}
-						PRC = {
-							annex_country = {
-								target = MAN
-							}
-							every_state = {
-								limit = {
-									is_core_of = MAN
-								}
-								remove_core_of = MAN
-								add_core_of = PREV
-							}
-							set_country_flag = chinese_civil_war
-						}
-					}
-					else_if = {
-						limit = {
-							any_country = {
-								exists = yes
-								has_country_flag = CHI_soviet_republic_flag
-								has_government = communism
-							}
-						}
-						CSR = {
-							annex_country = {
-								target = MAN
-							}
-							every_state = {
-								limit = {
-									is_core_of = MAN
-								}
-								remove_core_of = MAN
-								add_core_of = PREV
-							}
-							set_country_flag = chinese_civil_war
-						}
-					}
-					else_if = {
-						limit = {
-							OR = {
-								has_idea = CHI_idea_communist_movement
-								communism > 0.3
-							}
-						}
-						hidden_effect = {
-							MAN = {
-								set_politics = {
-									ruling_party = communism
-									elections_allowed = no
-								}
-								set_popularities = {
-									communism = 100
-								}
-								set_cosmetic_tag = PRC_communist
-							}
-						}
-						MAN = {
-							set_country_flag = chinese_civil_war
-						}
-					}
-					every_other_country = {
-						limit = {
-							has_country_flag = chinese_civil_war
-						}
-						hidden_effect = {
-							leave_faction = yes
-							set_capital = { state = 608 }
-							PREV = {
-								transfer_units_fraction = {
-									target = PREV
-									size = 0.4
-									keep_unit_leaders_trigger = {
-										always = yes
-									}
-								}
-							}
-							every_other_country = {
-								limit = {
-									is_china_or_warlord = yes
-								}
-								every_state = {
-									limit = {
-										is_core_of = PREV
-									}
-									add_core_of = PREV.PREV
-								}
-								every_owned_state = {
-									limit = {
-										OR = {
-											state = 328
-											state = 597
-											state = 609
-											state = 610
-											state = 611
-											state = 612
-											state = 614
-											state = 615
-											state = 617
-											state = 622
-											state = 714
-											state = 715
-											state = 716
-											state = 717
-										}
-									}
-									transfer_state_to = PREV.PREV
-								}
-							}
-							if = {
-								limit = {
-									country_exists = MEN
-								}
-								annex_country = {
-									target = MEN
-								}
-							}
-						}
-						create_wargoal = {
-							target = PREV
-							type = civil_war
-						}
-					}
-				}
 				every_state = {
 					limit = {
-						is_owned_by = JAP
+						OR = {
+							is_owned_by = PREV.PREV
+							is_owned_by = MAN
+						}
 						OR = {
 							is_core_of = PREV
 							is_claimed_by = PREV
 						}
 					}
+					remove_core_of = MAN
 					transfer_state_to = PREV
 				}
-				set_truce = {
-					target = JAP
-					days = 1825
+				# if = {
+				# 	limit = {
+				# 		NOT = {
+				# 			has_government = communism
+				# 		}
+				# 	}
+				# 	country_event = {
+				# 		id = ww1_china.90
+				# 		days = 100
+				# 	}
+				# }
+			}
+		}
+	}
+}
+economy_decisions = {
+	JAP_restore_Mantetsu_control = {
+		icon = infiltrate_state
+
+		allowed = {
+			original_tag = JAP
+		}
+
+		target_trigger = {
+			FROM = {
+				is_china_or_warlord = yes
+				NOT = {
+					gives_military_access_to = ROOT
+					is_in_faction_with = ROOT
+					is_subject_of = ROOT
 				}
-				hidden_effect = {
-					if = {
-						limit = {
-							has_country_flag = reunited_china
-						}
-						every_other_country = {
-							limit = {
-								exists = no
-								OR = {
-									has_country_flag = part_of_china
-									original_tag = CHI
-								}
-							}
-							every_unit_leader = {
-								set_nationality = PREV
-							}
-							every_state = {
-								remove_core_of = PREV
-							}
-						}
-					}
-					else_if = {
-						limit = {
-							has_country_flag = CHI_kuomintang_flag
-						}
-						every_state = {
-							limit = {
-								OR = {
-									is_core_of = CHI
-									is_core_of = QIN
-									is_core_of = ANC
-									is_core_of = XSM
-									is_core_of = SHX
-									is_core_of = SIK
-									is_core_of = FNG
-									is_core_of = PRC
-									is_core_of = SDC
-									is_core_of = JNC
-									is_core_of = JXC
-									is_core_of = SCC
-									is_core_of = ZHE
-									is_core_of = GDC
-									is_core_of = GXC
-									is_core_of = YUN
-									is_core_of = HNC
-									is_core_of = GZC
-									is_core_of = GMJ
-									is_core_of = KMT
-								}
-							}
-							remove_core_of = PREV
-							add_core_of = CHI
-						}
-						every_state = {
-							limit = {
-								OR = {
-									is_claimed_by = CHI
-									is_claimed_by = QIN
-									is_claimed_by = ANC
-									is_claimed_by = XSM
-									is_claimed_by = SHX
-									is_claimed_by = SIK
-									is_claimed_by = FNG
-									is_claimed_by = PRC
-									is_claimed_by = SDC
-									is_claimed_by = JNC
-									is_claimed_by = JXC
-									is_claimed_by = SCC
-									is_claimed_by = ZHE
-									is_claimed_by = GDC
-									is_claimed_by = GXC
-									is_claimed_by = YUN
-									is_claimed_by = HNC
-									is_claimed_by = GZC
-									is_claimed_by = GMJ
-									is_claimed_by = KMT
-								}
-							}
-							remove_claim_by = PREV
-							add_claim_by = CHI
-						}
-						CHI = {
-							annex_country = {
-								target = KMT
-								transfer_troops = yes
-							}
-						}
-					}
-					else = {
-						every_state = {
-							limit = {
-								OR = {
-									is_core_of = CHI
-									is_core_of = QIN
-									is_core_of = ANC
-									is_core_of = XSM
-									is_core_of = SHX
-									is_core_of = SIK
-									is_core_of = FNG
-									is_core_of = PRC
-									is_core_of = SDC
-									is_core_of = JNC
-									is_core_of = JXC
-									is_core_of = SCC
-									is_core_of = ZHE
-									is_core_of = GDC
-									is_core_of = GXC
-									is_core_of = YUN
-									is_core_of = HNC
-									is_core_of = GZC
-									is_core_of = GMJ
-								}
-							}
-							add_core_of = PREV
-						}
-						every_state = {
-							limit = {
-								OR = {
-									is_claimed_by = CHI
-									is_claimed_by = QIN
-									is_claimed_by = ANC
-									is_claimed_by = XSM
-									is_claimed_by = SHX
-									is_claimed_by = SIK
-									is_claimed_by = FNG
-									is_claimed_by = PRC
-									is_claimed_by = SDC
-									is_claimed_by = JNC
-									is_claimed_by = JXC
-									is_claimed_by = SCC
-									is_claimed_by = ZHE
-									is_claimed_by = GDC
-									is_claimed_by = GXC
-									is_claimed_by = YUN
-									is_claimed_by = HNC
-									is_claimed_by = GZC
-									is_claimed_by = GMJ
-								}
-							}
-							add_claim_by = PREV
-						}
-					}
+				OR = {
+					controls_state = 716
+					controls_state = 328
 				}
-				every_country = {
-					limit = {
-						has_country_flag = CHI_kuomintang_flag
-					}
-					CHI = {
-						change_tag_from = KMT
-					}
+			}
+		}
+		visible = {
+			hidden_trigger = {
+				is_subject = no
+				has_capitulated = no
+				any_country = {
+					OR = {
+						tag = ROOT
+						is_subject_of = ROOT
+					}				
+					owns_state = 744
+					controls_state = 744
 				}
-				CHI = {
-					set_cosmetic_tag = CHI_united
-					remove_ideas = CHI_idea_government_divided
-					set_politics = {
-						ruling_party = neutrality
-						elections_allowed = no
-					}
-					set_popularities = {
-						neutrality = 100
-					}
-					set_party_name = {
-						ideology = neutrality
-						long_name = CHI_kuomintang_party
-						name = CHI_kuomintang_party
-					}
-					add_country_leader_role = {
-						character = CHI_chiang_kaishek
-						country_leader = {
-							
-							ideology = authoritarian_democracy
-							traits = {
-								generallissimo
-								
-							}
-						}
-					}
-					CHI_chiang_kaishek = {
-						promote_character = {
-							ideology = authoritarian_democracy
-						}
-					}
-					add_country_leader_role = {
-						character = CHI_zhang_guotao
-						country_leader = {
-							
-							ideology = vanguardism
-							traits = {
-								cornered_fox
-								
-							}
-						}
-					}
-					promote_character = CHI_zhang_guotao
-					add_country_leader_role = {
-						character = CHI_wang_jingwei
-						country_leader = {
-							
-							ideology = fascism_ideology
-							traits = {
-								
-							}
-						}
-					}
-					CHI_wang_jingwei = {
-						promote_character = {
-							ideology = fascism_ideology
-						}
-					}
-					add_country_leader_role = {
-						character = CHI_weng_wenhao
-						country_leader = {
-							
-							ideology = socialism
-							traits = {
-								
-							}
-						}
-					}
-					promote_character = CHI_weng_wenhao
-					create_field_marshal = {
-						name = "Tu Yu-ming"
-						gfx = "GFX_portrait_chi_du_yuming"
-						traits = {
-							defensive_doctrine
-							trait_cautious
-							armor_officer
-							harsh_leader
-						}
-						skill = 4
-						attack_skill = 4
-						defense_skill = 4
-						planning_skill = 2
-						logistics_skill = 3
-					}
-					create_field_marshal = {
-						name = "Hsueh Yueh"
-						gfx = "GFX_portrait_chi_xue_yue"
-						traits = {
-							offensive_doctrine
-							trait_reckless
-							brilliant_strategist
-							war_hero
-						}
-						skill = 3
-						attack_skill = 3
-						defense_skill = 3
-						planning_skill = 1
-						logistics_skill = 3
-					}
-					create_field_marshal = {
-						name = "Tai An-lan"
-						gfx = "GFX_portrait_chi_tai_an_lan"
-						traits = {
-							offensive_doctrine
-							trait_reckless
-							career_officer
-						}
-						skill = 3
-						attack_skill = 3
-						defense_skill = 3
-						planning_skill = 3
-						logistics_skill = 1
-					}
-					create_field_marshal = {
-						name = "Wang Yao-wu"
-						gfx = "GFX_portrait_chi_wang_yaowu"
-						traits = {
-							defensive_doctrine
-							trait_cautious
-							infantry_officer
-						}
-						skill = 2
-						attack_skill = 2
-						defense_skill = 1
-						planning_skill = 2
-						logistics_skill = 2
-					}
-					create_corps_commander = {
-						name = "Sun Li Jen"
-						gfx = "GFX_portrait_chi_sun_li_jen"
-						traits = {
-							brilliant_strategist
-						}
-						skill = 4
-						attack_skill = 5
-						defense_skill = 4
-						planning_skill = 2
-						logistics_skill = 2
-					}
-					create_corps_commander = {
-						name = "Hu Zongnan"
-						gfx = "GFX_portrait_chi_hu_zongnan"
-						traits = {
-							politically_connected
-						}
-						skill = 4
-						attack_skill = 4
-						defense_skill = 3
-						planning_skill = 3
-						logistics_skill = 3
-					}
-					create_corps_commander = {
-						name = "Gu Zhutong"
-						gfx = "GFX_portrait_chi_gu_zhutong"
-						traits = {
-							career_officer
-						}
-						skill = 3
-						attack_skill = 3
-						defense_skill = 3
-						planning_skill = 2
-						logistics_skill = 2
-					}
-					create_corps_commander = {
-						name = "Wei Lihuang"
-						gfx = "GFX_portrait_chi_wei_lihuang"
-						traits = {
-							infantry_officer
-						}
-						skill = 3
-						attack_skill = 3
-						defense_skill = 3
-						planning_skill = 2
-						logistics_skill = 2
-					}
-					create_corps_commander = {
-						name = "Fu Zuoyi"
-						gfx = "GFX_portrait_chi_fu_zuoyi"
-						traits = {
-						}
-						skill = 3
-						attack_skill = 3
-						defense_skill = 3
-						planning_skill = 2
-						logistics_skill = 2
-					}
-					create_field_marshal = {
-						name = "Zhang Xueliang"
-						gfx = "GFX_portrait_chi_zhang_xueliang"
-						traits = {
-						}
-						skill = 3
-						attack_skill = 3
-						defense_skill = 3
-						planning_skill = 2
-						logistics_skill = 2
-					}
-					set_truce = {
-						target = JAP
-						days = 1825
-					}
-					if = {
-						limit = {
-							HNC = {
-								exists = yes
-								NOT = {
-									has_country_flag = reunited_china
-								}
-							}
-						}
-						HNC = {
-							every_unit_leader = {
-								set_nationality = PREV
-							}
-						}
-						annex_country = {
-							target = HNC
-							transfer_troops = yes
-						}
-					}
-					if = {
-						limit = {
-							SCC = {
-								exists = yes
-								NOT = {
-									has_country_flag = reunited_china
-								}
-							}
-						}
-						SCC = {
-							every_unit_leader = {
-								set_nationality = PREV
-							}
-						}
-						annex_country = {
-							target = SCC
-							transfer_troops = yes
-						}
-					}
-					if = {
-						limit = {
-							SDC = {
-								exists = yes
-								NOT = {
-									has_country_flag = reunited_china
-								}
-							}
-						}
-						SDC = {
-							every_unit_leader = {
-								set_nationality = PREV
-							}
-						}
-						annex_country = {
-							target = SDC
-							transfer_troops = yes
-						}
-					}
-					if = {
-						limit = {
-							JNC = {
-								exists = yes
-								NOT = {
-									has_country_flag = reunited_china
-								}
-							}
-						}
-						JNC = {
-							every_unit_leader = {
-								set_nationality = PREV
-							}
-						}
-						annex_country = {
-							target = JNC
-							transfer_troops = yes
-						}
-					}
-					if = {
-						limit = {
-							JXC = {
-								exists = yes
-								NOT = {
-									has_country_flag = reunited_china
-								}
-							}
-						}
-						JXC = {
-							every_unit_leader = {
-								set_nationality = PREV
-							}
-						}
-						annex_country = {
-							target = JXC
-							transfer_troops = yes
-						}
-					}
-					if = {
-						limit = {
-							ZHE = {
-								exists = yes
-								NOT = {
-									has_country_flag = reunited_china
-								}
-							}
-						}
-						ZHE = {
-							every_unit_leader = {
-								set_nationality = PREV
-							}
-						}
-						annex_country = {
-							target = ZHE
-							transfer_troops = yes
-						}
-					}
-					if = {
-						limit = {
-							GDC = {
-								exists = yes
-								NOT = {
-									has_country_flag = reunited_china
-								}
-							}
-						}
-						GDC = {
-							every_unit_leader = {
-								set_nationality = PREV
-							}
-						}
-						annex_country = {
-							target = GDC
-							transfer_troops = yes
-						}
-					}
-					if = {
-						limit = {
-							GZC = {
-								exists = yes
-								NOT = {
-									has_country_flag = reunited_china
-								}
-							}
-						}
-						GZC = {
-							every_unit_leader = {
-								set_nationality = PREV
-							}
-						}
-						annex_country = {
-							target = GZC
-							transfer_troops = yes
-						}
-					}
-					if = {
-						limit = {
-							owns_state = 283
-							XSM = {
-								exists = yes
-								NOT = {
-									has_country_flag = reunited_china
-								}
-							}
-						}
-						XSM = {
-							every_unit_leader = {
-								set_nationality = PREV
-							}
-						}
-						XSM = {
-							transfer_state = 283
-							add_state_core = 283
-						}
-					}
-					if = {
-						limit = {
-							SHX = {
-								has_country_flag = manchurian_incident
-							}
-						}
-						annex_country = {
-							target = SHX
-							transfer_troops = yes
-						}
-						annex_country = {
-							target = GMJ
-							transfer_troops = yes
-						}
-						every_state = {
-							limit = {
-								is_core_of = SHX
-							}
-							remove_core_of = SHX
-						}
-						set_capital = { state = 608 }
-						add_country_leader_role = {
-							character = CHI_yan_xishan
-							country_leader = {
-								
-								ideology = authoritarian_democracy
-								traits = {
-									propaganda_expert
-									
-								}
-							}
-						}
-						CHI_yan_xishan = {
-							promote_character = {
-								ideology = authoritarian_democracy
-							}
-						}
-						change_tag_from = SHX
-						change_tag_from = GMJ
-					}
-				}
-				every_state = {
-					limit = {
-						is_core_of = XSM
-						NOT = {
-							XSM = {
-								has_country_flag = reunited_china
-							}
-							is_owned_by = XSM
-						}
-					}
-					remove_core_of = XSM
-				}
-				every_state = {
-					limit = {
-						is_core_of = GMJ
-						NOT = {
-							GMJ = {
-								has_country_flag = reunited_china
-							}
-						}
-					}
-					remove_core_of = GMJ
-				}
-				every_state = {
-					limit = {
-						is_core_of = FNG
-					}
-					remove_core_of = FNG
-				}
-				every_state = {
-					limit = {
-						is_core_of = ANC
-						NOT = {
-							ANC = {
-								has_country_flag = reunited_china
-							}
-						}
-					}
-					remove_core_of = ANC
-				}
-				every_state = {
-					limit = {
-						is_core_of = SDC
-						NOT = {
-							SDC = {
-								has_country_flag = reunited_china
-							}
-						}
-					}
-					remove_core_of = SDC
-				}
-				every_state = {
-					limit = {
-						is_core_of = SCC
-						NOT = {
-							SCC = {
-								has_country_flag = reunited_china
-							}
-						}
-					}
-					remove_core_of = SCC
-				}
-				every_state = {
-					limit = {
-						is_core_of = GZC
-						NOT = {
-							GZC = {
-								has_country_flag = reunited_china
-							}
-						}
-					}
-					remove_core_of = GZC
-				}
-				every_state = {
-					limit = {
-						is_core_of = HNC
-						NOT = {
-							HNC = {
-								has_country_flag = reunited_china
-							}
-						}
-					}
-					remove_core_of = HNC
-				}
-				every_country = {
-					limit = {
-						has_idea = CHI_idea_warlord_neutrality
-					}
-					remove_ideas = CHI_idea_warlord_neutrality
-				}
+			}					
+		}
+
+		days_remove = 5
+
+		ai_will_do = {
+			factor = 100
+		}
+
+		cancel_if_not_visible = yes
+		remove_effect = {
+			FROM = {
+				give_military_access = 	ROOT
 			}
 		}
 	}

@@ -457,9 +457,9 @@ focus_tree = {
 					}
 				}
 			}
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = fleet_in_being_bonus
-				bonus = 0.5
+				cost_reduction = 0.25
 				uses = 1
 				category = fleet_in_being_tree
 			}
@@ -472,9 +472,9 @@ focus_tree = {
 				level = 3
 				instant_build = yes
 			}
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = fleet_in_being_bonus
-				bonus = 0.5
+				cost_reduction = 0.25
 				uses = 1
 				category = fleet_in_being_tree
 			}
@@ -495,7 +495,7 @@ focus_tree = {
 	#Focus for Warplanes
 	focus = {
 		id = KOR_warplanes
-		icon = GFX_goal_continuous_air_production
+		icon = GFX_goal_generic_air_fighter
 		x = 31
 		y = 5
 		cost = 10
@@ -671,6 +671,7 @@ focus_tree = {
 		prerequisite = {
 			focus = KOR_god_help_our_emperor
 			focus = KOR_constitutional_monarchy
+			focus = KOR_military_government #wildcard :)
 		}
 		mutually_exclusive = {
 			focus = KOR_join_the_soviet_union
@@ -1914,8 +1915,13 @@ focus_tree = {
 			FOCUS_FILTER_POLITICAL
 		}
 		available = {
-			JAP = {
-				has_completed_focus = JAP_ww1_free_Korea
+			OR = {
+				JAP = {
+					has_completed_focus = JAP_ww1_free_Korea
+				}
+				hidden_trigger = {
+					has_country_flag = korea_is_annexed
+				}
 			}
 		}
 		ai_will_do = {
@@ -2062,25 +2068,38 @@ focus_tree = {
 			add_stability = -0.2
 			hidden_effect = {
 				set_popularities = {
-					democratic = 0
-					communism = 0
-					fascism = 0
 					neutrality = 100
 				}
+				KOR_yi_un = {
+					set_portraits = {
+						civilian = {
+							large = "gfx/leaders/KOR/KOR_yi_un_joseon.png"
+						}
+					}
+				}	
 			}
 		}
 		ai_will_do = {
 			base = 0
 			modifier = {
-				factor = 1000
+				add = 1000
 				any_other_country = {
 					has_subject = PREV
 					OR = {
 						original_tag = QIN
 						has_cosmetic_tag = QIN_government
-						has_country_leader = {
-							character = CHI_hongxian_emperor
-							ruling_only = yes
+						AND = {
+							OR = {
+								has_country_leader = {
+									character = CHI_yuan_shikai
+									ruling_only = yes
+								}
+								has_country_leader = {
+									character = CHI_yuan_keding
+									ruling_only = yes
+								}
+							}
+							has_government = fascism
 						}
 					}
 				}
@@ -2112,25 +2131,30 @@ focus_tree = {
 				limit = {
 					has_country_leader = {
 						character = KOR_yi_hui
-						ruling_only = yes
+						ruling_only = no
 					}
 				}
-				remove_country_leader_trait = inexperienced_imperialist
+				KOR_yi_hui = {
+					remove_country_leader_trait = inexperienced_imperialist
+				}	
 			}
 			if = {
 				limit = {
-					OR = {
-						has_country_leader = {
-							character = KOR_yi_cheok
-							ruling_only = yes
-						}
-						has_country_leader = {
-							character = KOR_yi_un
-							ruling_only = yes
-						}
+					has_country_leader = {
+						character = KOR_yi_cheok
+						ruling_only = no
 					}
 				}
-				remove_country_leader_trait = inexperienced_monarch
+				KOR_yi_cheok = { remove_country_leader_trait = inexperienced_monarch }
+			}
+			if = {
+				limit = {
+					has_country_leader = {
+						character = KOR_yi_un
+						ruling_only = no
+					}
+				}
+				KOR_yi_un = { remove_country_leader_trait = inexperienced_monarch }
 			}
 			add_stability = 0.15
 			add_political_power = 150
@@ -2195,16 +2219,42 @@ focus_tree = {
 		}
 		completion_reward = {
 			set_cosmetic_tag = KOR_monarchist
-			set_politics = {
-				ruling_party = democratic
-				elections_allowed = yes
+			meta_effect = {
+				text = {
+					set_politics = {
+						ruling_party = democratic
+						long_name = KOR_revolutionary_party_long
+						name = KOR_revolutionary_party
+						last_election = "[CURRENT_DATE]"
+						election_frequency = 48
+						elections_allowed = no #elections wip
+					}
+				}
+				CURRENT_DATE = "[?global.date.GetDateStringNoHour]"
 			}
-			set_party_name = {
-				ideology = democratic
-				long_name = KOR_revolutionary_party_long
-				name = KOR_revolutionary_party
+			if = {
+				limit = {
+					NOT = {
+						has_country_flag = emperor_gwangmu_is_dead
+					}
+				}
+				add_ideas = KOR_idea_gwangmu
+				else_if = {
+					limit = {
+						NOT = { has_country_flag = emperor_yunghui_is_dead }
+					}	
+					add_ideas = KOR_idea_yunghui
+					else_if = {
+						limit = {
+							is_subject_of = JAP
+						}
+						add_ideas = KOR_idea_uimin
+						else = {
+							add_ideas = KOR_idea_uihwa
+						}
+					}
+				}
 			}
-			add_ideas = KOR_idea_sunjong
 			promote_character = KOR_yi_sangsul
 			hidden_effect = {
 				set_popularities = {
@@ -2258,7 +2308,7 @@ focus_tree = {
 					ruling_party = fascism
 					elections_allowed = no
 				}
-				add_ideas = KOR_idea_yunghui
+				add_ideas = KOR_idea_yunghui_puppet
 				set_popularities = {
 					democratic = 25
 					communism = 2
@@ -2306,6 +2356,19 @@ focus_tree = {
 			is_subject = no
 		}
 		completion_reward = {
+			meta_effect = {
+				text = {
+					set_politics = {
+						ruling_party = communism
+						long_name = KOR_communism_party_long
+						name = KOR_communism_party
+						last_election = "[CURRENT_DATE]"
+						election_frequency = 60
+						elections_allowed = no #term not started yet
+					}
+				}
+				CURRENT_DATE = "[?global.date.GetDateStringNoHour]"
+			}
 			add_timed_idea = {
 				idea = communist_influence
 				days = 365
@@ -2388,6 +2451,19 @@ focus_tree = {
 			is_subject = no
 		}
 		completion_reward = {
+			meta_effect = {
+				text = {
+					set_politics = {
+						ruling_party = democratic
+						long_name = KOR_provisional_government_long
+						name = KOR_provisional_government
+						last_election = "[CURRENT_DATE]"
+						election_frequency = 60
+						elections_allowed = no #term not started yet
+					}
+				}
+				CURRENT_DATE = "[?global.date.GetDateStringNoHour]"
+			}
 			add_timed_idea = {
 				idea = democratic_influence
 				days = 365
@@ -2453,7 +2529,7 @@ focus_tree = {
 	#Focus for The Light Returned
 	focus = {
 		id = KOR_the_light_returned
-		icon = GFX_goal_continuous_boost_freedom
+		icon = GFX_focus_generic_support_the_left_right
 		x = 25
 		y = 0
 		cost = 5
@@ -2480,55 +2556,13 @@ focus_tree = {
 		}
 		completion_reward = {
 			add_stability = 0.1
-			hidden_effect = {
-				add_country_leader_role = {
-					character = KOR_syngman_rhee
-					country_leader = {
-						ideology = conservatism
-						traits = { anti_communist }
-					}
-				}
-				add_country_leader_role = {
-					character = KOR_yi_donghwi
-					country_leader = {
-						ideology = marxism
-					}
-				}
-				add_country_leader_role = {
-					character = KOR_supreme_council
-					country_leader = {
-						ideology = stratocracy
-						traits = { generallissimo }
-					}
-				}
-				add_country_leader_role = {
-					character = KOR_yi_hui
-					country_leader = {
-						ideology = autocracy
-						traits = { assassination_survivor inexperienced_imperialist }
-					}
-				}
-				add_country_leader_role = {
-					character = KOR_yi_sangsul
-					country_leader = {
-						ideology = conservatism
-						traits = { bookworm }
-					}
-				}
-				add_country_leader_role = {
-					character = KOR_lyuh_woonhyung
-					country_leader = {
-						ideology = socialism
-						traits = { popular_figurehead }
-					}
-				}
-			}
+			retire_character = KOR_terauchi_masatake
 		}
 	}
 	#Focus for Compromise and Obedience
 	focus = {
 		id = KOR_compromise_and_obedience
-		icon = GFX_goal_continuous_restrict_freedom
+		icon = GFX_focus_CZE_german_puppet
 		x = 15
 		y = 1
 		cost = 10
@@ -2586,13 +2620,23 @@ focus_tree = {
 						has_idea = GER_idea_wilhelm_ii
 						has_idea = nicholas_ii
 						has_idea = QIN_idea_xuantong
+						has_idea = QIN_idea_xuantong_young
 						has_idea = george_v
 						has_idea = edward_vii
 						has_idea = ENG_All_The_Kings_Men
 						has_idea = george_v_2
-						has_country_leader = {
-							character = CHI_hongxian_emperor
-							ruling_only = yes
+						AND = {
+							OR = {
+								has_country_leader = {
+									character = CHI_yuan_shikai
+									ruling_only = yes
+								}
+								has_country_leader = {
+									character = CHI_yuan_keding
+									ruling_only = yes
+								}
+							}
+							has_government = fascism
 						}
 					}
 				}
@@ -2606,20 +2650,34 @@ focus_tree = {
 				ruling_party = neutrality
 				elections_allowed = no
 			}
-			hidden_effect = {
-				if = {
-					limit = {
-						NOT = {
-							has_country_flag = emperor_gwangmu_is_dead
-						}
-					}
-					promote_character = KOR_yi_hui
-				}
-				if = {
-					limit = {
+			if = {
+				limit = {
+					NOT = {
 						has_country_flag = emperor_gwangmu_is_dead
 					}
+				}
+				add_country_leader_role = {
+					character = KOR_yi_hui
+					promote_leader = yes
+					country_leader = {
+						ideology = autocracy
+						traits = { assassination_survivor inexperienced_imperialist }
+					}
+				}
+				else_if = {
+					limit = {
+						NOT = { has_country_flag = emperor_yunghui_is_dead }
+					}	
 					promote_character = KOR_yi_cheok
+					else_if = {
+						limit = {
+							is_subject_of = JAP
+						}
+						promote_character = KOR_yi_un
+						else = {
+							promote_character = KOR_yi_kang
+						}
+					}
 				}
 			}
 		}
@@ -3293,6 +3351,7 @@ focus_tree = {
 		prerequisite = {
 			focus = KOR_democratic_republic
 			focus = KOR_constitutional_monarchy
+			focus = KOR_military_government #wildcard :)
 		}
 		mutually_exclusive = {
 			focus = KOR_join_the_soviet_union
@@ -3341,7 +3400,7 @@ focus_tree = {
 			FOCUS_FILTER_WAR_SUPPORT
 		}
 		available = {
-			has_tech = paratroopers
+			has_tech = tech_mountaineers
 			800 = {
 				is_owned_by = KOR
 				is_controlled_by = KOR
@@ -3351,21 +3410,21 @@ focus_tree = {
 			custom_effect_tooltip = KOR_special_force_tt
 			hidden_effect = {
 				division_template = {
-					name = "Special Brigade"
+					name = "Sanaksadan"
 					regiments = {
-						paratrooper = {
+						mountaineers = {
 							x = 0
 							y = 0
 						}
-						paratrooper = {
+						mountaineers = {
 							x = 0
 							y = 1
 						}
-						paratrooper = {
+						mountaineers = {
 							x = 1
 							y = 0
 						}
-						paratrooper = {
+						mountaineers = {
 							x = 1
 							y = 1
 						}
@@ -3373,23 +3432,23 @@ focus_tree = {
 				}
 				800 = {
 					create_unit = {
-						division = "name = \"1. Korean Liberation Army\" division_template = \"Special Brigade\" start_experience_factor = 1"
+						division = "name = \"1. Korean Liberation Army\" division_template = \"Sanaksadan\" start_experience_factor = 1"
 						owner = KOR
 					}
 					create_unit = {
-						division = "name = \"2. Korean Liberation Army\" division_template = \"Special Brigade\" start_experience_factor = 1"
+						division = "name = \"2. Korean Liberation Army\" division_template = \"Sanaksadan\" start_experience_factor = 1"
 						owner = KOR
 					}
 					create_unit = {
-						division = "name = \"3. Korean Liberation Army\" division_template = \"Special Brigade\" start_experience_factor = 1"
+						division = "name = \"3. Korean Liberation Army\" division_template = \"Sanaksadan\" start_experience_factor = 1"
 						owner = KOR
 					}
 					create_unit = {
-						division = "name = \"4. Korean Liberation Army\" division_template = \"Special Brigade\" start_experience_factor = 1"
+						division = "name = \"4. Korean Liberation Army\" division_template = \"Sanaksadan\" start_experience_factor = 1"
 						owner = KOR
 					}
 					create_unit = {
-						division = "name = \"5. Korean Liberation Army\" division_template = \"Special Brigade\" start_experience_factor = 1"
+						division = "name = \"5. Korean Liberation Army\" division_template = \"Sanaksadan\" start_experience_factor = 1"
 						owner = KOR
 					}
 				}

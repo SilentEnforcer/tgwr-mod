@@ -1,4 +1,4 @@
-﻿add_namespace = ww1_auh
+add_namespace = ww1_auh
 # FRANZ I DIES
 ####################
 news_event = {
@@ -134,24 +134,35 @@ news_event = {
 					limit = {
 						has_country_leader = {
 							character = AUS_franz_joseph_i
-							ruling_only = yes
 						}	
 					}
 					AUS_karl_i = {
-						add_country_leader_role = {
-							country_leader = {
-								ideology = autocracy
+						if = {
+							limit = { has_ideology = autocracy }
+							promote_character = autocracy
+						}
+						else = {
+							add_country_leader_role = {
+								country_leader = {
+									ideology = autocracy
+								}
+								promote_leader = yes
 							}
 						}
-						promote_character = autocracy
 					}
 					AUS_franz_ferdinand_i = {
-						add_country_leader_role = {
-							country_leader = {
-								ideology = autocracy
+						if = {
+							limit = { has_ideology = autocracy }
+							promote_character = autocracy
+						}
+						else = {
+							add_country_leader_role = {
+								country_leader = {
+									ideology = autocracy
+								}
+								promote_leader = yes
 							}
 						}
-						promote_character = autocracy
 					}
 				}
 				set_country_flag = emperor_franz_dead
@@ -213,14 +224,24 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_auh.3.a
-		transfer_state = 244
-		transfer_state = 513
-		AUH = {
-			remove_state_core = 244
-			remove_state_core = 513
-		}
-		GER = {
-			add_to_faction = ITA
+		FROM = {
+			every_owned_state = {
+				limit = {
+					OR = {
+						state = 244
+						state = 513
+						state = 736
+					}
+				}
+				remove_core_of = PREV
+				transfer_state_to = ROOT
+			}
+			if = {
+				limit = {
+					is_in_faction_with = GER
+				}
+				GER = { add_to_faction = ROOT }
+			}
 		}
 		remove_ideas = idea_italy_triple_alliance
 		news_event = {
@@ -339,10 +360,7 @@ country_event = {
 		set_country_flag = protectorate
 		if = {
 			limit = {
-				OR = {
-					has_dlc = "Together for Victory"
-					has_dlc = "Waking the Tiger"
-				}
+				has_subject_autonomy_feature = yes
 			}
 			AUH = {
 				set_autonomy = {
@@ -611,7 +629,7 @@ country_event = {
 				limit = {
 					is_core_of = CRO
 				}
-				remove_core_of = CRO
+				remove_core_of = ROOT
 			}
 			if = {
 				limit = {
@@ -621,7 +639,7 @@ country_event = {
 			}
 			CRO = {
 				load_oob = CRO_1918
-				AUH = {
+				ROOT = {
 					transfer_navy = {
 						target = PREV
 					}
@@ -639,10 +657,12 @@ country_event = {
 					elections_allowed = yes
 				}
 				drop_cosmetic_tag = yes
+				inherit_technology = ROOT
 			}
 			BOS = {
 				drop_cosmetic_tag = yes
 				retire_character = BOS_marijan_varesanin
+				inherit_technology = ROOT
 			}
 			if = {
 				limit = {
@@ -651,22 +671,21 @@ country_event = {
 				if = {
 					limit = {
 						owns_state = 104
-
 					}
 					104 = {
 						add_core_of = BOS
 						transfer_state_to = BOS
-						remove_core_of = AUH
+						remove_core_of = ROOT
 						if = {
 							limit = {
-								AUH = {
+								ROOT = {
 									OR = {
 										has_completed_focus = AUH_unitary_monarchy
 										has_completed_focus = AUH_reform_transleithania
 									}
 								}
 							}
-							add_claim_by = AUH	
+							add_claim_by = ROOT
 						}
 					}
 				}
@@ -678,14 +697,13 @@ country_event = {
 							state = 208
 							state = 575
 							state = 163
-							state = 513
 						}
 					}
 					add_core_of = CRO
 					if = {
 						limit = {
 							OR = {
-								is_owned_by = AUH
+								is_owned_by = ROOT
 								is_owned_by = AUS
 							}
 						}	
@@ -693,110 +711,187 @@ country_event = {
 					}
 					if = {
 						limit = {
-							AUH = {
+							ROOT = {
 								OR = {
 									has_completed_focus = AUH_unitary_monarchy
 									has_completed_focus = AUH_reform_transleithania
 								}
 							}
 						}
-						add_claim_by = AUH
-						remove_core_of = AUH
+						add_claim_by = ROOT
+						remove_core_of = ROOT
 					}
 				}
-				else = {
+				513 = {
+					if = {
+						limit = {
+							OR = {
+								is_owned_by = ROOT
+								is_owned_by = AUS
+							}
+						}	
+						transfer_state_to = CRO
+					}
+				}
+				every_owned_state = {
+					limit = {
+						is_core_of = MNT
+					}
+					transfer_state_to = MNT
+				}
+				every_owned_state = {
+					limit = {
+						is_core_of = SER
+					}
+					transfer_state_to = SER
+				}
+				if = {
+					limit = {
+						ITA = {
+							has_country_flag = great_war_winner
+						}
+					}
 					every_state = {
 						limit = {
 							OR = {
-								state = 109
-								state = 103
-								state = 104
-								state = 102
-								state = 208
-								state = 575
+								is_owned_by = CRO
+								is_owned_by = ROOT
+								is_owned_by = AUS
+							}
+							OR = {
+								is_claimed_by = ITA
+								is_core_of = ITA
 								state = 163
 								state = 736
 								state = 513
 							}
 						}
-						add_core_of = CRO
-						if = {
-							limit = {
-								OR = {
-									is_owned_by = AUH
-									is_owned_by = AUS
-								}
-							}	
-							transfer_state_to = CRO
-						}
-						remove_core_of = AUH
-						if = {
-							limit = {
-								AUH = {
-									OR = {
-										has_completed_focus = AUH_unitary_monarchy
-										has_completed_focus = AUH_reform_transleithania
-									}
-								}
-							}
-							add_claim_by = AUH
-						}
-					}
-					CRO = {
-						set_cosmetic_tag = CRO_SSCS
-						set_party_name = {
-							ideology = democratic
-							long_name = CRO_national_council_party_long
-							name = CRO_national_council_party
-						}
-						set_party_name = {
-							ideology = neutrality
-							long_name = CRO_national_council_party_long
-							name = CRO_national_council_party
-						}
-						if = {
-							limit = {
-								SLV = {
-									exists = no
-								}
-							}
-							SLV = {
-								SLV_anton_korosec = { set_nationality = CRO }
-							}
-							SLV_anton_korosec = {
-								promote_character = conservatism
-								promote_character = authoritarian_democracy
-							}
-						}
+						transfer_state_to = ITA
 					}
 				}
 			}
-			if = {
-				limit = {
-					ITA = {
-						has_country_flag = great_war_winner
-					}
-				}
+			else = {
 				every_state = {
 					limit = {
 						OR = {
-							is_owned_by = CRO
-							is_owned_by = AUH
-							is_owned_by = aus
-						}
-						OR = {
-							is_claimed_by = ITA
-							is_core_of = ITA
-						}
-						OR = {
+							state = 109
+							state = 103
+							state = 104
+							state = 102
+							state = 208
+							state = 575
 							state = 163
 							state = 736
 						}
 					}
-					ITA = {
-						transfer_state = PREV
+					add_core_of = CRO
+					if = {
+						limit = {
+							OR = {
+								is_owned_by = ROOT
+								is_owned_by = AUS
+							}
+						}	
+						transfer_state_to = CRO
+					}
+					remove_core_of = ROOT
+					if = {
+						limit = {
+							ROOT = {
+								OR = {
+									has_completed_focus = AUH_unitary_monarchy
+									has_completed_focus = AUH_reform_transleithania
+								}
+							}
+						}
+						add_claim_by = ROOT
 					}
 				}
+				513 = {
+					if = {
+						limit = {
+							OR = {
+								is_owned_by = ROOT
+								is_owned_by = AUS
+							}
+						}	
+						transfer_state_to = CRO
+					}
+				}
+				CRO = {
+					set_cosmetic_tag = CRO_SSCS
+					set_party_name = {
+						ideology = democratic
+						long_name = CRO_national_council_party_long
+						name = CRO_national_council_party
+					}
+					set_party_name = {
+						ideology = neutrality
+						long_name = CRO_national_council_party_long
+						name = CRO_national_council_party
+					}
+					if = {
+						limit = {
+							NOT = { country_exists = SLV }
+						}
+						SLV = {
+							SLV_anton_korosec = { set_nationality = CRO }
+						}
+						SLV_anton_korosec = {
+							promote_character = conservatism
+							promote_character = authoritarian_democracy
+						}
+					}
+				}
+				if = {
+					limit = {
+						ITA = {
+							has_country_flag = great_war_winner
+						}
+					}
+					every_state = {
+						limit = {
+							OR = {
+								is_owned_by = CRO
+								is_owned_by = ROOT
+								is_owned_by = AUS
+							}
+							OR = {
+								is_claimed_by = ITA
+								is_core_of = ITA
+							}	
+							OR = {
+								state = 163
+								state = 736
+							}
+						}
+						transfer_state_to = ITA
+					}
+				}
+			}
+			every_owned_state = {
+				limit = {
+					is_core_of = MNT
+					NOT = {
+						is_core_of = SER
+					}
+				}
+				transfer_state_to = MNT
+			}
+			every_owned_state = {
+				limit = {
+					is_core_of = SER
+					NOT = {
+						is_core_of = HUN
+					}
+				}
+				transfer_state_to = SER
+			}
+			every_owned_state = {
+				limit = {
+					is_core_of = ALB
+				}
+				transfer_state_to = ALB
 			}
 			if = {
 				limit = {
@@ -818,18 +913,28 @@ country_event = {
 		effect_tooltip = {
 			release = CRO
 		}
+		ai_chance = {
+			factor = 100
+		}
+	}
+	option = {
+		name = ww1_auh.13.b
+		CRO = { change_tag_from = PREV }
+		ai_chance = {
+			factor = 0
+		}
 	}
 }
 
 # AUSTRIA LOST GREAT WAR - CZECHOSLOVAKIA LEAVES
-#################
+###################################################
 country_event = {
 	id = ww1_auh.14
 	title = ww1_auh.14.t
 	desc = ww1_auh.14.d
 	picture = GFX_report_event_ger_civil_war
 	trigger = {
-		original_tag = AUH
+		tag = AUH
 		has_country_flag = great_war_loser
 		NOT = {
 			has_global_flag = AUH_collapse
@@ -842,54 +947,46 @@ country_event = {
 	mean_time_to_happen = {
 		days = 2
 	}
-	option = {
-		name = ww1_auh.14.a
-		set_global_flag = czechoslovakia_released
-		every_state = {
-			limit = {
-				OR = {
-					is_owned_by = AUH
-					is_owned_by = GAL
-				}
-				OR = {
-					state = 9
-					state = 72
-					state = 75
-				}
-			}
-			remove_core_of = AUH
-			remove_core_of = GAL
-			CZE = {
-				transfer_state = PREV
-			}
-			AUH = {
-				if = {
-					limit = {
-						has_completed_focus = AUH_unitary_monarchy
+	immediate = {
+		hidden_effect = {
+			set_global_flag = czechoslovakia_released
+			every_state = {
+				limit = {
+				       is_owned_by = AUH
+					OR = {
+						state = 9
+						state = 72
+						state = 75
 					}
-					add_state_claim = PREV
-					else = {
-						AUH = {
+				}
+				remove_core_of = AUH
+				transfer_state_to = CZE
+				AUH = {
+					if = {
+						limit = {
+							has_completed_focus = AUH_unitary_monarchy
+						}
+						add_state_claim = PREV
+						else = {
 							remove_state_core = 9
 							remove_state_core = 75
 							remove_state_core = 72
 						}
-					}
+					}			
 				}			
-			}			
-		}
-		CZE = {
-			if = {
-				limit = {
-					is_subject_of = AUH
-				}
-				AUH = {
-					end_puppet = PREV
-				}
 			}
-			drop_cosmetic_tag = yes
-			clr_country_flag = CZE_ONLY
-			hidden_effect = {
+			CZE = {
+				if = {
+					limit = {
+						is_subject_of = AUH
+					}
+					AUH = {
+						end_puppet = PREV
+					}
+				}
+				inherit_technology = ROOT
+				drop_cosmetic_tag = yes
+				clr_country_flag = CZE_ONLY
 				load_oob = CZE_1918
 				set_politics = {
 					ruling_party = democratic
@@ -903,61 +1000,72 @@ country_event = {
 					democratic = 78
 					neutrality = 20
 				}
-			}
-			every_state = {
-				limit = {
-					OR = {
-						state = 70
-						state = 71
-						state = 72
-						state = 73
-						state = 664
-					}
-				}
-				add_core_of = CZE
-			}
-			if = {
-				limit = {
-					AUH = {
+				every_state = {
+					limit = {
 						OR = {
-							has_completed_focus = AUH_reform_transleithania
-							has_completed_focus = AUH_unitary_monarchy
+							state = 70
+							state = 71
+							state = 72
+							state = 73
+							state = 664
 						}
 					}
+					add_core_of = CZE
 				}
 				if = {
 					limit = {
 						AUH = {
-							NOT = {
-								owns_state = 69
-								owns_state = 74
-							}
-						}
-					}
-					every_state = {
-						limit = {
-							is_owned_by = CZE
 							OR = {
-								state = 69
-								state = 74
+								has_completed_focus = AUH_reform_transleithania
+								has_completed_focus = AUH_unitary_monarchy
 							}
 						}
-						AUH = {
-							transfer_state = PREV
+					}
+					if = {
+						limit = {
+							AUH = {
+								NOT = {
+									owns_state = 69
+									owns_state = 74
+								}
+							}
+						}
+						every_state = {
+							limit = {
+								is_owned_by = CZE
+								OR = {
+									state = 69
+									state = 74
+								}
+							}
+							transfer_state_to = AUH
 						}
 					}
+					give_military_access = AUH
 				}
-				give_military_access = AUH
 			}
+		}
+	}
+	option = {
+		name = ww1_auh.14.a
+		effect_tooltip = {
+			release = CZE
 		}
 		ai_chance = {
 			factor = 100
 		}
 	}
+     option = {
+		name = ww1_auh.14.b
+	CZE = { change_tag_from = PREV }
+		ai_chance = {
+			factor = 0
+		}
+	}
 }
 
 # AUSTRIA LOST GREAT WAR - POLAND LEAVES 
-#################
+###########################################
 country_event = {
 	id = ww1_auh.15
 	#title = ww1_auh.15.t
@@ -1016,9 +1124,6 @@ country_event = {
 						is_owned_by = AUH
 						is_owned_by = AUS
 						is_owned_by = GAL
-					}
-					NOT = {
-						state = 72
 					}
 				}
 				RUS = {
@@ -1090,6 +1195,25 @@ country_event = {
 						every_owned_state = {
 							add_core_of = WUK
 						}
+						inherit_technology = ROOT
+						if = {
+							limit = {
+								country_exists = UKR
+							}
+							give_military_access = UKR
+							diplomatic_relation = {
+								country = UKR
+								relation = non_aggression_pact
+							}
+							UKR = {
+								give_military_access = PREV
+								diplomatic_relation = {
+									country = UKR
+									relation = non_aggression_pact
+								}
+							}
+						}
+						load_oob = "WUK_army"
 					}
 				}
 				every_state = {
@@ -1110,12 +1234,23 @@ country_event = {
 				}
 			}
 		}
-		every_country = {
+		if = {
 			limit = {
-				owns_state = 79
+				80 = {
+					OR = {
+						is_owned_by = AUH
+						is_owned_by = AUS
+					}
+				}	
 			}
-			transfer_state = 80
-		}
+			every_country = {
+				limit = {
+					owns_state = 79
+				}
+				transfer_state = 80
+				transfer_state = 867
+			}
+		}	
 		every_state = {
 			limit = {
 				is_core_of = GAL
@@ -1126,14 +1261,14 @@ country_event = {
 }
 
 # AUSTRIA LOST GREAT WAR - HUNGARY LEAVES
-#################
+############################################
 country_event = {
 	id = ww1_auh.16
 	title = ww1_auh.16.t
 	desc = ww1_auh.16.d
 	picture = GFX_report_event_ger_civil_war
 	trigger = {
-		original_tag = AUH
+		tag = AUH
 		has_country_flag = great_war_loser
 		NOT = {
 			has_global_flag = AUH_collapse
@@ -1141,111 +1276,146 @@ country_event = {
 			# has_completed_focus = AUH_unitary_monarchy
 			# has_completed_focus = AUH_reform_transleithania
 		}
+		HUN = {
+			OR = {
+				exists = no
+				is_subject_of = ROOT
+			}
+		}	
 	}
 	fire_only_once = yes
 	mean_time_to_happen = {
 		days = 5
 	}
-	option = {
-		name = ww1_auh.16.a
-		set_global_flag = hungary_released
-		set_cosmetic_tag = AUH_EMP
-		HUN = {
-			if = {
-				limit = {
-					is_subject_of = AUH
-				}
-				AUH = {
-					end_puppet = PREV
-				}
-			}
-			drop_cosmetic_tag = yes
-		}
-		every_state = {
-			limit = {
-				OR = {
-					state = 43
-					state = 147
-					state = 154
-					state = 155
-					state = 664
-					AND = {
-						is_owned_by = AUH
-						OR = {
-							state = 45
-							state = 70
-							state = 71
-							state = 73
-							state = 76
-							state = 80
-							state = 82
-							state = 83
-							state = 84
-							state = 764
-							state = 778
-						}
-					}
-				}
-			}
+	immediate = {
+		hidden_effect = {
+			set_global_flag = hungary_released
+			set_cosmetic_tag = AUH_EMP
 			HUN = {
-				transfer_state = PREV
-			}
-			remove_core_of = AUH
-			AUH = {
 				if = {
 					limit = {
-						has_completed_focus = AUH_unitary_monarchy
+						is_subject_of = AUH
 					}
-					add_state_claim = PREV
+					AUH = {
+						end_puppet = PREV
+					}
 				}
-			}
-		}
-		HUN = {
-			hidden_effect = {
-				load_oob = HUN_1918
-				set_politics = {
-					ruling_party = democratic
-					elections_allowed = yes
-				}
-				set_popularities = {
-					democratic = 40
-					neutrality = 36
-					fascism = 0
-					communism = 24
-				}
-			}
-			set_country_flag = great_war_loser
-		}
-		if = {
-			limit = {
-				OR = {
-					has_completed_focus = AUH_unitary_monarchy
-					has_completed_focus = AUH_reform_transleithania
+				if = {
+					limit = {
+						OR = {
+							exists = no
+							is_subject_of = AUH
+						}
+					}
+					inherit_technology = ROOT
+					load_oob = HUN_1918
+					set_politics = {
+						ruling_party = democratic
+						elections_allowed = yes
+					}
+					set_popularities = {
+						democratic = 40
+						neutrality = 36
+						communism = 24
+					}
+					set_country_flag = great_war_loser
+					drop_cosmetic_tag = yes
+					retire_character = HUN_franz_joseph_i
+					retire_character = HUN_franz_ferdinand_i
+					remove_country_leader_role = { #for potential restoration
+						character = HUN_karl_i
+						ideology = autocracy
+					}
+					remove_ideas = AUH_ww1_House_Habsburg_Lorraine
+					set_party_name = {
+						ideology = neutrality
+						long_name = HUN_neutrality_party
+						name = HUN_neutrality_party
+					}
+					promote_character = HUN_joseph_august
 				}
 			}
 			every_state = {
 				limit = {
-					is_owned_by = HUN
-					is_core_of = AUH
+					OR = {
+						is_owned_by = AUS
+						is_owned_by = AUH
+					}
+					OR = {
+						is_core_of = HUN
+						is_core_of = TRA
+						is_core_of = SLO
+						state = 73
+					}
 				}
+				transfer_state_to = HUN
 				remove_core_of = AUH
+				AUH = {
+					if = {
+						limit = {
+							has_completed_focus = AUH_unitary_monarchy
+						}
+						add_state_claim = PREV
+					}
+					add_state_core = 147
+				}
 			}
+			if = {
+				limit = {
+					OR = {
+						has_completed_focus = AUH_unitary_monarchy
+						has_completed_focus = AUH_reform_transleithania
+					}
+				}
+				every_state = {
+					limit = {
+						is_owned_by = HUN
+						is_core_of = AUH
+					}
+					remove_core_of = AUH
+				}
+			}
+			AUH_franz_rohr_von_denta = {
+				if = {
+					limit = {
+						is_field_marshal = no									
+					}
+					promote_leader = yes
+				}
+				set_nationality = HUN
+			}	
+			AUH_miklós_horthy = {
+				set_nationality = HUN
+			}	
+		}
+	}
+	option = {
+		name = ww1_auh.16.a
+		effect_tooltip = {
+			release = HUN
 		}
 		ai_chance = {
 			factor = 100
 		}
 	}
+	option = {
+		name = ww1_auh.16.b
+		HUN = { change_tag_from = PREV }
+		ai_chance = {
+			factor = 0
+		}
+	}
 }
 
 # AUSTRIA LOST GREAT WAR - DEATH OF EMPIRE
-#################
+#############################################
 country_event = {
 	id = ww1_auh.17
 	title = ww1_auh.17.t
 	desc = ww1_auh.17.d
 	picture = GFX_report_event_ger_civil_war
 	trigger = {
-		original_tag = AUH
+		tag = AUH
 		has_country_flag = great_war_loser
 		has_global_flag = hungary_released
 		has_global_flag = croatia_released
@@ -1263,6 +1433,17 @@ country_event = {
 	}
 	option = {
 		name = ww1_auh.17.a
+		hidden_effect = {
+			AUH_karl_von_pflanzerbaltin = {
+				set_nationality = AUS
+			}
+			AUH_eduard_von_bohmermolli = {
+				set_nationality = AUS
+			}
+			AUH_alois_schonburg_hartenstein = {
+				set_nationality = AUS
+			}
+		}
 		every_state = {
 			limit = {
 				OR = {
@@ -1304,6 +1485,11 @@ country_event = {
 			inherit_technology = AUH
 			hidden_effect = {
 				load_oob = AUS_1918
+				set_party_name = {
+					ideology = communism
+					name = AUS_AUH_communism_party
+					long_name = AUS_AUH_communism_party_long
+				}
 			}
 			if = {
 				limit = {
@@ -1346,21 +1532,6 @@ country_event = {
 					transfer_state = PREV
 				}
 			}
-		}
-		HUN = {
-			retire_character = HUN_franz_joseph_i
-			retire_character = HUN_franz_ferdinand_i
-			remove_country_leader_role = { #for potential restoration
-				character = HUN_karl_i
-				ideology = autocracy
-			}
-			remove_ideas = AUH_ww1_House_Habsburg_Lorraine
-			set_party_name = {
-				ideology = neutrality
-				long_name = HUN_neutrality_party
-				name = HUN_neutrality_party
-			}
-			promote_character = HUN_miklós_horthy
 		}
 		news_event = {
 			id = ww1_auh.18
@@ -1432,12 +1603,8 @@ country_event = {
 		}
 		if = {
 			limit = {
-				NOT = {
-					has_cosmetic_tag = GER_confederation
-					has_cosmetic_tag = GER_HRE
-					has_cosmetic_tag = AUH_USGA
-					has_cosmetic_tag = GER_suddeutscher_bund
-				}
+				is_greater_german_cosmetic = no
+				NOT = { has_cosmetic_tag = AUH_USGA }
 			}
 			set_cosmetic_tag = AUH_EMP
 		}
@@ -1525,36 +1692,45 @@ country_event = {
 	id = ww1_auh.22
 	title = ww1_auh.22.t
 	desc = ww1_auh.22.d
+	picture = GFX_report_event_yugoslavian_cavalry
 	fire_only_once = yes
 	trigger = {
 		tag = AUH
-		SER = {
-			owns_state = 44
-		}
 		has_war = no
+		is_subject = no
+		SER = { owns_state = 44 }
 	}
 	mean_time_to_happen = {
 		days = 1
 	}
 	option = {
 		name = ww1_auh.22.a
-		AUH = {
-			add_political_power = -75
-		}
-		SER = {
-			country_event = ww1_serbia.24
-		}
+		add_political_power = -75
+		SER = { country_event = ww1_serbia.24 }
 		ai_chance = {
-			factor = 60
+			base = 60
+			modifier = {
+				add = 40
+				has_war_support > 0.5
+			}
 		}
 	}
 	option = {
 		name = ww1_auh.22.b
-		SER = {
-			set_country_flag = odbili_albaniju
-		}
+		SER = { set_country_flag = odbili_albaniju }
 		ai_chance = {
-			factor = 20
+			base = 20
+			modifier = {
+				add = 200
+				has_subject = SER
+			}
+			modifier = {
+				factor = 0
+				has_game_rule = {
+					rule = ultimatum_on_albania
+					option = WAR_ON_ALBANIA
+				}
+			}
 			modifier = {
 				factor = 0
 				is_historical_focus_on = yes
@@ -1563,34 +1739,43 @@ country_event = {
 	}
 }
 
+# Serbia Rejected Our Ultimatum!
 country_event = {
 	id = ww1_auh.23
 	title = ww1_auh.23.t
 	desc = ww1_auh.23.d
+	picture = GFX_report_event_generic_sign_treaty3
 	is_triggered_only = yes
 	fire_only_once = yes
 	option = {
 		name = ww1_auh.23.a
-		AUH = {
-			create_wargoal = {
-				type = puppet_wargoal_focus
-				target = SER
-			}
+		create_wargoal = {
+			type = puppet_wargoal_focus
+			target = SER
 		}
 		RUS = {
 			give_guarantee = SER
 		}
 		ai_chance = {
-			factor = 50
+			base = 20
+			modifier = {
+				add = 40
+				has_war_support > 0.5
+			}
 		}
 	}
 	option = {
 		name = ww1_auh.23.b
-		SER = {
-			country_event = ww1_serbia.25
-		}
+		SER = { country_event = ww1_serbia.25 }
 		ai_chance = {
-			factor = 50
+			base = 50
+			modifier = {
+				factor = 0
+				has_game_rule = {
+					rule = ultimatum_on_albania
+					option = WAR_ON_ALBANIA
+				}
+			}
 		}
 	}
 }
@@ -1633,10 +1818,7 @@ country_event = {
 			}
 			if = {
 				limit = {
-					OR = {
-						has_dlc = "Together for Victory"
-						has_dlc = "Waking the Tiger"
-					}
+					has_subject_autonomy_feature = yes
 				}
 				set_autonomy = {
 					target = VNC
@@ -1657,12 +1839,13 @@ country_event = {
 						}
 					}
 					set_cosmetic_tag = VNC_AUH
-					create_country_leader = {
-						name = "Eugenio d'asburgo-Teschen"
-						picture = "gfx/leaders/AUH/AUH_Eugen_von_Osterreich_Teschen.png"
-						ideology = oligarchism
-						traits = {
-							foreign_leader
+					VNC_eugen_von_osterreich_teschen = {
+						add_country_leader_role = {
+							promote_leader = yes
+							country_leader = {
+								ideology = oligarchism
+								traits = { foreign_leader }
+							}
 						}
 					}
 					set_party_name = {
@@ -1913,21 +2096,17 @@ country_event = {
 		ITA = {
 			leave_faction = yes
 			white_peace = AUH
-			if = {
+			every_owned_state = {
 				limit = {
-					owns_state = 159
+					OR = {
+						state = 159
+						state = 160
+						state = 244
+						state = 513
+						state = 736
+					}
 				}
-				AUH = {
-					transfer_state = 159
-				}
-			}
-			if = {
-				limit = {
-					owns_state = 160
-				}
-				AUH = {
-					transfer_state = 160
-				}
+				transfer_state_to = AUH
 			}
 		}
 		ai_chance = {
@@ -1968,21 +2147,17 @@ country_event = {
 		name = ww1_auh.29.a
 		ITA = {
 			hidden_effect = {
-				if = {
+				every_owned_state = {
 					limit = {
-						owns_state = 159
+						OR = {
+							state = 159
+							state = 160
+							state = 244
+							state = 513
+							state = 736
+						}
 					}
-					AUH = {
-						transfer_state = 159
-					}
-				}
-				if = {
-					limit = {
-						owns_state = 160
-					}
-					AUH = {
-						transfer_state = 160
-					}
+					transfer_state_to = AUH
 				}
 				SIC = {
 					add_state_core = 115
@@ -2313,21 +2488,6 @@ country_event = {
 				}
 			}
 		}
-		HUN = {
-			retire_character = HUN_franz_joseph_i
-			retire_character = HUN_franz_ferdinand_i
-			remove_country_leader_role = { #for potential restoration
-				character = HUN_karl_i
-				ideology = autocracy
-			}
-			remove_ideas = AUH_ww1_House_Habsburg_Lorraine
-			set_party_name = {
-				ideology = neutrality
-				long_name = HUN_neutrality_party
-				name = HUN_neutrality_party
-			}
-			promote_character = HUN_miklós_horthy
-		}
 		set_global_flag = AUH_collapse
 	}
 }
@@ -2369,25 +2529,37 @@ country_event = {
 			tag = AUH
 		}
 		AUH_otto_von_habsburg = {
-			add_country_leader_role = {
-				country_leader = {
-					ideology = autocracy
+			if = {
+				limit = { has_ideology = autocracy }
+				promote_character = autocracy
+			}
+			else = {
+				add_country_leader_role = {
+					country_leader = {
+						ideology = autocracy
+					}
+					promote_leader = yes
 				}
 			}
-			promote_character = autocracy
 		}
 		if = {
 			limit = {
 				NOT = { date > 1932.11.20 }
 			}
 			AUH_zita_von_bourbonparma = {
-				add_country_leader_role = {
-					country_leader = {
-						ideology = autocracy
-					}
-				}
 				set_character_name = "AUH_zita"
-				promote_character = autocracy
+				if = {
+					limit = { has_ideology = autocracy }
+					promote_character = autocracy
+				}
+				else = {
+					add_country_leader_role = {
+						country_leader = {
+							ideology = autocracy
+						}
+						promote_leader = yes
+					}
+				}				
 			}
 		}
 		hidden_effect = {
@@ -2399,24 +2571,36 @@ country_event = {
 						}	
 					}
 					HUN_otto_von_habsburg = {
-						add_country_leader_role = {
-							country_leader = {
-								ideology = autocracy
+						if = {
+							limit = { has_ideology = autocracy }
+							promote_character = autocracy
+						}
+						else = {
+							add_country_leader_role = {
+								country_leader = {
+									ideology = autocracy
+								}
+								promote_leader = yes
 							}
 						}
-						promote_character = autocracy
 					}
 					if = {
 						limit = {
 							NOT = { date > 1932.11.20 }
 						}
 						HUN_zita_von_bourbonparma = {
-							add_country_leader_role = {
-								country_leader = {
-									ideology = autocracy
+							if = {
+								limit = { has_ideology = autocracy }
+								promote_character = autocracy
+							}
+							else = {
+								add_country_leader_role = {
+									country_leader = {
+										ideology = autocracy
+									}
+									promote_leader = yes
 								}
 							}
-							promote_character = autocracy
 						}
 					}
 				}
@@ -2430,24 +2614,36 @@ country_event = {
 			tag = AUS
 		}
 		AUS_otto_von_habsburg = {
-			add_country_leader_role = {
-				country_leader = {
-					ideology = autocracy
+			if = {
+				limit = { has_ideology = autocracy }
+				promote_character = autocracy
+			}
+			else = {
+				add_country_leader_role = {
+					country_leader = {
+						ideology = autocracy
+					}
+					promote_leader = yes
 				}
 			}
-			promote_character = autocracy
 		}
 		if = {
 			limit = {
 				NOT = { date > 1932.11.20 }
 			}
 			AUS_zita_von_bourbonparma = {
-				add_country_leader_role = {
-					country_leader = {
-						ideology = autocracy
+				if = {
+					limit = { has_ideology = autocracy }
+					promote_character = autocracy
+				}
+				else = {
+					add_country_leader_role = {
+						country_leader = {
+							ideology = autocracy
+						}
+						promote_leader = yes
 					}
 				}
-				promote_character = autocracy
 			}
 		}
 		hidden_effect = {
@@ -2459,24 +2655,36 @@ country_event = {
 						}	
 					}
 					HUN_otto_von_habsburg = {
-						add_country_leader_role = {
-							country_leader = {
-								ideology = autocracy
+						if = {
+							limit = { has_ideology = autocracy }
+							promote_character = autocracy
+						}
+						else = {
+							add_country_leader_role = {
+								country_leader = {
+									ideology = autocracy
+								}
+								promote_leader = yes
 							}
 						}
-						promote_character = autocracy
 					}
 					if = {
 						limit = {
 							NOT = { date > 1932.11.20 }
 						}
 						HUN_zita_von_bourbonparma = {
-							add_country_leader_role = {
-								country_leader = {
-									ideology = autocracy
+							if = {
+								limit = { has_ideology = autocracy }
+								promote_character = autocracy
+							}
+							else = {
+								add_country_leader_role = {
+									country_leader = {
+										ideology = autocracy
+									}
+									promote_leader = yes
 								}
 							}
-							promote_character = autocracy
 						}
 					}
 				}
@@ -2545,21 +2753,32 @@ country_event = {
 					}
 					HUN_otto_von_habsburg = {
 						set_character_name = "HUN_franz_joseph_ii"
-						add_country_leader_role = {
-							country_leader = {
-								ideology = autocracy
+						if = {
+							limit = { has_ideology = autocracy }
+							promote_character = autocracy
+						}
+						else = {
+							add_country_leader_role = {
+								country_leader = {
+									ideology = autocracy
+								}
+								promote_leader = yes
 							}
 						}
-						promote_character = autocracy
 					}
 				}
 				retire_character = HUN_zita_von_bourbonparma
 			}
 		}
 		effect_tooltip = {
-			create_country_leader = {
-				name = "Franz Joseph II"
-				ideology = autocracy
+			AUH_otto_von_habsburg = {
+				set_character_name = AUH_franz_joseph_ii
+				add_country_leader_role = {
+					promote_leader = yes
+					country_leader = {
+						ideology = autocracy
+					}
+				}
 			}
 		}
 	}
@@ -2605,10 +2824,7 @@ country_event = {
 			}
 			if = {
 				limit = {
-					OR = {
-						has_dlc = "Together for Victory"
-						has_dlc = "Waking the Tiger"
-					}
+					has_subject_autonomy_feature = yes
 				}
 				set_autonomy = {
 					target = CZE
@@ -2642,6 +2858,7 @@ country_event = {
 				limit = {
 					OR = {
 						is_core_of = GAL
+						state = 80
 						state = 867
 					}	
 				}
@@ -2649,10 +2866,7 @@ country_event = {
 			}
 			if = {
 				limit = {
-					OR = {
-						has_dlc = "Together for Victory"
-						has_dlc = "Waking the Tiger"
-					}
+					has_subject_autonomy_feature = yes
 				}
 				set_autonomy = {
 					target = GAL
@@ -2704,10 +2918,7 @@ country_event = {
 			}
 			if = {
 				limit = {
-					OR = {
-						has_dlc = "Together for Victory"
-						has_dlc = "Waking the Tiger"
-					}
+					has_subject_autonomy_feature = yes
 				}
 				set_autonomy = {
 					target = CRO
@@ -2749,10 +2960,7 @@ country_event = {
 			}
 			if = {
 				limit = {
-					OR = {
-						has_dlc = "Together for Victory"
-						has_dlc = "Waking the Tiger"
-					}
+					has_subject_autonomy_feature = yes
 				}
 				set_autonomy = {
 					target = HUN
@@ -2773,17 +2981,15 @@ country_event = {
 			}
 			if = {
 				limit = {
-					NOT = {
-						has_cosmetic_tag = GER_confederation
-						has_cosmetic_tag = GER_HRE
-						has_cosmetic_tag = GER_suddeutscher_bund
-					}
+					is_greater_german_cosmetic = no
+					NOT = { has_cosmetic_tag = AUH_USGA }
 				}
 				set_cosmetic_tag = AUH_EMP
 			}
 		}	
 		add_political_power = -200
 		add_stability = 0.1
+		news_event = ww1_auh.42
 	}
 }
 
@@ -2816,13 +3022,9 @@ country_event = {
 				}
 				set_cosmetic_tag = GER_norddeutscher_bund
 				create_country_leader = {
- 					name = "Frankfurter Nationalversammlung"
+ 					name = "GER_frankfurt_parliament"
  					picture = "gfx/leaders/GER/GER_Frankfurt_Parliament.png"
- 					
  					ideology = oligarchism
- 					traits = {
- 						
- 					}
  				}
  				set_capital = { state = 55 }
  				set_party_name = { 
@@ -2931,11 +3133,7 @@ country_event = {
 	trigger = {
 		original_tag = AUH
 		has_war = no
-		OR = {
-			has_cosmetic_tag = GER_confederation
-			has_cosmetic_tag = GER_HRE
-			has_cosmetic_tag = GER_suddeutscher_bund
-		}
+		is_greater_german_cosmetic = yes
 		any_owned_state = {
 			is_core_of = AUH
 			OR = {
@@ -3061,9 +3259,14 @@ country_event = {
 		name = ww1_auh.38.a
 		ai_chance = { factor = 100 }
 		effect_tooltip = {
-			create_country_leader = {
-				name = "AUH_karl_i"
-				ideology = autocracy
+			AUH_karl_i = {
+				set_character_name = AUH_karl_i
+				add_country_leader_role = {
+					promote_leader = yes
+					country_leader = {
+						ideology = autocracy
+					}
+				}
 			}
 		}
 	}
@@ -3121,99 +3324,84 @@ country_event = {
 	}
 }
 
-# OLD ALLY IS IN DANGER FACING THE RED TIDE
-##############################################
+# Mitteleuropa
 country_event = {
 	id = ww1_auh.41
-	title = ww1_auh.t
-	desc = ww1_auh.d
-	trigger = {
-		tag = AUH
-		has_global_flag = interbellum
-		has_country_flag = great_war_winner
-		has_war = no
-		NOT = {
-			has_government = communism
-			is_in_faction_with = GER
-		}
-		GER = {
-			has_country_flag = great_war_winner
-			NOT = {
-				has_government = communism
-			}
-			any_other_country = {
-				is_major = yes
-				OR = {
-					has_government = communism
-					has_government = fascism
-				}
-				has_war_with = GER
-			}
-			surrender_progress > 0.5
-		}
-	}
-	fire_only_once = yes
-	mean_time_to_happen = { days = 15 }
+	title = ww1_auh.41.t
+	desc = ww1_auh.41.d
+	picture = GFX_report_event_germany_victory
+	is_triggered_only = yes
 	option = {
 		name = ww1_auh.41.a
-		GER = {
-			#not sure with this
-			#add_to_faction = AUH
-			every_other_country = {
-				limit = {
-					is_major = yes
-					OR = {
-						has_government = communism
-						has_government = fascism
-					}
-					has_war_with = PREV
-				}
-				PREV.PREV = {
-					create_wargoal = {
-						target = PREV
-						type = topple_government
-					}
-				}
-			}
+		effect_tooltip = {
+			give_guarantee = AUH
 		}
-		ai_chance = {
-			base = 0
-			modifier = {
-				add = 1000
-				NOT = {
-					has_stability < 0.25
-					has_war_support < 0.25
-					communism > 0.5
-					has_opinion = {
-						target = GER
-						value < 0
-					}
-				}
-			}
-		}
+		AUH = { country_event = ww1_auh.43 }
 	}
 	option = {
 		name = ww1_auh.41.b
-		GER = {
-			add_opinion_modifier = {
-				target = PREV
-				modifier = HOI4TGW_Opinion_alliance_malus
+	}
+}
+
+# Austria-Hungary Undertakes National Reforms
+news_event = {
+	id = ww1_auh.42
+	title = ww1_auh.42.t
+	desc = ww1_auh.42.d
+	picture = GFX_news_event_generic_parliament
+	major = yes
+	is_triggered_only = yes
+	option = {
+		name = ww1_auh.42.a
+	}
+}
+
+# Mitteleuropa yes
+country_event = {
+	id = ww1_auh.43
+	title = ww1_auh.41.t
+	desc = ww1_auh.43.d
+	picture = GFX_report_event_germany_victory
+	is_triggered_only = yes
+	option = {
+		name = ww1_auh.43.a
+		give_guarantee = FROM
+		FROM = { give_guarantee = PREV }
+		ai_chance = {
+			factor = 100
+			modifier = {
+				factor = 0
+				has_opinion = {
+					target = FROM
+					value < 0
+				}
 			}
 		}
+	}
+	option = {
+		name = ww1_auh.43.b
+		FROM = { country_event = ww1_auh.44 }
 		ai_chance = {
 			base = 1
 			modifier = {
 				factor = 0
-				OR = {
-					has_stability < 0.25
-					has_war_support < 0.25
-					communism > 0.5
-					has_opinion = {
-						target = GER
-						value < 0
-					}
+				has_opinion = {
+					target = FROM
+					value > 0
 				}
 			}
 		}
+	}
+}
+
+# Mitteleuropa rejected
+country_event = {
+	id = ww1_auh.44
+	title = ww1_auh.44.t
+	desc = ww1_auh.44.d
+	picture = GFX_report_event_germany_victory
+	is_triggered_only = yes
+	option = {
+		name = ww1_auh.44.a
 	}
 }
