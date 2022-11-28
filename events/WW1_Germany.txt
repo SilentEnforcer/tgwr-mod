@@ -78,7 +78,7 @@ country_event = {
 		set_politics = {
 			ruling_party = democratic
 			last_election = "1918.11.11"
-			election_frequency = 60
+			election_frequency = 84 # 7 years
 			elections_allowed = yes
 		}
 		hidden_effect = {
@@ -4458,6 +4458,7 @@ news_event = {
 				}
 				BEL = {
 					transfer_state = 51
+					give_military_access = FRA
 				}
 			}
 			else_if = {
@@ -5662,10 +5663,19 @@ country_event = {
 			}
 			promote_character = conservatism
 		}
-		set_party_name = {
-			ideology = democratic
-			long_name = GER_reichstag_long
-			name = GER_reichstag
+		hidden_effect = {
+			meta_effect = {
+				text = {
+					set_politics = {
+						ruling_party = democratic
+						long_name = GER_hindenburg_government
+						name = GER_hindenburg_government
+						last_election = "[CURRENT_DATE]"
+						elections_allowed = yes
+					}
+				}
+				CURRENT_DATE = "[?global.date.GetDateStringNoHour]"
+			}
 		}
 	}
 }
@@ -7186,43 +7196,7 @@ country_event = {
 	title = ww1_germany.127.t
 	desc = ww1_germany.127.d
 	picture = GFX_report_event_german_inspect_troops
-	trigger = {
-		tag = FRA
-		has_global_flag = interbellum
-		has_war = no
-		is_subject = no
-		is_major = yes
-		NOT = {
-			has_government = democratic
-			has_government = communism
-			country_exists = PRE
-		}
-		GER = {
-			is_subject_of = PREV
-			has_war = no
-			NOT = {
-				has_cosmetic_tag = PRE
-			}
-			any_owned_state = {
-				OR = {
-					state = 5
-					state = 60
-					state = 62
-					state = 63
-					state = 64
-					state = 66
-					state = 67
-					state = 85
-					state = 86
-					state = 188
-					state = 404
-					state = 762
-					state = 763
-				}
-			}
-		}
-	}
-	fire_only_once = yes
+	is_triggered_only = yes
 	option = {
 		name = ww1_germany.127.a
 		every_state = {
@@ -7252,14 +7226,14 @@ country_event = {
 				}
 			}
 			add_core_of = PRE
-			if = {
+		}
+		GER = {
+			every_owned_state = {
 				limit = {
-					is_owned_by = GER
+					is_core_of = PRE
 				}
 				transfer_state_to = PRE
 			}
-		}
-		GER = {
 			transfer_units_fraction = {
 				target = PRE
 				size = 1
@@ -7678,7 +7652,7 @@ country_event = {
 		}
 		add_named_threat = {
 			name = ww1_germany.134.t
-			threat = 0.05
+			threat = 5
 		}
 	}
 	option = {
@@ -7701,7 +7675,18 @@ country_event = {
 news_event = {
 	id = ww1_germany.135
 	title = ww1_germany.134.t
-	desc = ww1_germany.135.d
+	desc = {
+		text = ww1_germany.135.d
+		trigger = {
+			GER = { has_idea = GER_idea_default }
+		}
+	}
+	desc = {
+		text = ww1_germany.135.d2
+		trigger = {
+			NOT = { GER = { has_idea = GER_idea_default } }
+		}
+	}
 	picture = GFX_news_event_occupation_of_the_ruhr
 	is_triggered_only = yes
 	major = yes
@@ -7785,33 +7770,14 @@ country_event = {
 	title = ww1_germany.139.t
 	desc = ww1_germany.139.d
 	picture = GFX_report_event_generic_army
-	fire_only_once = yes
-	trigger = {
-		tag = FRA
-		owns_state = 873
-		has_global_flag = ruhr_occupation
-		GER = {
-			OR = {
-				has_idea = GER_idea_reparations_dawes
-				has_idea = GER_idea_reparations_young
-			}
-			NOT = {
-				has_war_with = ROOT
-			}
-		}
-	}
-	mean_time_to_happen = {
-		days = 30
-	}
+	is_triggered_only = yes
 	option = {
 		name = ww1_germany.139.a
-		GER = {
-			effect_tooltip = {
-				transfer_state = 873
-			}
-			country_event = ww1_germany.140
-		}
 		remove_ideas = FRA_ruhr_occupation
+		GER = {
+			effect_tooltip = { transfer_state = 873 }
+			hidden_effect = { country_event = ww1_germany.140 }
+		}
 	}
 }
 
@@ -7945,44 +7911,7 @@ country_event = {
 	title = ww1_germany.144.t
 	desc = ww1_germany.144.d
 	picture = GFX_report_event_ger_civil_war
-	fire_only_once = yes
-	trigger = {
-		tag = FRA
-		has_global_flag = versallies_treaty
-		has_global_flag = weimar_republic
-		owns_state = 28
-		has_country_flag = great_war_winner
-		is_subject = no
-		has_capitulated = no
-		GER = {
-			OR = {
-				has_government = communism
-				AND = {
-					has_government = fascism
-					NOT = {
-						has_country_leader_ideology = nazism
-					}
-				}
-				AND = {
-					has_government = neutrality
-					has_country_leader_ideology = autocracy
-				}
-			}
-			has_capitulated = no
-			owns_state = 50
-			controls_state = 50
-			is_neighbor_of = ROOT
-		}
-		NOT = {
-			has_global_flag = prussian_blue
-			has_war_with = GER
-			country_exists = WUR
-			has_wargoal_against = GER
-		}
-	}
-	mean_time_to_happen = {
-		days = 45
-	}
+	is_triggered_only = yes
 	option = {
 		name = ww1_germany.144.a
 		add_political_power = -100
@@ -8030,6 +7959,99 @@ country_event = {
 		}
 		ai_chance = {
 			factor = 0
+		}
+	}
+}
+
+# Death of President Hindenburg
+country_event = {
+	id = ww1_germany.146
+	title = ww1_germany.146.t
+	desc = {
+		trigger = { has_completed_focus = GER_chancellor_hitler }
+		text = ww1_germany.146.d
+	}
+	desc = {
+		trigger = { NOT = { has_completed_focus = GER_chancellor_hitler } }
+		text = ww1_germany.146.d2
+	}
+	picture = GFX_report_event_europe_funeral
+	trigger = {
+		tag = GER
+		has_country_leader = {
+			character = GER_paul_von_hindenburg
+			ruling_only = no
+		}
+		date > 1934.7.1
+	}
+	fire_only_once = yes
+	mean_time_to_happen = { days = 31 }
+	option = {
+		name = ww1_germany.146.a
+		trigger = { has_completed_focus = GER_chancellor_hitler }
+		retire_character = GER_paul_von_hindenburg
+		GER_adolf_hitler = {
+			add_country_leader_trait = dictator
+		}
+		hidden_effect = {
+			set_party_name = {
+				ideology = democratic
+				long_name = GER_social_democratic_party_long
+				name = GER_social_democratic_party
+			}
+			meta_effect = {
+				text = {
+					set_politics = {
+						ruling_party = fascism
+						last_election = "[CURRENT_DATE]"
+						elections_allowed = no
+					}
+				}
+				CURRENT_DATE = "[?global.date.GetDateStringNoHour]"
+			}
+		}
+	}
+	option = { # temporal leader
+		name = ww1_germany.146.b
+		trigger = { NOT = { has_completed_focus = GER_chancellor_hitler } }
+		retire_character = GER_paul_von_hindenburg
+		GER_heinrich_brunning = {
+			add_country_leader_role = {
+				promote_leader = yes
+				country_leader = {
+					ideology = conservatism
+				}
+			}
+		}
+		hidden_effect = {
+			meta_effect = {
+				text = {
+					set_politics = {
+						ruling_party = democratic
+						long_name = GER_democratic_party_zentrum_long
+						name = GER_democratic_party_zentrum
+						last_election = "[CURRENT_DATE]"
+						elections_allowed = yes
+					}
+				}
+				CURRENT_DATE = "[?global.date.GetDateStringNoHour]"
+			}
+		}
+	}
+}
+
+# Race to the Sea
+country_event = {
+	id = ww1_germany.147
+	title = ww1_germany.147.t
+	desc = ww1_germany.147.d
+	picture = GFX_report_event_german_inspect_troops
+	is_triggered_only = yes
+	option = {
+		name = ww1_germany.147.a
+		add_timed_idea = {
+			idea = race_to_the_sea
+			days = 140
 		}
 	}
 }
