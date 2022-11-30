@@ -43,16 +43,80 @@ country_event = {
 	id = ww1_greece.5
 	title = ww1_greece.5.t
 	desc = ww1_greece.5.d
-	picture = GFX_report_event_gre_militaristic_march
-	trigger = {
-		has_active_mission = GRE_allied_landing_timer
-		has_idea = GRE_idea_national_schism
-	}
-	fire_only_once = yes
+	picture = GFX_report_event_french_british_officers
+	is_triggered_only = yes
 	option = {
 		name = ww1_greece.5.a
-		give_military_access = FRA
-		give_military_access = SER
+		give_military_access = FROM
+		SER = {
+			if = {
+				limit = {
+					has_war_with = GER
+					NOT = {
+						has_war_with = FROM
+						has_war_with = PREV
+					}
+				}
+				PREV = { give_military_access = PREV }
+			}
+		}
+		345 = {
+			transfer_state_to = FROM
+			set_border_war = yes
+			hidden_effect = {
+				set_state_flag = french_salonika
+				create_unit = {
+					division = "name = \"156e division d'infanterie\" division_template = \"Division de L'armée française d'Orient\" start_experience_factor = 0.5 start_equipment_factor = 0.1"
+					owner = FROM
+					allow_spawning_on_enemy_provs = yes
+				}
+				create_unit = {
+					division = "name = \"57e division d'infanterie\" division_template = \"Division de L'armée française d'Orient\" start_experience_factor = 0.2 start_equipment_factor = 0.1"
+					owner = FROM
+					allow_spawning_on_enemy_provs = yes
+				}
+				create_unit = {
+					division = "name = \"122e division d'infanterie\" division_template = \"Division de L'armée française d'Orient\" start_experience_factor = 0.2 start_equipment_factor = 0.1"
+					owner = FROM
+					allow_spawning_on_enemy_provs = yes
+				}
+				create_unit = {
+					division = "name = \"17e division d'infanterie coloniale\" division_template = \"Division de L'armée française d'Orient\" start_experience_factor = 0.5 start_equipment_factor = 0.1"
+					owner = FROM
+					allow_spawning_on_enemy_provs = yes
+				}
+				create_unit = {
+					division = "name = \"30e division d'infanterie\" division_template = \"Division de L'armée française d'Orient\" start_experience_factor = 0.2 start_equipment_factor = 0.1"
+					owner = FROM
+					allow_spawning_on_enemy_provs = yes
+				}
+				create_unit = {
+					division = "name = \"76e division d'infanterie\" division_template = \"Division de L'armée française d'Orient\" start_experience_factor = 0.2 start_equipment_factor = 0.1"
+					owner = FROM
+					allow_spawning_on_enemy_provs = yes
+				}
+				create_unit = {
+					division = "name = \"11e division d'infanterie coloniale\" division_template = \"Division de L'armée française d'Orient\" start_experience_factor = 0.2 start_equipment_factor = 0.1"
+					owner = FROM
+					allow_spawning_on_enemy_provs = yes
+				}
+				create_unit = {
+					division = "name = \"16e division d'infanterie coloniale\" division_template = \"Division de L'armée française d'Orient\" start_experience_factor = 0.2 start_equipment_factor = 0.1"
+					owner = FROM
+					allow_spawning_on_enemy_provs = yes
+				}
+			}
+		}
+		if = {
+			limit = {
+				owns_state = 184
+			}
+			184 = {
+				set_state_owner_to = FROM
+				set_border_war = yes
+			}
+		}
+		news_event = kis_news.137
 	}
 }
 
@@ -982,6 +1046,17 @@ country_event = {
 					}
 				}
 			}
+			every_state = {
+				limit = {
+					OR = {
+						state = 345
+						state = 184
+					}
+					is_owned_by = FRA
+				}
+				set_border_war = no
+				set_state_owner_to = THE
+			}
 			every_owned_state = {
 				limit = {
 					is_demilitarized_zone = yes
@@ -1612,14 +1687,14 @@ country_event = {
 
 # Establishment of the State of National Defence
 news_event = {
-	id = ww1_greece.50
+	id = ww1_greece.53
 	title = ww1_greece.21.t
-	desc = ww1_greece.50.d
+	desc = ww1_greece.53.d
 	picture = GFX_news_event_greek_civil_war
 	major = yes
 	is_triggered_only = yes
 	option = {
-		name = ww1_greece.50.a
+		name = ww1_greece.53.a
 		trigger = {
 			OR = {
 				tag = GER
@@ -1630,7 +1705,7 @@ news_event = {
 		}
 	}
 	option = {
-		name = ww1_greece.50.b
+		name = ww1_greece.53.b
 		trigger = {
 			OR = {
 				tag = FRA
@@ -1640,7 +1715,7 @@ news_event = {
 		}
 	}
 	option = {
-		name = ww1_greece.50.c
+		name = ww1_greece.53.c
 		trigger = {
 			NOT = {
 				tag = GER
@@ -1649,6 +1724,223 @@ news_event = {
 				tag = GRE
 				tag = FRA
 				is_in_faction_with = FRA
+			}
+		}
+	}
+}
+
+# Kingdom of Greece is victorious over the National Defense Government in the Great War
+country_event = {
+	id = ww1_greece.54
+	hidden = yes
+	fire_only_once = yes
+	trigger = {
+		tag = GRE
+		has_country_flag = great_war_winner
+		has_global_flag = great_war_ends
+		has_global_flag = venizelist_government_established
+		has_war = no
+		NOT = {
+			has_country_flag = GRE_national_defense_flag
+		}
+		any_other_country = {
+			original_tag = GRE
+			has_country_flag = GRE_national_defense_flag
+			has_country_flag = great_war_loser
+			exists = yes
+		}
+	}
+	mean_time_to_happen = { days = 0 }
+	immediate = {
+		THE = {
+			every_state = {
+				limit = {
+					NOT = { is_owned_by = PREV }
+					is_controlled_by = PREV
+				}
+				set_state_controller_to = GRE
+			}
+			every_owned_state = {
+				limit = {
+					NOT = { 
+						is_controlled_by = PREV
+					}
+				}
+				set_state_owner_to = GRE
+			}
+			GRE_eleftherios_venizelos = {
+				set_nationality = GRE
+			}
+			GRE_theodoros_pangalos = {
+				set_nationality = GRE
+			}
+			GRE_panagiotis_danglis = {
+				set_nationality = GRE
+			}
+			GRE_nikolaos_trikoupis = {
+				set_nationality = GRE
+			}
+			GRE_emmanouil_zymvrakakis = {
+				set_nationality = GRE
+			}
+			GRE_konstantinos_mazarakis = {
+				set_nationality = GRE
+			}
+			GRE_pavlos_kountouriotis = {
+				remove_country_leader_role = {
+					ideology = authoritarian_democracy
+				}
+				set_nationality = GRE
+			}
+			GRE_mark_kerr = {
+				set_nationality = GRE
+			}
+			every_unit_leader = {
+				set_nationality = GRE
+			}
+			transfer_units_fraction = {
+				target = GRE
+				size = 1.0
+				keep_unit_leaders_trigger = {
+					always = no
+				}
+			}
+			every_state = {
+				limit = {
+					OR = {
+						is_core_of = PREV
+						is_claimed_by = PREV
+					}
+				}
+				remove_core_of = PREV
+				remove_claim_by = PREV
+			}
+		}
+		annex_country = {
+			target = THE
+			transfer_troops = yes
+		}
+		clr_country_flag = national_schism
+		remove_ideas = GRE_idea_national_schism
+		remove_ideas = GRE_idea_dual_power
+	}
+}
+
+# National Defense Government is victorious over the Kingdom of Greece in the Great War
+country_event = {
+	id = ww1_greece.55
+	hidden = yes
+	fire_only_once = yes
+	trigger = {
+		tag = GRE
+		has_country_flag = great_war_loser
+		has_global_flag = great_war_ends
+		has_global_flag = venizelist_government_established
+		has_war = no
+		NOT = {
+			has_country_flag = GRE_national_defense_flag
+		}
+		any_other_country = {
+			original_tag = GRE
+			has_country_flag = GRE_national_defense_flag
+			has_country_flag = great_war_winner
+			exists = yes
+		}
+	}
+	mean_time_to_happen = { days = 0 }
+	immediate = {
+		THE = {
+			every_state = {
+				limit = {
+					NOT = { is_owned_by = PREV }
+					is_controlled_by = PREV
+				}
+				set_state_controller_to = GRE
+			}
+			every_owned_state = {
+				limit = {
+					NOT = { 
+						is_controlled_by = PREV
+					}
+				}
+				set_state_owner_to = GRE
+			}
+			GRE_eleftherios_venizelos = {
+				set_nationality = GRE
+			}
+			GRE_theodoros_pangalos = {
+				set_nationality = GRE
+			}
+			GRE_panagiotis_danglis = {
+				set_nationality = GRE
+			}
+			GRE_nikolaos_trikoupis = {
+				set_nationality = GRE
+			}
+			GRE_emmanouil_zymvrakakis = {
+				set_nationality = GRE
+			}
+			GRE_konstantinos_mazarakis = {
+				set_nationality = GRE
+			}
+			GRE_pavlos_kountouriotis = {
+				remove_country_leader_role = {
+					ideology = authoritarian_democracy
+				}
+				set_nationality = GRE
+			}
+			GRE_mark_kerr = {
+				set_nationality = GRE
+			}
+			every_unit_leader = {
+				set_nationality = GRE
+			}
+			transfer_units_fraction = {
+				target = GRE
+				size = 1.0
+				keep_unit_leaders_trigger = {
+					always = no
+				}
+			}
+			every_state = {
+				limit = {
+					OR = {
+						is_core_of = PREV
+						is_claimed_by = PREV
+					}
+				}
+				remove_core_of = PREV
+				remove_claim_by = PREV
+			}
+		}
+		GRE_eleftherios_venizelos = {
+			promote_character = yes
+		}
+		annex_country = {
+			target = THE
+			transfer_troops = yes
+		}
+		clr_country_flag = national_schism
+		remove_ideas = GRE_idea_national_schism
+		remove_ideas = GRE_idea_dual_power
+		GRE_alexander = {
+			promote_character = yes
+		}
+		add_ideas = GRE_idea_alexander
+		GRE_eleftherios_venizelos = {
+			promote_character = yes
+		}
+		set_politics = {
+			ruling_party = democratic
+			elections_allowed = no
+		}
+		if = {
+			limit = {
+				democratic < 0.5
+			}
+			add_popularity = {
+				ideology = democratic
+				popularity = 0.25
 			}
 		}
 	}
