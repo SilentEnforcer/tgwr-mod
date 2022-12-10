@@ -1059,6 +1059,10 @@ country_event = {
 			transfer_state = 243
 			transfer_state = 241
 			transfer_state = 722
+			country_event = {
+				id = rusrevolt.10
+				days = 10
+			}
 		}
 	}
 }
@@ -1071,16 +1075,18 @@ country_event = {
 	fire_only_once = yes
 	is_triggered_only = yes
 	immediate = {
-		SOV = {
-			transfer_state = 256
-			transfer_state = 250
-			transfer_state = 249
-			transfer_state = 251
-			transfer_state = 239
-			transfer_state = 401
-			transfer_state = 260
-			transfer_state = 240
-			transfer_state = 220
+		every_state = {
+			limit = {
+				is_owned_by = RUS
+				OR = {
+					state = 213 #Murmansk
+					state = 218 #Rostov
+					state = 408 #Vladivostok
+					state = 566 #Irkutsk
+					state = 585 #Tashkent
+				}
+			}
+			transfer_state_to = SOV
 		}
 	}
 }
@@ -1664,6 +1670,7 @@ country_event = {
 	id = rusrevolt.15
 	title = rusrevolt.15.t
 	desc = rusrevolt.15.d
+	picture = GFX_report_event_spr_anarchist_uprising
 	fire_only_once = yes
 	trigger = {
 		tag = UKR
@@ -1682,21 +1689,26 @@ country_event = {
 				add_state_core = 226
 				transfer_state = 226
 				load_oob = "VLN_1918"
+				every_state = {
+					limit = {
+						is_core_of = UKR
+					}
+					add_claim_by = PREV
+				}
 				declare_war_on = {
 					target = UKR
-					type = annex_everything
+					type = take_claimed_state
 				}
 			}
 		}
 	}
 	option = {
 		name = rusrevolt.15.a
-		ai_chance = { factor = 0 }
 	}
 	option = {
 		name = rusrevolt.15.b
 		VLN = { change_tag_from = PREV }
-		ai_chance = { factor = 100 }
+		ai_chance = { factor = 0 }
 	}
 }
 
@@ -1863,6 +1875,266 @@ news_event = {
 			hidden_effect = {
 				play_song = "SE_rus_civil_war_winner_white"
 				set_country_flag = SE_rus_civil_war_winner_white
+			}
+		}
+	}
+}
+
+# Allied intervention
+country_event = {
+	id = rusrevolt.20
+	title = rusrevolt.20.t
+	desc = rusrevolt.20.d
+	picture = GFX_report_event_generic_army
+	trigger = {
+		has_global_flag = kis_war
+		has_global_flag = brest_litovsk
+		NOT = {
+			has_global_flag = great_war_ends
+			has_government = communism
+		}
+		SOV = { has_war_with = RUS }
+		if = {
+			limit = {
+				ENG = {
+					is_in_faction_with = FRA
+					has_war_with = GER
+				}
+			}
+			tag = ENG
+			else = {
+				tag = FRA
+			}
+		}
+	}
+	fire_only_once = yes
+	mean_time_to_happen = { days = 60 }
+	option = {
+		name = rusrevolt.20.a
+		RUS = {
+			country_event = {
+				id = rusrevolt.21
+				days = 40
+			}
+		}
+	}
+	option = {
+		name = rusrevolt.20.b
+		ai_chance = { base = 0 }
+	}
+}
+
+# Allied Landing at Murmansk
+country_event = {
+	id = rusrevolt.21
+	title = rusrevolt.21.t
+	desc = rusrevolt.21.d
+	picture = GFX_report_event_generic_army
+	is_triggered_only = yes
+	option = {
+		name = rusrevolt.21.a
+		every_state = {
+			limit = {
+				OR = {
+					state = 213
+					state = 214
+					state = 215
+				}
+			}
+			add_claim_by = KAR
+		}
+		KAR = {
+			transfer_state = 213
+			FRA = { add_manpower = -2000 }
+			load_oob = KAR_1918
+			declare_war_on = {
+				target = SOV
+				type = take_claimed_state
+			}
+			every_other_country = {
+				limit = {
+					OR = {
+						tag = FRA
+						is_in_faction_with = FRA
+						tag = RUS
+						is_in_faction_with = RUS
+					}
+					NOT = { has_government = communism }
+				}
+				diplomatic_relation = {
+					country = PREV
+					relation = non_aggression_pact
+				}
+				PREV = {
+					diplomatic_relation = {
+						country = PREV
+						relation = military_access
+					}
+				}
+			}
+		}
+		hidden_effect = {
+			set_global_flag = north_russian_campaign
+			KAR = {
+				set_country_flag = dont_trigger_political_event
+				set_cosmetic_tag = KAR_north_russia
+				KAR_evgeniy_miller = {
+					add_country_leader_role = {
+						promote_leader = yes
+						country_leader = {
+							ideology = stratocracy
+							traits = { standing_alone }
+						}
+					}
+				}
+				213 = {
+					if = {
+						limit = {
+							ENG = {is_in_faction_with = FRA NOT = { has_government = communism } }
+						}
+						ENG = {
+							add_manpower = -13478
+							ENG_edmund_ironside = { set_nationality = KAR }
+						}
+						create_unit = {
+							division = "name = \"236th Infantry Brigade\" division_template = \"Allied Infantry Brigades\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
+							owner = PREV
+							prioritize_location = 3134
+							allow_spawning_on_enemy_provs = yes
+						}
+						create_unit = {
+							division = "name = \"6th Battalion Royal Marine Light Infantry\" division_template = \"Allied Infantry Brigades\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
+							owner = PREV
+							prioritize_location = 3134
+							allow_spawning_on_enemy_provs = yes
+						}
+						create_unit = {
+							division = "name = \"548th (Dundee) Army Troops Company, Royal Engineers\" division_template = \"Allied Infantry Brigades\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
+							owner = PREV
+							prioritize_location = 3134
+							allow_spawning_on_enemy_provs = yes
+						}
+						create_unit = {
+							division = "name = \"2/10th (Cyclist) Battalion, Royal Scots\" division_template = \"Allied Infantry Brigades\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
+							owner = PREV
+							prioritize_location = 3134
+							allow_spawning_on_enemy_provs = yes
+						}
+						create_unit = {
+							division = "name = \"52nd Battalion, Manchester Regiment\" division_template = \"Allied Infantry Brigades\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
+							owner = PREV
+							prioritize_location = 3134
+							allow_spawning_on_enemy_provs = yes
+						}
+						create_unit = {
+							division = "name = \"Royal Dublin Fusiliers\" division_template = \"Allied Infantry Brigades\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
+							owner = PREV
+							prioritize_location = 3134
+							allow_spawning_on_enemy_provs = yes
+						}
+						create_unit = {
+							division = "name = \"Slavo-British Allied Legion\" division_template = \"Allied Infantry Brigades\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
+							owner = PREV
+							prioritize_location = 3134
+							allow_spawning_on_enemy_provs = yes
+						}
+						create_unit = {
+							division = "name = \"67th and 68th Batteries of the 16th Brigade, Canadian Field Artillery\" division_template = \"Allied Infantry Brigades\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
+							owner = PREV
+							prioritize_location = 3134
+							allow_spawning_on_enemy_provs = yes
+						}
+					}
+					if = {
+						limit = {
+							USA = { is_in_faction_with = FRA NOT = { has_government = communism } }
+						}
+						USA = { add_manpower = -5000 }
+						create_unit = {
+							division = "name = \"American Expeditionary Force, North Russia\" division_template = \"Allied Infantry Brigades\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
+							owner = PREV
+							prioritize_location = 3134
+							allow_spawning_on_enemy_provs = yes
+						}
+					}
+					if = {
+						limit = {
+							ITA = { is_in_faction_with = FRA NOT = { has_government = communism } }
+						}
+						ITA = { add_manpower = -1350 }
+						create_unit = {
+							division = "name = \"Corpo di spedizione italiano in Murmania\" division_template = \"Allied Infantry Brigades\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
+							owner = PREV
+							prioritize_location = 3134
+							allow_spawning_on_enemy_provs = yes
+						}
+					}
+				}
+			}
+			every_possible_country = {
+				limit = {
+					has_character = RUS_vladimir_marushevsky
+				}
+				RUS_vladimir_marushevsky = { set_nationality = KAR }
+			}
+			every_possible_country = {
+				limit = {
+					has_character = RUS_evgeniy_miller
+				}
+				RUS_evgeniy_miller = { set_nationality = KAR }
+			}
+		}
+	}
+}
+
+# Allied Landing at Archangelsk
+country_event = {
+	id = rusrevolt.22
+	title = rusrevolt.22.t
+	desc = rusrevolt.22.d
+	picture = GFX_report_event_generic_army
+	fire_only_once = yes
+	trigger = {
+		tag = RUS
+		SOV = {
+			has_war_with = RUS
+			has_war_with = KAR
+		}
+	}
+	mean_time_to_happen = { days = 60 }
+	option = {
+		name = rusrevolt.22.a
+		KAR = { transfer_state = 214 }
+	}
+}
+
+# Withdrawal of Allied troops
+country_event = {
+	id = rusrevolt.23
+	hidden = yes
+	trigger = {
+		tag = KAR
+		has_global_flag = north_russian_campaign
+		OR = {
+			surrender_progress > 0.5
+			has_capitulated = yes
+		}
+	}
+	fire_only_once = yes
+	immediate = {
+		KAR = {
+			add_war_support = -0.30
+			add_stability = -0.30
+			add_political_power = -200
+			if = {
+				limit = {
+					has_character = ENG_edmund_ironside
+				}
+				ENG_edmund_ironside = { set_nationality = ENG }
+			}
+			delete_unit_template_and_units = {
+				division_template = "Allied Infantry Brigades"
+				disband = no
 			}
 		}
 	}
