@@ -10,7 +10,11 @@ news_event = {
 	mean_time_to_happen = {
 		days = 21
 	}
-	fire_only_once = yes
+	immediate = {
+		hidden_effect = {
+			set_global_flag = emperor_franz_dead
+		}
+	}
 	trigger = {
 		OR = {
 			any_country = {
@@ -70,18 +74,10 @@ news_event = {
 				}
 			}
 		}
+		NOT = { has_global_flag = emperor_franz_dead }
 	}
 	immediate = {
 		hidden_effect = {
-			if = {
-				limit = {
-					has_global_flag = kis_franzferdinand_murdered 
-				}
-
-				else = {
-					
-				}
-			}
 			AUH = {
 				if = {
 					limit = {
@@ -782,6 +778,7 @@ country_event = {
 							state = 575
 							state = 163
 							state = 736
+							state = 875
 						}
 					}
 					add_core_of = CRO
@@ -790,6 +787,9 @@ country_event = {
 							OR = {
 								is_owned_by = ROOT
 								is_owned_by = AUS
+								OWNER = {
+									has_country_flag = great_war_loser
+								}
 							}
 						}	
 						transfer_state_to = CRO
@@ -1667,7 +1667,6 @@ news_event = {
 	title = ww1_auh.20.t
 	desc = ww1_auh.20.d
 	picture = GFX_news_event_ger_civil_war
-	fire_only_once = yes
 	trigger = {
 		GER = {
 			has_war_with = AUH
@@ -1678,7 +1677,13 @@ news_event = {
 		}
 		has_global_flag = brothers_war
 		NOT = {
+			has_global_flag = brothers_war_news
 			has_global_flag = brothers_war_ends
+		}
+	}
+	immediate = {
+		hidden_effect = {
+			set_global_flag = brothers_war_news
 		}
 	}
 	major = yes
@@ -1687,7 +1692,7 @@ news_event = {
 	}
 }
 
-#Austrija odlučuje da li će da zahteva od Srbije da se povuče s obale
+# Austria/Italy/Germany demands to liberate Albania in the London Conference
 country_event = {
 	id = ww1_auh.22
 	title = ww1_auh.22.t
@@ -1698,11 +1703,14 @@ country_event = {
 		tag = AUH
 		has_war = no
 		is_subject = no
-		SER = { owns_state = 44 }
+		SER = {
+			owns_state = 44
+			is_subject = no
+			NOT = { is_in_faction_with = PREV }
+		}
+		NOT = { has_global_flag = kis_war }
 	}
-	mean_time_to_happen = {
-		days = 1
-	}
+	mean_time_to_happen = { days = 0 }
 	option = {
 		name = ww1_auh.22.a
 		add_political_power = -75
@@ -1743,7 +1751,18 @@ country_event = {
 country_event = {
 	id = ww1_auh.23
 	title = ww1_auh.23.t
-	desc = ww1_auh.23.d
+	desc = {
+		text = ww1_auh.23.d
+		trigger = {
+			tag = AUH
+		}
+	}
+	desc = {
+		text = ww1_auh.23.d2
+		trigger = {
+			NOT = { tag = AUH }
+		}
+	}
 	picture = GFX_report_event_generic_sign_treaty3
 	is_triggered_only = yes
 	fire_only_once = yes
@@ -1762,13 +1781,35 @@ country_event = {
 				add = 40
 				has_war_support > 0.5
 			}
+			modifier = {
+				factor = 0
+				NOT = { is_neighbor_of = SER }
+			}
 		}
 	}
 	option = {
 		name = ww1_auh.23.b
+		trigger = { tag = AUH }
 		SER = { country_event = ww1_serbia.25 }
 		ai_chance = {
 			base = 50
+			modifier = {
+				factor = 0
+				has_game_rule = {
+					rule = ultimatum_on_albania
+					option = WAR_ON_ALBANIA
+				}
+			}
+		}
+	}
+	option = {
+		name = ww1_auh.23.c
+		trigger = {
+			NOT = { tag = AUH }
+		}
+		add_political_power = -75
+		ai_chance = {
+			base = 100
 			modifier = {
 				factor = 0
 				has_game_rule = {

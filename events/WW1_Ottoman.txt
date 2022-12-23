@@ -301,6 +301,13 @@ country_event = {
 	picture = GFX_report_event_tur_turkish_soldiers
 	trigger = {
 		tag = TUR
+		any_other_country = {
+			has_war_with = PREV
+			OR = {
+				owns_state = 446
+				owns_state = 447
+			}
+		}
 		controls_state = 446
 		controls_state = 447
 		has_global_flag = kis_war
@@ -1409,7 +1416,46 @@ country_event = {
 	is_triggered_only = yes
 	fire_only_once = yes
 	option = {
+		name = ww1_ottoman.38.b		#Take Kuwait and Qatar
+		trigger = {
+			OR = {
+				TUR = { owns_state = 656 }
+				TUR = { has_subject = KUW }
+				has_subject = KUW
+			}
+			OR = {
+				TUR = { owns_state = 765 }
+				TUR = { has_subject = QAT }
+			}
+			NOT = {
+				has_war_with = KUW
+				has_war_with = QAT
+				has_war_with = TUR
+			}
+		}
+		ai_chance = {
+			factor = 65
+		}
+		TUR = {
+			country_event = {
+				id = ww1_ottoman.40
+				days = 1
+			}
+		}
+	}
+	option = {
 		name = ww1_ottoman.38.a		#Take Kuwait
+		trigger = {
+			OR = {
+				TUR = { owns_state = 656 }
+				TUR = { has_subject = KUW }
+				has_subject = KUW
+			}
+			NOT = {
+				has_war_with = KUW
+				has_war_with = TUR
+			}
+		}
 		ai_chance = {
 			factor = 30
 			modifier = {
@@ -1425,18 +1471,6 @@ country_event = {
 		}
 	}
 	option = {
-		name = ww1_ottoman.38.b		#Take Kuwait and Qatar
-		ai_chance = {
-			factor = 65
-		}
-		TUR = {
-			country_event = {
-				id = ww1_ottoman.40
-				days = 1
-			}
-		}
-	}
-	option = {
 		name = ww1_ottoman.38.c		#Stop negotiations
 		add_political_power = -15
 		ai_chance = {
@@ -1446,7 +1480,7 @@ country_event = {
 				is_historical_focus_on = yes
 			}
 		}
-		TUR = {
+		FROM = {
 			country_event = {
 				id = ww1_ottoman.41
 				days = 1
@@ -1467,6 +1501,12 @@ country_event = {
 		name = ww1_ottoman.39.a		#Agree
 		add_political_power = 150
 		set_global_flag = anglo_ottoman_convention_kuwait
+		if = {
+			limit = {
+				owns_state = 656
+			}
+			ENG = { transfer_state = 656 }
+		}
 		KUW = {
 			if = {
 				limit = {
@@ -1497,6 +1537,13 @@ country_event = {
 						relation = military_access
 						active = no
 					}
+				}
+				every_other_country = {
+					limit = {
+						has_war_with = PREV
+						NOT = { has_war_with = ENG }
+					}
+					white_peace = PREV
 				}
 			}
 		}
@@ -1568,6 +1615,12 @@ country_event = {
 		name = ww1_ottoman.40.a		#Agree
 		set_global_flag = anglo_ottoman_convention_kuwait_and_qatar
 		add_political_power = 200
+		if = {
+			limit = {
+				owns_state = 656
+			}
+			ENG = { transfer_state = 656 }
+		}
 		KUW = {
 			if = {
 				limit = {
@@ -1601,13 +1654,10 @@ country_event = {
 				}
 				every_other_country = {
 					limit = {
-						OR = {
-							has_war_with = PREV
-							has_war_with = QAT
-						}
+						has_war_with = PREV
+						NOT = { has_war_with = ENG }
 					}
 					white_peace = PREV
-					white_peace = QAT
 				}
 			}
 		}
@@ -1642,6 +1692,12 @@ country_event = {
 			amount = 4
 			state = 413
 		}
+		if = {
+			limit = {
+				owns_state = 765
+			}
+			QAT = { transfer_state = 765 }
+		}
 		QAT = {
 			if = {
 				limit = {
@@ -1655,6 +1711,17 @@ country_event = {
 					add_state_claim = 765
 				}
 				clr_country_flag = protectorate
+			}
+			#Ottomans did not withdraw troops immediately
+			give_military_access = TUR
+			give_military_access = ENG
+			ENG = { give_guarantee = PREV }
+			every_other_country = {
+				limit = {
+					has_war_with = PREV
+					NOT = { has_war_with = ENG }
+				}
+				white_peace = PREV
 			}
 		}
 		#reduce economy debuff
@@ -2503,6 +2570,7 @@ country_event = {
 	option = {
 		name = ww1_ottoman.58.b
 		add_political_power = -50
+		send_embargo = GER
 		add_opinion_modifier = {
 			target = GER
 			modifier = embargo
@@ -4392,6 +4460,7 @@ country_event = {
 					is_core_of = AZR
 					NOT = {
 						is_core_of = TUR
+						state = 818
 					}
 				}
 				transfer_state_to = PREV
@@ -4453,14 +4522,23 @@ country_event = {
 				transfer_state = PREV
 			}
 		}
-		if = {
+		every_state = {
 			limit = {
-				GEO = {
-					owns_state = 230
+				OR = {
+					is_owned_by = GEO
+					is_owned_by = TUR
+				}
+				OR = {
+					state = 230
+					state = 818
 				}
 			}
-			ARM = {
-				transfer_state = 230
+			transfer_state_to = ARM
+			if = {
+				limit = {
+					state = 818
+				}
+				818 = { set_border_war = yes }
 			}
 		}
 		GEO = {
@@ -4494,6 +4572,28 @@ country_event = {
 				GEO_noe_zhordania = {
 					promote_character = authoritarian_democracy
 					promote_character = socialism
+				}
+				if = {
+					limit = {
+						is_in_faction_with = RUS
+					}
+					leave_faction = yes
+				}
+				if = {
+					limit = {
+						has_war_with = SOV
+					}
+					every_other_country = {
+						limit = {
+							has_war_with = PREV
+							OR = {
+								tag = SOV
+								is_in_faction_with = SOV
+								is_subject_of = SOV
+							}
+						}
+						white_peace = PREV
+					}
 				}
 			}
 		}
@@ -5753,6 +5853,537 @@ news_event = {
 				original_tag = ARM
 				original_tag = GEO
 				original_tag = TUR
+			}
+		}
+	}
+}
+
+# Jerusalem has been lost
+country_event = {
+	id = ww1_ottoman.133
+	hidden = yes
+	trigger = {
+		tag = TUR
+		has_war = yes
+		owns_state = 454
+		owns_state = 856
+		has_global_flag = kis_war
+		NOT = {
+			has_global_flag = great_war_ends
+			has_subject = EGY
+			controls_state = 454
+			controls_state = 856
+			owns_state = 446
+		}
+		OR = {
+			NOT = { has_country_flag = ottomans_lost_jerusalem }
+			has_country_flag = ottomans_hold_cairo_and_alexandria
+		}
+	}
+	fire_only_once = no
+	mean_time_to_happen = {
+		days = 0
+	}
+	immediate = {
+		set_country_flag = ottomans_lost_jerusalem
+		if = {
+			limit = { has_country_flag = ottomans_hold_cairo_and_alexandria }
+			clr_country_flag = ottomans_hold_cairo_and_alexandria
+		}
+	}
+}
+
+# International Suez
+country_event = {
+	id = ww1_ottoman.134
+	title = ww1_ottoman.134.t
+	desc = ww1_ottoman.134.d
+	picture = GFX_report_event_tur_politician_march
+	trigger = {
+		tag = TUR
+		has_war = no
+		OR = {
+			has_global_flag = frankfurt_treaty
+			has_global_flag = versallies_treaty
+		}
+		owns_state = 454
+		owns_state = 856
+		has_country_flag = great_war_winner
+		has_country_flag = ottomans_lost_jerusalem
+		447 = {
+			OR = {
+				is_owned_by = PREV
+				EGY = {
+					is_subject = no
+					owns_state = PREV
+				}
+				any_other_country = {
+					has_country_flag = great_war_loser
+					owns_state = PREV
+				}
+			}
+		}
+		NOT = {
+			has_country_flag = ottomans_hold_cairo_and_alexandria
+			has_subject = EGY
+			country_exists = PAL
+			owns_state = 446
+			has_border_war_with = EGY
+		}
+	}
+	fire_only_once = yes
+	mean_time_to_happen = {
+		days = 140
+	}
+	option = {
+		name = ww1_ottoman.134.a
+		hidden_effect = {
+			PAL = {
+				set_cosmetic_tag = PAL_international
+				add_ideas = PAL_moj
+				add_ideas = PAL_sectarian_divide
+			}
+			every_other_country = {
+				limit = {
+					OR = {
+						has_country_flag = great_war_loser
+						AND = {
+							original_tag = EGY
+							is_subject = no
+						}
+						is_subject_of = PREV
+					}
+					OR = {
+						owns_state = 447
+						owns_state = 453
+						owns_state = 454
+						owns_state = 856
+						owns_state = 858
+					}
+				}
+				country_event = {
+					id = ww1_ottoman.135
+					days = 1
+				}
+			}
+		}
+		every_state = {
+			limit = {
+				OR = {
+					state = 447
+					state = 453
+					state = 454
+					state = 856
+					state = 858
+				}
+			}
+			add_core_of = PAL
+			if = {
+				limit = {
+					is_owned_by = PREV
+				}
+				transfer_state_to = PAL
+				set_demilitarized_zone = yes
+			}
+		}
+		if = {
+			limit = {
+				has_subject_autonomy_feature = yes
+			}
+			set_autonomy = {
+				target = PAL
+				autonomy_state = autonomy_tgwr_protectorate
+			}
+			PAL = { set_country_flag = protectorate }
+			else = {
+				puppet = PAL
+				PAL = { add_ideas = protectorate }
+			}
+		}
+		hidden_effect = {
+			every_country = {
+				limit = {
+					is_major = yes
+					NOT = {
+						has_war_with = PAL
+						has_war_with = TUR
+						has_war_with = GER
+						has_war_with = FRA
+					}
+				}
+				set_truce = {
+					target = PAL
+					days = 365
+				}
+				give_guarantee = PAL
+				PAL = {
+					give_military_access = PREV
+				}
+			}
+			PAL = {
+				set_capital = { state = 454 }
+				set_politics = {
+					ruling_party = neutrality
+					elections_allowed = no
+				}
+				set_popularities = {
+					democratic = 34
+					neutrality = 65
+				}
+				country_lock_all_division_template = yes
+			}
+			news_event = {
+				id = ww1_ottoman.136
+				days = 3
+			}
+		}
+	}
+}
+
+# International Palestine and Suez
+country_event = {
+	id = ww1_ottoman.135
+	title = ww1_ottoman.134.t
+	desc = ww1_ottoman.134.d
+	picture = GFX_report_event_tur_politician_march
+	is_triggered_only = yes
+	option = {
+		name = ww1_ottoman.135.a
+		every_owned_state = {
+			limit = {
+				is_core_of = PAL
+			}
+			if = {
+				limit = {
+					NOT = {
+						is_claimed_by = PREV
+						is_core_of = PREV
+					}
+				}
+				add_claim_by = PREV
+			}
+			transfer_state_to = PAL
+			set_demilitarized_zone = yes
+		}
+	}
+}
+
+# International Palestine and Suez news
+news_event = {
+	id = ww1_ottoman.136
+	title = ww1_ottoman.136.t
+	desc = ww1_ottoman.136.desc
+	picture = GFX_news_event_ottomans_germany
+	is_triggered_only = yes
+	major = yes
+	option = {
+		name = ww1_ottoman.136.a
+		trigger = {
+			has_country_flag = great_war_winner
+			NOT = { has_subject = PAL }
+		}
+	}
+	option = {
+		name = ww1_ottoman.136.b
+		trigger = {
+			has_country_flag = great_war_loser
+			NOT = { has_subject = PAL }
+		}
+	}
+	option = {
+		name = ww1_ottoman.136.c
+		trigger = {
+			has_subject = PAL
+		}
+	}
+	option = {
+		name = ww1_ottoman.136.d
+		trigger = {
+			NOT = {
+				has_country_flag = great_war_winner
+				has_country_flag = great_war_loser
+				has_subject = PAL
+			}
+		}
+	}
+}
+
+# 1919 Constantinople Conference
+country_event = {
+	id = ww1_ottoman.137
+	title = ww1_ottoman.137.t
+	desc = ww1_ottoman.137.d
+	picture = GFX_report_event_military_planning
+	is_triggered_only = yes
+	option = {
+		name = ww1_ottoman.137.a
+		set_global_flag = constantinople_conference
+		if = {
+			limit = {
+				GEO = {
+					exists = yes
+					NOT = { is_subject_of = ROOT }
+					is_neighbor_of = ROOT
+				}
+				PREV = { owns_state = 748 }
+			}
+			GEO = {
+				country_event = {
+					id = ww1_ottoman.138
+					days = 3
+				}
+			}
+		}
+		if = {
+			limit = {
+				AZR = {
+					exists = yes
+					NOT = { is_subject_of = ROOT }
+				}
+			}
+			AZR = {
+				country_event = {
+					id = ww1_ottoman.138
+					days = 3
+				}
+			}
+		}
+	}
+}
+
+# 1919 Constantinople Conference - Negotiations
+country_event = {
+	id = ww1_ottoman.138
+	title = ww1_ottoman.138.t
+	desc = ww1_ottoman.138.d
+	picture = GFX_report_event_generic_sign_treaty1
+	is_triggered_only = yes
+	immediate = {
+		hidden_effect = {
+			set_country_flag = costantinople_conference_attendant
+		}
+	}
+	option = {
+		name = ww1_ottoman.138.a
+		trigger = {
+			tag = GEO
+		}
+		FROM = {
+			country_event = {
+				id = ww1_ottoman.139
+				days = 1
+			}
+		}
+		ai_chance = {
+			factor = 100
+		}
+	}
+	option = {
+		name = ww1_ottoman.138.b
+		trigger = {
+			tag = AZR
+		}
+		effect_tooltip = {
+			818 = {
+				set_border_war = no
+				transfer_state_to = PREV
+			}
+			230 = {
+				transfer_state_to = FROM
+			}
+		}
+		set_country_flag = agreed_with_costantinople_conference
+		ai_chance = {
+			factor = 100
+			modifier = {
+				factor = 0
+				has_opinion = {
+					target = ARM
+					value > 15
+				}
+			}
+		}
+	}
+	option = {
+		name = ww1_ottoman.138.c
+		set_country_flag = disagreed_with_costantinople_conference
+		ai_chance = {
+			factor = 100
+			modifier = {
+				factor = 0
+				has_opinion = {
+					target = ARM
+					value < 15
+				}
+			}
+			modifier = {
+				factor = 0
+				tag = GEO
+				NOT = { owns_state = 748 }
+			}
+		}
+	}
+}
+
+# 1919 Constantinople Conference - Georgia demands Meskheti-Javakheti
+country_event = {
+	id = ww1_ottoman.139
+	title = ww1_ottoman.139.t
+	desc = ww1_ottoman.139.d
+	picture = GFX_report_event_generic_sign_treaty1
+	is_triggered_only = yes
+	option = {
+		name = ww1_ottoman.139.a
+		effect_tooltip = {
+			748 = {
+				remove_claim_by = ROOT
+				transfer_state_to = FROM
+			}
+		}
+		FROM = { set_country_flag = agreed_with_costantinople_conference }
+		ai_chance = {
+			base = 100
+			modifier = {
+				add = 30
+				FROM = { has_country_flag = great_war_winner }
+			}
+		}
+	}
+	option = {
+		name = ww1_ottoman.139.b
+		FROM = { set_country_flag = disagreed_with_costantinople_conference }
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 10
+				FROM = { has_country_flag = great_war_loser }
+			}
+		}
+	}
+}
+
+# 1919 Constantinople Conference - Success
+news_event = {
+	id = ww1_ottoman.146
+	title = ww1_ottoman.146.t
+	desc = ww1_ottoman.146.d
+	picture = GFX_news_event_treaty_of_batum
+	major = yes
+	trigger = {
+		tag = TUR
+		has_global_flag = constantinople_conference
+		NOT = {
+			has_global_flag = constantinople_conference_ends
+			any_other_country = {
+				has_country_flag = disagreed_with_costantinople_conference
+			}
+		}
+	}
+	mean_time_to_happen = { days = 30 }
+	immediate = {
+		hidden_effect = {
+			set_global_flag = constantinople_conference_ends
+			TUR = {
+				add_named_threat = {
+					threat = 3
+					name = ww1_ottoman.146.t
+				}
+			}
+			GEO = {
+				if = {
+					limit = {
+						has_country_flag = agreed_with_costantinople_conference
+					}
+					748 = {
+						remove_claim_by = TUR
+						transfer_state_to = PREV
+					}
+				}
+			}
+			818 = {
+				set_border_war = no
+				transfer_state_to = AZR
+			}
+			230 = {
+				transfer_state_to = TUR
+			}
+		}
+	}
+	option = {
+		name = ww1_ottoman.146.a
+		trigger = {
+			OR = {
+				tag = TUR
+				has_country_flag = agreed_with_costantinople_conference
+			}
+		}
+	}
+	option = {
+		name = ww1_ottoman.146.b
+		trigger = {
+			tag = ARM
+		}
+	}
+	option = {
+		name = ww1_ottoman.146.c
+		trigger = {
+			NOT = {
+				tag = TUR
+				has_country_flag = agreed_with_costantinople_conference
+				tag = ARM
+			}
+		}
+	}
+}
+
+# 1919 Constantinople Conference - Failed
+news_event = {
+	id = ww1_ottoman.147
+	title = ww1_ottoman.147.t
+	desc = ww1_ottoman.147.d
+	picture = GFX_news_event_treaty_of_batum
+	major = yes
+	trigger = {
+		tag = TUR
+		has_global_flag = constantinople_conference
+		any_other_country = {
+			has_country_flag = disagreed_with_costantinople_conference
+		}
+		NOT = {
+			has_global_flag = constantinople_conference_ends
+		}
+	}
+	mean_time_to_happen = { days = 30 }
+	immediate = {
+		hidden_effect = {
+			set_global_flag = constantinople_conference_ends
+			818 = {
+				set_border_war = no
+			}
+		}
+	}
+	option = {
+		name = ww1_ottoman.147.a
+		trigger = {
+			OR = {
+				tag = TUR
+				has_country_flag = agreed_with_costantinople_conference
+			}
+		}
+	}
+	option = {
+		name = ww1_ottoman.147.b
+		trigger = {
+			tag = ARM
+		}
+	}
+	option = {
+		name = ww1_ottoman.147.c
+		trigger = {
+			NOT = {
+				tag = TUR
+				has_country_flag = agreed_with_costantinople_conference
+				tag = ARM
 			}
 		}
 	}

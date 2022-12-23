@@ -543,6 +543,7 @@ country_event = {
 		has_war = no
 		SER = {
 			has_war_with = AUH
+			is_neighbor_of = PREV
 		}
 		has_country_leader = {
 			character = ALB_essad_pasha_toptani
@@ -551,22 +552,20 @@ country_event = {
 	}
 	option = {
 		name = ww1_albania.8.a
-		SER = {
-			diplomatic_relation = {
-				country = ALB
-				relation = military_access
-				active = yes
-			}
-		}
+		give_military_access = SER
 		set_country_flag = military_access_to_serbia
 		ai_chance = {
-			factor = 1
+			factor = 5
 		}
 	}
 	option = {
 		name = ww1_albania.8.b
 		ai_chance = {
-			factor = 0
+			factor = 1
+			modifier = {
+				is_historical_focus_on = yes
+				factor = 0
+			}
 		}
 	}
 }
@@ -580,12 +579,23 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		tag = AUH
+		is_subject = no
+		has_capitulated = no
+		NOT = { has_global_flag = interbellum }
 		ALB = {
 			has_country_flag = military_access_to_serbia
+			NOT = {
+				has_war_with = PREV
+				is_in_faction_with = PREV
+				is_subject_of = PREV
+			}
 		}
 		SER = {
-			has_war_with = AUH
-			has_capitulated = yes
+			has_war_with = PREV
+			OR = {
+				has_capitulated = yes
+				surrender_progress > 0.70
+			}
 		}
 	}
 	mean_time_to_happen = {
@@ -593,18 +603,61 @@ country_event = {
 	}
 	option = {
 		name = ww1_albania.9.a
+		hidden_effect = {
+			add_ai_strategy = {
+				type = prepare_for_war
+				id = ALB
+				value = 20
+			}
+			if = {
+				limit = {
+					is_in_faction_with = BUL
+				}
+				BUL = {
+					add_ai_strategy = {
+						type = prepare_for_war
+						id = ALB
+						value = 20
+					}
+				}
+			}
+		}
 		create_wargoal = {
 			type = puppet_wargoal_focus
 			target = ALB
 		}
 		ai_chance = {
 			factor = 1
+			modifier = {
+				factor = 0
+				any_other_country = {
+					has_subject = ALB
+					is_major = yes
+					NOT = { has_war_with = PREV }
+				}
+			}
+			modifier = {
+				factor = 0
+				surrender_progress > 0.5
+			}
 		}
 	}
 	option = {
 		name = ww1_albania.9.b
 		ai_chance = {
-			factor = 0
+			base = 0
+			modifier = {
+				add = 10
+				any_other_country = {
+					has_subject = ALB
+					is_major = yes
+					NOT = { has_war_with = PREV }
+				}
+			}
+			modifier = {
+				add = 10
+				surrender_progress > 0.5
+			}
 		}
 	}
 }
@@ -623,6 +676,7 @@ country_event = {
 			ruling_only = yes
 		}
 		date > 1914.7.1
+		NOT = { has_country_flag = great_war_loser }
 	}
 	mean_time_to_happen = {
 		days = 20
@@ -646,30 +700,20 @@ country_event = {
 
 #No More Ottoman Puppet
 country_event = {
-	title = ww1_albania.11.t
-	desc = ww1_albania.11.d
 	id = ww1_albania.11
 	hidden = yes
 	trigger = {
 		tag = ALB
-		has_country_leader = {
-			character = TUR_ahmet_izzet
-			ruling_only = no
-		}
+		has_character = TUR_ahmet_izzet
 		NOT = {
-			ALB = {
-				is_subject_of = TUR
-			}
+			is_subject_of = TUR
 		}
 	}
 	mean_time_to_happen = { days = 0 }
-	option = {
-		name = ww1_albania.11.a
+	immediate = {
 		if = {
 			limit = {
-				NOT = {
-					has_cosmetic_tag = ALB_principality
-				}
+				NOT = { has_cosmetic_tag = ALB_principality }
 			}
 			ALB_essad_pasha_toptani = {
 				promote_character = {
@@ -683,7 +727,7 @@ country_event = {
 				name = ALB_neutrality_party
 			}
 			drop_cosmetic_tag = yes
-		}	
+		}
 		TUR_ahmet_izzet = { set_character_name = TUR_ahmet_izzet set_nationality = TUR }
 	}
 }
