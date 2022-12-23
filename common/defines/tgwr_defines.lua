@@ -48,3 +48,8 @@ NDefines.NSupply.CAPITAL_SUPPLY_DOCKYARDS = 0.6
  
 
  
+MAJOR_MIN_FACTORIES = 25	-- Vanilla is 35
+MIN_MAJOR_COUNTRIES = 8	-- Vanilla is 7, Eight countries; ENG, FRA, GER, RUS, AUH, ITA, USA, JAP
+
+MAX_BOMBING_WAR_SUPPORT_IMPACT = -0.1 -- Vanilla is -0.3, it is not ww2
+MAX_CONVOYS_BEING_RAIDED_WAR_SUPPORT_IMPACT = -0.5 -- Vanilla is -0.3, it is not ww2
