@@ -651,73 +651,110 @@ country_event = {
 	}
 	option = {
 		name = ww1_russia.12.a
-		every_state = {
-			limit = {
-				is_claimed_by = UKR
-				OR = {
-					is_owned_by = RUS
-					is_owned_by = SOV
-					is_owned_by = POL
-					is_owned_by = GER
-					is_owned_by = BLR
-				}
-			}
-			UKR = {
-				every_other_country = {
+		UKR = {
+			hidden_effect = {
+				if = {
 					limit = {
 						OR = {
-							original_tag = SOV
-							original_tag = RUS
-							is_in_faction_with = SOV
-							is_in_faction_with = RUS
+							exists = no
 							is_subject_of = SOV
 							is_subject_of = RUS
 						}
-						has_war_with = PREV
 					}
-					white_peace = PREV
-				}
-				transfer_state = PREV
-				if = {
-					limit = {
-						SOV = { controls_state = 260 }
-					}
-					# These will be transfered when Hetmanate installed
-					# Donetsk SR
-					every_owned_state = {
+					if = {
 						limit = {
-							OR = {
-								state = 196
-								state = 221
-								state = 222
-								state = 226
-								state = 227
-								state = 228
-								state = 240
-							}
+							is_subject = yes
 						}
-						transfer_state_to = SOV
+						OVERLORD = { end_puppet = yes }
 					}
-					# Odessa SR
-					every_owned_state = {
+					if = {
 						limit = {
-							OR = {
-								state = 192
-								state = 197
-							}
+							is_in_faction = yes
 						}
-						transfer_state_to = SOV
+						leave_faction = yes
 					}
+					set_politics = {
+						ruling_party = democratic
+						elections_allowed = yes
+					}
+					set_popularities = {
+						democratic = 38
+						fascism = 0
+						communism = 24
+						neutrality = 38
+					}
+					load_oob = "UKR_army"
 				}
+			}
+			every_other_country = {
+				limit = {
+					OR = {
+						original_tag = SOV
+						original_tag = RUS
+						original_tag = GER
+						is_in_faction_with = SOV
+						is_in_faction_with = RUS
+						is_in_faction_with = GER
+						is_subject_of = SOV
+						is_subject_of = RUS
+						is_subject_of = GER
+					}
+					has_war_with = PREV
+				}
+				white_peace = PREV
 			}
 			GER = {
 				diplomatic_relation = {
-					country = UKR
+					country = PREV
 					relation = military_access
 					active = yes
 				}
 			}
-			hidden_effect = {
+			every_state = {
+				limit = {
+					is_claimed_by = UKR
+					OR = {
+						is_owned_by = RUS
+						is_owned_by = SOV
+						is_owned_by = POL
+						is_owned_by = GER
+						is_owned_by = BLR
+					}
+				}
+				PREV = {
+					transfer_state = PREV
+					if = {
+						limit = {
+							SOV = { controls_state = 260 }
+						}
+						# These will be transfered when Hetmanate installed
+						# Donetsk SR
+						every_owned_state = {
+							limit = {
+								OR = {
+									state = 196
+									state = 221
+									state = 222
+									state = 226
+									state = 227
+									state = 228
+									state = 240
+								}
+							}
+							transfer_state_to = SOV
+						}
+						# Odessa SR
+						every_owned_state = {
+							limit = {
+								OR = {
+									state = 192
+									state = 197
+								}
+							}
+							transfer_state_to = SOV
+						}
+					}
+				}
 				every_state = {
 					limit = {
 						OR = {
@@ -728,9 +765,7 @@ country_event = {
 							state = 241
 						}
 					}
-					UKR = {
-						add_state_claim = PREV
-					}
+					add_claim_by = PREV.PREV
 				}
 			}
 		}
@@ -764,6 +799,13 @@ country_event = {
 	fire_only_once = yes
 	is_triggered_only = yes
 	option = {
+		name = ww1_russia.13.b
+		add_political_power = -50
+		ai_chance = {
+			factor = 100
+		}
+	}
+	option = {
 		name = ww1_russia.13.a
 		GER = {
 			country_event = {
@@ -773,13 +815,6 @@ country_event = {
 		}
 		ai_chance = {
 			factor = 0
-		}
-	}
-	option = {
-		name = ww1_russia.13.b
-		add_political_power = -50
-		ai_chance = {
-			factor = 100
 		}
 	}
 }
@@ -796,8 +831,18 @@ country_event = {
 	option = {
 		name = ww1_russia.14.a
 		UKR = {
-			country_event = {
-				id = rusrevolt.12
+			if = {
+				limit = {
+					NOT = { has_government = communism }
+				}
+				every_state = {
+					limit = {
+						is_core_of = PREV
+						is_owned_by = SOV
+					}
+					transfer_state_to = PREV
+				}
+				country_event = rusrevolt.12
 			}
 		}
 		set_global_flag = brest_treaty_denounced
@@ -810,20 +855,32 @@ country_event = {
 	}
 	option = {
 		name = ww1_russia.14.b
-		end_puppet = UKR
 		UKR = {
-			leave_faction = yes
-		}
-		every_country = {
-			limit = {
-				AND = {
-					has_war_with = UKR
+			if = {
+				limit = {
+					is_subject = yes
+					NOT = { is_subject_of = SOV }
+				}
+				OVERLORD = { end_puppet = PREV }
+			}
+			if = {
+				limit = {
+					is_in_faction = yes
+					NOT = { is_in_faction_with = SOV }
+				}
+				leave_faction = yes
+			}
+			every_country = {
+				limit = {
+					has_war_with = PREV
 					NOT = {
 						tag = SOV
+						is_subject_of = SOV
+						is_in_faction_with = SOV
 					}
 				}
+				white_peace = PREV
 			}
-			white_peace = UKR
 		}
 		news_event = {
 			id = ww1_russia.10
@@ -2307,7 +2364,10 @@ country_event = {
 						state = 587
 					}
 					is_core_of = TRK
-					is_owned_by = RUS
+					OR = {
+						is_owned_by = RUS
+						is_owned_by = SOV
+					}
 				}
 				TRK = {
 					transfer_state = PREV
