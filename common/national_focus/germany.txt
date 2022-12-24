@@ -316,6 +316,8 @@ focus_tree = {
 						value = 100
 					}
 				}
+				send_embargo = ROOT
+				send_embargo = ITA
 				add_opinion_modifier = {
 					target = ROOT
 					modifier = embargo
@@ -533,6 +535,10 @@ focus_tree = {
 			}
 		}
 		completion_reward = {
+			add_named_threat = {
+				threat = 5
+				name = GER_eastern_expansion
+			}
 			add_political_power = 150
 			add_war_support = 0.05
 			add_state_claim = 98
@@ -1019,6 +1025,35 @@ focus_tree = {
 		search_filters = {
 			FOCUS_FILTER_HISTORICAL
 		}
+	}
+	focus = {
+		id = GER_focus_on_artillery
+		icon = GFX_goal_generic_army_artillery2
+		relative_position_id = GER_OHL_authority
+		prerequisite = {
+			focus = GER_OHL_authority
+		}
+		available = {
+			has_tech = artillery1
+		}
+		completion_reward = {
+			set_country_flag = GER_focus_on_artillery
+			army_experience = 10
+			add_tech_bonus = {
+				name = GER_focus_on_artillery
+				bonus = 1
+				category = artillery
+				uses = 1
+			}
+			custom_effect_tooltip = available_designer
+			show_ideas_tooltip = rheinmetall
+		}
+		ai_will_do = {
+			factor = 30
+		}
+		cost = 10
+		x = -3
+		y = 1
 	}
 	focus = {
 		id = GER_military_advisers
@@ -1510,6 +1545,9 @@ focus_tree = {
 		ai_will_do = {
 			factor = 1
 		}
+		search_filters = {
+			FOCUS_FILTER_RESEARCH
+		}
 	}
 	focus = {
 		id = GER_oberster_kriegsherr
@@ -1572,6 +1610,7 @@ focus_tree = {
 		}
 		search_filters = {
 			FOCUS_FILTER_HISTORICAL
+			FOCUS_FILTER_WAR_SUPPORT
 		}
 	}
 	focus = {
@@ -1597,6 +1636,9 @@ focus_tree = {
 		}
 		ai_will_do = {
 			factor = 1
+		}
+		search_filters = {
+			FOCUS_FILTER_WAR_SUPPORT
 		}
 	}
 	focus = {
@@ -2143,6 +2185,9 @@ focus_tree = {
 		ai_will_do = {
 			factor = 1
 		}
+		search_filters = {
+			FOCUS_FILTER_RESEARCH
+		}
 	}
 	focus = {
 		id = GER_allied_command_cooperation
@@ -2513,7 +2558,6 @@ focus_tree = {
 				has_full_control_of_state = 725
 				has_full_control_of_state = 745
 				has_full_control_of_state = 646
-				has_full_control_of_state = 648
 				has_full_control_of_state = 644
 				has_full_control_of_state = 798
 				has_full_control_of_state = 633
@@ -2524,7 +2568,6 @@ focus_tree = {
 				owns_state = 725
 				owns_state = 745
 				owns_state = 646
-				owns_state = 648
 				owns_state = 644
 				owns_state = 798
 				owns_state = 633
@@ -4271,8 +4314,10 @@ focus_tree = {
 			has_war_with = ENG
 		}
 		bypass = {
-			ENG = {
-				exists = no
+			OR = {
+				NOT = { country_exists = ENG }
+				has_subject = ENG
+				is_in_faction_with = ENG
 			}
 		}
 		cancel_if_invalid = no
@@ -4313,7 +4358,7 @@ focus_tree = {
 				has_idea = GER_idea_strait_blockade
 			}
 			has_navy_size = {
-				size > 59
+				size > 35
 				type = submarine
 			}
 			OR = {
@@ -4323,8 +4368,9 @@ focus_tree = {
 			}
 		}
 		bypass = {
-			USA = {
-				exists = no
+			NOT = {
+				country_exists = USA
+				country_exists = CAN
 			}
 		}
 		cancel_if_invalid = no
@@ -4332,6 +4378,15 @@ focus_tree = {
 		available_if_capitulated = yes
 		completion_reward = {
 			USA = {
+				if = {
+					limit = {
+						exists = yes
+						NOT = {
+							is_subject_of = PREV
+							is_in_faction_with = PREV
+						}
+					}
+				}
 				set_country_flag = {
 					flag = GER_american_campaign
 					days = 60
@@ -4348,10 +4403,14 @@ focus_tree = {
 			}
 		}
 		ai_will_do = {
-			factor = 5
+			base = 5
 			modifier = {
 				has_war_with = ENG
-				factor = 100
+				add = 100
+			}
+			modifier = {
+				has_war_with = USA
+				add = 100
 			}
 		}
 		search_filters = {
@@ -4369,19 +4428,26 @@ focus_tree = {
 		y = 7
 		available = {
 			threat > 0.5
-			NOT = {
-				has_global_flag = great_war_ends
+			NOT = { has_global_flag = great_war_ends }
+			USA = {
+				exists = yes
+				NOT = {
+					has_war_with = PREV
+					is_subject_of = PREV
+					is_in_faction_with = PREV
+				}
+			}
+			MEX = {
+				exists = yes
+				NOT = {
+					has_war_with = PREV
+					is_subject_of = PREV
+					is_in_faction_with = PREV
+				}
 			}
 		}
 		bypass = {
-			OR = {
-				USA = {
-					is_in_faction = yes
-				}
-				MEX = {
-					is_in_faction = yes
-				}
-			}
+			has_war_with = USA
 		}
 		completion_reward = {
 			custom_effect_tooltip = GER_zimmermann_depesche_tt
@@ -4393,36 +4459,36 @@ focus_tree = {
 			}
 			set_global_flag = zimmermann_telegram
 			hidden_effect = {
-				if = {
-					limit = {
-						NOT = {
-							has_dlc = "La Resistance"
+				ENG = {
+					if = {
+						limit = {
+							has_war_with = PREV
 						}
-						has_war_with = ENG
-						ENG = {
-							has_completed_focus = ENG_room_40
-						}
-					}
-					ENG = {
-						country_event = ww1_england.9
-					}
-				}
-				if = {
-					limit = {
-						has_dlc = "La Resistance"
-						has_war_with = ENG
-						ENG = {
-							OR = {
-								AND = {
-									has_completed_focus = ENG_room_40
-									is_ai = yes
-								}	
-								has_intelligence_agency = yes
+						if = {
+							limit = {
+								has_dlc = "La Resistance"
+							}
+							if = {
+								limit = {
+									OR = {
+										AND = {
+											has_completed_focus = ENG_room_40
+											is_ai = yes
+										}
+										has_intelligence_agency = yes
+									}
+								}
+								country_event = ww1_england.9
 							}
 						}
-					}
-					ENG = {
-						country_event = ww1_england.9
+						else = {
+							if = {
+								limit = {
+									has_completed_focus = ENG_room_40
+								}
+								country_event = ww1_england.9
+							}
+						}
 					}
 				}
 			}
@@ -4448,21 +4514,20 @@ focus_tree = {
 		x = 35
 		y = 8
 		available = {
-			USA = {
-				NOT = {
-					is_in_faction_with = ROOT
-				}
-			}
 			has_navy_size = {
 				size > 74
 			}
-			naval_strength_ratio = {
-				tag = USA
-				ratio = 1.25
+			USA = {
+				NOT = {
+					is_in_faction_with = PREV
+					has_war_with = PREV
+				}
+				naval_strength_ratio = {
+					tag = PREV
+					ratio < 1.25
+				}
 			}
-			NOT = {
-				has_country_flag = great_war_loser
-			}
+			NOT = { has_country_flag = great_war_loser }
 		}
 		bypass = {
 			has_war_with = USA
@@ -4481,7 +4546,11 @@ focus_tree = {
 			}
 		}
 		ai_will_do = {
-			factor = 0
+			factor = 1
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+			}
 		}
 	}
 	focus = {
@@ -4945,6 +5014,10 @@ focus_tree = {
 		x = 40
 		y = 6
 		completion_reward = {
+			add_named_threat = {
+				threat = 5
+				name = GER_pearl_of_the_british_crown
+			}
 			add_state_claim = 422
 			add_state_claim = 281
 			add_state_claim = 733
@@ -5544,6 +5617,10 @@ focus_tree = {
 		}
 		ai_will_do = {
 			factor = 10
+			modifier = {
+				factor = 0 # this cause german empire towards to fascism
+				has_country_flag = great_war_winner
+			}
 		}
 	}
 	focus = {
@@ -5690,20 +5767,20 @@ focus_tree = {
 			add_ideas = {
 				GER_idea_nazism
 			}
-			set_party_name = {
-				ideology = fascism
-				long_name = GER_fascism_party_DAP_long
-				name = GER_fascism_party_DAP
-			}
-			GER_adolf_hitler = {
-				add_country_leader_role = {
-					country_leader = {
-						ideology = nazism
-						traits = { dictator }
-					}
-				}
-				promote_character = nazism
-			}
+			# set_party_name = {
+			# 	ideology = fascism
+			# 	long_name = GER_fascism_party_DAP_long
+			# 	name = GER_fascism_party_DAP
+			# }
+			# GER_adolf_hitler = {
+			# 	add_country_leader_role = {
+			# 		promote_leader = yes
+			# 		country_leader = {
+			# 			ideology = nazism
+			# 			traits = { dictator }
+			# 		}
+			# 	}
+			# }
 		}
 		ai_will_do = {
 			base = 100
@@ -5755,6 +5832,14 @@ focus_tree = {
 				ideology = fascism
 				long_name = GER_fascism_party_NSDAP_long
 				name = GER_fascism_party_NSDAP
+			}
+			GER_adolf_hitler = {
+				add_country_leader_role = {
+					promote_leader = yes
+					country_leader = {
+						ideology = nazism
+					}
+				}
 			}
 			country_event = ww1_germany.23
 			hidden_effect = {
@@ -5880,13 +5965,17 @@ focus_tree = {
 				ruling_party = fascism
 				elections_allowed = no
 			}
+			promote_character = GER_adolf_hitler
 		}
 		ai_will_do = {
 			factor = 100
 			modifier = {
 				factor = 0
 				date < 1932.11.1
-				fascism < 0.9
+			}
+			modifier = {
+				factor = 0
+				fascism < 0.5
 			}
 		}
 	}
@@ -5933,6 +6022,10 @@ focus_tree = {
 		}
 		ai_will_do = {
 			factor = 100
+			modifier = {
+				factor = 0
+				has_character = GER_paul_von_hindenburg
+			}
 		}
 	}
 	focus = {
@@ -5945,12 +6038,16 @@ focus_tree = {
 		}
 		x = 8
 		y = 14
+		available = {
+			is_subject = no
+			has_war = no
+		}
 		completion_reward = {
 			remove_ideas = GER_quenched_militarism
 			add_stability = 0.1
 		}
 		ai_will_do = {
-			factor = 10
+			factor = 0
 		}
 	}
 	focus = {
@@ -6123,6 +6220,7 @@ focus_tree = {
 				character = GER_wilhelm_ii
 				ruling_only = yes
 			}
+			has_character = GER_wilhelm_iii
 		}
 		completion_reward = {
 			GER_wilhelm_iii = {
@@ -6768,6 +6866,12 @@ focus_tree = {
 				create_faction = reichspakt
 				else = {
 					set_faction_name = reichspakt
+				}
+			}
+			hidden_effect = {
+				news_event = {
+					id = interwar_news.17
+					hours = 3
 				}
 			}
 		}
@@ -7520,6 +7624,9 @@ focus_tree = {
 		}
 		ai_will_do = {
 			factor = 10
+		}
+		search_filters = {
+			FOCUS_FILTER_RESEARCH
 		}
 	}
 	focus = {
