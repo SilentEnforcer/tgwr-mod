@@ -10262,12 +10262,12 @@ country_event = {
 		set_country_flag = chamberlain_is_tory_leader
 		hidden_effect = {
 			add_country_leader_role = {
-			    character = ENG_austen_chamberlain
-			    country_leader = {
-			        ideology = conservatism
-			        expire = "1965.1.1.1"
-			        traits = { conservative_grandee }
-			    }
+				character = ENG_austen_chamberlain
+				country_leader = {
+					ideology = conservatism
+					expire = "1965.1.1.1"
+					traits = { conservative_grandee }
+				}
 			}
 		}
 	}
@@ -10277,12 +10277,12 @@ country_event = {
 		set_country_flag = croft_is_tory_leader
 		hidden_effect = {
 			add_country_leader_role = {
-			    character = ENG_henry_page_croft
-			    country_leader = {
-			        ideology = conservatism
-			        expire = "1965.1.1.1"
-			        traits = { hawk rearmer }
-			    }
+				character = ENG_henry_page_croft
+				country_leader = {
+					ideology = conservatism
+					expire = "1965.1.1.1"
+					traits = { hawk rearmer }
+				}
 			}
 		}
 	}
@@ -10297,12 +10297,12 @@ country_event = {
 		set_country_flag = long_is_tory_leader
 		hidden_effect = {
 			add_country_leader_role = {
-			    character = ENG_walter_long
-			    country_leader = {
-			        ideology = conservatism
-			        expire = "1965.1.1.1"
-			        traits = { headstrong }
-			    }
+				character = ENG_walter_long
+				country_leader = {
+					ideology = conservatism
+					expire = "1965.1.1.1"
+					traits = { headstrong }
+				}
 			}
 		}
 	}
@@ -10416,8 +10416,449 @@ country_event = {
 	option = {
 		name = ww1_england.232.a
 		create_wargoal = {
-    			type = puppet_wargoal_focus
-    			target = DEN
+				type = puppet_wargoal_focus
+				target = DEN
+		}
+	}
+}
+
+# England capitulates by Germany
+country_event = {
+	id = ww1_england.233
+	title = ww1_england.233.t
+	desc = ww1_england.233.d
+	picture = GFX_report_event_german_troops
+	is_triggered_only = yes
+	fire_only_once = yes
+	option = {
+		name = ww1_england.233.a # Establish a puppet monarchy
+		# payment to do that
+		add_political_power = -200
+		add_stability = -0.20
+
+		# anyway german troops are victorious there
+		add_command_power = 25
+		add_war_support = 0.10
+		ENG = {
+			country_event = {
+				id = ww1_england.234
+				hours = 3
+			}
+		}
+		ai_chance = {
+			factor = 20
+			# We are not afford to establish puppet monarchy oversea
+			modifier = {
+				factor = 0
+				has_stability < 0.50
+			}
+			# The United States is going after us
+			modifier = {
+				factor = 0
+				has_war_with = USA
+			}
+			# We are starving to do that
+			modifier = {
+				factor = 0
+				OR = {
+					has_idea = ger_famine
+					has_idea = ger_famine_early
+				}
+			}
+			# Hold the frontline!
+			modifier = {
+				factor = 0
+				surrender_progress > 0.05
+			}
+		}
+	}
+	option = {
+		name = ww1_england.233.b # Agree with local collaborationist administration
+		# good local administration don't give you burden
+		add_political_power = 200
+		add_stability = 0.10
+
+		# anyway german troops are victorious there
+		add_command_power = 75
+		add_war_support = 0.10
+
+		every_controlled_state = {
+			limit = {
+				is_owned_by = ENG
+				is_core_of = ENG
+				has_resistance = yes
+			}
+			set_compliance = 30
+			set_resistance = 10
+		}
+		ai_chance = {
+			factor = 10
+		}
+	}
+}
+
+# British answer on German demand to establish puppet monarchy
+country_event = {
+	id = ww1_england.234
+	title = ww1_england.234.t
+	desc = ww1_england.234.d
+	picture = GFX_report_event_british_inspect_troops
+	is_triggered_only = yes
+	fire_only_once = yes
+	option = {
+		name = ww1_england.234.a # Submit
+		hidden_effect = {
+			if = {
+				limit = {
+					OR = {
+						ENG_herbert_henry_asquith = { is_country_leader = yes }
+						ENG_david_lloyd_george = { is_country_leader = yes }
+					}
+					has_character = ENG_walter_long
+				}
+				ENG_walter_long = {
+					add_country_leader_role = {
+						country_leader = {
+							ideology = agrarianism
+							traits = { war_industrialist }
+						}
+					}
+					promote_character = agrarianism
+				}
+				set_party_name = {
+					ideology = democratic
+					long_name = ENG_democratic_party_conservative
+					name = ENG_democratic_party_conservative
+				}
+			}
+
+			# German monarch
+			ENG_charles_edward = {
+				set_character_name = ENG_charles_iii
+				add_country_leader_role = {
+					country_leader = {
+						ideology = autocracy
+						traits = {
+							autocratic_imperialist
+							german_agent
+						}
+					}
+				}
+				promote_character = autocracy
+			}
+			set_party_name = {
+				ideology = neutrality
+				long_name = ENG_neutrality_party
+				name = ENG_neutrality_party_long
+			}
+			set_global_flag = king_charles_iii
+			GER = {
+				if = {
+					limit = {
+						has_character = GER_carl_eduard_von_sachsen_coburg_und_gotha
+					}
+					GER_carl_eduard_von_sachsen_coburg_und_gotha = {
+						set_character_name = ENG_charles_iii
+						if = {
+							limit = { is_field_marshal = no }
+							promote_leader = yes
+						}
+						set_nationality = ENG
+					}
+				}
+				puppet = ENG
+			}
+			set_politics = {
+				ruling_party = neutrality
+				elections_allowed = no 
+			}
+			set_popularities = {
+				fascism = 10
+				communism = 13
+				democratic = 43
+				neutrality = 34
+			}
+		}
+		effect_tooltip = {
+			GER = { puppet = ENG }
+		}
+		ai_chance = {
+			base = 20
+			modifier = {
+				add = -5
+				has_war_support > 0.70
+			}
+			modifier = {
+				add = -5
+				FRA = { surrender_progress < 0.10 }
+			}
+			modifier = {
+				add = -5
+				GER = { surrender_progress > 0.10 }
+			}
+			modifier = {
+				add = -5
+				GER = { has_war_with = USA }
+			}
+		}
+	}
+	option = {
+		name = ww1_england.234.b # Resist!
+		add_stability = -0.10
+		add_war_support = 0.10
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = -5
+				FRA = { surrender_progress > 0.30 }
+			}
+			modifier = {
+				add = -10
+				NOT = {
+					GER = {
+						has_war_with = USA
+						has_war_with = RUS
+						has_war_with = SOV
+					}
+				}
+			}
+		}
+	}
+}
+
+# Question for Scottish and Welsh in German puppet
+country_event = {
+	id = ww1_england.235
+	title = ww1_england.235.t
+	desc = ww1_england.235.desc
+	picture = GFX_report_event_generic_peaceful_annexation
+	trigger = {
+		tag = GER
+		is_subject = no
+		has_capitulated = no
+		ENG = {
+			is_subject_of = PREV
+			has_capitulated = no
+			any_owned_state = {
+				OR = {
+					is_core_of = SCO
+					is_core_of = WLS
+				}
+			}
+		}
+		NOT = {
+			has_country_flag = great_war_loser
+			OR = {
+				country_exists = SCO
+				country_exists = WLS
+			}
+		}
+	}
+	fire_only_once = yes
+	option = {
+		name = ww1_england.235.a
+		trigger = {
+			NOT = {
+				country_exists = SCO
+				country_exists = WLS
+			}
+			ENG = {
+				any_owned_state = {
+					is_core_of = SCO
+				}
+				any_owned_state = {
+					is_core_of = WLS
+				}
+			}
+		}
+		hidden_effect = {
+			ENG = {
+				every_owned_state = {
+					limit = {
+						is_core_of = WLS
+					}
+					transfer_state_to = WLS
+				}
+				every_owned_state = {
+					limit = {
+						is_core_of = SCO
+					}
+					transfer_state_to = SCO
+				}
+			}
+		}
+		puppet = WLS
+		puppet = SCO
+		hidden_effect = {
+			every_possible_country = {
+				limit = {
+					has_character = GER_rupprecht_von_wittelsbach
+				}
+				GER_rupprecht_von_wittelsbach = {
+					set_character_name = "SCO_robert_iv"
+					set_nationality = SCO
+				}
+			}
+			SCO = {
+				every_possible_country = {
+					limit = {
+						has_character = ENG_aylmer_hunterweston
+					}
+					ENG_aylmer_hunterweston = {
+						add_unit_leader_trait = guerilla_fighter
+						set_nationality = SCO
+					}
+				}
+				every_possible_country = {
+					limit = {
+						has_character = ENG_henry_horne
+					}
+					ENG_henry_horne = {
+						add_unit_leader_trait = guerilla_fighter
+						add_unit_leader_trait = bearer_of_artillery
+						set_nationality = SCO
+					}
+				}
+				SCO_robert_iv = {
+					add_country_leader_role = {
+						promote_leader = yes
+						country_leader = {
+							ideology = autocracy
+							traits = { POL_soldier_king german_agent }
+						}
+					}
+				}
+				set_party_name = { 
+					ideology = neutrality 
+					long_name = BAY_neutrality_party
+					name = BAY_neutrality_party
+				}
+				set_politics = {
+					ruling_party = neutrality
+					elections_allowed = no 
+				}
+				set_popularities = {
+					democratic = 45
+					neutrality = 55
+				}
+			}
+		}
+		ai_chance = {
+			factor = 3
+		}
+	}
+	option = {
+		name = ww1_england.235.b
+		trigger = {
+			NOT = {
+				country_exists = SCO
+			}
+			ENG = {
+				any_owned_state = {
+					is_core_of = SCO
+				}
+			}
+		}
+		hidden_effect = {
+			ENG = {
+				every_owned_state = {
+					limit = {
+						is_core_of = SCO
+					}
+					transfer_state_to = SCO
+				}
+			}
+		}
+		puppet = SCO
+		hidden_effect = {
+			every_possible_country = {
+				limit = {
+					has_character = GER_rupprecht_von_wittelsbach
+				}
+				GER_rupprecht_von_wittelsbach = {
+					set_character_name = "SCO_robert_iv"
+					set_nationality = SCO
+				}
+			}
+			SCO = {
+				every_possible_country = {
+					limit = {
+						has_character = ENG_aylmer_hunterweston
+					}
+					ENG_aylmer_hunterweston = {
+						add_unit_leader_trait = guerilla_fighter
+						set_nationality = SCO
+					}
+				}
+				every_possible_country = {
+					limit = {
+						has_character = ENG_henry_horne
+					}
+					ENG_henry_horne = {
+						add_unit_leader_trait = guerilla_fighter
+						add_unit_leader_trait = bearer_of_artillery
+						set_nationality = SCO
+					}
+				}
+				SCO_robert_iv = {
+					add_country_leader_role = {
+						promote_leader = yes
+						country_leader = {
+							ideology = autocracy
+							traits = { POL_soldier_king german_agent }
+						}
+					}
+				}
+				set_party_name = { 
+					ideology = neutrality 
+					long_name = BAY_neutrality_party
+					name = BAY_neutrality_party
+				}
+				set_politics = {
+					ruling_party = neutrality
+					elections_allowed = no 
+				}
+				set_popularities = {
+					democratic = 45
+					neutrality = 55
+				}
+			}
+		}
+		ai_chance = {
+			factor = 10
+		}
+	}
+	option = {
+		name = ww1_england.235.c
+		trigger = {
+			NOT = {
+				country_exists = WLS
+			}
+			ENG = {
+				any_owned_state = {
+					is_core_of = WLS
+				}
+			}
+		}
+		hidden_effect = {
+			ENG = {
+				every_owned_state = {
+					limit = {
+						is_core_of = WLS
+					}
+					transfer_state_to = WLS
+				}
+			}
+		}
+		puppet = WLS
+		ai_chance = {
+			factor = 0
+		}
+	}
+	option = {
+		name = ww1_england.235.d
+		ai_chance = {
+			factor = 10
 		}
 	}
 }
