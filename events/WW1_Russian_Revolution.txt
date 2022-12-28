@@ -72,38 +72,91 @@ country_event = {
 	option = {
 		name = rusrevolt.2.a
 		set_global_flag = russian_revolution
-		RUS_nikolai_ii = {
-			remove_country_leader_role = {
-				ideology = autocracy
-			}
-			remove_country_leader_role = {
-				ideology = authoritarian_democracy
-			}
-		}
 		if = {
 			limit = {
 				has_global_flag = tsar_mikhail
-			}	
-			RUS_mikhail_ii = {
-				set_character_name = {
-					name = RUS_mikhail_ii
+			}
+			if = {
+				limit = {
+					has_country_leader_ideology = authoritarian_democracy
 				}
-				add_country_leader_role = {
-					country_leader = {
-						ideology = autocracy
+				RUS_mikhail_ii = {
+					set_character_name = {
+						name = RUS_mikhail_ii
+					}
+					add_country_leader_role = {
+						country_leader = {
+							ideology = authoritarian_democracy
+							traits = { controversy_over_legitimacy }
+						}
+					}
+					promote_character = authoritarian_democracy
+				}
+			}
+			else = {
+				RUS_mikhail_ii = {
+					set_character_name = {
+						name = RUS_mikhail_ii
+					}
+					add_country_leader_role = {
+						country_leader = {
+							ideology = autocracy
+							traits = { controversy_over_legitimacy }
+						}
+					}
+					promote_character = autocracy
+				}
+			}
+			meta_effect = {
+				text = {
+					set_politics = {
+						ruling_party = neutrality
+						last_election = "[CURRENT_DATE]"
+						election_frequency = 60
+						elections_allowed = no
 					}
 				}
-				promote_character = yes	
+				CURRENT_DATE = "[?global.date.GetDateStringNoHour]"
+			}
+			hidden_effect = {
+				set_popularities = {
+					democratic = 42
+					neutrality = 13
+					fascism = 7
+					communism = 38
+				}
+				if = {
+					limit = {
+						has_idea = RUS_threat_of_revolution2
+					}
+					swap_ideas = {
+						remove_idea = RUS_threat_of_revolution2
+						add_idea = RUS_threat_of_revolution3
+					}
+				}
 			}
 		}
 		else = {
+			RUS_nikolai_ii = {
+				remove_country_leader_role = {
+					ideology = autocracy
+				}
+				remove_country_leader_role = {
+					ideology = authoritarian_democracy
+				}
+			}
 			set_country_flag = dual_power
 			add_ideas = RUS_idea_dual_power
-			set_politics = {
-				ruling_party = democratic
-				last_election = "1912.9.1"
-				election_frequency = 60
-				elections_allowed = no
+			meta_effect = {
+				text = {
+					set_politics = {
+						ruling_party = democratic
+						last_election = "[CURRENT_DATE]"
+						election_frequency = 60
+						elections_allowed = yes
+					}
+				}
+				CURRENT_DATE = "[?global.date.GetDateStringNoHour]"
 			}
 			set_cosmetic_tag = RUS_republic
 			hidden_effect = {
@@ -239,16 +292,27 @@ country_event = {
 		}
 		has_global_flag = russian_revolution
 		OR = {
-			has_country_leader = {
-				character = RUS_alexander_kerensky
-				ruling_only = yes
+			AND = {
+				has_government = democratic
+				OR = {
+					has_country_leader = {
+						character = RUS_alexander_kerensky
+						ruling_only = yes
+					}
+					has_country_leader = {
+						character = RUS_pyotr_stolypin
+						ruling_only = yes
+					}
+				}
 			}
-			has_country_leader = {
-				character = RUS_pyotr_stolypin
-				ruling_only = yes
+			AND = {
+				has_country_leader_trait = controversy_over_legitimacy
+				has_country_leader = {
+					character = RUS_mikhail_ii
+					ruling_only = yes
+				}
 			}
 		}
-		has_government = democratic
 		RUS = {
 			OR = {
 				has_war_with = GER
@@ -476,12 +540,46 @@ country_event = {
 news_event = {
 	id = rusrevolt.5
 	title = rusrevolt.5.t
-	desc = rusrevolt.5.d
+	desc = {
+		text = rusrevolt.5.d_mikhail
+		trigger = {
+			has_global_flag = tsar_mikhail
+		}
+	}
+	desc = {
+		text = rusrevolt.5.d
+		trigger = {
+			NOT = {
+				has_global_flag = tsar_mikhail
+			}
+		}
+	}
 	picture = rusrevolt_5
 	is_triggered_only = yes
 	major = yes
 	option = {
 		name = rusrevolt.5.a
+		trigger = { NOT = { has_global_flag = tsar_mikhail } }
+		if = {
+			limit = {
+				has_game_rule = {
+					rule = rule_superevent
+					option = DEFAULT
+				}
+				is_ai = no
+			}
+			hidden_effect = {
+				set_country_flag = SE_rus_february_revolution
+				play_song = "SE_rus_february_revolution"
+			}
+		}
+		ai_chance = {
+			factor = 100
+		}
+	}
+	option = {
+		name = rusrevolt.5.b
+		trigger = { has_global_flag = tsar_mikhail }
 		if = {
 			limit = {
 				has_game_rule = {
@@ -1890,6 +1988,12 @@ news_event = {
 		}
 		if = {
 			limit = {
+				has_country_leader_trait = controversy_over_legitimacy
+			}
+			remove_country_leader_trait = controversy_over_legitimacy
+		}
+		if = {
+			limit = {
 				has_game_rule = {
 					rule = rule_superevent
 					option = DEFAULT
@@ -1967,12 +2071,20 @@ country_event = {
 					state = 214
 					state = 215
 					state = 216
+					state = 722
 				}
 			}
 			add_core_of = KAR
 		}
 		KAR = {
+			add_ideas = RUS_idea_allied_intervention
 			transfer_state = 213
+			if = {
+				limit = {
+					ROOT = { owns_state = 722 }
+				}
+				transfer_state = 722
+			}
 			FRA = { add_manpower = -2000 }
 			load_oob = KAR_1918
 			declare_war_on = {
@@ -1999,7 +2111,12 @@ country_event = {
 						relation = military_access
 					}
 				}
+				set_truce = {
+					target = PREV
+					days = 365
+				}
 			}
+			ROOT = { add_to_faction = PREV }
 		}
 		hidden_effect = {
 			set_global_flag = north_russian_campaign
@@ -2045,6 +2162,7 @@ country_event = {
 			has_war_with = RUS
 			has_war_with = KAR
 		}
+		NOT = { FRA = { has_country_flag = great_war_loser } }
 	}
 	mean_time_to_happen = { days = 60 }
 	option = {
@@ -2055,6 +2173,10 @@ country_event = {
 			set_province_controller = 312
 			set_province_controller = 3338
 			hidden_effect = {
+				add_popularity = {
+					ideology = democratic
+					popularity = 0.10
+				}
 				if = {
 					limit = {
 						ENG = { is_in_faction_with = FRA NOT = { has_government = communism } }
@@ -2157,11 +2279,13 @@ country_event = {
 		OR = {
 			surrender_progress > 0.5
 			has_capitulated = yes
+			FRA = { has_country_flag = great_war_loser }
 		}
 	}
 	fire_only_once = yes
 	immediate = {
 		KAR = {
+			remove_ideas = RUS_idea_allied_intervention
 			add_war_support = -0.30
 			add_stability = -0.20
 			add_political_power = -200
@@ -2174,6 +2298,51 @@ country_event = {
 			delete_unit_template_and_units = {
 				division_template = "Allied Infantry Brigades"
 				disband = no
+			}
+			every_other_country = {
+				limit = {
+					OR = {
+						tag = FRA
+						is_in_faction_with = FRA
+						tag = RUS
+						is_in_faction_with = RUS
+					}
+					NOT = { has_government = communism }
+				}
+				diplomatic_relation = {
+					country = PREV
+					relation = non_aggression_pact
+					active = no
+				}
+				PREV = {
+					diplomatic_relation = {
+						country = PREV
+						relation = military_access
+						active = no
+					}
+				}
+				set_truce = {
+					target = PREV
+					days = 15
+				}
+			}
+			add_popularity = {
+				ideology = democratic
+				popularity = -0.10
+			}
+			if = {
+				limit = {
+					is_in_faction_with = RUS
+					RUS = {
+						has_capitulated = no
+						has_war_with = SOV
+					}
+				}
+				RUS = { puppet = PREV }
+				set_politics = {
+					ruling_party = fascism
+					elections_allowed = no
+				}
 			}
 		}
 	}
@@ -2191,12 +2360,15 @@ country_event = {
 		CRI = {
 			OR = {
 				is_neighbor_of = ROOT
-				any_other_country = {
+				any_country = {
 					is_neighbor_of = PREV
-					is_subject_of = PREV.PREV
+					is_subject_of = ROOT
 				}
 			}
-			is_subject_of = SOV
+			OR = {
+				is_subject_of = SOV
+				has_government = communism
+			}
 		}
 		has_subject = UKR
 		NOT = {
@@ -2204,6 +2376,7 @@ country_event = {
 			has_war_with = RUS
 			has_country_flag = great_war_loser
 			has_global_flag = compiegne_armistice
+			has_government = communism
 		}
 	}
 	mean_time_to_happen = {
@@ -2211,7 +2384,75 @@ country_event = {
 	}
 	option = {
 		name = rusrevolt.24.a
-		puppet = CRI
+		effect_tooltip = { puppet = CRI }
+		hidden_effect = {
+			CRI = {
+				# Bolshevik troops removal
+				annex_country = {
+					target = CRI
+				}
+				ROOT = {
+					if = {
+						limit = {
+							has_subject_autonomy_feature = yes
+						}
+						set_autonomy = {
+							target = PREV
+							autonomous_state = autonomy_tgwr_informal_protectorate
+						}
+						PREV = { set_country_flag = protectorate }
+						else = {
+							puppet = PREV
+							PREV = { add_ideas = protectorate }
+						}
+					}
+				}
+				set_cosmetic_tag = CRI_GER
+				set_politics = {
+					ruling_party = neutrality
+					elections_allowed = no
+				}
+				set_popularities = {
+					democratic = 21
+					neutrality = 39
+					fascism = 10
+					communism = 30
+				}
+				set_party_name = {
+					ideology = neutrality
+					long_name = CRI_regional_government
+					name = CRI_regional_government
+				}
+				if = {
+					limit = {
+						has_character = CRI_maciej_sulkiewicz
+					}
+					CRI_maciej_sulkiewicz = {
+						add_corps_commander_role = {
+							traits = {
+								politically_connected
+								trickster
+								guerilla_fighter
+							}
+							skill = 2
+							attack_skill = 2
+							defense_skill = 2
+							planning_skill = 1
+							logistics_skill = 2
+							visible = {
+								is_country_leader = yes
+							}
+						}
+						add_country_leader_role = {
+							country_leader = {
+								ideology = authoritarian_democracy
+							}
+						}
+						promote_character = authoritarian_democracy
+					}
+				}
+			}
+		}
 		ai_chance = { factor = 10 }
 	}
 	option = {
@@ -2305,11 +2546,11 @@ country_event = {
 		has_war_with = SOV
 		OR = {
 			AND = {
-				surrender_progress > 0.50
+				surrender_progress > 0.65
 				SOV = { surrender_progress < 0.20 }
 				has_country_flag = czechoslovak_legion
 			}
-			surrender_progress > 0.70
+			surrender_progress > 0.80
 		}
 	}
 	fire_only_once = yes
@@ -2505,6 +2746,7 @@ country_event = {
 							has_government = neutrality
 						}
 						set_country_flag = siberian_intervention
+						add_ideas = RUS_idea_allied_intervention
 						every_other_country = {
 							limit = {
 								OR = {
@@ -2525,6 +2767,10 @@ country_event = {
 									relation = military_access
 								}
 							}
+							set_truce = {
+								target = PREV
+								days = 365
+							}
 						}
 						division_template = {
 							name = "Allied Infantry Brigades"
@@ -2544,6 +2790,7 @@ country_event = {
 				}
 				else = {
 					set_country_flag = siberian_intervention
+					add_ideas = RUS_idea_allied_intervention
 					every_state = {
 						limit = {
 							OR = {
@@ -2592,6 +2839,10 @@ country_event = {
 								country = PREV
 								relation = military_access
 							}
+						}
+						set_truce = {
+							target = PREV
+							days = 365
 						}
 					}
 					country_event = rusrevolt.30
