@@ -2077,6 +2077,7 @@ country_event = {
 			add_core_of = KAR
 		}
 		KAR = {
+			add_ideas = RUS_idea_allied_intervention
 			transfer_state = 213
 			if = {
 				limit = {
@@ -2109,6 +2110,10 @@ country_event = {
 						country = PREV
 						relation = military_access
 					}
+				}
+				set_truce = {
+					target = PREV
+					days = 365
 				}
 			}
 			ROOT = { add_to_faction = PREV }
@@ -2157,6 +2162,7 @@ country_event = {
 			has_war_with = RUS
 			has_war_with = KAR
 		}
+		NOT = { FRA = { has_country_flag = great_war_loser } }
 	}
 	mean_time_to_happen = { days = 60 }
 	option = {
@@ -2167,6 +2173,10 @@ country_event = {
 			set_province_controller = 312
 			set_province_controller = 3338
 			hidden_effect = {
+				add_popularity = {
+					ideology = democratic
+					popularity = 0.10
+				}
 				if = {
 					limit = {
 						ENG = { is_in_faction_with = FRA NOT = { has_government = communism } }
@@ -2269,11 +2279,13 @@ country_event = {
 		OR = {
 			surrender_progress > 0.5
 			has_capitulated = yes
+			FRA = { has_country_flag = great_war_loser }
 		}
 	}
 	fire_only_once = yes
 	immediate = {
 		KAR = {
+			remove_ideas = RUS_idea_allied_intervention
 			add_war_support = -0.30
 			add_stability = -0.20
 			add_political_power = -200
@@ -2286,6 +2298,51 @@ country_event = {
 			delete_unit_template_and_units = {
 				division_template = "Allied Infantry Brigades"
 				disband = no
+			}
+			every_other_country = {
+				limit = {
+					OR = {
+						tag = FRA
+						is_in_faction_with = FRA
+						tag = RUS
+						is_in_faction_with = RUS
+					}
+					NOT = { has_government = communism }
+				}
+				diplomatic_relation = {
+					country = PREV
+					relation = non_aggression_pact
+					active = no
+				}
+				PREV = {
+					diplomatic_relation = {
+						country = PREV
+						relation = military_access
+						active = no
+					}
+				}
+				set_truce = {
+					target = PREV
+					days = 15
+				}
+			}
+			add_popularity = {
+				ideology = democratic
+				popularity = -0.10
+			}
+			if = {
+				limit = {
+					is_in_faction_with = RUS
+					RUS = {
+						has_capitulated = no
+						has_war_with = SOV
+					}
+				}
+				RUS = { puppet = PREV }
+				set_politics = {
+					ruling_party = fascism
+					elections_allowed = no
+				}
 			}
 		}
 	}
@@ -2327,9 +2384,29 @@ country_event = {
 	}
 	option = {
 		name = rusrevolt.24.a
-		puppet = CRI
+		effect_tooltip = { puppet = CRI }
 		hidden_effect = {
 			CRI = {
+				# Bolshevik troops removal
+				annex_country = {
+					target = CRI
+				}
+				ROOT = {
+					if = {
+						limit = {
+							has_subject_autonomy_feature = yes
+						}
+						set_autonomy = {
+							target = PREV
+							autonomous_state = autonomy_tgwr_informal_protectorate
+						}
+						PREV = { set_country_flag = protectorate }
+						else = {
+							puppet = PREV
+							PREV = { add_ideas = protectorate }
+						}
+					}
+				}
 				set_cosmetic_tag = CRI_GER
 				set_politics = {
 					ruling_party = neutrality
@@ -2669,6 +2746,7 @@ country_event = {
 							has_government = neutrality
 						}
 						set_country_flag = siberian_intervention
+						add_ideas = RUS_idea_allied_intervention
 						every_other_country = {
 							limit = {
 								OR = {
@@ -2689,6 +2767,10 @@ country_event = {
 									relation = military_access
 								}
 							}
+							set_truce = {
+								target = PREV
+								days = 365
+							}
 						}
 						division_template = {
 							name = "Allied Infantry Brigades"
@@ -2708,6 +2790,7 @@ country_event = {
 				}
 				else = {
 					set_country_flag = siberian_intervention
+					add_ideas = RUS_idea_allied_intervention
 					every_state = {
 						limit = {
 							OR = {
@@ -2756,6 +2839,10 @@ country_event = {
 								country = PREV
 								relation = military_access
 							}
+						}
+						set_truce = {
+							target = PREV
+							days = 365
 						}
 					}
 					country_event = rusrevolt.30
