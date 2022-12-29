@@ -66,8 +66,10 @@ country_event = {
 			}
 			add_ideas = interwar_recovery
 			activate_mission = mission_interwar_demobilization
-			set_stability = 0.1
-			set_war_support = 0.35
+			if = {
+				limit = { has_stability < 0.3 }
+				add_stability = 0.3
+			}
 			every_state = {
 				limit = {
 					is_claimed_by = ROOT
@@ -506,6 +508,8 @@ country_event = {
 	}
 	option = {
 		name = ww1_germany.11.a
+		add_stability = -0.07
+		add_war_support = -0.15
 		add_timed_idea = {
 			idea = GER_idea_kiel_mutiny
 			days = 45
@@ -1918,9 +1922,7 @@ country_event = {
 	}
 	option = {
 		name = ww1_germany.26.a
-		ai_chance = {
-			factor = 100
-		}
+		GER_paul_von_lettowvorbeck = { set_nationality = MAF }
 		hidden_effect = {
 			news_event = { id = kis_news.134 hours = 3 }
 		}
@@ -4282,21 +4284,31 @@ news_event = {
 	id = ww1_germany.76
 	title = news.155.t
 	desc = news.155.d
-	fire_only_once = yes
 	trigger = {
-		any_country = {
+		tag = GER
+		is_subject = no
+		has_country_flag = great_war_winner
+		any_other_country = {
 			has_country_flag = FRA_nationalist_france_flag
-			has_war_with = GER
+			has_defensive_war_with = PREV
 			any_state = {
 				is_owned_by = PREV
 				is_on_continent = europe
+				is_core_of = PREV
+				NOT = { state = 1 }
 			}
 		}
+		NOT = { has_global_flag = ger_has_war_with_nfa }
 	}
 	mean_time_to_happen = {
 		days = 0
 	}
 	picture = GFX_news_event_german_soldiers
+	immediate = {
+		hidden_effect = {
+			set_global_flag = ger_has_war_with_nfa
+		}
+	}
 	major = yes
 	option = {
 		name = news.155.b
@@ -4386,21 +4398,26 @@ news_event = {
 	title = ww1_germany.79.t
 	desc = ww1_germany.79.d
 	picture = GFX_news_event_german_soldiers
-	fire_only_once = yes
 	major = yes
 	trigger = {
-		GER = {
-			has_war_with = FRA
-		}
+		tag = GER
+		has_war_with = FRA
 		AFG = {
-			is_in_faction_with = GER
+			is_subject = no
+			is_in_faction_with = PREV
 		}
 		NOT = {
+			has_global_flag = afg_is_in_faction_with_ger
 			has_global_flag = great_war_ends
 		}
 	}
 	mean_time_to_happen = {
 		days = 1
+	}
+	immediate = {
+		hidden_effect = {
+			set_global_flag = afg_is_in_faction_with_ger
+		}
 	}
 	option = {
 		name = ww1_germany.79.a
@@ -5052,6 +5069,66 @@ country_event = {
 	}
 }
 
+# Forced Armistice
+country_event = {
+	id = ww1_germany.149
+	title = ww1_germany.149.t
+	desc = ww1_germany.149.d
+	picture = GFX_report_event_generic_soldiers_surrendering
+	trigger = {
+		tag = GER
+		is_ai = no
+		has_global_flag = kis_war
+		has_capitulated = no
+		FRA = { has_capitulated = no has_war_with = PREV }
+		is_subject = no
+		NOT = {
+			has_global_flag = GER_capitulation
+			has_global_flag = FRA_capitulation
+			has_game_rule = {
+				rule = allow_scripted_peace_treaty
+				option = "BLOCKED"
+			}
+			controls_province = 11506
+		}
+		OR = {
+			casualties > 2000000
+			casualties_inflicted_by = {
+				opponent = FRA
+				thousands > 500
+			}
+		}
+		OR = {
+			AND = {
+				has_stability < 0.11
+				has_war_support < 0.06
+			}
+			AND = {
+				has_stability < 0.06
+				has_war_support < 0.11
+			}
+		}
+		OR = {
+			has_country_flag = kiel_mutiny
+			has_global_flag = ludendorff_offensive_failed
+			date > 1918.1.1
+			any_other_country = {
+				is_major = yes
+				capital_scope = {
+					is_on_continent = north_america
+				}
+				has_war_with = PREV
+			}
+		}
+	}
+	fire_only_once = yes
+	mean_time_to_happen = { days = 365 }
+	option = {
+		name = ww1_germany.148.a
+		activate_decision = GER_armistice
+	}
+}
+
 # Germany is fighting for too long and suffer from famine
 #########################
 country_event = {
@@ -5062,7 +5139,18 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_germany.91.a
-		add_ideas = ger_famine
+		if = {
+			limit = {
+				has_idea = ger_famine_early
+			}
+			swap_ideas = {
+				remove_idea = ger_famine_early
+				add_idea = ger_famine
+			}
+			else = {
+				add_ideas = ger_famine_early
+			}
+		}
 	}
 }
 
@@ -5150,6 +5238,7 @@ country_event = {
 			target = POL
 			modifier = tgwr_opinion_german_polish_customs_war
 		}
+		send_embargo = POL
 		POL = {
 			country_event = {
 				id = ww1_germany.94
@@ -5185,6 +5274,7 @@ country_event = {
 		# High Dependence on trade with Germany
 		add_stability = -0.1
 		add_war_support = 0.05
+		send_embargo = FROM
 		ai_chance = {
 			factor = 100
 		}
@@ -5342,11 +5432,13 @@ country_event = {
 	}
 	option = {
 		name = ww1_germany.96.a
+		break_embargo = POL
 		remove_opinion_modifier = {
 			target = POL
 			modifier = tgwr_opinion_german_polish_customs_war
 		}
 		POL = {
+			break_embargo = PREV
 			remove_opinion_modifier = {
 				target = POL
 				modifier = tgwr_opinion_german_polish_customs_war
@@ -5366,6 +5458,7 @@ country_event = {
 	}
 	option = {
 		name = ww1_germany.96.b
+		break_embargo = POL
 		remove_opinion_modifier = {
 			target = POL
 			modifier = tgwr_opinion_german_polish_customs_war
@@ -5411,6 +5504,7 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_germany.97.a
+		break_embargo = FROM
 		remove_opinion_modifier = {
 			target = GER
 			modifier = tgwr_opinion_german_polish_customs_war
@@ -5427,6 +5521,7 @@ country_event = {
 	option = {
 		name = ww1_germany.94.b
 		GER = {
+			send_embargo = PREV
 			add_state_core = 85
 			add_state_core = 86
 			add_state_core = 404
@@ -5457,11 +5552,18 @@ news_event = {
 			character = GER_adolf_hitler
 			ruling_only = yes
 		}
+		NOT = {
+			has_global_flag = reichstag_fire
+		}
 	}
 	mean_time_to_happen = {
 		days = 30
 	}
-	fire_only_once = yes
+	immediate = {
+		hidden_effect = {
+			set_global_flag = reichstag_fire
+		}
+	}
 	option = {
 		name = ww1_germany.98.a
 		news_event = {
@@ -8052,6 +8154,36 @@ country_event = {
 		add_timed_idea = {
 			idea = race_to_the_sea
 			days = 140
+		}
+	}
+}
+
+# Death of Maximilian von Spee
+country_event = {
+	id = ww1_germany.148
+	title = ww1_germany.148.t
+	desc = ww1_germany.148.d
+	picture = GFX_report_event_usa_destroyers
+	trigger = {
+		tag = GER
+		has_character = GER_maximilian_von_spee
+		has_war_with = ENG
+		enemies_naval_strength_ratio > 1.2
+		any_owned_state = {
+			is_on_continent = asia
+			any_other_country = {
+				has_war_with = PREV.PREV
+				controls_state = PREV
+			}
+		}
+	}
+	fire_only_once = yes
+	mean_time_to_happen = { days = 120 }
+	option = {
+		name = ww1_germany.148.a
+		retire_character = GER_maximilian_von_spee
+		hidden_effect = {
+			OST = { retire_character = OST_maximilian_von_spee }
 		}
 	}
 }

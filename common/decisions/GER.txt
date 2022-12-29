@@ -2,7 +2,7 @@ GER_great_war = {
 	# SCHLIFFEN PLAN
 	##################
 	GER_schliffenmoltkeplan = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_hol_draw_up_staff_plans
 		available = {
 			has_war_with = FRA
 			NOT = { has_global_flag = hoi4tgw_SchlieffenSecurity }
@@ -83,7 +83,7 @@ GER_great_war = {
 	# LUDENDORFF OFFENSIVE
 	###########################
 	GER_ludendorff_offensive = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_hol_draw_up_staff_plans
 		available = {
 			has_war_with = FRA
 			NOT = {
@@ -132,12 +132,25 @@ GER_great_war = {
 			custom_effect_tooltip = GER_ludendorff_offensive_tt
 			news_event = ww1_germany.92
 			add_ideas = GER_idea_ludendorff_offensive
+			set_global_flag = ludendorff_offensive
 		}
 		remove_effect = {
 			# It would be critical for the German Empire
 			remove_ideas = GER_idea_ludendorff_offensive
 			add_stability = -0.5
 			add_war_support = -0.7
+			hidden_effect = {
+				set_global_flag = ludendorff_offensive_failed
+				if = {
+					limit = {
+						NOT = { has_idea = idea_mass_desertion }
+					}
+					add_timed_idea = {
+						idea = idea_mass_desertion
+						days = 90
+					}
+				}
+			}
 		}
 		cancel_effect = {
 			remove_ideas = GER_idea_ludendorff_offensive
@@ -153,6 +166,9 @@ GER_great_war = {
 				OR = {
 					has_war_with = USA
 					date > 1918.3.21
+					# Near Paris
+					controls_province = 9561
+					controls_province = 11518
 				}
 			}
 		}
@@ -160,12 +176,13 @@ GER_great_war = {
 	# FAMINE TIMER
 	#################
 	GER_mission_famine_timer = {
-		icon = GFX_decision_generic_ignite_civil_war
+		icon = GFX_decision_SWI_consolidate_council_power
 		allowed = {
 			original_tag = GER
 		}
-		days_mission_timeout = 1170
+		days_mission_timeout = 585
 		activation = {
+			has_idea = ger_famine_early
 			has_global_flag = kis_war
 			has_war_with = FRA
 			enemies_naval_strength_ratio > 1.5
@@ -182,6 +199,7 @@ GER_great_war = {
 			NOT = {
 				has_global_flag = great_war_ends
 				is_in_faction_with = RUS
+				has_idea = ger_famine
 			}
 		}
 		available = {
@@ -223,6 +241,83 @@ GER_great_war = {
 				days = 20
 			}
 		}
+		complete_effect = {
+			remove_ideas = ger_famine
+			remove_ideas = ger_famine_early
+		}
+	}
+	GER_mission_famine_timer_early = {
+		icon = GFX_decision_SWI_consolidate_council_power
+		allowed = {
+			original_tag = GER
+		}
+		days_mission_timeout = 585
+		activation = {
+			has_global_flag = kis_war
+			has_war_with = FRA
+			enemies_naval_strength_ratio > 1.5
+			OR = {
+				USA = {
+					has_war_with = PREV
+					has_capitulated = no
+				}
+				ENG = {
+					has_war_with = PREV
+					has_capitulated = no
+				}
+			}
+			NOT = {
+				has_global_flag = great_war_ends
+				is_in_faction_with = RUS
+				has_idea = ger_famine
+				has_idea = ger_famine_early
+			}
+		}
+		available = {
+			OR = {
+				has_war = no
+				has_global_flag = great_war_ends
+				USA = {
+					has_war_with = PREV
+					has_capitulated = yes
+				}
+				ENG = {
+					has_war_with = PREV
+					has_capitulated = yes
+				}
+				AND = {
+					enemies_naval_strength_ratio < 1.0
+					UKR = {
+						is_subject_of = PREV
+						surrender_progress < 0.10
+					}
+				}
+				is_in_faction_with = RUS
+				has_idea = ger_famine
+				has_idea = ger_famine_early
+			}
+		}
+		visible = {
+			has_global_flag = kis_war
+			has_war_with = FRA
+			NOT = {
+				has_idea = ger_famine
+				has_idea = ger_famine_early
+				has_global_flag = great_war_ends
+			}
+		}
+		fire_only_once = no
+		is_good = no
+		timeout_effect = {
+			country_event = {
+				id = ww1_germany.91
+				days = 20
+			}
+		}
+		complete_effect = {
+			remove_ideas = ger_famine
+			remove_ideas = ger_famine_early
+		}
 	}
 	#Conference timer moved to TGWR_peace_conference_decisions
 	GER_create_paris_gun = {
@@ -255,7 +350,9 @@ GER_great_war = {
 		}
 		visible = {
 			tag = GER
-			NOT = { has_country_flag = great_war_loser }
+			NOT = {
+				has_global_flag = great_war_ends
+			}
 		}
 
 		modifier = {
@@ -273,10 +370,80 @@ GER_great_war = {
 			}
 		}
 	}
+	GER_decision_secure_belgium = {
+		icon = GFX_decision_oppression
+		fire_only_once = yes
+		days_remove = 100
+		allowed = {
+			original_tag = GER
+		}
+		custom_cost_trigger = {
+			num_of_civilian_factories > 3
+		}
+		custom_cost_text = decision_cost_5_civ
+		
+		available = {
+			any_controlled_state = {
+				NOT = { is_core_of = BEL }
+				OR = {
+					is_core_of = BEL
+					state = 29
+					state = 785
+					state = 865
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 1000
+		}
+		visible = {
+			tag = GER
+			has_war_with = FRA
+			has_war_with = BEL
+			NOT = {
+				has_global_flag = great_war_ends
+			}
+		}
+
+		modifier = {
+			civilian_factory_use = 3
+		}
+
+		complete_effect = {
+			every_controlled_state = {
+				limit = {
+					NOT = {
+						is_core_of = ROOT
+					}
+					OR = {
+						is_core_of = BEL
+						state = 29
+						state = 785
+						state = 865
+					}
+				}
+				add_dynamic_modifier = {
+					modifier = GER_modifier_secure_belgium
+				}
+			}
+		}
+		remove_effect = {
+			every_state = {
+				limit = {
+					has_dynamic_modifier = {
+						modifier = GER_modifier_secure_belgium
+					}
+				}
+				remove_dynamic_modifier = {
+					modifier = GER_modifier_secure_belgium
+				}
+			}
+		}
+	}
 }
 GER_decision_puppet_kingdoms = {
 	GER_form_poland = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_ally_imperialist_coup
 		allowed = {
 			original_tag = GER
 		}
@@ -360,7 +527,7 @@ GER_decision_puppet_kingdoms = {
 		}
 	}
 	GER_form_lithuania = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_ally_imperialist_coup
 		allowed = {
 			original_tag = GER
 		}
@@ -436,7 +603,7 @@ GER_decision_puppet_kingdoms = {
 		}
 	}
 	GER_form_courland = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_ally_imperialist_coup
 		allowed = {
 			original_tag = GER
 		}
@@ -487,7 +654,7 @@ GER_decision_puppet_kingdoms = {
 		}
 	}
 	GER_form_baltic_duchy = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_ally_imperialist_coup
 		allowed = {
 			original_tag = GER
 		}
@@ -547,7 +714,7 @@ GER_decision_puppet_kingdoms = {
 		}
 	}
 	GER_unite_baltics = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_ally_imperialist_coup
 		allowed = {
 			original_tag = GER
 		}
@@ -599,7 +766,7 @@ GER_decision_puppet_kingdoms = {
 		ai_will_do = { factor = 150 }
 	}
 	GER_form_georgia = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_ally_imperialist_coup
 		allowed = {
 			original_tag = GER
 		}
@@ -729,7 +896,7 @@ GER_decision_puppet_kingdoms = {
 }
 GER_decision_central_powers_conference = {
 	GER_misison_central_powers_conference = {
-		icon = generic_nationalism
+		icon = GFX_decision_generic_political_discourse
 		allowed = {
 			original_tag = GER
 		}
@@ -970,7 +1137,7 @@ GER_decision_central_powers_conference = {
 		}
 	}
 	GER_italian_request = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_trade_unions_demand
 		allowed = {
 			original_tag = GER
 		}
@@ -1007,7 +1174,7 @@ GER_decision_central_powers_conference = {
 		ai_will_do = { factor = 100 }
 	}
 	GER_romanian_request = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_trade_unions_demand
 		allowed = {
 			original_tag = GER
 		}
@@ -1040,7 +1207,7 @@ GER_decision_central_powers_conference = {
 		ai_will_do = { factor = 0 }
 	}
 	GER_danish_request = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_trade_unions_demand
 		allowed = {
 			original_tag = GER
 		}
@@ -1072,7 +1239,7 @@ GER_decision_central_powers_conference = {
 		ai_will_do = { factor = 0 }
 	}
 	GER_swedish_request = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_trade_unions_demand
 		allowed = {
 			original_tag = GER
 		}
@@ -1099,7 +1266,7 @@ GER_decision_central_powers_conference = {
 		ai_will_do = { factor = 0 }
 	}
 	GER_dutch_request = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_trade_unions_demand
 		allowed = {
 			original_tag = GER
 		}
@@ -1126,7 +1293,7 @@ GER_decision_central_powers_conference = {
 		ai_will_do = { factor = 0 }
 	}
 	GER_norse_request = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_trade_unions_demand
 		allowed = {
 			original_tag = GER
 		}
@@ -1153,7 +1320,7 @@ GER_decision_central_powers_conference = {
 		ai_will_do = { factor = 0 }
 	}
 	GER_swiss_request = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_trade_unions_demand
 		allowed = {
 			original_tag = GER
 		}
@@ -1182,7 +1349,7 @@ GER_decision_central_powers_conference = {
 }
 GER_agadir_crisis = {
 	GER_instant_react_to_agadir = {
-		icon = generic_prepare_civil_war
+		icon = GFX_decision_generic_naval
 		allowed = {
 			tag = GER
 		}
@@ -1217,7 +1384,7 @@ GER_agadir_crisis = {
 		}
 	}
 	GER_misison_agadir_crisis = {
-		icon = generic_nationalism
+		icon = GFX_decision_generic_ignite_civil_war
 		allowed = {
 			tag = GER
 		}
@@ -1250,6 +1417,7 @@ GER_agadir_crisis = {
 		}
 	}
 	GER_agadir_crisis_send_demands = {
+		icon = GFX_decision_eng_trade_unions_demand
 		allowed = {
 			original_tag = GER
 		}
@@ -1285,7 +1453,7 @@ GER_agadir_crisis = {
 		}
 	}
 	GER_agadir_crisis_escalation = {
-		icon = generic_prepare_civil_war
+		icon = GFX_decision_generic_industry
 		allowed = {
 			original_tag = GER
 		}
@@ -1330,7 +1498,7 @@ GER_agadir_crisis = {
 }
 GER_decison_colonial_exploitation = {
 	GER_request_eq_CMR = {
-		icon = eng_support_imperialist_coup
+		icon = GFX_decision_generic_industry
 		allowed = {
 			tag = GER
 		}
@@ -1383,7 +1551,7 @@ GER_decison_colonial_exploitation = {
 		}
 	}
 	GER_request_eq_TZN = {
-		icon = eng_support_imperialist_coup
+		icon = GFX_decision_generic_industry
 		allowed = {
 			tag = GER
 		}
@@ -1434,7 +1602,7 @@ GER_decison_colonial_exploitation = {
 		}
 	}
 	GER_request_eq_NMB = {
-		icon = eng_support_imperialist_coup
+		icon = GFX_decision_generic_industry
 		allowed = {
 			tag = GER
 		}
@@ -1485,7 +1653,7 @@ GER_decison_colonial_exploitation = {
 		}
 	}
 	GER_request_eq_TOG = {
-		icon = eng_support_imperialist_coup
+		icon = GFX_decision_generic_industry
 		allowed = {
 			tag = GER
 		}
@@ -1537,7 +1705,7 @@ GER_decison_colonial_exploitation = {
 		}
 	}
 	GER_request_eq_PNG = {
-		icon = eng_support_imperialist_coup
+		icon = GFX_decision_generic_industry
 		allowed = {
 			tag = GER
 		}
@@ -1630,7 +1798,7 @@ foreign_politics = {
 		}
 	}
 	GER_help_white_russia = {
-		icon = GFX_decision_generic_ignite_civil_war
+		icon = GFX_decision_generic_prepare_civil_war
 		allowed = {
 			OR = {
 				tag = GER
@@ -1729,7 +1897,7 @@ foreign_politics = {
 		}
 	}
 	GER_help_nationalist_france = {
-		icon = GFX_decision_generic_ignite_civil_war
+		icon = GFX_decision_generic_prepare_civil_war
 		allowed = {
 			OR = {
 				tag = GER
@@ -1811,7 +1979,7 @@ foreign_politics = {
 }
 GER_decision_military_advisers = {
 	GER_advisors_AUH = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_generic_army_support
 		available = {
 			is_faction_leader = yes
 			has_manpower > 999
@@ -1843,7 +2011,7 @@ GER_decision_military_advisers = {
 		}
 	}
 	GER_advisors_BUL = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_generic_army_support
 		available = {
 			is_faction_leader = yes
 			has_manpower > 999
@@ -1875,7 +2043,7 @@ GER_decision_military_advisers = {
 		}
 	}
 	GER_advisors_HOL = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_generic_army_support
 		available = {
 			is_faction_leader = yes
 			has_manpower > 999
@@ -1907,7 +2075,7 @@ GER_decision_military_advisers = {
 		}
 	}
 	GER_advisors_SWE = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_generic_army_support
 		available = {
 			is_faction_leader = yes
 			has_manpower > 999
@@ -1939,7 +2107,7 @@ GER_decision_military_advisers = {
 		}
 	}
 	GER_advisors_DEN = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_generic_army_support
 		available = {
 			is_faction_leader = yes
 			has_manpower > 999
@@ -1971,7 +2139,7 @@ GER_decision_military_advisers = {
 		}
 	}
 	GER_advisors_MEX = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_generic_army_support
 		available = {
 			is_faction_leader = yes
 			has_manpower > 999
@@ -2003,7 +2171,7 @@ GER_decision_military_advisers = {
 		}
 	}
 	GER_advisors_RUS = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_generic_army_support
 		available = {
 			is_faction_leader = yes
 			has_manpower > 999
@@ -2041,7 +2209,7 @@ GER_decision_military_advisers = {
 }
 GER_decision_federal_army = {
 	GER_organize_civil_defense = {
-		icon = border_war
+		icon = GFX_decision_generic_industry
 		available = {
 			has_completed_focus = GER_civil_defense
 			has_war = yes
@@ -2080,7 +2248,7 @@ GER_decision_federal_army = {
 		}
 	}
 	GER_federal_corps_saxony = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_generic_industry
 		available = {
 			has_war = yes
 			has_war_support > 0.05
@@ -2146,7 +2314,7 @@ GER_decision_federal_army = {
 		}
 	}
 	GER_federal_corps_bavaria = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_generic_industry
 		available = {
 			has_war = yes
 			has_war_support > 0.05
@@ -2223,7 +2391,7 @@ GER_decision_federal_army = {
 		}
 	}
 	GER_federal_corps_hannover = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_generic_industry
 		available = {
 			has_war = yes
 			has_war_support > 0.05
@@ -2289,7 +2457,7 @@ GER_decision_federal_army = {
 		}
 	}
 	GER_federal_corps_mecklenburg = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_generic_industry
 		available = {
 			has_war = yes
 			has_war_support > 0.05
@@ -2357,7 +2525,7 @@ GER_decision_federal_army = {
 }
 GER_decision_abwehr_operations = {
 	GER_support_separatism_in_warsaw = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_eng_propaganda_campaigns
 		available = {
 			has_equipment = {
 				infantry_equipment > 999
@@ -2401,7 +2569,7 @@ GER_decision_abwehr_operations = {
 		}
 	}
 	GER_support_separatism_in_helsenki = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_eng_propaganda_campaigns
 		available = {
 			has_equipment = {
 				infantry_equipment > 999
@@ -2445,7 +2613,7 @@ GER_decision_abwehr_operations = {
 		}
 	}
 	GER_support_separatism_in_lithuania = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_eng_propaganda_campaigns
 		available = {
 			has_equipment = {
 				infantry_equipment > 999
@@ -2489,7 +2657,7 @@ GER_decision_abwehr_operations = {
 		}
 	}
 	GER_support_separatism_in_latvia = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_eng_propaganda_campaigns
 		available = {
 			has_equipment = {
 				infantry_equipment > 999
@@ -2533,7 +2701,7 @@ GER_decision_abwehr_operations = {
 		}
 	}
 	GER_support_separatism_in_estonia = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_eng_propaganda_campaigns
 		available = {
 			has_equipment = {
 				infantry_equipment > 999
@@ -2581,7 +2749,7 @@ GER_decision_abwehr_operations = {
 }
 prestigious_projects = {
 	GER_yellow_HRE = { #not yellow.
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_generic_monarchy
 		allowed = { tag = GER }
 		available = {
 		}
@@ -3280,7 +3448,31 @@ prestigious_projects = {
 					}
 				}
 				MAF = {
-					set_capital = { state = 546}
+					set_capital = { state = 546 }
+				}
+			}
+			hidden_effect = {
+				MAF = {
+					every_owned_state = {
+						limit = {
+							OR = {
+								is_core_of = GHA
+								is_core_of = NGA
+								is_core_of = KEN
+							}
+						}
+						set_demilitarized_zone = yes
+					}
+					if = {
+						limit = {
+							ETH = { is_neighbor_of = PREV }
+							GER = { owns_state = 268 }
+						}
+						ETH = {
+							give_military_access = GER
+							give_military_access = PREV
+						}
+					}
 				}
 			}
 		}
@@ -3288,7 +3480,7 @@ prestigious_projects = {
 }
 GER_prussian_blue_category = {
 	BAY_reunite_germany = {
-		icon = spr_the_seeds_of_revolution
+		icon = GFX_decision_generic_prepare_civil_war
 		allowed = {
 			original_tag = BAY
 		}
@@ -3520,7 +3712,7 @@ GER_prussian_blue_category = {
 		ai_will_do = { factor = 100 }
 	}
 	GER_prussia_reunite_germany = {
-		icon = generic_prepare_civil_war
+		icon = GFX_decision_generic_prepare_civil_war
 		allowed = {
 			tag = GER
 		}
@@ -3751,7 +3943,7 @@ GER_prussian_blue_category = {
 	}
 
 	GER_prussian_russian_withdrawal = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_blackshirt_march
 		days_mission_timeout = 365
 		activation = {
 			NOT = {
@@ -3873,6 +4065,7 @@ GER_prussian_blue_category = {
 	}
 
 	GER_demand_hessen = {
+		icon = GFX_decision_eng_trade_unions_demand
 		allowed = {
 			OR = {
 				tag = GER
@@ -4277,7 +4470,7 @@ GER_afghan_expeditions = {
 }	
 GER_decision_paying_reparations = {
 	GER_decision_reparations = {
-		icon = generic_nationalism
+		icon = GFX_decision_generic_factory
 		allowed = {
 			original_tag = GER
 		}
@@ -4289,7 +4482,7 @@ GER_decision_paying_reparations = {
 			has_idea = GER_idea_reparations
 		}
 		fire_only_once = yes
-		cost = 200
+		cost = 0
 		days_remove = 1200
 		modifier = {
 			civilian_factory_use = 10
@@ -4329,7 +4522,7 @@ GER_decision_paying_reparations = {
 		}
 	}
 	GER_decision_reparations_2 = {
-		icon = generic_nationalism
+		icon = GFX_decision_generic_factory
 		allowed = {
 			original_tag = GER
 		}
@@ -4341,7 +4534,7 @@ GER_decision_paying_reparations = {
 			has_idea = GER_idea_reparations_dawes
 		}
 		fire_only_once = yes
-		cost = 200
+		cost = 0
 		days_remove = 2000
 		modifier = {
 			civilian_factory_use = 7
@@ -4378,7 +4571,7 @@ GER_decision_paying_reparations = {
 		}
 	}
 	GER_decision_reparations_3 = {
-		icon = generic_nationalism
+		icon = GFX_decision_generic_factory
 		allowed = {
 			original_tag = GER
 		}
@@ -4390,7 +4583,7 @@ GER_decision_paying_reparations = {
 			has_idea = GER_idea_reparations_young
 		}
 		fire_only_once = yes
-		cost = 200
+		cost = 0
 		days_remove = 2000
 		modifier = {
 			civilian_factory_use = 5
@@ -4425,7 +4618,7 @@ GER_decision_paying_reparations = {
 		}
 	}
 	GER_decision_moratorium = {
-		icon = revolt
+		icon = GFX_decision_generic_break_treaty
 		allowed = {
 			original_tag = GER
 		}
@@ -4508,7 +4701,7 @@ GER_decision_paying_reparations = {
 
 GER_interwar_reichspakt_category = {
 	GER_interwar_invite_in_reichspakt = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_ally_imperialist_coup
 		allowed = {
 		}
 		target_trigger = {
@@ -4791,7 +4984,7 @@ interwar_decisions = {
 		}
 	}
 	GER_kapp_putsch_timer = {
-		icon = revolt
+		icon = GFX_decision_generic_military
 		days_mission_timeout = 410
 		activation = {
 			tag = GER
