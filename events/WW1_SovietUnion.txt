@@ -273,6 +273,9 @@ country_event = {
 	
 	option = {
 		name = ww1_soviet.7.a # Царь спасен.
+		trigger = {
+			is_russia_a_monarchy = no
+		}
 		add_popularity = {
 			ideology = neutrality
 			popularity = 0.1
@@ -331,8 +334,42 @@ country_event = {
 				}
 				promote_character = autocracy
 			}
+			if = {
+				limit = {
+					has_global_flag = tsar_mikhail
+				}
+				RUS_mikhail_ii = {
+					remove_country_leader_role = {
+						ideology = autocracy
+					}
+					remove_country_leader_role = {
+						ideology = authoritarian_democracy
+					}
+					set_character_name = RUS_mikhail_aleksandrovich_romanov
+				}
+			}
 		}
 		news_event = { id = ww1_soviet.8 }
+		ai_chance = {
+			base = 100
+			modifier = {
+				add = -40
+				has_global_flag = tsar_mikhail
+			}
+		}
+	}
+	option = {
+		name = ww1_soviet.7.c #We have a new tsar already :)
+		trigger = {
+			has_completed_focus = RUS_white_movenment
+			has_global_flag = tsar_mikhail
+		}
+		if = {
+			limit = {
+				has_country_leader_trait = controversy_over_legitimacy
+			}
+			remove_country_leader_trait = controversy_over_legitimacy
+		}
 		ai_chance = { factor = 100 }
 	}
 }
@@ -978,12 +1015,44 @@ country_event = {
 		POL = {
 			country_event = ww1_soviet.45
 		}
-		ai_chance = { factor = 100 }
+		ai_chance = {
+			base = 100
+		}
 	}
 	option = {
 		name = ww1_soviet.18.b #no
 		POL = { country_event = ww1_soviet.19 }
-		ai_chance = { factor = 0 }
+		ai_chance = {
+			base = 0
+			# Poland is surronded
+			modifier = {
+				add = 70
+				GER = {
+					is_in_faction_with = ROOT
+					has_war_with = POL
+				}
+			}
+			# Russian civil war is over already
+			modifier = {
+				add = 40
+				NOT = { has_war_with = RUS }
+			}
+			# Socialism is already spreading in Europe
+			modifier = {
+				add = 20
+				any_other_country = {
+					is_subject = no
+					NOT = { is_in_faction_with = ROOT }
+					is_neighbor_of = POL
+					has_government = communism
+				}
+			}
+			# Not afford to wage it more
+			modifier = {
+				factor = 0
+				surrender_progress > 0.10
+			}
+		}
 	}
 }
 
@@ -2602,6 +2671,7 @@ country_event = {
 		FRA = {
 			if = {
 				limit = {
+					exists = yes
 					has_country_flag = great_war_winner
 				}
 				country_event = ww1_soviet.38

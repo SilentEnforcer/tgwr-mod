@@ -2,7 +2,7 @@ GER_great_war = {
 	# SCHLIFFEN PLAN
 	##################
 	GER_schliffenmoltkeplan = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_hol_draw_up_staff_plans
 		available = {
 			has_war_with = FRA
 			NOT = { has_global_flag = hoi4tgw_SchlieffenSecurity }
@@ -83,7 +83,7 @@ GER_great_war = {
 	# LUDENDORFF OFFENSIVE
 	###########################
 	GER_ludendorff_offensive = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_hol_draw_up_staff_plans
 		available = {
 			has_war_with = FRA
 			NOT = {
@@ -132,12 +132,25 @@ GER_great_war = {
 			custom_effect_tooltip = GER_ludendorff_offensive_tt
 			news_event = ww1_germany.92
 			add_ideas = GER_idea_ludendorff_offensive
+			set_global_flag = ludendorff_offensive
 		}
 		remove_effect = {
 			# It would be critical for the German Empire
 			remove_ideas = GER_idea_ludendorff_offensive
 			add_stability = -0.5
 			add_war_support = -0.7
+			hidden_effect = {
+				set_global_flag = ludendorff_offensive_failed
+				if = {
+					limit = {
+						NOT = { has_idea = idea_mass_desertion }
+					}
+					add_timed_idea = {
+						idea = idea_mass_desertion
+						days = 90
+					}
+				}
+			}
 		}
 		cancel_effect = {
 			remove_ideas = GER_idea_ludendorff_offensive
@@ -153,6 +166,9 @@ GER_great_war = {
 				OR = {
 					has_war_with = USA
 					date > 1918.3.21
+					# Near Paris
+					controls_province = 9561
+					controls_province = 11518
 				}
 			}
 		}
@@ -160,12 +176,13 @@ GER_great_war = {
 	# FAMINE TIMER
 	#################
 	GER_mission_famine_timer = {
-		icon = GFX_decision_generic_ignite_civil_war
+		icon = GFX_decision_SWI_consolidate_council_power
 		allowed = {
 			original_tag = GER
 		}
-		days_mission_timeout = 1170
+		days_mission_timeout = 585
 		activation = {
+			has_idea = ger_famine_early
 			has_global_flag = kis_war
 			has_war_with = FRA
 			enemies_naval_strength_ratio > 1.5
@@ -182,6 +199,7 @@ GER_great_war = {
 			NOT = {
 				has_global_flag = great_war_ends
 				is_in_faction_with = RUS
+				has_idea = ger_famine
 			}
 		}
 		available = {
@@ -223,6 +241,83 @@ GER_great_war = {
 				days = 20
 			}
 		}
+		complete_effect = {
+			remove_ideas = ger_famine
+			remove_ideas = ger_famine_early
+		}
+	}
+	GER_mission_famine_timer_early = {
+		icon = GFX_decision_SWI_consolidate_council_power
+		allowed = {
+			original_tag = GER
+		}
+		days_mission_timeout = 585
+		activation = {
+			has_global_flag = kis_war
+			has_war_with = FRA
+			enemies_naval_strength_ratio > 1.5
+			OR = {
+				USA = {
+					has_war_with = PREV
+					has_capitulated = no
+				}
+				ENG = {
+					has_war_with = PREV
+					has_capitulated = no
+				}
+			}
+			NOT = {
+				has_global_flag = great_war_ends
+				is_in_faction_with = RUS
+				has_idea = ger_famine
+				has_idea = ger_famine_early
+			}
+		}
+		available = {
+			OR = {
+				has_war = no
+				has_global_flag = great_war_ends
+				USA = {
+					has_war_with = PREV
+					has_capitulated = yes
+				}
+				ENG = {
+					has_war_with = PREV
+					has_capitulated = yes
+				}
+				AND = {
+					enemies_naval_strength_ratio < 1.0
+					UKR = {
+						is_subject_of = PREV
+						surrender_progress < 0.10
+					}
+				}
+				is_in_faction_with = RUS
+				has_idea = ger_famine
+				has_idea = ger_famine_early
+			}
+		}
+		visible = {
+			has_global_flag = kis_war
+			has_war_with = FRA
+			NOT = {
+				has_idea = ger_famine
+				has_idea = ger_famine_early
+				has_global_flag = great_war_ends
+			}
+		}
+		fire_only_once = no
+		is_good = no
+		timeout_effect = {
+			country_event = {
+				id = ww1_germany.91
+				days = 20
+			}
+		}
+		complete_effect = {
+			remove_ideas = ger_famine
+			remove_ideas = ger_famine_early
+		}
 	}
 	#Conference timer moved to TGWR_peace_conference_decisions
 	GER_create_paris_gun = {
@@ -255,7 +350,9 @@ GER_great_war = {
 		}
 		visible = {
 			tag = GER
-			NOT = { has_country_flag = great_war_loser }
+			NOT = {
+				has_global_flag = great_war_ends
+			}
 		}
 
 		modifier = {
@@ -273,10 +370,58 @@ GER_great_war = {
 			}
 		}
 	}
+	GER_fix_belgium_supply = {
+		icon = GFX_decision_generic_operation
+		fire_only_once = yes
+		days_remove = 45
+		allowed = {
+			original_tag = GER
+		}
+		custom_cost_trigger = {
+			num_of_civilian_factories > 2
+		}
+		custom_cost_text = decision_cost_2_civ
+		available = {
+			has_war_with = FRA
+			has_war_with = BEL
+			controls_province = 3488
+			controls_province = 6537
+			controls_province = 9522
+			controls_province = 11519
+		}
+		ai_will_do = {
+			factor = 1000
+		}
+		visible = {
+			has_capitulated = no
+			35 = {
+				is_controlled_by_ROOT_or_ally = no
+			}
+			NOT = {
+				has_global_flag = great_war_ends
+				has_global_flag = GER_capitulation
+			}
+		}
+		modifier = {
+			civilian_factory_use = 2
+		}
+		complete_effect = {
+			add_command_power = -50
+		}
+		remove_effect = {
+			build_railway = {
+				level = 3
+				build_only_on_allied = yes
+				fallback = yes
+				start_province = 587
+				target_province = 11519
+			}
+		}
+	}
 }
 GER_decision_puppet_kingdoms = {
 	GER_form_poland = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_ally_imperialist_coup
 		allowed = {
 			original_tag = GER
 		}
@@ -288,6 +433,10 @@ GER_decision_puppet_kingdoms = {
 			OR = {
 				has_full_control_of_state = 10
 				any_other_country = {
+					NOT = {
+						original_tag = SOV
+						original_tag = RUS
+					}
 					is_in_faction_with = PREV
 					has_full_control_of_state = 10
 				}
@@ -295,6 +444,10 @@ GER_decision_puppet_kingdoms = {
 			OR = {
 				has_full_control_of_state = 87
 				any_other_country = {
+					NOT = {
+						original_tag = SOV
+						original_tag = RUS
+					}
 					is_in_faction_with = PREV
 					has_full_control_of_state = 87
 				}
@@ -302,6 +455,10 @@ GER_decision_puppet_kingdoms = {
 			OR = {
 				has_full_control_of_state = 90
 				any_other_country = {
+					NOT = {
+						original_tag = SOV
+						original_tag = RUS
+					}
 					is_in_faction_with = PREV
 					has_full_control_of_state = 90
 				}
@@ -309,6 +466,10 @@ GER_decision_puppet_kingdoms = {
 			OR = {
 				has_full_control_of_state = 92
 				any_other_country = {
+					NOT = {
+						original_tag = SOV
+						original_tag = RUS
+					}
 					is_in_faction_with = PREV
 					has_full_control_of_state = 92
 				}
@@ -316,6 +477,10 @@ GER_decision_puppet_kingdoms = {
 			OR = {
 				has_full_control_of_state = 98
 				any_other_country = {
+					NOT = {
+						original_tag = SOV
+						original_tag = RUS
+					}
 					is_in_faction_with = PREV
 					has_full_control_of_state = 98
 				}
@@ -323,6 +488,10 @@ GER_decision_puppet_kingdoms = {
 			OR = {
 				has_full_control_of_state = 766
 				any_other_country = {
+					NOT = {
+						original_tag = SOV
+						original_tag = RUS
+					}
 					is_in_faction_with = PREV
 					has_full_control_of_state = 766
 				}
@@ -360,7 +529,7 @@ GER_decision_puppet_kingdoms = {
 		}
 	}
 	GER_form_lithuania = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_ally_imperialist_coup
 		allowed = {
 			original_tag = GER
 		}
@@ -372,6 +541,10 @@ GER_decision_puppet_kingdoms = {
 			OR = {
 				has_full_control_of_state = 11
 				any_other_country = {
+					NOT = {
+						original_tag = SOV
+						original_tag = RUS
+					}
 					is_in_faction_with = PREV
 					has_full_control_of_state = 11
 				}
@@ -379,6 +552,10 @@ GER_decision_puppet_kingdoms = {
 			OR = {
 				has_full_control_of_state = 189
 				any_other_country = {
+					NOT = {
+						original_tag = SOV
+						original_tag = RUS
+					}
 					is_in_faction_with = PREV
 					has_full_control_of_state = 189
 				}
@@ -386,6 +563,10 @@ GER_decision_puppet_kingdoms = {
 			OR = {
 				has_full_control_of_state = 784
 				any_other_country = {
+					NOT = {
+						original_tag = SOV
+						original_tag = RUS
+					}
 					is_in_faction_with = PREV
 					has_full_control_of_state = 784
 				}
@@ -393,6 +574,10 @@ GER_decision_puppet_kingdoms = {
 			OR = {
 				has_full_control_of_state = 97
 				any_other_country = {
+					NOT = {
+						original_tag = SOV
+						original_tag = RUS
+					}
 					is_in_faction_with = PREV
 					has_full_control_of_state = 97
 				}
@@ -400,6 +585,10 @@ GER_decision_puppet_kingdoms = {
 			OR = {
 				has_full_control_of_state = 773
 				any_other_country = {
+					NOT = {
+						original_tag = SOV
+						original_tag = RUS
+					}
 					is_in_faction_with = PREV
 					has_full_control_of_state = 773
 				}
@@ -436,7 +625,7 @@ GER_decision_puppet_kingdoms = {
 		}
 	}
 	GER_form_courland = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_ally_imperialist_coup
 		allowed = {
 			original_tag = GER
 		}
@@ -448,6 +637,11 @@ GER_decision_puppet_kingdoms = {
 			OR = {
 				has_full_control_of_state = 190
 				any_other_country = {
+					NOT = {
+						original_tag = SOV
+						original_tag = RUS
+						original_tag = LAT
+					}
 					is_in_faction_with = PREV
 					has_full_control_of_state = 190
 				}
@@ -487,7 +681,7 @@ GER_decision_puppet_kingdoms = {
 		}
 	}
 	GER_form_baltic_duchy = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_ally_imperialist_coup
 		allowed = {
 			original_tag = GER
 		}
@@ -499,6 +693,12 @@ GER_decision_puppet_kingdoms = {
 			OR = {
 				has_full_control_of_state = 13
 				any_other_country = {
+					NOT = {
+						original_tag = SOV
+						original_tag = RUS
+						original_tag = LAT
+						original_tag = EST
+					}
 					is_in_faction_with = PREV
 					has_full_control_of_state = 13
 				}
@@ -506,6 +706,12 @@ GER_decision_puppet_kingdoms = {
 			OR = {
 				has_full_control_of_state = 191
 				any_other_country = {
+					NOT = {
+						original_tag = SOV
+						original_tag = RUS
+						original_tag = LAT
+						original_tag = EST
+					}
 					is_in_faction_with = PREV
 					has_full_control_of_state = 191
 				}
@@ -513,6 +719,12 @@ GER_decision_puppet_kingdoms = {
 			OR = {
 				has_full_control_of_state = 12
 				any_other_country = {
+					NOT = {
+						original_tag = SOV
+						original_tag = RUS
+						original_tag = LAT
+						original_tag = EST
+					}
 					is_in_faction_with = PREV
 					has_full_control_of_state = 12
 				}
@@ -547,7 +759,7 @@ GER_decision_puppet_kingdoms = {
 		}
 	}
 	GER_unite_baltics = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_ally_imperialist_coup
 		allowed = {
 			original_tag = GER
 		}
@@ -599,7 +811,7 @@ GER_decision_puppet_kingdoms = {
 		ai_will_do = { factor = 150 }
 	}
 	GER_form_georgia = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_ally_imperialist_coup
 		allowed = {
 			original_tag = GER
 		}
@@ -628,7 +840,18 @@ GER_decision_puppet_kingdoms = {
 					has_global_flag = kis_war
 				}
 				has_global_flag = frankfurt_treaty
-			}	
+			}
+			if = {
+				limit = {
+					is_in_faction_with = RUS
+				}
+				RUS = {
+					NOT = {
+						owns_state = 231
+						owns_state = 748
+					}
+				}
+			}
 		}
 		highlight_states = {
 			highlight_state_targets = {
@@ -729,7 +952,7 @@ GER_decision_puppet_kingdoms = {
 }
 GER_decision_central_powers_conference = {
 	GER_misison_central_powers_conference = {
-		icon = generic_nationalism
+		icon = GFX_decision_generic_political_discourse
 		allowed = {
 			original_tag = GER
 		}
@@ -970,7 +1193,7 @@ GER_decision_central_powers_conference = {
 		}
 	}
 	GER_italian_request = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_trade_unions_demand
 		allowed = {
 			original_tag = GER
 		}
@@ -1007,7 +1230,7 @@ GER_decision_central_powers_conference = {
 		ai_will_do = { factor = 100 }
 	}
 	GER_romanian_request = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_trade_unions_demand
 		allowed = {
 			original_tag = GER
 		}
@@ -1040,7 +1263,7 @@ GER_decision_central_powers_conference = {
 		ai_will_do = { factor = 0 }
 	}
 	GER_danish_request = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_trade_unions_demand
 		allowed = {
 			original_tag = GER
 		}
@@ -1072,7 +1295,7 @@ GER_decision_central_powers_conference = {
 		ai_will_do = { factor = 0 }
 	}
 	GER_swedish_request = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_trade_unions_demand
 		allowed = {
 			original_tag = GER
 		}
@@ -1099,7 +1322,7 @@ GER_decision_central_powers_conference = {
 		ai_will_do = { factor = 0 }
 	}
 	GER_dutch_request = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_trade_unions_demand
 		allowed = {
 			original_tag = GER
 		}
@@ -1126,7 +1349,7 @@ GER_decision_central_powers_conference = {
 		ai_will_do = { factor = 0 }
 	}
 	GER_norse_request = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_trade_unions_demand
 		allowed = {
 			original_tag = GER
 		}
@@ -1153,7 +1376,7 @@ GER_decision_central_powers_conference = {
 		ai_will_do = { factor = 0 }
 	}
 	GER_swiss_request = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_trade_unions_demand
 		allowed = {
 			original_tag = GER
 		}
@@ -1182,7 +1405,7 @@ GER_decision_central_powers_conference = {
 }
 GER_agadir_crisis = {
 	GER_instant_react_to_agadir = {
-		icon = generic_prepare_civil_war
+		icon = GFX_decision_generic_naval
 		allowed = {
 			tag = GER
 		}
@@ -1217,7 +1440,7 @@ GER_agadir_crisis = {
 		}
 	}
 	GER_misison_agadir_crisis = {
-		icon = generic_nationalism
+		icon = GFX_decision_generic_ignite_civil_war
 		allowed = {
 			tag = GER
 		}
@@ -1250,6 +1473,7 @@ GER_agadir_crisis = {
 		}
 	}
 	GER_agadir_crisis_send_demands = {
+		icon = GFX_decision_eng_trade_unions_demand
 		allowed = {
 			original_tag = GER
 		}
@@ -1285,7 +1509,7 @@ GER_agadir_crisis = {
 		}
 	}
 	GER_agadir_crisis_escalation = {
-		icon = generic_prepare_civil_war
+		icon = GFX_decision_generic_industry
 		allowed = {
 			original_tag = GER
 		}
@@ -1330,7 +1554,7 @@ GER_agadir_crisis = {
 }
 GER_decison_colonial_exploitation = {
 	GER_request_eq_CMR = {
-		icon = eng_support_imperialist_coup
+		icon = GFX_decision_generic_industry
 		allowed = {
 			tag = GER
 		}
@@ -1383,7 +1607,7 @@ GER_decison_colonial_exploitation = {
 		}
 	}
 	GER_request_eq_TZN = {
-		icon = eng_support_imperialist_coup
+		icon = GFX_decision_generic_industry
 		allowed = {
 			tag = GER
 		}
@@ -1434,7 +1658,7 @@ GER_decison_colonial_exploitation = {
 		}
 	}
 	GER_request_eq_NMB = {
-		icon = eng_support_imperialist_coup
+		icon = GFX_decision_generic_industry
 		allowed = {
 			tag = GER
 		}
@@ -1485,7 +1709,7 @@ GER_decison_colonial_exploitation = {
 		}
 	}
 	GER_request_eq_TOG = {
-		icon = eng_support_imperialist_coup
+		icon = GFX_decision_generic_industry
 		allowed = {
 			tag = GER
 		}
@@ -1537,7 +1761,7 @@ GER_decison_colonial_exploitation = {
 		}
 	}
 	GER_request_eq_PNG = {
-		icon = eng_support_imperialist_coup
+		icon = GFX_decision_generic_industry
 		allowed = {
 			tag = GER
 		}
@@ -1630,7 +1854,7 @@ foreign_politics = {
 		}
 	}
 	GER_help_white_russia = {
-		icon = GFX_decision_generic_ignite_civil_war
+		icon = GFX_decision_generic_prepare_civil_war
 		allowed = {
 			OR = {
 				tag = GER
@@ -1729,7 +1953,7 @@ foreign_politics = {
 		}
 	}
 	GER_help_nationalist_france = {
-		icon = GFX_decision_generic_ignite_civil_war
+		icon = GFX_decision_generic_prepare_civil_war
 		allowed = {
 			OR = {
 				tag = GER
@@ -1811,7 +2035,7 @@ foreign_politics = {
 }
 GER_decision_military_advisers = {
 	GER_advisors_AUH = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_generic_army_support
 		available = {
 			is_faction_leader = yes
 			has_manpower > 999
@@ -1843,7 +2067,7 @@ GER_decision_military_advisers = {
 		}
 	}
 	GER_advisors_BUL = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_generic_army_support
 		available = {
 			is_faction_leader = yes
 			has_manpower > 999
@@ -1875,7 +2099,7 @@ GER_decision_military_advisers = {
 		}
 	}
 	GER_advisors_HOL = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_generic_army_support
 		available = {
 			is_faction_leader = yes
 			has_manpower > 999
@@ -1907,7 +2131,7 @@ GER_decision_military_advisers = {
 		}
 	}
 	GER_advisors_SWE = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_generic_army_support
 		available = {
 			is_faction_leader = yes
 			has_manpower > 999
@@ -1939,7 +2163,7 @@ GER_decision_military_advisers = {
 		}
 	}
 	GER_advisors_DEN = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_generic_army_support
 		available = {
 			is_faction_leader = yes
 			has_manpower > 999
@@ -1971,7 +2195,7 @@ GER_decision_military_advisers = {
 		}
 	}
 	GER_advisors_MEX = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_generic_army_support
 		available = {
 			is_faction_leader = yes
 			has_manpower > 999
@@ -2003,7 +2227,7 @@ GER_decision_military_advisers = {
 		}
 	}
 	GER_advisors_RUS = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_generic_army_support
 		available = {
 			is_faction_leader = yes
 			has_manpower > 999
@@ -2041,7 +2265,7 @@ GER_decision_military_advisers = {
 }
 GER_decision_federal_army = {
 	GER_organize_civil_defense = {
-		icon = border_war
+		icon = GFX_decision_generic_industry
 		available = {
 			has_completed_focus = GER_civil_defense
 			has_war = yes
@@ -2080,7 +2304,7 @@ GER_decision_federal_army = {
 		}
 	}
 	GER_federal_corps_saxony = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_generic_industry
 		available = {
 			has_war = yes
 			has_war_support > 0.05
@@ -2146,7 +2370,7 @@ GER_decision_federal_army = {
 		}
 	}
 	GER_federal_corps_bavaria = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_generic_industry
 		available = {
 			has_war = yes
 			has_war_support > 0.05
@@ -2223,7 +2447,7 @@ GER_decision_federal_army = {
 		}
 	}
 	GER_federal_corps_hannover = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_generic_industry
 		available = {
 			has_war = yes
 			has_war_support > 0.05
@@ -2289,7 +2513,7 @@ GER_decision_federal_army = {
 		}
 	}
 	GER_federal_corps_mecklenburg = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_generic_industry
 		available = {
 			has_war = yes
 			has_war_support > 0.05
@@ -2357,7 +2581,7 @@ GER_decision_federal_army = {
 }
 GER_decision_abwehr_operations = {
 	GER_support_separatism_in_warsaw = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_eng_propaganda_campaigns
 		available = {
 			has_equipment = {
 				infantry_equipment > 999
@@ -2401,7 +2625,7 @@ GER_decision_abwehr_operations = {
 		}
 	}
 	GER_support_separatism_in_helsenki = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_eng_propaganda_campaigns
 		available = {
 			has_equipment = {
 				infantry_equipment > 999
@@ -2445,7 +2669,7 @@ GER_decision_abwehr_operations = {
 		}
 	}
 	GER_support_separatism_in_lithuania = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_eng_propaganda_campaigns
 		available = {
 			has_equipment = {
 				infantry_equipment > 999
@@ -2489,7 +2713,7 @@ GER_decision_abwehr_operations = {
 		}
 	}
 	GER_support_separatism_in_latvia = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_eng_propaganda_campaigns
 		available = {
 			has_equipment = {
 				infantry_equipment > 999
@@ -2533,7 +2757,7 @@ GER_decision_abwehr_operations = {
 		}
 	}
 	GER_support_separatism_in_estonia = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_eng_propaganda_campaigns
 		available = {
 			has_equipment = {
 				infantry_equipment > 999
@@ -2581,7 +2805,7 @@ GER_decision_abwehr_operations = {
 }
 prestigious_projects = {
 	GER_yellow_HRE = { #not yellow.
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_generic_monarchy
 		allowed = { tag = GER }
 		available = {
 		}
@@ -3280,7 +3504,31 @@ prestigious_projects = {
 					}
 				}
 				MAF = {
-					set_capital = { state = 546}
+					set_capital = { state = 546 }
+				}
+			}
+			hidden_effect = {
+				MAF = {
+					every_owned_state = {
+						limit = {
+							OR = {
+								is_core_of = GHA
+								is_core_of = NGA
+								is_core_of = KEN
+							}
+						}
+						set_demilitarized_zone = yes
+					}
+					if = {
+						limit = {
+							ETH = { is_neighbor_of = PREV }
+							GER = { owns_state = 268 }
+						}
+						ETH = {
+							give_military_access = GER
+							give_military_access = PREV
+						}
+					}
 				}
 			}
 		}
@@ -3288,7 +3536,7 @@ prestigious_projects = {
 }
 GER_prussian_blue_category = {
 	BAY_reunite_germany = {
-		icon = spr_the_seeds_of_revolution
+		icon = GFX_decision_generic_prepare_civil_war
 		allowed = {
 			original_tag = BAY
 		}
@@ -3520,7 +3768,7 @@ GER_prussian_blue_category = {
 		ai_will_do = { factor = 100 }
 	}
 	GER_prussia_reunite_germany = {
-		icon = generic_prepare_civil_war
+		icon = GFX_decision_generic_prepare_civil_war
 		allowed = {
 			tag = GER
 		}
@@ -3751,7 +3999,7 @@ GER_prussian_blue_category = {
 	}
 
 	GER_prussian_russian_withdrawal = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_blackshirt_march
 		days_mission_timeout = 365
 		activation = {
 			NOT = {
@@ -3873,6 +4121,7 @@ GER_prussian_blue_category = {
 	}
 
 	GER_demand_hessen = {
+		icon = GFX_decision_eng_trade_unions_demand
 		allowed = {
 			OR = {
 				tag = GER
@@ -4277,7 +4526,7 @@ GER_afghan_expeditions = {
 }	
 GER_decision_paying_reparations = {
 	GER_decision_reparations = {
-		icon = generic_nationalism
+		icon = GFX_decision_generic_factory
 		allowed = {
 			original_tag = GER
 		}
@@ -4289,7 +4538,7 @@ GER_decision_paying_reparations = {
 			has_idea = GER_idea_reparations
 		}
 		fire_only_once = yes
-		cost = 200
+		cost = 0
 		days_remove = 1200
 		modifier = {
 			civilian_factory_use = 10
@@ -4329,7 +4578,7 @@ GER_decision_paying_reparations = {
 		}
 	}
 	GER_decision_reparations_2 = {
-		icon = generic_nationalism
+		icon = GFX_decision_generic_factory
 		allowed = {
 			original_tag = GER
 		}
@@ -4341,7 +4590,7 @@ GER_decision_paying_reparations = {
 			has_idea = GER_idea_reparations_dawes
 		}
 		fire_only_once = yes
-		cost = 200
+		cost = 0
 		days_remove = 2000
 		modifier = {
 			civilian_factory_use = 7
@@ -4378,7 +4627,7 @@ GER_decision_paying_reparations = {
 		}
 	}
 	GER_decision_reparations_3 = {
-		icon = generic_nationalism
+		icon = GFX_decision_generic_factory
 		allowed = {
 			original_tag = GER
 		}
@@ -4390,7 +4639,7 @@ GER_decision_paying_reparations = {
 			has_idea = GER_idea_reparations_young
 		}
 		fire_only_once = yes
-		cost = 200
+		cost = 0
 		days_remove = 2000
 		modifier = {
 			civilian_factory_use = 5
@@ -4425,7 +4674,7 @@ GER_decision_paying_reparations = {
 		}
 	}
 	GER_decision_moratorium = {
-		icon = revolt
+		icon = GFX_decision_generic_break_treaty
 		allowed = {
 			original_tag = GER
 		}
@@ -4508,7 +4757,7 @@ GER_decision_paying_reparations = {
 
 GER_interwar_reichspakt_category = {
 	GER_interwar_invite_in_reichspakt = {
-		icon = generic_nationalism
+		icon = GFX_decision_eng_ally_imperialist_coup
 		allowed = {
 		}
 		target_trigger = {
@@ -4791,7 +5040,7 @@ interwar_decisions = {
 		}
 	}
 	GER_kapp_putsch_timer = {
-		icon = revolt
+		icon = GFX_decision_generic_military
 		days_mission_timeout = 410
 		activation = {
 			tag = GER
@@ -4829,4 +5078,707 @@ interwar_decisions = {
 			hidden_effect = { country_event = ww1_germany.108 }
 		}
 	}
+}
+GER_fortifications = {
+
+	GER_fund_engineering_corps = {
+		icon = GFX_decision_generic_wreckers
+		fire_only_once = no
+		days_remove = 3
+		allowed = {
+			original_tag = GER
+		}
+		cost = 50
+		days_re_enable = 60
+		available = {
+			command_power < 50
+		}
+		ai_will_do = {
+			factor = 5
+			modifier = {
+				command_power < 10
+				factor = 10
+			}
+			modifier = {
+				command_power < 25
+				has_war = yes
+				factor = 15
+			}
+		}
+		visible = {
+			tag = GER
+		}
+		
+		remove_effect = {
+			custom_effect_tooltip = back_in_60_days
+			add_command_power = 25
+		}
+	}
+
+	GER_defensive_line_in_aisne = {
+		icon = GFX_decision_generic_fort
+		cost = 0
+		fire_only_once = yes
+		days_remove = 30
+		allowed = {
+			original_tag = FRA
+		}
+		custom_cost_trigger = {
+			command_power > 49
+			num_of_civilian_factories > 10
+		}
+		custom_cost_text = decision_cost_CP_50_10_civ
+		available = {
+			controls_province = 2900
+			controls_province = 3447
+			controls_province = 6054
+		}
+		visible = {
+			tag = GER
+			has_war = yes
+		}
+		on_map_mode = map_and_decisions_view
+		highlight_states = {
+			highlight_state_targets = { state = 29 } 
+			highlight_color_while_active = 1
+		}
+		ai_will_do = {
+			factor = 1000
+			modifier = {
+				factor = 0
+				has_idea = schlieffenmoltke
+			}
+			modifier = {
+				factor = 0
+				controls_province = 11506
+			}
+			modifier = {
+				factor = 0
+				has_global_flag = FRA_capitulation
+			}
+			modifier = {
+				factor = 0
+				has_global_flag = GER_capitulation
+			}
+		}
+		modifier = {
+			civilian_factory_use = 10
+		}
+		remove_effect = {
+			custom_effect_tooltip = GER_defensive_line_in_aisne_tt
+			hidden_effect = {
+				29 = {
+					add_building_construction = {
+						type = bunker
+						level = 5
+						instant_build = yes
+						province = 3447
+					}
+					add_building_construction = {
+						type = bunker
+						level = 5
+						instant_build = yes
+						province = 2900
+					}
+					add_building_construction = {
+						type = bunker
+						level = 5
+						instant_build = yes
+						province = 6054
+					}
+				}
+			}
+		}
+
+		complete_effect = {
+			add_command_power = -50
+		}
+	}
+
+	GER_defensive_line_in_ypern = {
+		icon = GFX_decision_generic_fort
+		cost = 0
+		fire_only_once = yes
+		days_remove = 30
+		allowed = {
+			original_tag = FRA
+		}
+		custom_cost_trigger = {
+			command_power > 49
+			num_of_civilian_factories > 10
+		}
+		custom_cost_text = decision_cost_CP_50_10_civ
+		available = {
+			controls_province = 575
+			controls_province = 11483
+		}
+		visible = {
+			tag = GER
+			has_war = yes
+		}
+		on_map_mode = map_and_decisions_view
+		highlight_states = {
+			highlight_state_targets = { state = 865 } 
+			highlight_color_while_active = 1
+		}
+		ai_will_do = {
+			factor = 1000
+			modifier = {
+				factor = 0
+				has_idea = schlieffenmoltke
+			}
+			modifier = {
+				factor = 0
+				controls_province = 11506
+			}
+			modifier = {
+				factor = 0
+				has_global_flag = FRA_capitulation
+			}
+			modifier = {
+				factor = 0
+				has_global_flag = GER_capitulation
+			}
+		}
+		modifier = {
+			civilian_factory_use = 10
+		}
+		remove_effect = {
+			custom_effect_tooltip = GER_defensive_line_in_ypern_tt
+			hidden_effect = {
+				865 = {
+					add_building_construction = {
+						type = bunker
+						level = 5
+						instant_build = yes
+						province = 575
+					}
+					add_building_construction = {
+						type = bunker
+						level = 5
+						instant_build = yes
+						province = 11483
+					}
+				}
+			}
+		}
+
+		complete_effect = {
+			add_command_power = -50
+		}
+	}
+
+	GER_defensive_line_in_arras = {
+		icon = GFX_decision_generic_fort
+		cost = 0
+		fire_only_once = yes
+		days_remove = 30
+		allowed = {
+			original_tag = FRA
+		}
+		custom_cost_trigger = {
+			command_power > 49
+			num_of_civilian_factories > 10
+		}
+		custom_cost_text = decision_cost_CP_50_10_civ
+		available = {
+			controls_province = 3536
+			controls_province = 3476
+		}
+		visible = {
+			tag = GER
+			has_war = yes
+		}
+		on_map_mode = map_and_decisions_view
+		highlight_states = {
+			highlight_state_targets = { state = 29 } 
+			highlight_color_while_active = 1
+		}
+		ai_will_do = {
+			factor = 1000
+			modifier = {
+				factor = 0
+				has_idea = schlieffenmoltke
+			}
+			modifier = {
+				factor = 0
+				controls_province = 11506
+			}
+			modifier = {
+				factor = 0
+				has_global_flag = FRA_capitulation
+			}
+			modifier = {
+				factor = 0
+				has_global_flag = GER_capitulation
+			}
+		}
+		modifier = {
+			civilian_factory_use = 10
+		}
+		remove_effect = {
+			custom_effect_tooltip = GER_defensive_line_in_arras_tt
+			hidden_effect = {
+				29 = {
+					add_building_construction = {
+						type = bunker
+						level = 5
+						instant_build = yes
+						province = 3476
+					}
+					add_building_construction = {
+						type = bunker
+						level = 5
+						instant_build = yes
+						province = 3536
+					}
+				}
+			}
+		}
+
+		complete_effect = {
+			add_command_power = -50
+		}
+	}
+
+	GER_defensive_line_in_compiegne = {
+		icon = GFX_decision_generic_fort
+		cost = 0
+		fire_only_once = yes
+		days_remove = 30
+		allowed = {
+			original_tag = FRA
+		}
+		custom_cost_trigger = {
+			command_power > 49
+			num_of_civilian_factories > 10
+		}
+		custom_cost_text = decision_cost_CP_50_10_civ
+		available = {
+			controls_province = 454
+			controls_province = 3402
+		}
+		visible = {
+			tag = GER
+			has_war = yes
+		}
+		on_map_mode = map_and_decisions_view
+		highlight_states = {
+			highlight_state_targets = { state = 785 } 
+			highlight_color_while_active = 1
+		}
+		ai_will_do = {
+			factor = 1000
+			modifier = {
+				factor = 0
+				has_idea = schlieffenmoltke
+			}
+			modifier = {
+				factor = 0
+				controls_province = 11506
+			}
+			modifier = {
+				factor = 0
+				has_global_flag = FRA_capitulation
+			}
+			modifier = {
+				factor = 0
+				has_global_flag = GER_capitulation
+			}
+		}
+		modifier = {
+			civilian_factory_use = 10
+		}
+		remove_effect = {
+			custom_effect_tooltip = GER_defensive_line_in_compiegne_tt
+			hidden_effect = {
+				785 = {
+					add_building_construction = {
+						type = bunker
+						level = 5
+						instant_build = yes
+						province = 454
+					}
+					add_building_construction = {
+						type = bunker
+						level = 5
+						instant_build = yes
+						province = 3402
+					}
+				}
+			}
+		}
+
+		complete_effect = {
+			add_command_power = -50
+		}
+	}
+
+	GER_defensive_line_in_gent = {
+		icon = GFX_decision_generic_fort
+		cost = 0
+		fire_only_once = yes
+		days_remove = 30
+		allowed = {
+			original_tag = FRA
+		}
+		custom_cost_trigger = {
+			command_power > 49
+			num_of_civilian_factories > 10
+		}
+		custom_cost_text = decision_cost_CP_50_10_civ
+		available = {
+			controls_province = 3576
+			controls_province = 6560
+		}
+		visible = {
+			tag = GER
+			has_war = yes
+		}
+		on_map_mode = map_and_decisions_view
+		highlight_states = {
+			highlight_state_targets = { state = 6 } 
+			highlight_color_while_active = 1
+		}
+		ai_will_do = {
+			factor = 1000
+			modifier = {
+				factor = 0
+				has_idea = schlieffenmoltke
+			}
+			modifier = {
+				factor = 0
+				controls_province = 11506
+			}
+			modifier = {
+				factor = 0
+				has_global_flag = FRA_capitulation
+			}
+			modifier = {
+				factor = 0
+				has_global_flag = GER_capitulation
+			}
+		}
+		modifier = {
+			civilian_factory_use = 10
+		}
+		remove_effect = {
+			custom_effect_tooltip = GER_defensive_line_in_gent_tt
+			hidden_effect = {
+				6 = {
+					add_building_construction = {
+						type = bunker
+						level = 5
+						instant_build = yes
+						province = 3576
+					}
+					add_building_construction = {
+						type = bunker
+						level = 5
+						instant_build = yes
+						province = 6560
+					}
+				}
+			}
+		}
+
+		complete_effect = {
+			add_command_power = -50
+		}
+	}
+
+	GER_defensive_line_in_charleroi = {
+		icon = GFX_decision_generic_fort
+		cost = 0
+		fire_only_once = yes
+		days_remove = 30
+		allowed = {
+			original_tag = FRA
+		}
+		custom_cost_trigger = {
+			command_power > 49
+			num_of_civilian_factories > 10
+		}
+		custom_cost_text = decision_cost_CP_50_10_civ
+		available = {
+			controls_province = 9536
+			controls_province = 13081
+		}
+		visible = {
+			tag = GER
+			has_war = yes
+		}
+		on_map_mode = map_and_decisions_view
+		highlight_states = {
+			highlight_state_targets = { state = 6 } 
+			highlight_color_while_active = 1
+		}
+		ai_will_do = {
+			factor = 1000
+			modifier = {
+				factor = 0
+				has_idea = schlieffenmoltke
+			}
+			modifier = {
+				factor = 0
+				controls_province = 11506
+			}
+			modifier = {
+				factor = 0
+				has_global_flag = FRA_capitulation
+			}
+			modifier = {
+				factor = 0
+				has_global_flag = GER_capitulation
+			}
+		}
+		modifier = {
+			civilian_factory_use = 10
+		}
+		remove_effect = {
+			custom_effect_tooltip = GER_defensive_line_in_charleroi_tt
+			hidden_effect = {
+				6 = {
+					add_building_construction = {
+						type = bunker
+						level = 5
+						instant_build = yes
+						province = 9536
+					}
+					add_building_construction = {
+						type = bunker
+						level = 5
+						instant_build = yes
+						province = 13081
+					}
+				}
+			}
+		}
+
+		complete_effect = {
+			add_command_power = -50
+		}
+	}
+
+	GER_defensive_line_in_brussel = {
+		icon = GFX_decision_generic_fort
+		cost = 0
+		fire_only_once = yes
+		days_remove = 30
+		allowed = {
+			original_tag = FRA
+		}
+		custom_cost_trigger = {
+			command_power > 49
+			num_of_civilian_factories > 10
+		}
+		custom_cost_text = decision_cost_CP_50_10_civ
+		available = {
+			controls_province = 516
+			controls_province = 6598
+		}
+		visible = {
+			tag = GER
+			has_war = yes
+		}
+		on_map_mode = map_and_decisions_view
+		highlight_states = {
+			highlight_state_targets = { state = 6 } 
+			highlight_color_while_active = 1
+		}
+		ai_will_do = {
+			factor = 1000
+			modifier = {
+				factor = 0
+				has_idea = schlieffenmoltke
+			}
+			modifier = {
+				factor = 0
+				controls_province = 11506
+			}
+			modifier = {
+				factor = 0
+				has_global_flag = FRA_capitulation
+			}
+			modifier = {
+				factor = 0
+				has_global_flag = GER_capitulation
+			}
+		}
+		modifier = {
+			civilian_factory_use = 10
+		}
+		remove_effect = {
+			custom_effect_tooltip = GER_defensive_line_in_brussel_tt
+			hidden_effect = {
+				6 = {
+					add_building_construction = {
+						type = bunker
+						level = 5
+						instant_build = yes
+						province = 516
+					}
+					add_building_construction = {
+						type = bunker
+						level = 5
+						instant_build = yes
+						province = 6598
+					}
+				}
+			}
+		}
+
+		complete_effect = {
+			add_command_power = -50
+		}
+	}
+
+	GER_defensive_line_in_argonnen = {
+		icon = GFX_decision_generic_fort
+		cost = 0
+		fire_only_once = yes
+		days_remove = 30
+		allowed = {
+			original_tag = FRA
+		}
+		custom_cost_trigger = {
+			command_power > 49
+			num_of_civilian_factories > 10
+		}
+		custom_cost_text = decision_cost_CP_50_10_civ
+		available = {
+			controls_province = 9418
+			controls_province = 9444
+		}
+		visible = {
+			tag = GER
+			has_war = yes
+		}
+		on_map_mode = map_and_decisions_view
+		highlight_states = {
+			highlight_state_targets = { state = 34 } 
+			highlight_color_while_active = 1
+		}
+		ai_will_do = {
+			factor = 1000
+			modifier = {
+				factor = 0
+				has_idea = schlieffenmoltke
+			}
+			modifier = {
+				factor = 0
+				controls_province = 11506
+			}
+			modifier = {
+				factor = 0
+				has_global_flag = FRA_capitulation
+			}
+			modifier = {
+				factor = 0
+				has_global_flag = GER_capitulation
+			}
+		}
+		modifier = {
+			civilian_factory_use = 10
+		}
+		remove_effect = {
+			custom_effect_tooltip = GER_defensive_line_in_argonnen_tt
+			hidden_effect = {
+				34 = {
+					add_building_construction = {
+						type = bunker
+						level = 5
+						instant_build = yes
+						province = 9418
+					}
+					add_building_construction = {
+						type = bunker
+						level = 5
+						instant_build = yes
+						province = 9444
+					}
+				}
+			}
+		}
+
+		complete_effect = {
+			add_command_power = -50
+		}
+	}
+
+	GER_defensive_line_in_verdun = {
+		icon = GFX_decision_generic_fort
+		cost = 0
+		fire_only_once = yes
+		days_remove = 30
+		allowed = {
+			original_tag = FRA
+		}
+		custom_cost_trigger = {
+			command_power > 49
+			num_of_civilian_factories > 10
+		}
+		custom_cost_text = decision_cost_CP_50_10_civ
+		available = {
+			controls_province = 11328
+			controls_province = 3560
+		}
+		visible = {
+			tag = GER
+			has_war = yes
+		}
+		on_map_mode = map_and_decisions_view
+		highlight_states = {
+			highlight_state_targets = { state = 863 } 
+			highlight_color_while_active = 1
+		}
+		ai_will_do = {
+			factor = 1000
+			modifier = {
+				factor = 0
+				has_idea = schlieffenmoltke
+			}
+			modifier = {
+				factor = 0
+				controls_province = 11506
+			}
+			modifier = {
+				factor = 0
+				has_global_flag = FRA_capitulation
+			}
+			modifier = {
+				factor = 0
+				has_global_flag = GER_capitulation
+			}
+		}
+		modifier = {
+			civilian_factory_use = 10
+		}
+		remove_effect = {
+			custom_effect_tooltip = GER_defensive_line_in_verdun_tt
+			hidden_effect = {
+				863 = {
+					add_building_construction = {
+						type = bunker
+						level = 5
+						instant_build = yes
+						province = 11328
+					}
+				}
+				17 = {
+					add_building_construction = {
+						type = bunker
+						level = 5
+						instant_build = yes
+						province = 3560
+					}
+				}
+			}
+		}
+
+		complete_effect = {
+			add_command_power = -50
+		}
+	}
+
 }
