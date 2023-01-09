@@ -4419,7 +4419,6 @@ country_event = {
     		promote_leader = yes
     		country_leader = {
     		    ideology = autocracy
-    		    expire = "1965.1.1.1"
     		    traits = { illegitimate_monarch }
     		}
 		}
@@ -4536,6 +4535,7 @@ country_event = {
 	id = ottoman.8
 	title = ottoman.8.t
 	desc = ottoman.8.d
+	picture = GFX_report_event_tur_turkish_soldiers
 	is_triggered_only = yes
 	option = {
 		name = ottoman.8.a
@@ -4548,12 +4548,34 @@ country_event = {
 			}
 		}
 		hidden_effect = {
-			TUR = {
+			FROM = {
 				country_event = { id = ottoman.9 hours = 8 }
 			}
 		}
 		ai_chance = {
-			factor = 100
+			base = 10
+			modifier = {
+				add = 50
+				strength_ratio = {
+					target = FROM
+					ratio < 0.5
+				}
+			}
+			modifier = {
+				add = 25
+				has_government = FROM
+			}
+			modifier = {
+				add = 25
+				is_in_faction_with = FROM
+			}
+			modifier = {
+				add = 25
+				has_opinion = {
+					target = FROM
+					value > 30
+				}
+			}
 		}
 	}
 	option = {
@@ -4568,12 +4590,28 @@ country_event = {
 			}
 		}
 		hidden_effect = {
-			TUR = {
+			FROM = {
 				country_event = { id = ottoman.10 hours = 8 }
 			}
 		}
 		ai_chance = {
-			factor = 0
+			base = 25
+			modifier = {
+				add = 100
+				any_other_country = {
+					is_major = yes
+					has_guaranteed = PREV
+					NOT = { original_tag = TUR }
+				}
+			}
+			modifier = {
+				add = 100
+				any_other_country = {
+					is_major = yes
+					has_subject = PREV
+					NOT = { original_tag = TUR }
+				}
+			}
 		}
 	}
 }
@@ -4583,15 +4621,13 @@ country_event = {
 	id = ottoman.9
 	title = ottoman.9.t
 	desc = ottoman.9.d
+	picture = GFX_report_event_generic_peaceful_annexation
 	is_triggered_only = yes
 	option = {
 		name = ottoman.9.a
 		annex_country = {
 			target = FROM
 			transfer_troops = no
-		}
-		ai_chance = {
-			factor = 100
 		}
 	}
 }
@@ -4601,16 +4637,19 @@ country_event = {
 	id = ottoman.10
 	title = ottoman.10.t
 	desc = ottoman.10.d
+	picture = GFX_report_event_spr_army_of_africa
 	is_triggered_only = yes
 	option = {
 		name = ottoman.10.a
+		if = {
+			limit = {
+				has_subject = PREV
+			}
+			end_puppet = FROM
+		}
 		create_wargoal = {
 			target = FROM
 			type = annex_everything
-		}
-		end_puppet = FROM
-		ai_chance = {
-			factor = 100
 		}
 	}
 }
@@ -4620,52 +4659,86 @@ country_event = {
 	id = ottoman.11
 	title = ottoman.11.t
 	desc = ottoman.11.d
+	picture = GFX_report_event_tur_turkish_soldiers
 	is_triggered_only = yes
 	option = {
 		name = ottoman.11.a
 		effect_tooltip = {
-			every_country = {
+			if = {
 				limit = {
-					has_subject = EGY
+					is_subject = yes
 				}
-				end_puppet = EGY
+				OVERLORD = {
+					end_puppet = ROOT
+				}
 			}
-			TUR = {
+			FROM = {
 				add_to_faction = ROOT
 			}
-			add_ai_strategy = {
-				type = alliance
-				id = TUR
-				value = 100
+		}
+		if = {
+			limit = {
+				is_subject = yes
+			}
+			OVERLORD = {
+				country_event = { id = ottoman.12 hours = 3 }
 			}
 		}
-		overlord = {
-			country_event = { id = ottoman.12 days = 2 }
-		}
 		hidden_effect = {
-			TUR = {
-			    country_event = { id = ottoman.15 hours = 8 }
-		    }
+			FROM = {
+				country_event = { id = ottoman.15 hours = 8 }
+			}
 		}
 		ai_chance = {
-			factor = 100
+			base = 50
+			modifier = {
+				add = 25
+				has_government = FROM
+			}
+			modifier = {
+				add = 25
+				has_opinion = {
+					target = FROM
+					value > 30
+				}
+			}
 		}
 	}
 	option = {
 		name = ottoman.11.b
 		effect_tooltip = {
-			TUR = { 
+			FROM = { 
 				create_wargoal = {
-					target = EGY
+					target = ROOT
 					type = annex_everything
 				}
 			}
 		}
-		TUR = {
+		FROM = {
 			country_event = { id = ottoman.16 hours = 8 }
 		}
 		ai_chance = {
-			factor = 0
+			base = 0
+			modifier = {
+				add = 50
+				threat > 0.25
+			}
+			modifier = {
+				add = 100
+				strength_ratio = {
+					tag = FROM
+					ratio > 0.5
+				}
+			}
+			modifier = {
+				add = 200
+				OVERLORD = {
+					strength_ratio = {
+						tag = FROM
+						ratio > 1.5
+					}
+				}
+			}
 		}
 	}
 }
@@ -4675,17 +4748,18 @@ country_event = {
 	id = ottoman.12
 	title = ottoman.12.t
 	desc = ottoman.12.d
+	picture = GFX_report_event_tur_turkish_soldiers
 	is_triggered_only = yes
 	option = {
 		name = ottoman.12.a
 		declare_war_on = {
-            target = TUR
-            type = puppet_wargoal_focus
-        }
+			target = TUR
+			type = puppet_wargoal_focus
+		}
 		declare_war_on = {
-            target = EGY
-            type = annex_everything
-        }
+			target = EGY
+			type = puppet_wargoal_focus
+		}
 		hidden_effect = {
 			TUR = {
 				country_event = ottoman.13
@@ -4695,11 +4769,26 @@ country_event = {
 			}
 		}
 		ai_chance = {
-			factor = 0
+			base = 25
+			modifier = {
+				add = 100
+				threat > 0.25
+			}
+			modifier = {
+				add = 100
+				threat > 0.50
+			}
+			modifier = {
+				add = -50
+				strength_ratio = {
+					tag = TUR
+					ratio > 1.5
+				}
+			}
 		}
 	}
 	option = {
-		name = ottoman.12.a
+		name = ottoman.12.b
 		add_political_power = -50
 		hidden_effect = {
 			TUR = {
@@ -4711,6 +4800,17 @@ country_event = {
 		}
 		ai_chance = {
 			factor = 100
+			modifier = {
+				factor = 0
+				has_war_with = FROM
+			}
+			modifier = {
+				factor = 0
+				has_opinion = {
+					target = FROM
+					value < 0
+				}
+			}
 		}
 	}
 }
@@ -4720,6 +4820,7 @@ country_event = {
 	id = ottoman.13
 	title = ottoman.13.t
 	desc = ottoman.13.d
+	picture = GFX_report_event_british_inspect_troops
 	is_triggered_only = yes
 	option = {
 		name = ottoman.13.a
@@ -4731,6 +4832,7 @@ country_event = {
 	id = ottoman.14
 	title = ottoman.14.t
 	desc = ottoman.14.d
+	picture = GFX_report_event_generic_peaceful_annexation
 	is_triggered_only = yes
 	option = {
 		name = ottoman.14.a
@@ -4742,6 +4844,7 @@ country_event = {
 	id = ottoman.15
 	title = ottoman.15.t
 	desc = ottoman.15.d
+	picture = GFX_report_event_generic_peaceful_annexation
 	is_triggered_only = yes
 	option = {
 		name = ottoman.15.a
@@ -4752,11 +4855,13 @@ country_event = {
 			end_puppet = EGY
 		}
 		add_to_faction = EGY
-		EGY = {
-			add_ai_strategy = {
-				type = alliance
-				id = TUR
-				value = 100
+		hidden_effect = {
+			EGY = {
+				add_ai_strategy = {
+					type = alliance
+					id = TUR
+					value = 100
+				}
 			}
 		}
 		ai_chance = {
@@ -4770,6 +4875,7 @@ country_event = {
 	id = ottoman.16
 	title = ottoman.16.t
 	desc = ottoman.16.d
+	picture = GFX_report_event_generic_sign_treaty1
 	is_triggered_only = yes
 	option = {
 		name = ottoman.16.a
@@ -4788,6 +4894,7 @@ country_event = {
 	id = ottoman.17
 	title = ottoman.17.t
 	desc = ottoman.17.d
+	picture = GFX_report_event_tur_turkish_soldiers
 	is_triggered_only = yes
 	option = {
 		name = ottoman.17.a
@@ -4801,12 +4908,34 @@ country_event = {
 			}
 		}
 		hidden_effect = {
-			TUR = {
+			FROM = {
 				country_event = { id = ottoman.18 hours = 8 }
 			}
 		}
 		ai_chance = {
-			factor = 100
+			base = 10
+			modifier = {
+				add = 50
+				strength_ratio = {
+					target = FROM
+					ratio < 0.5
+				}
+			}
+			modifier = {
+				add = 25
+				has_government = FROM
+			}
+			modifier = {
+				add = 25
+				is_in_faction_with = FROM
+			}
+			modifier = {
+				add = 25
+				has_opinion = {
+					target = FROM
+					value > 30
+				}
+			}
 		}
 	}
 	option = {
@@ -4820,12 +4949,28 @@ country_event = {
 			}
 		}
 		hidden_effect = {
-			TUR = {
+			FROM = {
 				country_event = { id = ottoman.19 hours = 8 }
 			}
 		}
 		ai_chance = {
-			factor = 0
+			base = 25
+			modifier = {
+				add = 100
+				any_other_country = {
+					is_major = yes
+					has_guaranteed = PREV
+					NOT = { original_tag = TUR }
+				}
+			}
+			modifier = {
+				add = 100
+				any_other_country = {
+					is_major = yes
+					has_subject = PREV
+					NOT = { original_tag = TUR }
+				}
+			}
 		}
 	}
 }
@@ -4835,6 +4980,7 @@ country_event = {
 	id = ottoman.18
 	title = ottoman.18.t
 	desc = ottoman.18.d
+	picture = GFX_report_event_generic_peaceful_annexation
 	is_triggered_only = yes
 	option = {
 		name = ottoman.18.a
@@ -4843,9 +4989,6 @@ country_event = {
 			transfer_troops = yes
 		}
 		add_ideas = TUR_senussi_order
-		ai_chance = {
-			factor = 100
-		}
 	}
 }
 
@@ -4854,15 +4997,13 @@ country_event = {
 	id = ottoman.19
 	title = ottoman.19.t
 	desc = ottoman.19.d
+	picture = GFX_report_event_spr_army_of_africa
 	is_triggered_only = yes
 	option = {
 		name = ottoman.19.a
 		create_wargoal = {
 			target = FROM
 			type = annex_everything
-		}
-		ai_chance = {
-			factor = 100
 		}
 	}
 }
@@ -4872,6 +5013,7 @@ country_event = {
 	id = ottoman.20
 	title = ottoman.20.t
 	desc = ottoman.20.d
+	picture = GFX_report_event_tur_turkish_soldiers
 	is_triggered_only = yes
 	option = {
 		name = ottoman.20.a
@@ -4886,7 +5028,38 @@ country_event = {
 			}
 		}
 		ai_chance = {
-			factor = 100
+			base = 10
+			modifier = {
+				add = 50
+				strength_ratio = {
+					target = FROM
+					ratio < 0.5
+				}
+			}
+			modifier = {
+				add = 25
+				has_government = FROM
+			}
+			modifier = {
+				add = 25
+				is_in_faction_with = FROM
+			}
+			modifier = {
+				add = 25
+				has_opinion = {
+					target = FROM
+					value > 30
+				}
+			}
+			modifier = {
+				add = -1000
+				NOT = {
+					has_country_leader = {
+						character = ETH_lij_iyasu
+						ruling_only = yes
+					}
+				}
+			}
 		}
 	}
 	option = {
@@ -4905,7 +5078,23 @@ country_event = {
 			}
 		}
 		ai_chance = {
-			factor = 0
+			base = 25
+			modifier = {
+				add = 100
+				any_other_country = {
+					is_major = yes
+					has_guaranteed = PREV
+					NOT = { original_tag = TUR }
+				}
+			}
+			modifier = {
+				add = 100
+				any_other_country = {
+					is_major = yes
+					has_subject = PREV
+					NOT = { original_tag = TUR }
+				}
+			}
 		}
 	}
 }
@@ -4915,13 +5104,11 @@ country_event = {
 	id = ottoman.21
 	title = ottoman.21.t
 	desc = ottoman.21.d
+	picture = GFX_report_event_generic_peaceful_annexation
 	is_triggered_only = yes
 	option = {
 		name = ottoman.21.a
-		add_to_faction = ETH
-		ai_chance = {
-			factor = 100
-		}
+		add_to_faction = FROM
 	}
 }
 
@@ -4930,15 +5117,13 @@ country_event = {
 	id = ottoman.22
 	title = ottoman.22.t
 	desc = ottoman.22.d
+	picture = GFX_report_event_spr_army_of_africa
 	is_triggered_only = yes
 	option = {
 		name = ottoman.22.a
 		create_wargoal = {
 			target = FROM
 			type = puppet_wargoal_focus
-		}
-		ai_chance = {
-			factor = 100
 		}
 	}
 }
@@ -4948,31 +5133,59 @@ country_event = {
 	id = ottoman.23
 	title = ottoman.23.t
 	desc = ottoman.23.d
+	picture = GFX_report_event_tur_turkish_soldiers
 	is_triggered_only = yes
 	option = {
 		name = ottoman.23.a
 		remove_ideas = FRA_idea_moroccan_intervention
 		effect_tooltip = {
-			TUR = {
+			FROM = {
 				add_to_faction = ROOT
 			}
 		}
 		hidden_effect = {
-			overlord = {
-				country_event = { id = ottoman.24 hours = 8 }
+			if = {
+				limit = {
+					is_subject = yes
+				}
+				OVERLORD = {
+					country_event = { id = ottoman.24 hours = 8 }
+				}
 			}
-			TUR = {
+			FROM = {
 				country_event = { id = ottoman.27 hours = 8 }
 			}
 		}
 		ai_chance = {
-			factor = 100
+			base = 10
+			modifier = {
+				add = 50
+				strength_ratio = {
+					target = FROM
+					ratio < 0.5
+				}
+			}
+			modifier = {
+				add = 25
+				has_government = FROM
+			}
+			modifier = {
+				add = 25
+				is_in_faction_with = FROM
+			}
+			modifier = {
+				add = 25
+				has_opinion = {
+					target = FROM
+					value > 30
+				}
+			}
 		}
 	}
 	option = {
 		name = ottoman.23.b
 		effect_tooltip = {
-			FROM = { 
+			FROM = {
 				create_wargoal = {
 					target = ROOT
 					type = annex_everything
@@ -4980,12 +5193,28 @@ country_event = {
 			}
 		}
 		hidden_effect = {
-			TUR = {
+			FROM = {
 				country_event = { id = ottoman.28 hours = 8 }
 			}
 		}
 		ai_chance = {
-			factor = 0
+			base = 25
+			modifier = {
+				add = 100
+				any_other_country = {
+					is_major = yes
+					has_guaranteed = PREV
+					NOT = { original_tag = TUR }
+				}
+			}
+			modifier = {
+				add = 100
+				any_other_country = {
+					is_major = yes
+					has_subject = PREV
+					NOT = { original_tag = TUR }
+				}
+			}
 		}
 	}
 }
@@ -4995,6 +5224,7 @@ country_event = {
 	id = ottoman.24
 	title = ottoman.24.t
 	desc = ottoman.24.d
+	picture = GFX_report_event_tur_turkish_soldiers
 	is_triggered_only = yes
 	option = {
 		name = ottoman.24.a
@@ -5015,7 +5245,22 @@ country_event = {
 			}
 		}
 		ai_chance = {
-			factor = 0
+			base = 25
+			modifier = {
+				add = 100
+				threat > 0.25
+			}
+			modifier = {
+				add = 100
+				threat > 0.50
+			}
+			modifier = {
+				add = -50
+				strength_ratio = {
+					tag = TUR
+					ratio > 1.5
+				}
+			}
 		}
 	}
 	option = {
@@ -5031,6 +5276,17 @@ country_event = {
 		}
 		ai_chance = {
 			factor = 100
+			modifier = {
+				factor = 0
+				has_war_with = FROM
+			}
+			modifier = {
+				factor = 0
+				has_opinion = {
+					target = FROM
+					value < 0
+				}
+			}
 		}
 	}
 }
@@ -5040,6 +5296,7 @@ country_event = {
 	id = ottoman.25
 	title = ottoman.25.t
 	desc = ottoman.25.d
+	picture = GFX_report_event_soldiers_marching
 	is_triggered_only = yes
 	option = {
 		name = ottoman.25.a
@@ -5051,6 +5308,7 @@ country_event = {
 	id = ottoman.26
 	title = ottoman.26.t
 	desc = ottoman.26.d
+	picture = GFX_report_event_generic_peaceful_annexation
 	is_triggered_only = yes
 	option = {
 		name = ottoman.26.a
@@ -5062,13 +5320,11 @@ country_event = {
 	id = ottoman.27
 	title = ottoman.27.t
 	desc = ottoman.27.d
+	picture = GFX_report_event_generic_peaceful_annexation
 	is_triggered_only = yes
 	option = {
 		name = ottoman.27.a
 		add_to_faction = MOR
-		ai_chance = {
-			factor = 100
-		}
 	}
 }
 
@@ -5077,15 +5333,13 @@ country_event = {
 	id = ottoman.28
 	title = ottoman.28.t
 	desc = ottoman.28.d
+	picture = GFX_report_event_spr_army_of_africa
 	is_triggered_only = yes
 	option = {
 		name = ottoman.28.a
 		create_wargoal = {
 			target = FROM
 			type = annex_everything
-		}
-		ai_chance = {
-			factor = 100
 		}
 	}
 }
@@ -5095,6 +5349,7 @@ country_event = {
 	id = ottoman.29
 	title = ottoman.29.t
 	desc = ottoman.29.d
+	picture = GFX_report_event_tur_turkish_soldiers
 	is_triggered_only = yes
 	option = {
 		name = ottoman.29.a
@@ -5105,17 +5360,39 @@ country_event = {
 				}
 				end_puppet = ROOT
 			}
-			TUR = {
+			FROM = {
 				add_to_faction = ROOT
 			}
 		}
 		hidden_effect = {
-			TUR = {
+			FROM = {
 				country_event = { id = ottoman.30 hours = 8 }
 			}
 		}
 		ai_chance = {
-			factor = 100
+			base = 10
+			modifier = {
+				add = 50
+				strength_ratio = {
+					target = FROM
+					ratio < 0.5
+				}
+			}
+			modifier = {
+				add = 25
+				has_government = FROM
+			}
+			modifier = {
+				add = 25
+				is_in_faction_with = FROM
+			}
+			modifier = {
+				add = 25
+				has_opinion = {
+					target = FROM
+					value > 30
+				}
+			}
 		}
 	}
 	option = {
@@ -5129,12 +5406,28 @@ country_event = {
 			}
 		}
 		hidden_effect = {
-			TUR = {
+			FROM = {
 				country_event = { id = ottoman.31 hours = 8 }
 			}
 		}
 		ai_chance = {
-			factor = 0
+			base = 25
+			modifier = {
+				add = 100
+				any_other_country = {
+					is_major = yes
+					has_guaranteed = PREV
+					NOT = { original_tag = TUR }
+				}
+			}
+			modifier = {
+				add = 100
+				any_other_country = {
+					is_major = yes
+					has_subject = PREV
+					NOT = { original_tag = TUR }
+				}
+			}
 		}
 	}
 }
@@ -5144,22 +5437,20 @@ country_event = {
 	id = ottoman.30
 	title = ottoman.30.t
 	desc = ottoman.30.d
+	picture = GFX_report_event_generic_peaceful_annexation
 	is_triggered_only = yes
 	option = {
 		name = ottoman.30.a
 		FROM = {
-			overlord = {
-				country_event = { id = ottoman.32 hours = 8 }
+			if = {
+				limit = {
+					is_subject = yes
+				}
+				overlord = {
+					country_event = { id = ottoman.32 hours = 8 }
+					end_puppet = PREV
+				}
 			}
-		}
-		every_country = {
-			limit = {
-				has_subject = FROM
-			}
-			end_puppet = FROM
-		}
-		ai_chance = {
-			factor = 100
 		}
 	}
 }
@@ -5169,15 +5460,13 @@ country_event = {
 	id = ottoman.31
 	title = ottoman.31.t
 	desc = ottoman.31.d
+	picture = GFX_report_event_chinese_soldiers_02
 	is_triggered_only = yes
 	option = {
 		name = ottoman.31.a
 		create_wargoal = {
 			target = FROM
 			type = annex_everything
-		}
-		ai_chance = {
-			factor = 100
 		}
 	}
 }
@@ -5187,6 +5476,7 @@ country_event = {
 	id = ottoman.32
 	title = ottoman.32.t
 	desc = ottoman.32.d
+	picture = GFX_report_event_chinese_soldiers_02
 	is_triggered_only = yes
 	option = {
 		name = ottoman.32.a
@@ -5200,7 +5490,22 @@ country_event = {
 			}
 		}
 		ai_chance = {
-			factor = 100
+			base = 25
+			modifier = {
+				add = 100
+				threat > 0.25
+			}
+			modifier = {
+				add = 100
+				threat > 0.50
+			}
+			modifier = {
+				add = -50
+				strength_ratio = {
+					tag = TUR
+					ratio > 1.5
+				}
+			}
 		}
 	}
 	option = {
@@ -5211,7 +5516,18 @@ country_event = {
 			}
 		}
 		ai_chance = {
-			factor = 0
+			factor = 100
+			modifier = {
+				factor = 0
+				has_war_with = FROM
+			}
+			modifier = {
+				factor = 0
+				has_opinion = {
+					target = FROM
+					value < 0
+				}
+			}
 		}
 	}
 }
@@ -5221,13 +5537,11 @@ country_event = {
 	id = ottoman.33
 	title = ottoman.33.t
 	desc = ottoman.33.d
+	picture = GFX_report_event_chinese_soldiers_02
 	is_triggered_only = yes
 	option = {
 		name = ottoman.33.a
 		add_to_faction = FROM
-		ai_chance = {
-			factor = 100
-		}
 	}
 }
 
@@ -5236,15 +5550,13 @@ country_event = {
 	id = ottoman.34
 	title = ottoman.34.t
 	desc = ottoman.34.d
+	picture = GFX_report_event_generic_peaceful_annexation
 	is_triggered_only = yes
 	option = {
 		name = ottoman.34.a
 		create_wargoal = {
 			target = FROM
 			type = annex_everything
-		}
-		ai_chance = {
-			factor = 100
 		}
 	}
 }
@@ -9164,9 +9476,11 @@ country_event = { #population exchange devestated ottomans
 					modifier = TUR_mass_looting
 					days = 35
 				}
-				damage_building = {
-    				type = infrastructure
-    				damage = 0.5
+				FROM = {
+					damage_building = {
+    					type = infrastructure
+    					damage = 0.5
+					}
 				}
 			}
 			set_country_flag = TUR_mass_looting_on_bulgarian_properties_flag
@@ -9183,9 +9497,11 @@ country_event = { #population exchange devestated ottomans
 					modifier = TUR_mass_looting
 					days = 35
 				}
-				damage_building = {
-    				type = infrastructure
-    				damage = 0.5
+				FROM = {
+					damage_building = {
+    					type = infrastructure
+    					damage = 0.5
+					}
 				}
 			}
 		}
@@ -10820,6 +11136,52 @@ country_event = { #egyptians get mad
 	}
 }
 
+
+country_event = { #elections hizb-i cedid
+	id = ottoman.152
+	title = ottoman.152.t
+	desc = ottoman.152.d
+	is_triggered_only = yes
+	picture = GFX_report_event_iww_demonstration
+	trigger = {
+		has_completed_focus = TUR_handling_inner_party_factionalism
+		is_power_balance_in_range = {
+    		id = TUR_inner_party_factionalism
+    		range = TUR_inner_party_factionalism_hizb_i_cedid_absolute_control
+		}
+	}
+	option = {
+		name = ottoman.152.a
+		promote_character = TUR_abdulaziz_mecdi
+	}
+	option = {
+		name = ottoman.152.b
+		promote_character = TUR_mehmet_sadik
+	}
+}
+
+country_event = { #elections hizb-i terakki
+	id = ottoman.153
+	title = ottoman.153.t
+	desc = ottoman.153.d
+	is_triggered_only = yes
+	picture = GFX_report_event_iww_demonstration
+	trigger = {
+		has_completed_focus = TUR_handling_inner_party_factionalism
+		is_power_balance_in_range = {
+    		id = TUR_inner_party_factionalism
+    		range = TUR_inner_party_factionalism_hizb_i_terakki_absolute_control
+		}
+	}
+	option = {
+		name = ottoman.153.a
+		promote_character = TUR_riza_nur
+	}
+	option = {
+		name = ottoman.153.b
+		promote_character = TUR_riza_tevfik
+	}
+}
 
 
 # GOEBEN AND BRESLAU NEWS
