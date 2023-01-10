@@ -7531,8 +7531,8 @@ country_event = {
 		name = ottoman.97.b
 		set_party_name = {
 			ideology = democratic
-			long_name = TUR_CUP_democratic2_long_party
-			name = TUR_CUP_democratic2_party
+			long_name = TUR_CUP_democratic_party_long
+			name = TUR_CUP_democratic_party
 		}
 		hidden_effect = {
 			set_country_flag = TUR_elected_itf
@@ -7540,7 +7540,7 @@ country_event = {
 	}
 }
 
-country_event = {
+country_event = { #liberal party elections
 	id = ottoman.98
 	title = ottoman.98.t
 	desc = ottoman.98.d
@@ -8347,6 +8347,9 @@ country_event = { #islamist victory in elections
     		id = TUR_conservative_liberal
     		range < TUR_conservative_liberal_conservative_balanced
 		}
+		NOT = {
+			has_country_flag = TUR_conservatives_in_charge
+		}
 	}
 	option = {
 		name = ottoman.118.a
@@ -8359,14 +8362,34 @@ country_event = { #islamist victory in elections
 			long_name = TUR_islamist_party_long
 			name = TUR_islamist_party
 		}
-		add_country_leader_role = {
-   		    character = TUR_said_i_nursi
-    		promote_leader = yes
-    		country_leader = {
-        		ideology = conservatism
-        		expire = "1965.1.1.1"
-        		traits = { islamist_modern_leader grand_vizier }
-    		}
+		if = {
+			limit = {
+				NOT = {
+					has_country_flag = TUR_said_i_nursi_leader
+					has_country_flag = TUR_mustafa_sabri_leader
+				}
+			}
+			add_country_leader_role = {
+   		        character = TUR_said_i_nursi
+    		    promote_leader = yes
+    		    country_leader = {
+        	    	ideology = conservatism
+        	    	expire = "1965.1.1.1"
+        	    	traits = { islamist_modern_leader grand_vizier }
+    		    }
+		    }
+		}
+		if = {
+			limit = {
+				has_country_flag = TUR_said_i_nursi_leader
+			}
+			promote_character = TUR_said_i_nursi
+		}
+		if = {
+			limit = {
+				has_country_flag = TUR_mustafa_sabri_leader
+			}
+			promote_character = TUR_mustafa_sabri
 		}
 		if = {
 			limit = {
@@ -8437,6 +8460,7 @@ country_event = { #islamist victory in elections
 			remove_ideas = TUR_autonomous_vilayets
 		}
 		mark_focus_tree_layout_dirty = yes
+		country_event = ottoman.164
 	}
 }
 
@@ -8453,6 +8477,9 @@ country_event = { #liberal victory in elections
     		range > TUR_conservative_liberal_conservative_balanced
 		}
 		has_country_flag = TUR_said_i_nursi_path
+		NOT = {
+			has_country_flag = TUR_liberals_in_charge
+		}
 	}
 	option = {
 		name = ottoman.119.a
@@ -11803,7 +11830,7 @@ country_event = { #arab demonstrations in mesapotamia
    		    progress > 0.07
 		}
 	}
-	picture = TUR_centralize_the_mesapotamian_vilayets
+	picture = GFX_report_event_arab_protests
 	immediate = {
 		hidden_effect = {
 			every_state = {
@@ -11861,6 +11888,115 @@ country_event = { #arab demonstrations in mesapotamia
 				}
 			}
 		}
+	}
+}
+
+country_event = { #asir rebellion
+	id = ottoman.163
+	title = ottoman.163.t
+	desc = ottoman.163.d
+	fire_only_once = yes
+	trigger = {
+		original_tag = TUR
+		any_owned_state = {
+			is_core_of = ASR
+		}
+		date > 1910.10.1
+		OR = {
+			747 = { has_dynamic_modifier = { modifier = TUR_arab_minority } }
+			662 = { has_dynamic_modifier = { modifier = TUR_arab_minority } }
+		}
+		NOT = {
+			country_exists = ASR
+			TUR = {
+				has_government = democratic
+				has_completed_focus = TUR_modern_islamism
+				has_completed_focus = TUR_power_of_the_caliph
+			}
+		}
+	}
+	picture = GFX_report_event_asir_rebellion
+	option = {
+		name = ottoman.163.a
+		set_global_flag = asir_rebellion
+		if = {
+			limit = {
+				owns_state = 747
+			}
+			747 = {
+				add_to_variable = { TUR_ottoman_resistance_target = 0.1 }
+				custom_effect_tooltip = TUR_ottoman_arab_minority_modify_resistance_target_10
+			}
+		}
+		if = {
+			limit = {
+				NOT = {
+					owns_state = 747
+				}
+				owns_state = 662
+			}
+			662 = {
+				add_to_variable = { TUR_ottoman_resistance_target = 0.1 }
+				custom_effect_tooltip = TUR_ottoman_arab_minority_modify_resistance_target_10
+			}
+		}
+		activate_mission = TUR_brewing_asir_rebellion
+		unlock_decision_tooltip = TUR_truce_with_asir
+	}
+}
+
+country_event = { #conservative party elections
+	id = ottoman.164
+	title = ottoman.164.t
+	desc = ottoman.164.d
+	is_triggered_only = yes
+	picture = GFX_report_event_conservative_party_elections
+	trigger = {
+		has_completed_focus = TUR_pardon_conservatives
+		is_power_balance_in_range = {
+    		id = TUR_conservative_liberal
+    		range < TUR_conservative_liberal_conservative_balanced
+		}
+		has_country_flag = TUR_conservatives_in_charge
+	}
+	option = {
+		name = ottoman.164.a
+		promote_character = TUR_said_i_nursi
+		set_country_flag = TUR_said_i_nursi_leader
+	}
+	option = {
+		name = ottoman.164.b
+		add_country_leader_role = {
+   		    character = TUR_mustafa_sabri
+    	    promote_leader = yes
+    	    country_leader = {
+            	ideology = conservatism
+        	   	expire = "1965.1.1.1"
+    	    	traits = { TUR_seyhulislam_leader grand_vizier }
+    	    }
+		}
+		set_country_flag = TUR_mustafa_sabri_leader
+	}
+}
+
+country_event = { #opposition merges into itf
+	id = ottoman.165
+	title = ottoman.165.t
+	desc = ottoman.165.d
+	is_triggered_only = yes
+	picture = GFX_report_event_jon_turkler
+	option = {
+		name = ottoman.165.a
+		set_party_name = {
+			ideology = democratic
+			long_name = TUR_CUP_democratic_party_long
+			name = TUR_CUP_democratic_party
+		}
+		add_popularity = {
+			ideology = neutrality
+			popularity = -0.05
+		}
+		set_country_flag = has_country_flag = opposition_merges_into_itf
 	}
 }
 
@@ -12808,6 +12944,7 @@ country_event = {
 		NOT = {
 			has_country_flag = itilaf_formed
 			has_completed_focus = TUR_trial_of_hif
+			has_country_flag = opposition_merges_into_itf
 		}
 	}
 	mean_time_to_happen = {

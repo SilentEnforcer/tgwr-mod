@@ -2097,6 +2097,93 @@ TUR_minority_decision = {
 			}
 		}
 	}
+	TUR_affirm_the_autonomy_of_sharifate_of_mecca = {
+		icon = GFX_decision_eng_trade_unions_support
+        cost = 25
+		fire_only_once = no
+		visible = {
+			has_completed_focus = TUR_appease_hejazi_and_yemeni_imams
+			controls_state = 679
+			679 = {
+				NOT = {
+					has_dynamic_modifier = { modifier = TUR_autonomous_region scope = TUR }
+					has_state_flag = TUR_autonomous_region_not_control
+					has_state_flag = TUR_autonomous_region
+				}
+			}
+		}
+		complete_effect = {
+			add_stability = 0.05
+			679 = {
+				remove_dynamic_modifier = { modifier = TUR_arab_minority }
+				clr_state_flag = TUR_arab_state
+				clr_state_flag = TUR_arab_state_nocontrol
+				add_dynamic_modifier = { modifier = TUR_autonomous_region scope = TUR }
+				set_state_flag = TUR_autonomous_region
+				if = {
+					limit = {
+						NOT = {
+							is_core_of = TUR
+						}
+					}
+					add_core_of = TUR
+				}
+				clear_variable = TUR_ottoman_resistance_target
+				clear_variable = TUR_ottoman_local_supplies_for_controller
+				clear_variable = TUR_ottoman_recruitable_population_factor
+			}
+			HJZ = {
+				add_opinion_modifier = {
+    				target = TUR
+    				modifier = TUR_respected_our_autonomy
+				}
+			}
+			hidden_effect = {
+				ottoman_minority_variable_check = yes
+			}
+		}
+	}
+	TUR_revoke_the_autonomy_of_sharifate_of_mecca = {
+		icon = GFX_decision_generic_break_treaty
+		allowed = {
+			original_tag = TUR
+		}
+		visible = {
+			NOT = {
+				has_completed_focus = TUR_appease_hejazi_and_yemeni_imams
+			}
+			controls_state = 679
+			679 = {
+				has_dynamic_modifier = { modifier = TUR_autonomous_region scope = TUR }
+			}
+		}
+		cost = 15
+		fire_only_once = yes
+		ai_will_do = {
+			base = 1000
+		}
+		complete_effect = {
+			add_stability = -0.05
+			679 = {
+				remove_dynamic_modifier = { modifier = TUR_autonomous_region scope = TUR }
+				if = {
+					limit = {
+						ROOT = {
+							NOT = { has_completed_focus = TUR_reinvigorate_conservatism_in_levant }
+						}
+					}
+					add_dynamic_modifier = { modifier = TUR_arab_minority }
+					set_state_flag = TUR_arab_state
+				}
+				set_variable = { TUR_ottoman_resistance_target = -0.15 }
+				set_variable = { TUR_ottoman_local_supplies_for_controller = -0.25 }
+				set_variable = { TUR_ottoman_recruitable_population_factor = -0.15 }
+			}
+			hidden_effect = {
+				ottoman_minority_variable_check = yes
+			}
+		}
+	}
 	TUR_increase_garrison_in_anatolia = {
 		icon = GFX_decision_generic_police_action
 		allowed = {
@@ -8375,16 +8462,14 @@ TUR_minority_decision = {
 			highlight_state_targets = { state = 352 }
 		}
 		on_map_mode = map_only
+		days_remove = 70
 		cancel_trigger = {
 			NOT = { 352 = { is_controlled_by = ROOT } }
 		}
 		visible = {
 			has_completed_focus = TUR_an_alliance_with_the_kurds
-			owns_state = 352
-			352 = { has_dynamic_modifier = { modifier = TUR_armenian_minority } }
-		}
-		available = {
 			controls_state = 352
+			352 = { has_dynamic_modifier = { modifier = TUR_armenian_minority } }
 		}
 		complete_effect = {
 			add_stability = -0.003
@@ -8563,16 +8648,14 @@ TUR_minority_decision = {
 			highlight_state_targets = { state = 828 }
 		}
 		on_map_mode = map_only
+		days_remove = 70
 		cancel_trigger = {
 			NOT = { 828 = { is_controlled_by = ROOT } }
 		}
 		visible = {
 			has_completed_focus = TUR_an_alliance_with_the_kurds
-			owns_state = 828
-			828 = { has_dynamic_modifier = { modifier = TUR_assyrian_minority } }
-		}
-		available = {
 			controls_state = 828
+			828 = { has_dynamic_modifier = { modifier = TUR_assyrian_minority } }
 		}
 		complete_effect = {
 			add_stability = -0.003
@@ -9200,7 +9283,7 @@ TUR_minority_decision = {
 		cancel_trigger = {
 			OR = {
 				country_exists = YEM
-				any_owned_state = {
+				all_owned_state = {
 					NOT = {
 						is_core_of = YEM
 					}
@@ -9208,6 +9291,38 @@ TUR_minority_decision = {
 			}
 		}
 		timeout_effect = {
+			hidden_effect = {
+				division_template = {
+					name = "Yemeni Rebel"
+					is_locked = yes
+					regiments = {
+						militia = {
+							x = 0
+							y = 0
+						}
+						militia = {
+							x = 0
+							y = 1
+						}
+						militia = {
+							x = 0
+							y = 2
+						}
+				    	militia = {
+				    		x = 1
+				    		y = 0
+				    	}
+				    	militia = {
+				    		x = 1
+					   		y = 1
+				    	}
+				    	militia = {
+				    		x = 1
+				    		y = 2
+				    	}
+				    }
+				}
+			}
 			if = {
 				limit = {
 					owns_state = 293
@@ -9218,19 +9333,45 @@ TUR_minority_decision = {
 				hidden_effect = {
 					add_state_claim = PREV
 				}
-				else = {
-					random_owned_state = {
-						limit = {
-							is_core_of = YEM
+				293 = {
+					create_unit = {
+						division = "name = \"1. Yemeni Rebel\" division_template = \"Yemeni Rebel\" start_experience_factor = 0.5"
+						owner = YEM
+					}
+					create_unit = {
+						division = "name = \"2. Yemeni Rebel\" division_template = \"Yemeni Rebel\" start_experience_factor = 0.5"
+						owner = YEM
+					}
+					create_unit = {
+						division = "name = \"3. Yemeni Rebel\" division_template = \"Yemeni Rebel\" start_experience_factor = 0.5"
+						owner = YEM
+					}
+				}
+			}
+			else = {
+				random_owned_state = {
+					limit = {
+						is_core_of = YEM
+					}
+					YEM = {
+						transfer_state = PREV
+					}
+					hidden_effect = {
+						ROOT = {
+							add_state_claim = PREV
 						}
-						YEM = {
-							transfer_state = PREV
-						}
-						hidden_effect = {
-							ROOT = {
-								add_state_claim = PREV
-							}
-						}
+					}
+					create_unit = {
+						division = "name = \"1. Yemeni Rebel\" division_template = \"Yemeni Rebel\" start_experience_factor = 0.5"
+						owner = YEM
+					}
+					create_unit = {
+						division = "name = \"2. Yemeni Rebel\" division_template = \"Yemeni Rebel\" start_experience_factor = 0.5"
+						owner = YEM
+					}
+					create_unit = {
+						division = "name = \"3. Yemeni Rebel\" division_template = \"Yemeni Rebel\" start_experience_factor = 0.5"
+						owner = YEM
 					}
 				}
 			}
@@ -9277,14 +9418,14 @@ TUR_minority_decision = {
 					NOT = {
 						is_historical_focus_on = yes
 					}
-					is_core_of = ALB
+					is_core_of = YEM
 					NOT = { has_dynamic_modifier = { modifier = TUR_arab_minority } }
 				}
 			}
 			modifier = {
 				add = 50
 				any_state = {
-					is_core_of = ALB
+					is_core_of = YEM
 					has_dynamic_modifier = { modifier = TUR_arab_minority }
 				}
 			}
@@ -9339,6 +9480,269 @@ TUR_minority_decision = {
 					load_oob = "YEM_1910"
 				}
 				ottoman_minority_variable_check = yes
+			}
+		}
+	}
+	TUR_brewing_asir_rebellion = {
+		allowed = {
+			original_tag = TUR
+		}
+		icon = GFX_decision_generic_ignite_civil_war
+		days_mission_timeout = 380
+		is_good = no
+		fire_only_once = yes
+		available = {
+			OR = {
+				has_decision = TUR_truce_with_asir
+				has_government = democratic
+				has_completed_focus = TUR_power_of_the_caliph
+				if = {
+					limit = {
+						has_completed_focus = TUR_modern_islamism
+					}
+					has_completed_focus = TUR_modern_islamism
+				}
+			}
+		}
+		activation = {
+			has_global_flag = asir_rebellion
+			any_controlled_state = {
+				is_core_of = ASR
+			}
+			NOT = {
+				country_exists = ASR
+			}
+		}
+		cancel_trigger = {
+			OR = {
+				country_exists = ASR
+				all_owned_state = {
+					NOT = {
+						is_core_of = ASR
+					}
+				}
+			}
+		}
+		complete_effect = {
+			if = {
+				limit = {
+					747 = {
+						check_variable = { TUR_ottoman_resistance_target > -0.15 }
+					}
+				}
+				747 = {
+					add_to_variable = { TUR_ottoman_resistance_target = -0.1 }
+					custom_effect_tooltip = TUR_ottoman_arab_minority_modify_resistance_target_10_2
+				}
+			}
+			if = {
+				limit = {
+					662 = {
+						check_variable = { TUR_ottoman_resistance_target > -0.15 }
+					}
+				}
+				662 = {
+					add_to_variable = { TUR_ottoman_resistance_target = -0.1 }
+					custom_effect_tooltip = TUR_ottoman_arab_minority_modify_resistance_target_10_2
+				}
+			}
+		}
+		timeout_effect = {
+			hidden_effect = {
+				division_template = {
+					name = "Asir Rebel"
+					is_locked = yes
+					regiments = {
+						militia = {
+							x = 0
+							y = 0
+						}
+						militia = {
+							x = 0
+							y = 1
+						}
+						militia = {
+							x = 0
+							y = 2
+						}
+				    	militia = {
+				    		x = 1
+				    		y = 0
+				    	}
+				    	militia = {
+				    		x = 1
+					   		y = 1
+				    	}
+				    	militia = {
+				    		x = 1
+				    		y = 2
+				    	}
+				    }
+				}
+			}
+			if = {
+				limit = {
+					owns_state = 747
+				}
+				ASR = {
+					transfer_state = 747
+				}
+				hidden_effect = {
+					add_state_claim = PREV
+				}
+				747 = {
+					create_unit = {
+						division = "name = \"1. Asir Rebel\" division_template = \"Asir Rebel\" start_experience_factor = 0.5"
+						owner = ASR
+					}
+					create_unit = {
+						division = "name = \"2. Asir Rebel\" division_template = \"Asir Rebel\" start_experience_factor = 0.5"
+						owner = ASR
+					}
+				}
+			}
+			else = {
+				random_owned_state = {
+					limit = {
+						is_core_of = ASR
+					}
+					ASR = {
+						transfer_state = ASR
+					}
+					hidden_effect = {
+						ROOT = {
+							add_state_claim = PREV
+						}
+					}
+					create_unit = {
+						division = "name = \"1. Asir Rebel\" division_template = \"Asir Rebel\" start_experience_factor = 0.5"
+						owner = ASR
+					}
+					create_unit = {
+						division = "name = \"2. Asir Rebel\" division_template = \"Asir Rebel\" start_experience_factor = 0.5"
+						owner = ASR
+					}
+				}
+			}
+			declare_war_on = {
+				target = ASR
+				type = annex_everything
+			}
+		}
+		complete_effect = {
+		}
+	}
+	TUR_truce_with_asir = {
+		icon = GFX_decision_generic_nationalism
+		allowed = {
+			original_tag = TUR
+		}
+		available = {
+			is_subject = no
+		}
+		visible = {
+			has_global_flag = asir_rebellion
+			ASR = {
+				exists = no
+			}
+			any_owned_state = {
+				is_core_of = ASR
+			}
+			has_active_mission = TUR_brewing_asir_rebellion
+		}
+		cost = 20
+		fire_only_once = yes
+		ai_will_do = {
+			base = 0
+			modifier = {
+				add = 1000
+				is_historical_focus_on = yes
+				any_other_country = {
+					is_major = yes
+					any_other_country = {
+						is_major = yes
+						has_war_with = PREV
+					}
+				}
+			}
+			modifier = {
+				factor = 0
+				any_state = {
+					NOT = {
+						is_historical_focus_on = yes
+					}
+					is_core_of = ASR
+					NOT = { has_dynamic_modifier = { modifier = TUR_arab_minority } }
+				}
+			}
+			modifier = {
+				add = 50
+				any_state = {
+					is_core_of = ASR
+					has_dynamic_modifier = { modifier = TUR_arab_minority }
+				}
+			}
+		}
+		complete_effect = {
+			set_country_flag = TUR_truce_with_asir
+			if = {
+				limit = {
+					747 = {
+						check_variable = { TUR_ottoman_resistance_target > -0.15 }
+					}
+				}
+				747 = {
+					add_to_variable = { TUR_ottoman_resistance_target = -0.1 }
+					custom_effect_tooltip = TUR_ottoman_arab_minority_modify_resistance_target_10_2
+				}
+			}
+			if = {
+				limit = {
+					662 = {
+						check_variable = { TUR_ottoman_resistance_target > -0.15 }
+					}
+				}
+				662 = {
+					add_to_variable = { TUR_ottoman_resistance_target = -0.1 }
+					custom_effect_tooltip = TUR_ottoman_arab_minority_modify_resistance_target_10_2
+				}
+			}
+			add_political_power = -100
+			if = {
+				limit = {
+					has_government = neutrality
+				}
+				add_popularity = {
+					ideology = neutrality
+					popularity = -0.1
+				}
+			}
+			if = {
+				limit = {
+					has_government = fascism
+				}
+				add_popularity = {
+					ideology = fascism
+					popularity = -0.1
+				}
+			}
+			if = {
+				limit = {
+					has_government = democratic
+				}
+				add_popularity = {
+					ideology = democratic
+					popularity = -0.1
+				}
+			}
+			if = {
+				limit = {
+					has_government = communism
+				}
+				add_popularity = {
+					ideology = communism
+					popularity = -0.1
+				}
 			}
 		}
 	}
@@ -9414,15 +9818,13 @@ TUR_minority_decision = {
 		allowed = {
 			original_tag = TUR
 		}
-		available = {
-			is_subject = no
-		}
 		visible = {
 			has_country_flag = TUR_ratify_grece_memorendum
 		}
 		cost = 150
 		fire_only_once = yes
 		available = {
+			is_subject = no
 			any_controlled_state = {
 				is_core_of = ALB
 			}
@@ -9465,6 +9867,156 @@ TUR_minority_decision = {
 			hidden_effect = {
 				ottoman_minority_variable_check = yes
 			}
+		}
+	}
+	TUR_resource_excavation_rights_in_autonomous_regions = {
+		icon = generic_break_treaty
+		allowed = {
+			original_tag = TUR
+		}
+		available = {
+			has_completed_focus = TUR_adem_i_merkeziyetcilik
+		}
+		visible = {
+			has_completed_focus = TUR_status_of_autonomy
+			check_variable = { TUR_ottoman_autonomy_local_resources_factor < 0.15 }
+		}
+		days_re_enable = 70
+		cost = 30
+		fire_only_once = yes
+		ai_will_do = {
+			base = 0
+		}
+		complete_effect = {
+			custom_effect_tooltip = TUR_resource_excavation_rights_in_autonomous_regions_tt
+			add_to_variable = { TUR_ottoman_autonomy_local_resources_factor = 0.05 }
+			add_to_variable = { TUR_ottoman_autonomy_resistance_target = 0.05 }
+			add_to_variable = { TUR_autonomous_state_stability_value = -0.001 }
+		}
+	}
+	TUR_limited_resource_excavation_in_autonomous_regions = {
+		icon = generic_break_treaty
+		allowed = {
+			original_tag = TUR
+		}
+		available = {
+			has_completed_focus = TUR_adem_i_merkeziyetcilik
+		}
+		visible = {
+			has_completed_focus = TUR_status_of_autonomy
+			check_variable = { TUR_ottoman_autonomy_local_resources_factor > 0 }
+		}
+		days_re_enable = 70
+		cost = 30
+		fire_only_once = yes
+		ai_will_do = {
+			base = 0
+		}
+		complete_effect = {
+			custom_effect_tooltip = TUR_limited_resource_excavation_in_autonomous_regions_tt
+			add_to_variable = { TUR_ottoman_autonomy_local_resources_factor = 0.05 }
+			add_to_variable = { TUR_ottoman_autonomy_resistance_target = 0.05 }
+			add_to_variable = { TUR_autonomous_state_stability_value = 0.001 }
+		}
+	}
+	TUR_state_ownership_for_autonomous_region_factories = {
+		icon = generic_break_treaty
+		allowed = {
+			original_tag = TUR
+		}
+		available = {
+			has_completed_focus = TUR_adem_i_merkeziyetcilik
+		}
+		visible = {
+			has_completed_focus = TUR_status_of_autonomy
+			check_variable = { TUR_ottoman_autonomy_local_factories < 0.15 }
+		}
+		days_re_enable = 70
+		cost = 30
+		fire_only_once = yes
+		ai_will_do = {
+			base = 0
+		}
+		complete_effect = {
+			custom_effect_tooltip = TUR_state_ownership_for_autonomous_region_factories_tt
+			add_to_variable = { TUR_ottoman_autonomy_local_factories = 0.05 }
+			add_to_variable = { TUR_ottoman_autonomy_resistance_target = 0.05 }
+			add_to_variable = { TUR_autonomous_state_stability_value = -0.001 }
+		}
+	}
+	TUR_private_ownership_for_autonomous_region_factories = {
+		icon = generic_break_treaty
+		allowed = {
+			original_tag = TUR
+		}
+		available = {
+			has_completed_focus = TUR_adem_i_merkeziyetcilik
+		}
+		visible = {
+			has_completed_focus = TUR_status_of_autonomy
+			check_variable = { TUR_ottoman_autonomy_local_factories > 0 }
+		}
+		days_re_enable = 70
+		cost = 30
+		fire_only_once = yes
+		ai_will_do = {
+			base = 0
+		}
+		complete_effect = {
+			custom_effect_tooltip = TUR_private_ownership_for_autonomous_region_factories_tt
+			add_to_variable = { TUR_ottoman_autonomy_local_factories = -0.05 }
+			add_to_variable = { TUR_ottoman_autonomy_resistance_target = 0.05 }
+			add_to_variable = { TUR_autonomous_state_stability_value = 0.001 }
+		}
+	}
+	TUR_increase_conscription_for_autonomous_regions = {
+		icon = generic_break_treaty
+		allowed = {
+			original_tag = TUR
+		}
+		available = {
+			has_completed_focus = TUR_adem_i_merkeziyetcilik
+		}
+		visible = {
+			has_completed_focus = TUR_status_of_autonomy
+			check_variable = { TUR_ottoman_autonomy_recruitable_population_factor < 0.15 }
+		}
+		days_re_enable = 70
+		cost = 30
+		fire_only_once = yes
+		ai_will_do = {
+			base = 0
+		}
+		complete_effect = {
+			custom_effect_tooltip = TUR_state_ownership_for_autonomous_region_factories_tt
+			add_to_variable = { TUR_ottoman_autonomy_recruitable_population_factor = 0.05 }
+			add_to_variable = { TUR_ottoman_autonomy_resistance_target = 0.05 }
+			add_to_variable = { TUR_autonomous_state_stability_value = -0.001 }
+		}
+	}
+	TUR_conscription_exceptions_for_autonomous_regions = {
+		icon = generic_break_treaty
+		allowed = {
+			original_tag = TUR
+		}
+		available = {
+			has_completed_focus = TUR_adem_i_merkeziyetcilik
+		}
+		visible = {
+			has_completed_focus = TUR_status_of_autonomy
+			check_variable = { TUR_ottoman_autonomy_recruitable_population_factor > 0 }
+		}
+		days_re_enable = 70
+		cost = 30
+		fire_only_once = yes
+		ai_will_do = {
+			base = 0
+		}
+		complete_effect = {
+			custom_effect_tooltip = TUR_private_ownership_for_autonomous_region_factories_tt
+			add_to_variable = { TUR_ottoman_autonomy_recruitable_population_factor = -0.05 }
+			add_to_variable = { TUR_ottoman_autonomy_resistance_target = 0.05 }
+			add_to_variable = { TUR_autonomous_state_stability_value = 0.001 }
 		}
 	}
 }
