@@ -176,38 +176,38 @@ GER_prepare_war_with_FRA = {
 
 #######################
 # IF RUSSIA IS IN CIVIL WAR, redirect all troops to western front !
-#                 \..,.-
-#                 .\   |         __     _-.   .--/
-#                 .|    .-     /  .;, ./   `-| 
-#           _      _|      \__/..    -. 
-#          \ ...\|   X Hamburg        
-#           |                           
-#          /                            
-#         -.                           
-#          \  X Rheine      Berlin X    
-#       __/                              
-#      |                                 
-#      |                                 
-#     /                                   	  _-._ .-.
-#     \     X Cologne        Dresden  X . ,-./    -   \-.
-#      \                            ._-. .               \-_
-#     /                        __.-/
-#     |         X Frankfurt    \
-#      \                        \
-#       \                        \
-#       .                         \
-#        |                        \.
-#         -                         ,.
-#         /                      ./
-#         \         Munich X     |
-#          |,......,__  __,  __.-. 
-#                    \/   -/     ..
+#				 \..,.-
+#				 .\   |		 __	 _-.   .--/
+#				 .|	.-	 /  .;, ./   `-| 
+#		   _	  _|	  \__/..	-. 
+#		  \ ...\|   X Hamburg		
+#		   |						   
+#		  /							
+#		 -.						   
+#		  \  X Rheine	  Berlin X	
+#	   __/							  
+#	  |								 
+#	  |								 
+#	 /								   	  _-._ .-.
+#	 \	 X Cologne		Dresden  X . ,-./	-   \-.
+#	  \							._-. .			   \-_
+#	 /						__.-/
+#	 |		 X Frankfurt	\
+#	  \						\
+#	   \						\
+#	   .						 \
+#		|						\.
+#		 -						 ,.
+#		 /					  ./
+#		 \		 Munich X	 |
+#		  |,......,__  __,  __.-. 
+#					\/   -/	 ..
 #
-#	     /
+#		 /
 #		/===================
-#      |		GO IN THIS DIRECTION
-#       \===================
-#        \
+#	  |		GO IN THIS DIRECTION
+#	   \===================
+#		\
 #
 #############################
 GER_rush_on_FRA = {
@@ -220,6 +220,7 @@ GER_rush_on_FRA = {
 		BEL = {
 			OR = {
 				has_capitulated = yes
+				ROOT = { controls_state = 6 }
 				has_war = no
 			}
 
@@ -240,6 +241,9 @@ GER_rush_on_FRA = {
 				NOT = {
 					has_war_with = GER
 				}
+				ROOT = {
+					has_idea = schlieffenmoltke
+				}
 			}
 		}
 		stockpile_ratio = {	## more than 5% of the armies equipment must be in reserves
@@ -251,6 +255,7 @@ GER_rush_on_FRA = {
 	abort = {
 		OR = {
 			# We won the world war
+			has_global_flag = FRA_capitulation
 			has_country_flag = great_war_winner
 			## The war is over with France
 			NOT = {
@@ -378,22 +383,27 @@ GER_dont_help_AUH = {
 	}
 	abort = {
 		OR = {
-			AUH = { surrender_progress > 0.20 }	
+			AUH = { surrender_progress > 0.30 }	
 			has_war_with = AUH
 			AUH = {
-				has_war_with = HUN
+				OR = {
+					has_war_with = ITA
+					has_war_with = ROM
+					has_war_with = HUN
+					surrender_progress > 0.10
+				}
 			}
 		}
 	}
 	ai_strategy = {
 		type = front_unit_request
 		tag = AUH
-		value = -999999
+		value = -4000
 	}
 	ai_strategy = {
 		type = dont_defend_ally_borders
 		id = AUH
-		value = 999999
+		value = 4000
 	}
 	
 }
@@ -538,10 +548,11 @@ GER_rush_on_BEL = {
 				opponent = FRA
 				thousands > 1000
 			}
-			# schlieffen
+			# schlieffen failed
 			NOT = { has_idea = schlieffenmoltke }
 			# Belgium surrendered
-			BEL = { has_capitulated = yes }
+			# They would immediately stop the offensive after they capitulate so removed this
+			# BEL = { has_capitulated = yes }
 		}
 	}
 
@@ -607,7 +618,10 @@ GER_dont_help_ITA = {
 	abort_when_not_enabled = yes
 	abort = {
 		OR = {
-			AUH = { surrender_progress > 0.5 }
+			AUH = {
+				has_war_with = ITA
+				surrender_progress > 0.3
+			}
 			any_state = {
 				is_core_of = ROOT
 				is_controlled_by = ITA
@@ -694,7 +708,10 @@ GER_ignore_romania = {
 	}
 	abort = {
 		OR = {
-			AUH = { surrender_progress > 0.5 }	
+			AUH = {
+				has_war_with = ROM
+				surrender_progress > 0.3
+			}	
 			ROM = {
 				is_in_faction_with = RUS
 			}
@@ -739,7 +756,10 @@ GER_ignore_serbia = {
 	}
 	abort = {
 		OR = {
-			AUH = { surrender_progress > 0.5 }	
+			AUH = {
+				has_war_with = SER
+				surrender_progress > 0.3
+			}	
 			any_state = {
 				is_core_of = ROOT
 				is_controlled_by = SER
@@ -1485,7 +1505,11 @@ GER_beware_soviets_if_not_communist = {
 	enable = {
 		original_tag = GER
 		SOV = { exists = yes }
-		NOT = { has_government = communism }
+		NOT = {
+			has_government = communism
+			# Don't afford to put some garrison
+			has_war_with = FRA
+		}
 	}
 	abort_when_not_enabled = yes
 	ai_strategy = {
@@ -1503,16 +1527,19 @@ GER_no_invasions = {
 	enable = {
 		original_tag = GER
 	}
+	abort = {
+		has_global_flag = great_war_ends
+	}
 	ai_strategy = {
-        type = invasion_unit_request
-        country_trigger = { always = yes }
-        value = -99999
-    }
+		type = invasion_unit_request
+		country_trigger = { always = yes }
+		value = -99999
+	}
 
 	ai_strategy = {
-        type = invasion_unit_request
-        value = -99999
-    }
+		type = invasion_unit_request
+		value = -99999
+	}
 
 }	
 ingore_russian_civil_war = {
