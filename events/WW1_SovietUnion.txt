@@ -366,7 +366,7 @@ country_event = {
 		}
 		if = {
 			limit = {
-				has_country_leader_trait = controversy_over_legitimacy
+				has_country_leader_with_trait = controversy_over_legitimacy
 			}
 			remove_country_leader_trait = controversy_over_legitimacy
 		}
@@ -897,10 +897,10 @@ country_event = {
 								is_owned_by = PREV
 							}
 						}
-						random_other_country = {
+						random_country = {
 							limit = {
 								original_tag = BLR
-								is_subject_of = PREV
+								is_subject_of = PREV.PREV
 							}
 							set_state_controller = PREV
 						}
@@ -920,10 +920,10 @@ country_event = {
 								is_owned_by = PREV
 							}
 						}
-						random_other_country = {
+						random_country = {
 							limit = {
 								original_tag = UKR
-								is_subject_of = PREV
+								is_subject_of = PREV.PREV
 							}
 							set_state_controller = PREV
 						}
@@ -1015,12 +1015,44 @@ country_event = {
 		POL = {
 			country_event = ww1_soviet.45
 		}
-		ai_chance = { factor = 100 }
+		ai_chance = {
+			base = 100
+		}
 	}
 	option = {
 		name = ww1_soviet.18.b #no
 		POL = { country_event = ww1_soviet.19 }
-		ai_chance = { factor = 0 }
+		ai_chance = {
+			base = 0
+			# Poland is surronded
+			modifier = {
+				add = 70
+				GER = {
+					is_in_faction_with = ROOT
+					has_war_with = POL
+				}
+			}
+			# Russian civil war is over already
+			modifier = {
+				add = 40
+				NOT = { has_war_with = RUS }
+			}
+			# Socialism is already spreading in Europe
+			modifier = {
+				add = 20
+				any_other_country = {
+					is_subject = no
+					NOT = { is_in_faction_with = ROOT }
+					is_neighbor_of = POL
+					has_government = communism
+				}
+			}
+			# Not afford to wage it more
+			modifier = {
+				factor = 0
+				surrender_progress > 0.10
+			}
+		}
 	}
 }
 
@@ -1212,6 +1244,26 @@ country_event = {
 		}
 		
 		SOV = {
+			hidden_effect = {
+				if = {
+					limit = {
+						NOT = {
+							has_cosmetic_tag = SOV_union
+						}
+						OR = {
+							any_other_country = {
+								original_tag = UKR
+								is_subject_of = PREV
+							}
+							any_other_country = {
+								original_tag = BLR
+								is_subject_of = PREV
+							}
+						}
+					}
+					country_event = ww1_soviet.47
+				}
+			}
 			add_stability = -0.10
 			add_political_power = -100
 		}
@@ -2625,6 +2677,29 @@ country_event = {
 				transfer_state_to = GER
 			}
 		}
+
+		hidden_effect = {
+			SOV = {
+				if = {
+					limit = {
+						NOT = {
+							has_cosmetic_tag = SOV_union
+						}
+						OR = {
+							any_other_country = {
+								original_tag = UKR
+								is_subject_of = PREV
+							}
+							any_other_country = {
+								original_tag = BLR
+								is_subject_of = PREV
+							}
+						}
+					}
+					country_event = ww1_soviet.47
+				}
+			}
+		}
 		
 		every_state = {
 			limit = {
@@ -2640,6 +2715,7 @@ country_event = {
 		FRA = {
 			if = {
 				limit = {
+					exists = yes
 					has_country_flag = great_war_winner
 				}
 				country_event = ww1_soviet.38
@@ -2721,6 +2797,28 @@ country_event = {
 				transfer_state_to = PREV
 			}
 		}
+		hidden_effect = {
+			SOV = {
+				if = {
+					limit = {
+						NOT = {
+							has_cosmetic_tag = SOV_union
+						}
+						OR = {
+							any_other_country = {
+								original_tag = UKR
+								is_subject_of = PREV
+							}
+							any_other_country = {
+								original_tag = BLR
+								is_subject_of = PREV
+							}
+						}
+					}
+					country_event = ww1_soviet.47
+				}
+			}
+		}
 	}
 	option = {
 		name = ww1_soviet.46.b
@@ -2731,6 +2829,104 @@ country_event = {
 		}
 		ai_chance = {
 			factor = 0
+		}
+	}
+}
+
+# Ukrainian SSR and Belorusian SSR border
+country_event = {
+	id = ww1_soviet.47
+	hidden = yes
+	is_triggered_only = yes
+	immediate = {
+		every_country = {
+			limit = {
+				OR = {
+					original_tag = SOV
+					is_subject_of = SOV
+					has_country_flag = riga_peace
+				}
+			}
+			every_owned_state = {
+				limit = {
+					is_core_of = UKR
+					NOT = {
+						state = 94
+						state = 194
+						state = 222
+						state = 240
+						state = 241
+						state = 808
+					}
+				}
+				every_country = {
+					limit = {
+						original_tag = UKR
+						OR = {
+							is_subject_of = SOV
+							is_in_faction_with = SOV
+						}
+					}
+					transfer_state = PREV
+				}
+			}
+			every_controlled_state = {
+				limit = {
+					is_core_of = UKR
+					NOT = {
+						is_owned_by = PREV
+						state = 94
+						state = 194
+						state = 222
+						state = 240
+						state = 241
+						state = 808
+					}
+				}
+				every_country = {
+					limit = {
+						original_tag = UKR
+						OR = {
+							is_subject_of = SOV
+							is_in_faction_with = SOV
+						}
+					}
+					set_state_controller = PREV
+				}
+			}
+			every_owned_state = {
+				limit = {
+					is_core_of = BLR
+				}
+				every_country = {
+					limit = {
+						original_tag = BLR
+						OR = {
+							is_subject_of = SOV
+							is_in_faction_with = SOV
+						}
+					}
+					transfer_state = PREV
+				}
+			}
+			every_controlled_state = {
+				limit = {
+					is_core_of = BLR
+					NOT = {
+						is_owned_by = PREV
+					}
+				}
+				every_country = {
+					limit = {
+						original_tag = BLR
+						OR = {
+							is_subject_of = SOV
+							is_in_faction_with = SOV
+						}
+					}
+					set_state_controller = PREV
+				}
+			}
 		}
 	}
 }
