@@ -525,6 +525,12 @@ country_event = {
 			has_full_control_of_state = 113
 			has_full_control_of_state = 135
 		}
+		NOT = { 
+			has_country_leader = {
+				character = ENG_walter_long #Walter Long will not accept surrender.
+				ruling_only = yes
+			}
+		}
 	}
 	mean_time_to_happen = {
 		days = 5
@@ -4645,7 +4651,34 @@ country_event = {
 					type = annex_everything
 				}
 			}
+			if = {
+				limit = {
+					ENG = { 
+						has_character = ENG_robert_badenpowell
+						NOT = { is_subject_of = GER }
+					}
+				}
+				ENG = {
+					ENG_robert_badenpowell = {
+						promote_leader = yes
+						remove_unit_leader_trait = old_guard
+						remove_unit_leader_trait = trait_royalist
+						set_nationality = KEN
+					}
+				}
+			}
 			KEN = {
+				if = {
+					limit = { has_character = ENG_robert_badenpowell }
+					add_country_leader_role = {
+					    character = ENG_robert_badenpowell
+					    promote_leader = yes
+					    country_leader = {
+					        ideology = authoritarian_democracy
+					        traits = { cornered_fox exiled }
+					    }
+					}
+				}
 				add_country_leader_trait = standing_alone
 				add_ideas = ENG_colonist_militia
 				division_template = {
@@ -4734,14 +4767,6 @@ country_event = {
 		name = ww1_england.99.a
 		hidden_effect = {
 			set_country_flag = eng_ken_revolt
-			ENG = {
-				every_unit_leader = {
-					limit = {
-						has_id = 808
-					}
-					set_nationality = KEN
-				}
-			}
 		}
 	}
 }
@@ -8607,7 +8632,7 @@ country_event = {
 	id = ww1_england.189
 	title = ww1_england.189.t
 	desc = ww1_england.189.d
-	#picture =
+	picture = GFX_report_event_african_soldiers
 	fire_only_once = yes
 	trigger = {
 		original_tag = ENG
@@ -8666,7 +8691,7 @@ country_event = {
 	id = ww1_england.190
 	title = ww1_england.190.t
 	desc = ww1_england.190.d
-	picture = GFX_report_event_generic_military_parade
+	picture = GFX_report_event_spr_army_of_africa
 	fire_only_once = yes
 	trigger = {
 		tag = ENG
@@ -9721,11 +9746,12 @@ country_event = {
 	id = ww1_england.217
 	title = ww1_england.217.t
 	desc = ww1_england.217.d
-	#picture =
+	picture = GFX_report_event_british_artillery
 	trigger = {
 		original_tag = ENG
 		has_global_flag = kis_war
 		has_war = yes	
+		has_capitulated = no
 		if = {
 			limit = {
 				is_historical_focus_on = yes
@@ -9756,7 +9782,7 @@ country_event = {
 	id = ww1_england.218
 	title = ww1_england.218.t	
 	desc = ww1_england.218.d
-	#picture =
+	picture = GFX_report_event_british_artillery
 	is_triggered_only = yes
 	fire_only_once = yes
 	option = {
@@ -9931,9 +9957,7 @@ country_event = {
 #Frank Crozier goes to Lithuania
 country_event = {
 	id = ww1_england.223
-	title = ww1_england.223.t
-	desc = ww1_england.223.d
-	#picture =
+	hidden = yes
 	trigger = {
 		original_tag = ENG
 		NOT = { has_country_flag = great_war_loser }
@@ -9956,24 +9980,8 @@ country_event = {
 	}
 	fire_only_once = yes
 	option = {
-		name = ww1_england.223.a
-		add_advisor_role = {
-			character = ENG_frank_crozier
-			advisor = {
-				slot = army_chief
-				idea_token = ENG_frank_crozier
-				traits = {
-					army_chief_reform_2
-				}
-			available = { NOT = { has_war_with = ENG } }
-			}
-		}
 		ENG_frank_crozier = {
-			set_nationality = LIT
-		}
-		LIT = { 
-			army_experience = 35 
-			activate_advisor = ENG_frank_crozier
+			unit_leader_event = { ww1_england.243 }
 		}
 	}
 }
@@ -9992,6 +10000,7 @@ country_event = {
 			has_country_flag = great_war_winner
 			has_country_flag = great_war_loser
 		}
+		has_country_flag = british_suffered_in_ww1
 	}
 	mean_time_to_happen = { days = 15 }
 	option = {
@@ -11560,5 +11569,56 @@ country_event = {
 	option = {
 		name = ww1_england.241.a
 		add_political_power = -20
+	}
+}
+
+# To check that Brithsh suffered in the Great War
+country_event = {
+	id = ww1_england.242
+	hidden = yes
+	trigger = {
+		original_tag = ENG
+		OR = {
+			has_war_with = FRA
+			has_war_with = ENG
+		}
+		has_global_flag = kis_war
+		NOT = { has_global_flag = interbellum }
+		casualties_k > 10
+	}
+	immediate = {
+		set_country_flag = british_suffered_in_ww1
+	}
+	fire_only_once = yes
+}
+
+#trying something out here
+country_event = {
+	id = ww1_england.243
+	title = ww1_england.223.t
+	desc = ww1_england.223.d
+	#picture =
+ 	is_triggered_only = yes
+	fire_only_once = yes
+	option = {
+		name = ww1_england.223.a
+		add_advisor_role = {
+			character = ENG_frank_crozier
+			advisor = {
+				slot = army_chief
+				idea_token = ENG_frank_crozier
+				traits = {
+					army_chief_reform_2
+				}
+			available = { NOT = { has_war_with = ENG } }
+			}
+		}
+		ENG_frank_crozier = {
+			set_nationality = LIT
+		}
+		LIT = { 
+			army_experience = 35 
+			activate_advisor = ENG_frank_crozier
+		}
 	}
 }
