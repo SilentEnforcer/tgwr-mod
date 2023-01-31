@@ -12,6 +12,7 @@ country_event = {
 		has_country_flag = great_war_winner
 		has_war = no
 		has_global_flag = versallies_treaty
+		has_global_flag = occupation_of_rhineland
 		has_country_leader = {
 			character = RUS_nikolai_ii
 			ruling_only = no
@@ -221,79 +222,17 @@ news_event = {
 						}
 						remove_core_of = GER
 						add_core_of = PREV
-						if = {
-							limit = {
-								OR = {
-									is_owned_by = GER
-									is_owned_by = FRA
-									is_owned_by = ENG
-									is_owned_by = BEL
-									is_owned_by = HOL
-									is_owned_by = HAN
-								}
-							}
-							if = {
-								limit = {
-									is_owned_by = BEL
-									NOT = {
-										is_core_of = BEL
-									}
-								}
-								transfer_state_to = PREV
-								if = {
-									limit = {
-										BEL = { has_country_flag = great_war_winner }
-									}
-									BEL = { give_guarantee = PREV }
-									PREV = { give_military_access = BEL }
-								}
-							}
-							else_if = {
-								limit = {
-									is_owned_by = HOL
-									NOT = {
-										is_core_of = HOL
-									}
-								}
-								transfer_state_to = PREV
-								if = {
-									limit = {
-										HOL = { has_country_flag = great_war_winner }
-									}
-									HOL = { give_guarantee = PREV }
-									PREV = { give_military_access = HOL }
-								}
-							}
-							else_if = {
-								limit = {
-									ENG = {
-										has_country_flag = great_war_winner
-										has_country_flag = agreed_on_treaty_of_berlin
-									}
-								}
-								ENG = { give_guarantee = PREV }
-								PREV = { give_military_access = ENG }
-								transfer_state_to = PREV
-							}
-							else = {
-								transfer_state_to = PREV
-							}
-						}
+						remove_claim_by = FRA
 					}
 					every_state = {
 						limit = {
-							is_owned_by = PREV
-							is_claimed_by = FRA
+							is_core_of = PREV
+							OR = {
+								is_owned_by = GER
+								is_owned_by = HAN
+							}
 						}
-						remove_claim_by = FRA
-					}
-					if = {
-						limit = {
-							owns_state = 869
-						}
-						869 = {
-							transfer_state_to = FRA
-						}
+						transfer_state_to = PREV
 					}
 					FRA = {
 						if = {
@@ -1818,5 +1757,69 @@ country_event = {
 	option = {
 		name = prussian.31.b
 		add_political_power = -50
+	}
+}
+
+# Rhineland Occupation End?
+################################
+country_event = {
+	id = prussian.32
+	title = prussian.32.t
+	desc = prussian.32.d
+	picture = GFX_report_event_generic_peaceful_annexation
+	trigger = {
+		has_country_flag = great_war_winner
+		has_global_flag = treaty_of_berlin
+		OR = {
+			owns_state = 51
+			owns_state = 343
+		}
+		NOT = { original_tag = FRA }
+	}
+	fire_only_once = yes
+	option = {
+		name = prussian.32.a
+		every_owned_state = {
+			limit = {
+				is_core_of = RHN
+				NOT = { state = 793 }
+			}
+			transfer_state_to = RHN
+			RHN = {
+				give_resource_rights = {
+					receiver = ROOT
+					state = PREV
+				}
+				give_military_access = ROOT
+			}
+		}
+		give_guarantee = RHN
+		add_offsite_building = { type = industrial_complex level = 1 }
+		ai_chance = {
+			factor = 10
+			trigger = {
+				factor = 0
+				51 = { is_owned_by = ROOT is_core_of = ROOT }
+			}
+		}
+	}
+	option = {
+		name = prussian.32.b
+		if = {
+			limit = {
+				any_owned_state = {
+					is_core_of = RHN
+					NOT = { is_core_of = ROOT }
+				}
+			}
+			add_political_power = -25
+		}
+		ai_chance = {
+			base = 0
+			trigger = {
+				add = 10
+				51 = { is_owned_by = ROOT is_core_of = ROOT }
+			}
+		}
 	}
 }
