@@ -13474,6 +13474,47 @@ crisis = {
 			country_event = ottoman.172
 		}
 	}
+	TUR_munition_crisis = {
+		allowed = {
+			original_tag = TUR
+		}
+		icon = GFX_decision_generic_scorched_earth
+		days_mission_timeout = 365
+		fire_only_once = yes
+		is_good = no
+		available = {
+			has_equipment = {
+    			infantry_equipment_1 > 0
+			}
+			has_equipment = {
+    			artillery_equipment > 0
+			}
+			has_equipment = {
+    			howitzer_equipment > 0
+			}
+		}
+		timeout_effect = {
+			effect_tooltip = {
+				add_political_power = -300
+				retire_country_leader = yes
+				uncomplete_national_focus = {
+  					focus = TUR_undermine_democracy
+  					uncomplete_children = yes
+  					refund_political_power = no
+				}
+				complete_national_focus = TUR_protect_democracy
+				promote_character = TUR_ahmet_izzet
+			}
+			country_event = ottoman.207
+		}
+		activation = {
+			always = no
+		}
+		complete_effect = {
+			remove_ideas = TUR_munition_shortages
+			add_political_power = 50
+		}
+	}
 }
 
 TUR_local_conscription = {
@@ -13699,56 +13740,27 @@ political_actions = {
 			}
 		}
 	}
-	#	TUR_dissolve_meclis_saviour_officers = {
-	#		allowed = {
-	#			original_tag = TUR
-	#		}
-	#		fire_only_once = yes
-	#		cost = 100
-	#		days_remove = 20
-	#		visible = {
-	#			NOT = {
-	#				has_country_flag = meclis_dissolved
-	#			}
-	#			OR = {
-	#				has_country_leader = {
-	#					name = "Ahmed Muhtar Paşa"
-	#					ruling_only = yes
-	#				}
-	#				has_country_leader = {
-	#					name = "Mehmed Kamil Paşa"
-	#					ruling_only = yes
-	#				}
-	#			}
-	#			has_idea = TUR_government_without_majority
-	#		}
-	#		remove_effect = {
-	#			custom_effect_tooltip = "Meclis will be dissolved."
-	#			set_country_flag = meclis_dissolved
-	#			add_stability = -0.05
-	#			add_popularity = {
-	#				ideology = democratic
-	#				popularity = -0.02
-	#			}
-	#			remove_ideas = TUR_government_without_majority
-	#		}
-	#		ai_will_do = {
-	#			factor = 1000
-	#		}
-	#	}
 	TUR_army_modernization_decision = {
 		allowed = {
 			tag = TUR
 		}
 		icon = generic_army_support
-		custom_cost_text = TUR_decision_cost_10armyxp
+		custom_cost_text = TUR_decision_cost_armyxp
 		custom_cost_trigger = {
-			has_army_experience > 9.99
+			if = {
+				limit = {
+					has_completed_focus = TUR_import_foreign_advisors
+				}
+				has_army_experience > 9.99
+			}
+			else = {
+				has_army_experience > 29.99
+			}
 		}
 		fire_only_once = no
 		days_re_enable = 25
 		visible = {
-			has_completed_focus = TUR_uniform_reform
+			has_completed_focus = TUR_uniform_reforms
 			OR = {
 				has_idea = TUR_army_of_bygone_era
 				has_idea = TUR_army_of_bygone_era_2
@@ -17872,14 +17884,18 @@ TUR_economy_decision = {
 			factor = 0
 		}
 	}
-	TUR_buy_ger_infantry_weapons = {
+	TUR_buy_FROM_infantry_weapons = {
 		icon = generic_industry
 		allowed = {
 			tag = TUR
 		}
 		target_trigger = {
 			FROM = {
-				tag = GER
+				OR = {
+					tag = GER
+					tag = ENG
+					tag = FRA
+				}
 			}
 		}
 		cancel_trigger = {
@@ -17888,7 +17904,7 @@ TUR_economy_decision = {
 			}
 		}
 		available = {
-			GER = {
+			FROM = {
 				has_opinion = {
 					target = ROOT
 					value > 0
@@ -17908,14 +17924,36 @@ TUR_economy_decision = {
 					}
 				}
 			}
+			if = {
+				limit = {
+					has_war = yes
+					alliance_naval_strength_ratio > 1
+				}
+				any_other_country = {
+					OR = {
+						original_tag = FROM
+					    is_in_faction_with = FROM
+					}
+					any_owned_state = {
+						is_in_home_area = yes
+					}
+					is_neighbor_of = TUR
+				}
+			}
 		}
 		cost = 10
 		fire_only_once = no
 		days_remove = 60
 		days_re_enable = 72
 		visible = {
-			GER = {
+			FROM = {
 				exists = yes
+				if = {
+					limit = {
+						tag = FRA
+					}
+					has_completed_focus = TUR_new_weapon_contracts
+				}
 			}
 			has_variable = opda_lira
 			NOT = {
@@ -17936,199 +17974,26 @@ TUR_economy_decision = {
 				TUR_add_debt_0295 = yes
 			}
 			else = {
-				TUR_add_debt_5880 = yes
+				TUR_add_debt_0590 = yes
 			}
 		}
 		remove_effect = {
-			add_equipment_to_stockpile = {
-				type = infantry_equipment_0
-				amount = 7000
-				producer = GER
-			}
-		}
-		ai_will_do = {
-			factor = 0.1
-			modifier = {
-				OR = {
-					num_of_civilian_factories < 5
-					stockpile_ratio = {
-						archetype = infantry_equipment
-						ratio > 1
-					}
-				}
-				factor = 0
-			}
-			modifier = {
-				has_war = yes
-				factor = 10
-			}
-		}
-	}
-	TUR_buy_eng_infantry_weapons = {
-		icon = generic_industry
-		allowed = {
-			tag = TUR
-		}
-		target_trigger = {
-			FROM = {
-				tag = ENG
-			}
-		}
-		cancel_trigger = {
-			NOT = {
-				has_variable = opda_lira
-			}
-		}
-		available = {
-			ENG = {
-				has_opinion = {
-					target = ROOT
-					value > 0
-				}
-			}
-			NOT = {
-				has_war_with = FROM
-			}
-			NOT = {
-				has_country_flag = has_active_purchase_contract
-			}
-			NOT = {
-				custom_trigger_tooltip = {
-					tooltip = TUR_OPDA_trigger_tooltip
-					NOT = {
-						has_variable = opda_lira
-					}
-				}
-			}
-		}
-		cost = 10
-		fire_only_once = no
-		days_remove = 60
-		days_re_enable = 72
-		visible = {
-			ENG = {
-				exists = yes
-			}
-			has_variable = opda_lira
 			if = {
 				limit = {
-				    has_focus_tree = turkey2_focus_tree
+					has_completed_focus = TUR_import_madness
 				}
-				FROM = {
-					has_country_flag = great_war_winner
-				}
-				has_completed_focus = TUR_purchase_guns
-			}
-			NOT = {
-				has_focus_tree = turkey_focus_tree
-			}
-		}
-		complete_effect = {
-			set_country_flag = {
-				flag = has_active_purchase_contract
-				days = 60
-				value = 1
-			}
-			TUR_add_debt_5880 = yes
-		}
-		remove_effect = {
-			add_equipment_to_stockpile = {
-				type = infantry_equipment_1
-				amount = 5550
-				producer = ENG
-			}
-		}
-		ai_will_do = {
-			factor = 0.1
-			modifier = {
-				OR = {
-					num_of_civilian_factories < 5
-					stockpile_ratio = {
-						archetype = infantry_equipment
-						ratio > 1
-					}
-				}
-				factor = 0
-			}
-			modifier = {
-				has_war = yes
-				factor = 10
-			}
-		}
-	}
-	TUR_buy_fra_infantry_weapons = {
-		icon = generic_industry
-		allowed = {
-			tag = TUR
-		}
-		target_trigger = {
-			FROM = {
-				tag = FRA
-			}
-		}
-		cancel_trigger = {
-			NOT = {
-				has_variable = opda_lira
-			}
-		}
-		available = {
-			FRA = {
-				has_opinion = {
-					target = ROOT
-					value > 0
+				add_equipment_to_stockpile = {
+					type = infantry_equipment_0
+					amount = 7000
+					producer = FROM
 				}
 			}
-			NOT = {
-				has_war_with = FROM
-			}
-			NOT = {
-				has_country_flag = has_active_purchase_contract
-			}
-			NOT = {
-				custom_trigger_tooltip = {
-					tooltip = TUR_OPDA_trigger_tooltip
-					NOT = {
-						has_variable = opda_lira
-					}
+			else = {
+				add_equipment_to_stockpile = {
+					type = infantry_equipment_0
+					amount = 5000
+					producer = FROM
 				}
-			}
-		}
-		cost = 10
-		fire_only_once = no
-		days_remove = 50
-		days_re_enable = 72
-		visible = {
-			FRA = {
-				exists = yes
-			}
-			has_completed_focus = TUR_import_dependence
-			has_variable = opda_lira
-			if = {
-				limit = {
-				    has_focus_tree = turkey2_focus_tree
-				}
-				FROM = {
-					has_country_flag = great_war_winner
-				}
-				has_completed_focus = TUR_purchase_guns
-			}
-			NOT = {
-				has_focus_tree = turkey_focus_tree
-			}
-		}
-		complete_effect = {
-			set_country_flag = {
-				flag = has_active_purchase_contract
-				days = 60
-				value = 1
-			}
-			TUR_add_debt_5880 = yes
-		}
-		remove_effect = {
-			add_equipment_to_stockpile = {
-				type = infantry_equipment_0
-				amount = 3000
-				producer = FRA
 			}
 		}
 		ai_will_do = {
@@ -18150,14 +18015,17 @@ TUR_economy_decision = {
 		}
 	}
 	### support weapons
-	TUR_buy_ger_support_weapons = {
-		icon = generic_industry
+	TUR_buy_FROM_support_weapons = {
+		icon = GFX_decision_aluminium
 		allowed = {
 			tag = TUR
 		}
 		target_trigger = {
 			FROM = {
-				tag = GER
+				OR = {
+					tag = GER
+					tag = ENG
+				}
 			}
 		}
 		cancel_trigger = {
@@ -18166,7 +18034,7 @@ TUR_economy_decision = {
 			}
 		}
 		available = {
-			GER = {
+			FROM = {
 				has_opinion = {
 					target = ROOT
 					value > 0
@@ -18186,16 +18054,32 @@ TUR_economy_decision = {
 					}
 				}
 			}
+			if = {
+				limit = {
+					has_war = yes
+					alliance_naval_strength_ratio > 1
+				}
+				any_other_country = {
+					OR = {
+						original_tag = FROM
+					    is_in_faction_with = FROM
+					}
+					any_owned_state = {
+						is_in_home_area = yes
+					}
+					is_neighbor_of = TUR
+				}
+			}
 		}
 		cost = 10
 		fire_only_once = no
 		days_remove = 30
 		days_re_enable = 60
 		visible = {
-			GER = {
+			FROM = {
 				exists = yes
 			}
-			has_completed_focus = TUR_import_dependence
+			has_completed_focus = TUR_new_weapon_contracts
 			has_variable = opda_lira
 		}
 		complete_effect = {
@@ -18211,14 +18095,26 @@ TUR_economy_decision = {
 				TUR_add_debt_0295 = yes
 			}
 			else = {
-				TUR_add_debt_5880 = yes
+				TUR_add_debt_0590 = yes
 			}
 		}
 		remove_effect = {
-			add_equipment_to_stockpile = {
-				type = support_equipment
-				amount = 75
-				producer = GER
+			if = {
+				limit = {
+					has_completed_focus = TUR_import_madness
+				}
+				add_equipment_to_stockpile = {
+					type = support_equipment
+					amount = 500
+					producer = FROM
+				}
+			}
+			else = {
+				add_equipment_to_stockpile = {
+					type = support_equipment
+					amount = 350
+					producer = FROM
+				}
 			}
 		}
 		ai_will_do = {
@@ -18237,430 +18133,21 @@ TUR_economy_decision = {
 				has_war = yes
 				factor = 10
 			}
-		}
-	}
-	TUR_buy_eng_support_weapons = {
-		icon = generic_industry
-		allowed = {
-			tag = TUR
-		}
-		target_trigger = {
-			FROM = {
-				tag = ENG
-			}
-		}
-		cancel_trigger = {
-			NOT = {
-				has_variable = opda_lira
-			}
-		}
-		available = {
-			ENG = {
-				has_opinion = {
-					target = ROOT
-					value > 0
-				}
-			}
-			NOT = {
-				has_war_with = FROM
-			}
-			NOT = {
-				has_country_flag = has_active_purchase_contract
-			}
-			NOT = {
-				custom_trigger_tooltip = {
-					tooltip = TUR_OPDA_trigger_tooltip
-					NOT = {
-						has_variable = opda_lira
-					}
-				}
-			}
-		}
-		cost = 10
-		fire_only_once = no
-		days_remove = 45
-		days_re_enable = 65
-		visible = {
-			ENG = {
-				exists = yes
-			}
-			has_completed_focus = TUR_import_dependence
-			has_variable = opda_lira
-		}
-		complete_effect = {
-			set_country_flag = {
-				flag = has_active_purchase_contract
-				days = 60
-				value = 1
-			}
-			TUR_add_debt_5880 = yes
-		}
-		remove_effect = {
-			add_equipment_to_stockpile = {
-				type = support_equipment
-				amount = 75
-				producer = ENG
-			}
-		}
-		ai_will_do = {
-			factor = 0.1
-			modifier = {
-				OR = {
-					num_of_civilian_factories < 5
-					has_equipment = {
-						support_equipment > 500
-					}
-					has_idea = TUR_dependence_on_imported_weapons_4
-				}
-				factor = 0
-			}
-			modifier = {
-				has_war = yes
-				factor = 10
-			}
-		}
-	}
-	TUR_buy_ger_fighter_weapons = {
-		icon = generic_industry
-		allowed = {
-			tag = TUR
-		}
-		target_trigger = {
-			FROM = {
-				tag = GER
-			}
-		}
-		cancel_trigger = {
-			NOT = {
-				has_variable = opda_lira
-			}
-		}
-		available = {
-			GER = {
-				has_opinion = {
-					target = ROOT
-					value > 0
-				}
-			}
-			NOT = {
-				has_war_with = FROM
-			}
-			NOT = {
-				has_country_flag = has_active_purchase_contract
-			}
-			NOT = {
-				custom_trigger_tooltip = {
-					tooltip = TUR_OPDA_trigger_tooltip
-					NOT = {
-						has_variable = opda_lira
-					}
-				}
-			}
-		}
-		cost = 10
-		fire_only_once = no
-		days_remove = 30
-		days_re_enable = 60
-		visible = {
-			GER = {
-				exists = yes
-			}
-			has_completed_focus = TUR_import_aircrafts
-			has_variable = opda_lira
-		}
-		complete_effect = {
-			set_country_flag = {
-				flag = has_active_purchase_contract
-				days = 60
-				value = 1
-			}
-			if = {
-				limit = {
-					has_completed_focus = TUR_german_ottoman_arms_deal
-				}
-				TUR_add_debt_0295 = yes
-			}
-			TUR_add_debt_0885 = yes
-		}
-		remove_effect = {
-			add_equipment_to_stockpile = {
-				type = fighter_equipment
-				amount = 20
-				producer = GER
-			}
-			add_equipment_to_stockpile = {
-				type = airship_bomber_equipment
-				amount = 10
-				producer = GER
-			}
-		}
-		ai_will_do = {
-			factor = 0.1
-			modifier = {
-				OR = {
-					num_of_civilian_factories < 5
-					has_equipment = {
-						fighter_equipment > 20
-					}
-					has_idea = TUR_dependence_on_imported_weapons_4
-				}
-				factor = 0
-			}
-			modifier = {
-				has_war = yes
-				factor = 10
-			}
-		}
-	}
-	TUR_buy_fra_fighter_weapons = {
-		icon = generic_industry
-		allowed = {
-			tag = TUR
-		}
-		target_trigger = {
-			FROM = {
-				tag = FRA
-			}
-		}
-		cancel_trigger = {
-			NOT = {
-				has_variable = opda_lira
-			}
-		}
-		available = {
-			GER = {
-				has_opinion = {
-					target = ROOT
-					value > 0
-				}
-			}
-			NOT = {
-				has_war_with = FROM
-			}
-			NOT = {
-				has_country_flag = has_active_purchase_contract
-			}
-			NOT = {
-				custom_trigger_tooltip = {
-					tooltip = TUR_OPDA_trigger_tooltip
-					NOT = {
-						has_variable = opda_lira
-					}
-				}
-			}
-		}
-		cost = 10
-		fire_only_once = no
-		days_remove = 30
-		days_re_enable = 60
-		visible = {
-			FRA = {
-				exists = yes
-			}
-			has_completed_focus = TUR_import_aircrafts
-			has_variable = opda_lira
-		}
-		complete_effect = {
-			set_country_flag = {
-				flag = has_active_purchase_contract
-				days = 60
-				value = 1
-			}
-			TUR_add_debt_0885 = yes
-		}
-		remove_effect = {
-			add_equipment_to_stockpile = {
-				type = fighter_equipment
-				amount = 10
-				producer = FRA
-			}
-			add_equipment_to_stockpile = {
-				type = scout_plane_equipment
-				amount = 7
-				producer = FRA
-			}
-			add_equipment_to_stockpile = {
-				type = airship_bomber_equipment
-				amount = 4
-				producer = FRA
-			}
-		}
-		ai_will_do = {
-			factor = 0.1
-			modifier = {
-				OR = {
-					num_of_civilian_factories < 5
-					has_equipment = {
-						fighter_equipment > 20
-					}
-					has_idea = TUR_dependence_on_imported_weapons_4
-				}
-				factor = 0
-			}
-			modifier = {
-				has_war = yes
-				factor = 10
-			}
-		}
-	}
-	### Heavy artillery
-	TUR_buy_fra_howitzer = {
-		icon = GFX_decision_ger_military_buildup
-		allowed = {
-			tag = TUR
-		}
-		target_trigger = {
-			FROM = {
-				tag = FRA
-			}
-		}
-		cancel_trigger = {
-			NOT = {
-				has_variable = opda_lira
-			}
-		}
-		available = {
-			FRA = {
-				has_opinion = {
-					target = ROOT
-					value > 0
-				}
-			}
-			NOT = {
-				has_war_with = FROM
-			}
-			NOT = {
-				has_country_flag = has_active_purchase_contract
-			}
-			NOT = {
-				custom_trigger_tooltip = {
-					tooltip = TUR_OPDA_trigger_tooltip
-					NOT = {
-						has_variable = opda_lira
-					}
-				}
-			}
-		}
-		cost = 10
-		fire_only_once = no
-		days_remove = 60
-		days_re_enable = 180
-		visible = {
-			FRA = {
-				exists = yes
-			}
-			has_variable = opda_lira
-			NOT = {
-				has_focus_tree = turkey2_focus_tree
-				has_focus_tree = turkey_focus_tree
-			}
-		}
-		complete_effect = {
-			set_country_flag = {
-				flag = has_active_purchase_contract
-				days = 60
-				value = 1
-			}
-			TUR_add_debt_5880 = yes
-		}
-		remove_effect = {
-			add_equipment_to_stockpile = {
-				type = howitzer_equipment
-				amount = 47
-				producer = FRA
-			}
-		}
-		ai_will_do = {
-			factor = 0
-		}
-	}
-	TUR_buy_ger_howitzer = {
-		icon = GFX_decision_ger_military_buildup
-		allowed = {
-			tag = TUR
-		}
-		target_trigger = {
-			FROM = {
-				tag = GER
-			}
-		}
-		cancel_trigger = {
-			NOT = {
-				has_variable = opda_lira
-			}
-		}
-		available = {
-			GER = {
-				has_opinion = {
-					target = ROOT
-					value > 0
-				}
-			}
-			NOT = {
-				has_war_with = FROM
-			}
-			NOT = {
-				has_country_flag = has_active_purchase_contract
-			}
-			NOT = {
-				custom_trigger_tooltip = {
-					tooltip = TUR_OPDA_trigger_tooltip
-					NOT = {
-						has_variable = opda_lira
-					}
-				}
-			}
-		}
-		cost = 10
-		fire_only_once = no
-		days_remove = 60
-		days_re_enable = 180
-		visible = {
-			GER = {
-				exists = yes
-			}
-			has_variable = opda_lira
-			NOT = {
-				has_focus_tree = turkey2_focus_tree
-				has_focus_tree = turkey_focus_tree
-			}
-		}
-		complete_effect = {
-			set_country_flag = {
-				flag = has_active_purchase_contract
-				days = 60
-				value = 1
-			}
-			if = {
-				limit = {
-					has_completed_focus = TUR_german_ottoman_arms_deal
-				}
-				TUR_add_debt_0295 = yes
-			}
-			else = {
-				TUR_add_debt_5880 = yes
-			}
-		}
-		remove_effect = {
-			add_equipment_to_stockpile = {
-				type = howitzer_equipment
-				amount = 76
-				producer = GER
-			}
-		}
-		ai_will_do = {
-			factor = 0
 		}
 	}
 	### Artillery
-	TUR_buy_eng_field_artillery = {
+	TUR_buy_FROM_field_artillery = {
 		icon = GFX_decision_generic_artillery_icon
 		allowed = {
 			tag = TUR
 		}
 		target_trigger = {
 			FROM = {
-				tag = ENG
+				OR = {
+					tag = GER
+					tag = ENG
+					tag = AUH
+				}
 			}
 		}
 		cancel_trigger = {
@@ -18669,7 +18156,7 @@ TUR_economy_decision = {
 			}
 		}
 		available = {
-			ENG = {
+			FROM = {
 				has_opinion = {
 					target = ROOT
 					value > 0
@@ -18687,6 +18174,22 @@ TUR_economy_decision = {
 					NOT = {
 						has_variable = opda_lira
 					}
+				}
+			}
+			if = {
+				limit = {
+					has_war = yes
+					alliance_naval_strength_ratio > 1
+				}
+				any_other_country = {
+					OR = {
+						original_tag = FROM
+					    is_in_faction_with = FROM
+					}
+					any_owned_state = {
+						is_in_home_area = yes
+					}
+					is_neighbor_of = TUR
 				}
 			}
 		}
@@ -18695,7 +18198,132 @@ TUR_economy_decision = {
 		days_remove = 60
 		days_re_enable = 124
 		visible = {
-			ENG = {
+			FROM = {
+				exists = yes
+				if = {
+					limit = {
+						OR = {
+							tag = GER
+							tag = AUH
+						}
+					}
+					has_completed_focus = TUR_new_weapon_contracts
+				}
+			}
+			has_variable = opda_lira
+			NOT = {
+				has_focus_tree = turkey2_focus_tree
+				has_focus_tree = turkey_focus_tree
+			}
+		}
+		complete_effect = {
+			set_country_flag = {
+				flag = has_active_purchase_contract
+				days = 60
+				value = 1
+			}
+			TUR_add_debt_0590 = yes
+		}
+		remove_effect = {
+			if = {
+				limit = {
+					has_completed_focus = TUR_import_madness
+				}
+				add_equipment_to_stockpile = {
+					type = artillery_equipment
+					amount = 250
+					producer = FROM
+				}
+			}
+			else = {
+				add_equipment_to_stockpile = {
+					type = artillery_equipment
+					amount = 200
+					producer = FROM
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 0.1
+			modifier = {
+				OR = {
+					num_of_civilian_factories < 5
+					has_equipment = {
+						artillery_equipment > 100
+					}
+					has_idea = TUR_dependence_on_imported_weapons_4
+				}
+				factor = 0
+			}
+			modifier = {
+				has_war = yes
+				factor = 10
+			}
+		}
+	}
+	### Howitzer
+	TUR_buy_FROM_howitzer = {
+		icon = GFX_decision_ger_military_buildup
+		allowed = {
+			tag = TUR
+		}
+		target_trigger = {
+			FROM = {
+				OR = {
+					tag = GER
+					tag = FRA
+				}
+			}
+		}
+		cancel_trigger = {
+			NOT = {
+				has_variable = opda_lira
+			}
+		}
+		available = {
+			FROM = {
+				has_opinion = {
+					target = ROOT
+					value > 0
+				}
+			}
+			NOT = {
+				has_war_with = FROM
+			}
+			NOT = {
+				has_country_flag = has_active_purchase_contract
+			}
+			NOT = {
+				custom_trigger_tooltip = {
+					tooltip = TUR_OPDA_trigger_tooltip
+					NOT = {
+						has_variable = opda_lira
+					}
+				}
+			}
+			if = {
+				limit = {
+					has_war = yes
+					alliance_naval_strength_ratio > 1
+				}
+				any_other_country = {
+					OR = {
+						original_tag = FROM
+					    is_in_faction_with = FROM
+					}
+					any_owned_state = {
+						is_in_home_area = yes
+					}
+					is_neighbor_of = TUR
+				}
+			}
+		}
+		cost = 10
+		fire_only_once = no
+		days_remove = 60
+		days_re_enable = 180
+		visible = {
+			FROM = {
 				exists = yes
 			}
 			has_variable = opda_lira
@@ -18710,212 +18338,42 @@ TUR_economy_decision = {
 				days = 60
 				value = 1
 			}
-			TUR_add_debt_5880 = yes
+			TUR_add_debt_0590 = yes
 		}
 		remove_effect = {
-			add_equipment_to_stockpile = {
-				type = artillery_equipment
-				amount = 128
-				producer = ENG
-			}
-		}
-		ai_will_do = {
-			factor = 0.1
-			modifier = {
-				OR = {
-					num_of_civilian_factories < 5
-					has_equipment = {
-						artillery_equipment > 100
-					}
-					has_idea = TUR_dependence_on_imported_weapons_4
-				}
-				factor = 0
-			}
-			modifier = {
-				has_war = yes
-				factor = 10
-			}
-		}
-	}
-	TUR_buy_auh_field_artillery = {
-		icon = GFX_decision_generic_artillery_icon
-		allowed = {
-			tag = TUR
-		}
-		target_trigger = {
-			FROM = {
-				tag = FRA
-			}
-		}
-		cancel_trigger = {
-			NOT = {
-				has_variable = opda_lira
-			}
-		}
-		available = {
-			FRA = {
-				has_opinion = {
-					target = ROOT
-					value > 0
-				}
-			}
-			NOT = {
-				has_war_with = FROM
-			}
-			NOT = {
-				has_country_flag = has_active_purchase_contract
-			}
-			NOT = {
-				custom_trigger_tooltip = {
-					tooltip = TUR_OPDA_trigger_tooltip
-					NOT = {
-						has_variable = opda_lira
-					}
-				}
-			}
-		}
-		cost = 10
-		fire_only_once = no
-		days_remove = 55
-		days_re_enable = 180
-		visible = {
-			FRA = {
-				exists = yes
-			}
-			has_completed_focus = TUR_heavy_artillery
-			has_variable = opda_lira
-		}
-		complete_effect = {
-			set_country_flag = {
-				flag = has_active_purchase_contract
-				days = 60
-				value = 1
-			}
-			TUR_add_debt_5880 = yes
-		}
-		remove_effect = {
-			add_equipment_to_stockpile = {
-				type = artillery_equipment
-				amount = 86
-				producer = FRA
-			}
-		}
-		ai_will_do = {
-			factor = 0.1
-			modifier = {
-				OR = {
-					num_of_civilian_factories < 5
-					has_equipment = {
-						artillery_equipment > 100
-					}
-					has_idea = TUR_dependence_on_imported_weapons_4
-				}
-				factor = 0
-			}
-			modifier = {
-				has_war = yes
-				factor = 10
-			}
-		}
-	}
-	TUR_buy_ger_field_artillery = {
-		icon = GFX_decision_generic_artillery_icon
-		allowed = {
-			tag = TUR
-		}
-		target_trigger = {
-			FROM = {
-				tag = GER
-			}
-		}
-		cancel_trigger = {
-			NOT = {
-				has_variable = opda_lira
-			}
-		}
-		available = {
-			GER = {
-				has_opinion = {
-					target = ROOT
-					value > 0
-				}
-			}
-			NOT = {
-				has_war_with = FROM
-			}
-			NOT = {
-				has_country_flag = has_active_purchase_contract
-			}
-			NOT = {
-				custom_trigger_tooltip = {
-					tooltip = TUR_OPDA_trigger_tooltip
-					NOT = {
-						has_variable = opda_lira
-					}
-				}
-			}
-		}
-		cost = 10
-		fire_only_once = no
-		days_remove = 60
-		days_re_enable = 180
-		visible = {
-			GER = {
-				exists = yes
-			}
-			has_completed_focus = TUR_heavy_artillery
-			has_variable = opda_lira
-		}
-		complete_effect = {
-			set_country_flag = {
-				flag = has_active_purchase_contract
-				days = 60
-				value = 1
-			}
 			if = {
 				limit = {
-					has_completed_focus = TUR_german_ottoman_arms_deal
+					has_completed_focus = TUR_import_madness
 				}
-				TUR_add_debt_0295 = yes
+				add_equipment_to_stockpile = {
+					type = howitzer_equipment
+					amount = 150
+					producer = FROM
+				}
 			}
 			else = {
-				TUR_add_debt_5880 = yes
-			}
-		}
-		remove_effect = {
-			add_equipment_to_stockpile = {
-				type = artillery_equipment
-				amount = 285
-				producer = GER
+				add_equipment_to_stockpile = {
+					type = howitzer_equipment
+					amount = 100
+					producer = FROM
+				}
 			}
 		}
 		ai_will_do = {
-			factor = 0.1
-			modifier = {
-				OR = {
-					num_of_civilian_factories < 5
-					has_equipment = {
-						artillery_equipment > 100
-					}
-					has_idea = TUR_dependence_on_imported_weapons_4
-				}
-				factor = 0
-			}
-			modifier = {
-				has_war = yes
-				factor = 10
-			}
+			factor = 0
 		}
 	}
-	### transport
-	TUR_buy_usa_transport = {
-		icon = generic_industry
+	### Motorized Transport
+	TUR_buy_FROM_transport = {
+		icon = GFX_decision_generic_trucks
 		allowed = {
 			tag = TUR
 		}
 		target_trigger = {
 			FROM = {
 				OR = {
+					tag = GER
+					tag = FRA
 					tag = USA
 					tag = CSA
 					tag = USB
@@ -18948,6 +18406,22 @@ TUR_economy_decision = {
 					}
 				}
 			}
+			if = {
+				limit = {
+					has_war = yes
+					alliance_naval_strength_ratio > 1
+				}
+				any_other_country = {
+					OR = {
+						original_tag = FROM
+					    is_in_faction_with = FROM
+					}
+					any_owned_state = {
+						is_in_home_area = yes
+					}
+					is_neighbor_of = TUR
+				}
+			}
 		}
 		cost = 10
 		fire_only_once = no
@@ -18958,7 +18432,7 @@ TUR_economy_decision = {
 				exists = yes
 				has_tech = motorised_infantry
 			}
-			has_completed_focus = TUR_import_dependence
+			has_completed_focus = TUR_new_weapon_contracts
 			has_variable = opda_lira
 		}
 		complete_effect = {
@@ -18970,9 +18444,132 @@ TUR_economy_decision = {
 			TUR_add_debt_0885 = yes
 		}
 		remove_effect = {
+			if = {
+				limit = {
+					has_completed_focus = TUR_import_madness
+				}
+				add_equipment_to_stockpile = {
+					type = motorized_equipment
+					amount = 250
+					producer = FROM
+				}
+			}
+			else = {
+				add_equipment_to_stockpile = {
+					type = motorized_equipment
+					amount = 175
+					producer = FROM
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 0.1
+			modifier = {
+				OR = {
+					num_of_civilian_factories < 5
+					has_equipment = {
+						motorized_equipment > 200
+					}
+					has_idea = TUR_dependence_on_imported_weapons_4
+				}
+				factor = 0
+			}
+			modifier = {
+				has_war = yes
+				factor = 10
+			}
+		}
+	}
+	### Aircraft
+	TUR_buy_FROM_fighter_weapons = {
+		icon = GFX_decision_generic_air
+		allowed = {
+			tag = TUR
+		}
+		target_trigger = {
+			FROM = {
+				OR = {
+					tag = GER
+					tag = FRA
+				}
+			}
+		}
+		cancel_trigger = {
+			NOT = {
+				has_variable = opda_lira
+			}
+		}
+		available = {
+			FROM = {
+				has_opinion = {
+					target = ROOT
+					value > 0
+				}
+			}
+			NOT = {
+				has_war_with = FROM
+			}
+			NOT = {
+				has_country_flag = has_active_purchase_contract
+			}
+			NOT = {
+				custom_trigger_tooltip = {
+					tooltip = TUR_OPDA_trigger_tooltip
+					NOT = {
+						has_variable = opda_lira
+					}
+				}
+			}
+			if = {
+				limit = {
+					has_war = yes
+					alliance_naval_strength_ratio > 1
+				}
+				any_other_country = {
+					OR = {
+						original_tag = FROM
+					    is_in_faction_with = FROM
+					}
+					any_owned_state = {
+						is_in_home_area = yes
+					}
+					is_neighbor_of = TUR
+				}
+			}
+		}
+		cost = 10
+		fire_only_once = no
+		days_remove = 30
+		days_re_enable = 60
+		visible = {
+			FROM = {
+				exists = yes
+			}
+			has_variable = opda_lira
+		}
+		complete_effect = {
+			set_country_flag = {
+				flag = has_active_purchase_contract
+				days = 60
+				value = 1
+			}
+			if = {
+				limit = {
+					has_completed_focus = TUR_german_ottoman_arms_deal
+				}
+				TUR_add_debt_0295 = yes
+			}
+			TUR_add_debt_0885 = yes
+		}
+		remove_effect = {
 			add_equipment_to_stockpile = {
-				type = motorized_equipment
-				amount = 150
+				type = fighter_equipment
+				amount = 20
+				producer = FROM
+			}
+			add_equipment_to_stockpile = {
+				type = airship_bomber_equipment
+				amount = 10
 				producer = FROM
 			}
 		}
@@ -18982,7 +18579,7 @@ TUR_economy_decision = {
 				OR = {
 					num_of_civilian_factories < 5
 					has_equipment = {
-						motorized_equipment > 200
+						fighter_equipment > 20
 					}
 					has_idea = TUR_dependence_on_imported_weapons_4
 				}
@@ -18994,171 +18591,7 @@ TUR_economy_decision = {
 			}
 		}
 	}
-	TUR_buy_fra_transport = {
-		icon = generic_industry
-		allowed = {
-			tag = TUR
-		}
-		target_trigger = {
-			FROM = {
-				tag = FRA
-			}
-		}
-		cancel_trigger = {
-			NOT = {
-				has_variable = opda_lira
-			}
-		}
-		available = {
-			FRA = {
-				has_opinion = {
-					target = ROOT
-					value > 0
-				}
-			}
-			NOT = {
-				has_war_with = FROM
-			}
-			NOT = {
-				has_country_flag = has_active_purchase_contract
-			}
-			NOT = {
-				custom_trigger_tooltip = {
-					tooltip = TUR_OPDA_trigger_tooltip
-					NOT = {
-						has_variable = opda_lira
-					}
-				}
-			}
-		}
-		cost = 10
-		fire_only_once = no
-		days_remove = 45
-		days_re_enable = 180
-		visible = {
-			FRA = {
-				exists = yes
-				has_tech = motorised_infantry
-			}
-			has_completed_focus = TUR_import_dependence
-			has_variable = opda_lira
-		}
-		complete_effect = {
-			set_country_flag = {
-				flag = has_active_purchase_contract
-				days = 60
-				value = 1
-			}
-			TUR_add_debt_0885 = yes
-		}
-		remove_effect = {
-			add_equipment_to_stockpile = {
-				type = motorized_equipment
-				amount = 72
-				producer = FRA
-			}
-		}
-		ai_will_do = {
-			factor = 0.1
-			modifier = {
-				OR = {
-					num_of_civilian_factories < 5
-					has_equipment = {
-						motorized_equipment > 200
-					}
-					has_idea = TUR_dependence_on_imported_weapons_4
-				}
-				factor = 0
-			}
-			modifier = {
-				has_war = yes
-				factor = 10
-			}
-		}
-	}
-	TUR_buy_ger_transport = {
-		icon = generic_industry
-		allowed = {
-			tag = TUR
-		}
-		target_trigger = {
-			FROM = {
-				tag = GER
-			}
-		}
-		cancel_trigger = {
-			NOT = {
-				has_variable = opda_lira
-			}
-		}
-		available = {
-			GER = {
-				has_opinion = {
-					target = ROOT
-					value > 0
-				}
-			}
-			NOT = {
-				has_war_with = FROM
-			}
-			NOT = {
-				has_country_flag = has_active_purchase_contract
-			}
-			NOT = {
-				custom_trigger_tooltip = {
-					tooltip = TUR_OPDA_trigger_tooltip
-					NOT = {
-						has_variable = opda_lira
-					}
-				}
-			}
-		}
-		cost = 10
-		fire_only_once = no
-		days_remove = 60
-		days_re_enable = 180
-		visible = {
-			GER = {
-				exists = yes
-				has_tech = motorised_infantry
-			}
-			has_completed_focus = TUR_import_dependence
-			has_variable = opda_lira
-		}
-		complete_effect = {
-			set_country_flag = {
-				flag = has_active_purchase_contract
-				days = 60
-				value = 1
-			}
-			TUR_add_debt_0885 = yes
-		}
-		remove_effect = {
-			add_equipment_to_stockpile = {
-				type = motorized_equipment
-				amount = 265
-				producer = GER
-			}
-		}
-		ai_will_do = {
-			factor = 0.1
-			modifier = {
-				OR = {
-					num_of_civilian_factories < 5
-					has_equipment = {
-						motorized_equipment > 200
-					}
-					has_idea = TUR_dependence_on_imported_weapons_4
-				}
-				factor = 0
-			}
-			modifier = {
-				has_war = yes
-				factor = 10
-			}
-		}
-	}
-	### SHIPS
+	### Ships
 	TUR_purchase_majestic_class = {
 		icon = generic_naval
 		allowed = {
@@ -19378,196 +18811,6 @@ TUR_economy_decision = {
 			modifier = {
 				has_war = yes
 				factor = 10
-			}
-		}
-	}
-	TUR_ger_investments_in_civil_industry = {
-		allowed = {
-			always = no
-		}
-		icon = generic_factory
-		visible = {
-			always = no
-			country_exists = GER
-			has_variable = opda_lira
-		}
-		target_trigger = {
-			FROM = {
-				tag = GER
-			}
-		}
-		cancel_trigger = {
-			NOT = {
-				has_variable = opda_lira
-			}
-		}
-		cost = 25
-		fire_only_once = no
-		days_remove = 180
-		days_re_enable = 30
-		available = {
-			NOT = {
-				has_war_with = GER
-			}
-		}
-		modifier = {
-			production_speed_industrial_complex_factor = 0.02
-		}
-		remove_effect = {
-			random_owned_controlled_state = {
-				limit = {
-					is_core_of = TUR
-					free_building_slots = {
-						building = industrial_complex
-						size > 0
-						include_locked = yes
-					}
-				}
-				add_building_construction = {
-					type = industrial_complex
-					level = 1
-					instant_build = yes
-				}
-			}
-		}
-		ai_will_do = {
-			factor = 0
-			modifier = {
-				add = 100
-				has_war = no
-				date < 1913.5.1
-			}
-			modifier = {
-				add = 10
-				num_of_civilian_factories < 35
-			}
-		}
-	}
-	TUR_ger_investments_in_military_industry = {
-		allowed = {
-			always = no
-		}
-		icon = generic_factory
-		visible = {
-			always = no
-			country_exists = GER
-			has_variable = opda_lira
-		}
-		target_trigger = {
-			FROM = {
-				tag = GER
-			}
-		}
-		cancel_trigger = {
-			NOT = {
-				has_variable = opda_lira
-			}
-		}
-		cost = 25
-		fire_only_once = no
-		days_remove = 160
-		days_re_enable = 30
-		available = {
-			NOT = {
-				has_war_with = GER
-			}
-			has_idea = TUR_sick_man
-		}
-		modifier = {
-			production_speed_arms_factory_factor = 0.02
-		}
-		remove_effect = {
-			random_owned_controlled_state = {
-				limit = {
-					is_core_of = TUR
-					free_building_slots = {
-						building = arms_factory
-						size > 0
-						include_locked = yes
-					}
-				}
-				add_building_construction = {
-					type = arms_factory
-					level = 1
-					instant_build = yes
-				}
-			}
-		}
-		ai_will_do = {
-			factor = 0
-			modifier = {
-				add = 100
-				has_war = yes
-			}
-			modifier = {
-				add = 10
-				num_of_military_factories < 20
-			}
-		}
-	}
-	TUR_ger_investments_in_marine_industry = {
-		allowed = {
-			always = no
-		}
-		icon = generic_factory
-		visible = {
-			always = no
-			country_exists = GER
-			has_variable = opda_lira
-		}
-		target_trigger = {
-			FROM = {
-				tag = GER
-			}
-		}
-		cancel_trigger = {
-			NOT = {
-				has_variable = opda_lira
-			}
-		}
-		cost = 25
-		fire_only_once = no
-		days_remove = 180
-		days_re_enable = 30
-		available = {
-			NOT = {
-				has_war_with = GER
-			}
-		}
-		modifier = {
-			production_speed_dockyard_factor = 0.02
-		}
-		remove_effect = {
-			random_owned_controlled_state = {
-				limit = {
-					is_core_of = TUR
-					is_coastal = yes
-					free_building_slots = {
-						building = dockyard
-						size > 0
-						include_locked = yes
-					}
-				}
-				add_building_construction = {
-					type = dockyard
-					level = 1
-					instant_build = yes
-				}
-			}
-		}
-		ai_will_do = {
-			factor = 0
-			modifier = {
-				add = 100
-				has_war_with = ENG
-			}
-			modifier = {
-				add = 10
-				num_of_naval_factories < 20
-				OR = {
-					has_completed_focus = TUR_order_battleships
-					has_completed_focus = TUR_study_dreadnought_designs
-				}
 			}
 		}
 	}
