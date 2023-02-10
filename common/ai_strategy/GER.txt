@@ -10,8 +10,8 @@ GER_defensive_if_lack_of_guns_against_FRA = {
 			archetype = infantry_equipment
 			ratio < 0.05
 		}
-		NOT = {
-			has_idea = schlieffenmoltke
+		BEL = {
+			has_capitulated = yes
 		}
 	}
 	abort = {
@@ -217,16 +217,17 @@ GER_rush_on_FRA = {
 
 	enable = {
 		original_tag = GER	
-		OR = {
-			has_war_with = FRA
-			has_war_with = BEL
-		}
-		BEL = { 
+		BEL = {
 			OR = {
 				has_capitulated = yes
 				ROOT = { controls_state = 6 }
 				has_war = no
 			}
+
+		}
+		OR = {
+			has_war_with = FRA
+			has_war_with = BEL
 		}
 		OR = {
 			FRA = {
@@ -380,7 +381,6 @@ GER_dont_help_AUH = {
 		tag = GER
 		is_in_faction_with = AUH
 	}
-	abort_when_not_enabled = yes
 	abort = {
 		OR = {
 			AUH = { surrender_progress > 0.30 }	
@@ -389,6 +389,7 @@ GER_dont_help_AUH = {
 				OR = {
 					has_war_with = ITA
 					has_war_with = ROM
+					has_war_with = HUN
 					surrender_progress > 0.10
 				}
 			}
@@ -402,6 +403,16 @@ GER_dont_help_AUH = {
 	ai_strategy = {
 		type = dont_defend_ally_borders
 		id = AUH
+		value = 4000
+	}
+	ai_strategy = {
+		type = front_unit_request
+		tag = GAL
+		value = -4000
+	}
+	ai_strategy = {
+		type = dont_defend_ally_borders
+		id = GAL
 		value = 4000
 	}
 	
@@ -518,7 +529,11 @@ GER_rush_on_BEL = {
 		has_war_with = FRA
 		has_war_with = BEL
 		BEL = { has_capitulated = no }
-		has_idea = schlieffenmoltke
+		OR = {
+			has_idea = schlieffenmoltke
+			has_global_flag = kis_franzferdinand_murdered
+		}
+		
 	}
 
 	abort = {
@@ -528,8 +543,6 @@ GER_rush_on_BEL = {
 			## The war is over with France
 			NOT = {
 				has_war_with = FRA
-			}
-			NOT = {
 				has_war_with = BEL
 			}
 			## we are losing ground somewhere
@@ -556,13 +569,34 @@ GER_rush_on_BEL = {
 	ai_strategy = {
 		type = front_unit_request
 		tag = BEL
-		value = 100
+		value = 200
 	}
 	ai_strategy = {
 		type = conquer
 		id = BEL
 		value = 2000
 	}
+	ai_strategy = {
+		type = conquer
+		id = BEL
+		value = 9999
+	}
+
+
+	ai_strategy = {
+		type = put_unit_buffers
+		
+		order_id = 1
+		
+		states = {
+			6
+			34
+		}
+		ratio = 0.1
+		subtract_invasions_from_need = yes
+	}
+
+
 	ai_strategy = {
 		type = front_control
 		tag = BEL
@@ -640,7 +674,14 @@ GER_ignore_bulgaria = {
 	abort = {
 		OR = {
 			BUL = { surrender_progress > 0.5 }	
+			any_owned_state = {
+				is_core_of = ROOT
+				NOT = {
+					is_fully_controlled_by = ROOT
+				}
+			}
 		}
+		
 	}
 	ai_strategy = {
 		type = ignore
@@ -688,6 +729,12 @@ GER_ignore_romania = {
 				is_core_of = ROOT
 				is_controlled_by = ROM
 			}
+			any_owned_state = {
+				is_core_of = ROOT
+				NOT = {
+					is_fully_controlled_by = ROOT
+				}
+			}
 		}
 	}
 	ai_strategy = {
@@ -726,6 +773,12 @@ GER_ignore_serbia = {
 			any_state = {
 				is_core_of = ROOT
 				is_controlled_by = SER
+			}
+			any_owned_state = {
+				is_core_of = ROOT
+				NOT = {
+					is_fully_controlled_by = ROOT
+				}
 			}
 		}
 	}
