@@ -1,4 +1,4 @@
-debug_decisions = {
+debug_decisions2 = {
 	TUR_load_interwar_focus_tree = {
 		allowed = {
 			original_tag = TUR
@@ -8,6 +8,20 @@ debug_decisions = {
 		fire_only_once = no
 		complete_effect = {
 			load_focus_tree = turkey_focus_tree
+		}
+		ai_will_do = {
+			factor = 0
+		}
+	}
+	TUR_load_interwar_focus_tree2 = {
+		allowed = {
+			original_tag = TUR
+		}
+		available = {
+		}
+		fire_only_once = no
+		complete_effect = {
+			load_focus_tree = turkey2_focus_tree
 		}
 		ai_will_do = {
 			factor = 0
@@ -4268,7 +4282,10 @@ TUR_minority_decision = {
 		}
 		on_map_mode = map_only
 		visible = {
-			has_completed_focus = TUR_promote_muslims_in_levant_administration
+			OR = {
+				has_completed_focus = TUR_promote_muslims_in_levant_administration
+				has_completed_focus = TUR_restore_order_in_northern_syria
+			}
 			controls_state = FROM
 			FROM = {
 				has_state_flag = TUR_arab_state
@@ -4466,11 +4483,27 @@ TUR_minority_decision = {
 		days_remove = 30
 		on_map_mode = map_only
 		visible = {
-			has_completed_focus = TUR_integrate_kurdish_sheiks
+			OR = {
+				has_completed_focus = TUR_integrate_kurdish_sheiks
+				has_completed_focus = TUR_use_religion_to_convince_kurds
+			}
 			controls_state = FROM
 			FROM = {
 				has_state_flag = TUR_kurd_state
 				has_dynamic_modifier = { modifier = TUR_kurd_minority }
+			}
+			if = {
+				limit = {
+					has_focus_tree = turkey2_focus_tree
+					FROM = {
+						OR = {
+							state = 676
+							state = 879
+							state = 883
+						}
+					}
+				}
+				has_completed_focus = TUR_reintegrate_mosul_and_suleymaniyah
 			}
 		}
 		remove_effect = {
@@ -6193,7 +6226,7 @@ TUR_minority_decision = {
 			}
 		}
 	}
-	TUR_favor_serbian_muslims_decision = {
+	TUR_favor_muslim_serbs_decision = {
 		icon = GFX_decision_hol_exchange_intelligence_data
 		allowed = {
 			original_tag = TUR
@@ -6221,7 +6254,7 @@ TUR_minority_decision = {
 		days_remove = 50
 		on_map_mode = map_only
 		visible = {
-			has_completed_focus = TUR_favor_serbian_muslims
+			has_completed_focus = TUR_favor_muslim_serbs
 			controls_state = FROM
 			FROM = {
 				OR = {
@@ -6297,7 +6330,7 @@ TUR_minority_decision = {
 		days_remove = 50
 		on_map_mode = map_only
 		visible = {
-			has_completed_focus = TUR_favor_serbian_muslims
+			has_completed_focus = TUR_favor_muslim_serbs
 			controls_state = FROM
 			FROM = {
 				OR = {
@@ -16066,7 +16099,10 @@ TUR_literacy_campaigns_in_states = {
 		}
 		visible = {
 			ROOT = {
-				has_completed_focus = TUR_literacy_campaigns
+				OR = {
+					has_completed_focus = TUR_literacy_campaigns
+					has_completed_focus = TUR_anatolian_literacy_campaigns
+				}
 			}
 			FROM = {
 				is_owned_and_controlled_by = TUR
@@ -16747,19 +16783,7 @@ political_actions = {
 		days_re_enable = 25
 		visible = {
 			has_completed_focus = TUR_uniform_reforms
-			OR = {
-				has_idea = TUR_army_of_bygone_era
-				has_idea = TUR_army_of_bygone_era_2
-				has_idea = TUR_army_of_bygone_era_3
-				has_idea = TUR_army_of_bygone_era_4
-				has_idea = TUR_army_of_bygone_era_5
-				has_idea = TUR_army_of_bygone_era_6
-				has_idea = TUR_army_of_bygone_era_7
-				has_idea = TUR_army_of_bygone_era_8
-				has_idea = TUR_army_of_bygone_era_9
-				has_idea = TUR_army_of_bygone_era_10
-				has_idea = TUR_army_of_bygone_era_11
-			}
+			TUR_has_army_of_a_bygone_era2 = yes
 		}
 		complete_effect = {
 			TUR_modernize_army_effect = yes
@@ -16782,6 +16806,34 @@ political_actions = {
 				add = 10
 				date > 1918.1.1
 			}
+		}
+	}
+	TUR_navy_modernization_decision = {
+		allowed = {
+			tag = TUR
+		}
+		icon = generic_naval
+		custom_cost_text = TUR_decision_cost_30navyxp
+		custom_cost_trigger = {
+			has_navy_experience > 29.99
+		}
+		fire_only_once = no
+		visible = {
+			OR = {
+				has_completed_focus = TUR_bahriye_nezareti
+				has_completed_focus = TUR_organize_kuvay_i_milliye
+			}
+			TUR_has_army_of_a_bygone_era_navy = yes
+		}
+		complete_effect = {
+			TUR_modernize_navy_effect = yes
+			hidden_effect = {
+				navy_experience = -30
+			}
+		}
+		cancel_if_not_visible = no
+		ai_will_do = {
+			base = 100
 		}
 	}
 }
@@ -18908,38 +18960,7 @@ TUR_economy_decision = {
 		}
 		days_remove = 50
 		remove_effect = {
-			if = {
-				limit = {
-					has_variable = opda_lira
-					check_variable = { opda_lira > 0.294 }
-				}
-				custom_effect_tooltip = TUR_remove_debt_0295
-				add_to_variable = {
-					opda_lira = -0.295
-				}
-				add_to_variable = {
-					opda_consumer_goods = -0.01
-				}
-				add_to_variable = {
-					opda_resources_to_market = -0.005
-				}
-			}
-			if = {
-				limit = {
-					has_variable = opda_lira
-					check_variable = { opda_lira < 0.295 }
-				}
-				custom_effect_tooltip = TUR_remove_debt_existing_amount
-				multiply_variable = {
-					opda_lira = 0
-				}
-				multiply_variable = {
-					opda_consumer_goods = 0
-				}
-				multiply_variable = {
-					opda_resources_to_market = 0
-				}
-			}
+			TUR_remove_debt_0295 = yes
 		}
 		ai_will_do = {
 			factor = 10
@@ -18976,38 +18997,7 @@ TUR_economy_decision = {
 			political_power_cost = 0.05
 		}
 		remove_effect = {
-			if = {
-				limit = {
-					has_variable = opda_lira
-					check_variable = { opda_lira > 0.294 }
-				}
-				custom_effect_tooltip = TUR_remove_debt_0885
-				add_to_variable = {
-					opda_lira = -0.885
-				}
-				add_to_variable = {
-					opda_consumer_goods = -0.03
-				}
-				add_to_variable = {
-					opda_resources_to_market = -0.015
-				}
-			}
-			if = {
-				limit = {
-					has_variable = opda_lira
-					check_variable = { opda_lira < 0.885 }
-				}
-				custom_effect_tooltip = TUR_remove_debt_existing_amount
-				multiply_variable = {
-					opda_lira = 0
-				}
-				multiply_variable = {
-					opda_consumer_goods = 0
-				}
-				multiply_variable = {
-					opda_resources_to_market = 0
-				}
-			}
+			TUR_remove_debt_0885 = yes
 		}
 		ai_will_do = {
 			factor = 15
@@ -19060,38 +19050,7 @@ TUR_economy_decision = {
 			}
 		}
 		remove_effect = {
-			if = {
-				limit = {
-					has_variable = opda_lira
-					check_variable = { opda_lira > 0.884 }
-				}
-				custom_effect_tooltip = TUR_remove_debt_0885
-				add_to_variable = {
-					opda_lira = -1.475
-				}
-				add_to_variable = {
-					opda_consumer_goods = -0.03
-				}
-				add_to_variable = {
-					opda_resources_to_market = -0.015
-				}
-			}
-			if = {
-				limit = {
-					has_variable = opda_lira
-					check_variable = { opda_lira < 0.885 }
-				}
-				custom_effect_tooltip = TUR_remove_debt_existing_amount
-				multiply_variable = {
-					opda_lira = 0
-				}
-				multiply_variable = {
-					opda_consumer_goods = 0
-				}
-				multiply_variable = {
-					opda_resources_to_market = 0
-				}
-			}
+			TUR_remove_debt_0885 = yes
 		}
 		ai_will_do = {
 			factor = 0
@@ -19144,7 +19103,7 @@ TUR_economy_decision = {
 			NOT = {
 				has_completed_focus = TUR_purge_heretics_from_economy
 			}
-			has_completed_focus = TUR_sell_of_mesapotamian_oil
+			has_completed_focus = TUR_sell_off_mesapotamian_oil
 			owns_state = 676
 			has_variable = opda_lira
 		}
@@ -19172,38 +19131,7 @@ TUR_economy_decision = {
 			}
 		}
 		complete_effect = {
-			if = {
-				limit = {
-					has_variable = opda_lira
-					check_variable = { opda_lira > 0.884 }
-				}
-				custom_effect_tooltip = TUR_remove_debt_0885
-				add_to_variable = {
-					opda_lira = -0.885
-				}
-				add_to_variable = {
-					opda_consumer_goods = -0.03
-				}
-				add_to_variable = {
-					opda_resources_to_market = -0.015
-				}
-			}
-			if = {
-				limit = {
-					has_variable = opda_lira
-					check_variable = { opda_lira < 0.885 }
-				}
-				custom_effect_tooltip = TUR_remove_debt_existing_amount
-				multiply_variable = {
-					opda_lira = 0
-				}
-				multiply_variable = {
-					opda_consumer_goods = 0
-				}
-				multiply_variable = {
-					opda_resources_to_market = 0
-				}
-			}
+			TUR_remove_debt_0885 = yes
 			if = {
 				limit = {
 					has_war_with = ENG
@@ -19391,7 +19319,7 @@ TUR_economy_decision = {
 			NOT = {
 				has_completed_focus = TUR_purge_heretics_from_economy
 			}
-			has_completed_focus = TUR_sell_of_mesapotamian_oil
+			has_completed_focus = TUR_sell_off_mesapotamian_oil
 			owns_state = 853
 			has_variable = opda_lira
 			NOT = {
@@ -19419,38 +19347,7 @@ TUR_economy_decision = {
 			}
 		}
 		complete_effect = {
-			if = {
-				limit = {
-					has_variable = opda_lira
-					check_variable = { opda_lira > 0.884 }
-				}
-				custom_effect_tooltip = TUR_remove_debt_0885
-				add_to_variable = {
-					opda_lira = -0.885
-				}
-				add_to_variable = {
-					opda_consumer_goods = -0.03
-				}
-				add_to_variable = {
-					opda_resources_to_market = -0.015
-				}
-			}
-			if = {
-				limit = {
-					has_variable = opda_lira
-					check_variable = { opda_lira < 0.885 }
-				}
-				custom_effect_tooltip = TUR_remove_debt_existing_amount
-				multiply_variable = {
-					opda_lira = 0
-				}
-				multiply_variable = {
-					opda_consumer_goods = 0
-				}
-				multiply_variable = {
-					opda_resources_to_market = 0
-				}
-			}
+			TUR_remove_debt_0885 = yes
 			if = {
 				limit = {
 					has_war_with = ENG
@@ -19632,7 +19529,7 @@ TUR_economy_decision = {
 			NOT = {
 				has_completed_focus = TUR_purge_heretics_from_economy
 			}
-			has_completed_focus = TUR_sell_of_mesapotamian_oil
+			has_completed_focus = TUR_sell_off_mesapotamian_oil
 			owns_state = 291
 			has_variable = opda_lira
 		}
@@ -19660,38 +19557,7 @@ TUR_economy_decision = {
 			}
 		}
 		complete_effect = {
-			if = {
-				limit = {
-					has_variable = opda_lira
-					check_variable = { opda_lira > 1.474 }
-				}
-				custom_effect_tooltip = TUR_remove_debt_1475
-				add_to_variable = {
-					opda_lira = -1.475
-				}
-				add_to_variable = {
-					opda_consumer_goods = -0.05
-				}
-				add_to_variable = {
-					opda_resources_to_market = -0.025
-				}
-			}
-			if = {
-				limit = {
-					has_variable = opda_lira
-					check_variable = { opda_lira < 1.475 }
-				}
-				custom_effect_tooltip = TUR_remove_debt_existing_amount
-				multiply_variable = {
-					opda_lira = 0
-				}
-				multiply_variable = {
-					opda_consumer_goods = 0
-				}
-				multiply_variable = {
-					opda_resources_to_market = 0
-				}
-			}
+			TUR_remove_debt_1475 = yes
 			if = {
 				limit = {
 					has_war_with = ENG
@@ -19849,7 +19715,7 @@ TUR_economy_decision = {
 			NOT = {
 				has_completed_focus = TUR_purge_heretics_from_economy
 			}
-			has_completed_focus = TUR_sell_of_mesapotamian_oil
+			has_completed_focus = TUR_sell_off_mesapotamian_oil
 			owns_state = 874
 			has_variable = opda_lira
 		}
@@ -19877,38 +19743,7 @@ TUR_economy_decision = {
 			}
 		}
 		complete_effect = {
-			if = {
-				limit = {
-					has_variable = opda_lira
-					check_variable = { opda_lira > 1.474 }
-				}
-				custom_effect_tooltip = TUR_remove_debt_1475
-				add_to_variable = {
-					opda_lira = -1.475
-				}
-				add_to_variable = {
-					opda_consumer_goods = -0.05
-				}
-				add_to_variable = {
-					opda_resources_to_market = -0.025
-				}
-			}
-			if = {
-				limit = {
-					has_variable = opda_lira
-					check_variable = { opda_lira < 1.475 }
-				}
-				custom_effect_tooltip = TUR_remove_debt_existing_amount
-				multiply_variable = {
-					opda_lira = 0
-				}
-				multiply_variable = {
-					opda_consumer_goods = 0
-				}
-				multiply_variable = {
-					opda_resources_to_market = 0
-				}
-			}
+			TUR_remove_debt_1475 = yes
 			if = {
 				limit = {
 					has_war_with = ENG
@@ -20066,7 +19901,7 @@ TUR_economy_decision = {
 			NOT = {
 				has_completed_focus = TUR_purge_heretics_from_economy
 			}
-			has_completed_focus = TUR_sell_of_mesapotamian_oil
+			has_completed_focus = TUR_sell_off_mesapotamian_oil
 			owns_state = 656
 			has_variable = opda_lira
 			NOT = {
@@ -20094,38 +19929,7 @@ TUR_economy_decision = {
 			}
 		}
 		complete_effect = {
-			if = {
-				limit = {
-					has_variable = opda_lira
-					check_variable = { opda_lira > 0.884 }
-				}
-				custom_effect_tooltip = TUR_remove_debt_0885
-				add_to_variable = {
-					opda_lira = -0.885
-				}
-				add_to_variable = {
-					opda_consumer_goods = -0.03
-				}
-				add_to_variable = {
-					opda_resources_to_market = -0.015
-				}
-			}
-			if = {
-				limit = {
-					has_variable = opda_lira
-					check_variable = { opda_lira < 0.885 }
-				}
-				custom_effect_tooltip = TUR_remove_debt_existing_amount
-				multiply_variable = {
-					opda_lira = 0
-				}
-				multiply_variable = {
-					opda_consumer_goods = 0
-				}
-				multiply_variable = {
-					opda_resources_to_market = 0
-				}
-			}
+			TUR_remove_debt_0885 = yes
 			if = {
 				limit = {
 					has_war_with = ENG
@@ -20485,6 +20289,7 @@ TUR_economy_decision = {
 			OR = {
 			    has_completed_focus = TUR_eradicate_illiteracy
 				has_completed_focus = TUR_socialist_economics
+				has_completed_focus = TUR_anatolian_literacy_campaigns
 			}
 		}
 		available = {
@@ -20867,17 +20672,26 @@ TUR_economy_decision = {
 		visible = {
 			FROM = {
 				exists = yes
+				NOT = {
+					has_country_flag = great_war_loser
+				}
 				if = {
 					limit = {
 						tag = FRA
+						ROOT = { NOT = { has_focus_tree = turkey2_focus_tree } }
 					}
 					has_completed_focus = TUR_new_weapon_contracts
 				}
 			}
 			has_variable = opda_lira
+			if = {
+				limit = {
+					has_focus_tree = turkey2_focus_tree
+				}
+				has_completed_focus = TUR_purchase_guns
+			}
 			NOT = {
 				has_focus_tree = turkey_focus_tree
-				has_focus_tree = turkey2_focus_tree
 				has_completed_focus = TUR_domestic_weapon_companies
 			}
 		}
@@ -21230,6 +21044,9 @@ TUR_economy_decision = {
 		days_re_enable = 60
 		visible = {
 			FROM = {
+				NOT = {
+					has_country_flag = great_war_loser
+				}
 				exists = yes
 			}
 			has_completed_focus = TUR_new_weapon_contracts
@@ -21439,6 +21256,9 @@ TUR_economy_decision = {
 		}
 		target_trigger = {
 			FROM = {
+				NOT = {
+					has_country_flag = great_war_loser
+				}
 				exists = yes
 				if = {
 					limit = {
@@ -21690,6 +21510,9 @@ TUR_economy_decision = {
 		days_re_enable = 180
 		visible = {
 			FROM = {
+				NOT = {
+					has_country_flag = great_war_loser
+				}
 				exists = yes
 			}
 			has_variable = opda_lira
@@ -21822,6 +21645,9 @@ TUR_economy_decision = {
 		days_re_enable = 95
 		visible = {
 			FROM = {
+				NOT = {
+					has_country_flag = great_war_loser
+				}
 				exists = yes
 				has_tech = motorised_infantry
 			}
@@ -21979,6 +21805,9 @@ TUR_economy_decision = {
 		days_re_enable = 60
 		visible = {
 			FROM = {
+				NOT = {
+					has_country_flag = great_war_loser
+				}
 				exists = yes
 			}
 			has_variable = opda_lira
@@ -22330,19 +22159,66 @@ TUR_economy_decision = {
 			}
 		}
 	}
-	TUR_eng_investments_in_military_industry = {
+	TUR_from_investments_in_civil_industry = {
 		icon = generic_factory
 		visible = {
-			country_exists = ENG
-			ENG = {
-				has_country_flag = great_war_winner
-			}
 			has_variable = opda_lira
 			has_completed_focus = TUR_purchase_factory_rights
 		}
 		target_trigger = {
 			FROM = {
-				tag = ENG
+				is_major = yes
+				has_country_flag = great_war_winner
+			}
+		}
+		cancel_trigger = {
+			NOT = {
+				has_variable = opda_lira
+			}
+		}
+		cost = 25
+		fire_only_once = no
+		days_remove = 30
+		available = {
+			NOT = {
+				has_war_with = ENG
+			}
+		}
+		complete_effect = {
+            add_offsite_building = {
+				type = industrial_complex
+				level = 1
+			}
+		}
+		remove_effect = {
+            add_offsite_building = {
+				type = industrial_complex
+				level = -1
+			}
+            TUR_add_debt_0295 = yes
+		}
+		ai_will_do = {
+			factor = 0
+			modifier = {
+				add = 100
+				has_war = yes
+			}
+			modifier = {
+				add = 10
+				num_of_military_factories < 20
+			}
+		}
+	}
+	TUR_from_investments_in_military_industry = {
+		icon = generic_factory
+		visible = {
+			has_variable = opda_lira
+			has_completed_focus = TUR_purchase_factory_rights
+		}
+		target_trigger = {
+			FROM = {
+				is_major = yes
+				has_country_flag = great_war_winner
 			}
 		}
 		cancel_trigger = {
@@ -22369,10 +22245,7 @@ TUR_economy_decision = {
 				type = arms_factory
 				level = -1
 			}
-            add_to_variable = { var = opda_lira value = 0.295 }
-	        add_to_variable = { var = opda_consumer_goods value = 0.01 }
-	        add_to_variable = { var = opda_resources_to_market value = 0.005 }
-			custom_effect_tooltip = add_0295_lira_debt
+            TUR_add_debt_0295 = yes
 		}
 		ai_will_do = {
 			factor = 0
@@ -22556,10 +22429,7 @@ TUR_economy_decision = {
 				type = arms_factory
 				level = -1
 			}
-            add_to_variable = { var = opda_lira value = 0.295 }
-	        add_to_variable = { var = opda_consumer_goods value = 0.01 }
-	        add_to_variable = { var = opda_resources_to_market value = 0.005 }
-			custom_effect_tooltip = add_0295_lira_debt
+            TUR_add_debt_0295 = yes
 		}
 		ai_will_do = {
 			factor = 0
@@ -27988,7 +27858,7 @@ TUR_parliament_sultan_decisions = {
 			has_variable = opda_lira
 		}
 		remove_effect = {
-			TUR_remove_debt_0294 = yes
+			TUR_remove_debt_0295 = yes
 			add_power_balance_value = {
 				id = TUR_parliament_sultan
 				value = -0.1
