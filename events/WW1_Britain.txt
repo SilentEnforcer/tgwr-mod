@@ -2887,21 +2887,37 @@ country_event = {
 	id = ww1_england.53
 	title = ww1_england.53.t
 	desc = ww1_england.53.d
-	picture = GFX_report_event_royal_parade
+	picture = GFX_report_event_ETH_ethiopian_warriors
 	trigger = {
 		original_tag = ETH
-		is_in_faction_with = GER
+		is_subject = no
+		has_capitulated = no
+		has_global_flag = kis_war
 		has_war_with = ENG
+		NOT = {
+			has_global_flag = great_war_ends
+		}
 	}
 	fire_only_once = yes
 	option = {
 		name = ww1_england.53.a
-		add_state_claim = 449
-		add_state_claim = 549
-		add_state_claim = 827
-		add_state_claim = 550
-		add_state_claim = 269
-		add_state_claim = 268
+		every_state = {
+			limit = {
+				NOT = {
+					is_owned_by = ROOT
+					owner = { is_in_faction_with = ROOT }
+				}
+				OR = {
+					state = 449
+					state = 549
+					state = 827
+					state = 550
+					state = 269
+					state = 268
+				}
+			}
+			add_claim_by = ROOT
+		}
 	}
 }
 #Egypt gets option to move into Sudan
@@ -2957,6 +2973,7 @@ country_event = {
 			original_tag = GER
 			original_tag = AUH
 		}
+		is_subject = no
 		has_country_flag = great_war_winner
 		owns_state = 546
 		ENG = {
@@ -2994,28 +3011,33 @@ country_event = {
 	id = ww1_england.68
 	title = ww1_england.68.t
 	desc = ww1_england.68.d
-	picture = GFX_report_event_royal_parade
+	picture = GFX_report_event_saf_soldiers_2
 	trigger = {
 		original_tag = GER
 		has_country_flag = great_war_winner
-		GER = {
-			owns_state = 792
+		792 = {
+			OR = {
+				is_owned_by = ROOT
+				owner = { is_subject_of = ROOT }
+			}
 		}
 		ITA = {
 			NOT = {
 				has_country_flag = great_war_loser
-				has_war_with = GER
+				has_war_with = ROOT
 				has_government = communism
 			}
-			owns_state = 559
+			owns_state = 880
+			is_subject = no
 		}
 	}
 	fire_only_once = yes
 	#Give Italy Jubaland
 	option = {
 		name = ww1_england.68.a
-		ITA = {
-			transfer_state = 792
+		792 = {
+			remove_claim_by = ROOT
+			transfer_state_to = ITA
 		}
 	}
 	option = {
@@ -3033,12 +3055,13 @@ country_event = {
 	id = ww1_england.69
 	title = ww1_england.69.t
 	desc = ww1_england.69.d
-	picture = GFX_report_event_royal_parade
+	picture = GFX_report_event_saf_soldiers_2
 	is_triggered_only = yes
 	fire_only_once = yes
 	#Sad Italian Sounds :(
 	option = {
 		name = ww1_england.69.a
+		add_state_claim = 792
 		add_war_support = -0.02
 	}
 }
@@ -3108,84 +3131,90 @@ country_event = {
 	id = ww1_england.72
 	title = ww1_england.72.t
 	desc = ww1_england.72.d
-	picture = GFX_report_event_royal_parade
+	picture = GFX_report_event_generic_defensive_preparations
 	trigger = {
 		tag = ENG
-		OR = {
-			owns_state = 311
-			owns_state = 689
-			owns_state = 690
-			owns_state = 693
-			owns_state = 308
-			owns_state = 692
-			owns_state = 691
-			owns_state = 687
-			owns_state = 696
-		}	
+		any_owned_state = {
+			OR = {
+				region = 53
+				region = 163
+				region = 170
+			}
+		}
 		OR = {
 			has_civil_war = yes
-			tag = UOB
+			has_country_flag = ENG_socialist_britain_flag
 		}
 	}
 	fire_only_once = yes
 	option = {
 		name = ww1_england.72.a
-		GUA = {
-			transfer_state = 311
+		effect_tooltip = {
+			release = JAM
 		}
-		release = JAM
 		hidden_effect = {
-			ZIM = {
-				retire_character = ZIM_william_manning
-			}
-		}
-		JAM = {
 			every_state = {
 				limit = {
-					OR = {
-						is_owned_by = ENG
-						is_owned_by = UOB
-						is_owned_by = BRE
-						is_owned_by = NFA
+					owner = {
+						OR = {
+							original_tag = ENG
+							original_tag = FRA
+							original_tag = DEN
+							original_tag = HOL
+						}
+						has_country_flag = great_war_loser
 					}
 					OR = {
-						state = 693
-						state = 690
-						state = 692
-						state = 308
-						state = 687
-						state = 696
-						state = 694
-						state = 689
-						state = 691
+						region = 53
+						region = 163
+						region = 170
 					}
 				}
-				JAM = {
-					transfer_state = PREV
-					add_state_core = PREV
-				}								
-			}
-			hidden_effect = {
-				687 = {
-					set_state_name = GUYANA_STATE
+				if = {
+					limit = {
+						state = 311
+					}
+					random_country = {
+						limit = {
+							owns_state = 313
+						}
+						transfer_state = PREV
+					}
 				}
-				set_capital = { state = 687 }
-				693 = {
-					create_unit = {
-						division = "name = \"Bahaman Militia\" division_template = \"Carribbean Militi\" start_experience_factor = 0.0"
-						owner = JAM
+				else = {
+					add_core_of = JAM
+					transfer_state_to = JAM
+					if = {
+						limit = {
+							state = 687
+						}
+						JAM = {
+							set_capital = {
+								state = PREV
+							}
+						}
 					}
 				}
 			}
-			set_politics = {
-				ruling_party = neutrality
+			ZIM = {
+				if = {
+					limit = { has_character = ZIM_william_manning }
+					retire_character = ZIM_william_manning
+				}
 			}
-			set_cosmetic_tag = JAM_federation
-			add_popularity = {
-				ideology = neutrality
-				popularity = 0.35
+			687 = {
+				set_state_name = GUYANA_STATE
 			}
-			hidden_effect = {
+			JAM = {
+				set_politics = {
+					ruling_party = neutrality
+					elections_allowed = no
+				}
+				set_cosmetic_tag = JAM_federation
+				add_popularity = {
+					ideology = neutrality
+					popularity = 0.35
+				}
 				add_popularity = {
 					ideology = democratic
 					popularity = -0.15
@@ -3219,24 +3248,43 @@ country_event = {
 						}
 					}
 				}
-				689 = {
-					create_unit = {
-						division = "name = \"1st Local Militia\" division_template = \"Carribbean Militia\" start_experience_factor = 0.1"
-						owner = JAM
-					}
-					create_unit = {
-						division = "name = \"2nd Local Militia\" division_template = \"Carribbean Militia\" start_experience_factor = 0.0"
-						owner = JAM
-					}
-					create_unit = {
-						division = "name = \"1st Provisional Guard\" division_template = \"Carribbean Militia\" start_experience_factor = 0.1"
-						owner = JAM
-					}
-					create_unit = {
-						division = "name = \"2nd Provisional Guard\" division_template = \"Carribbean Militia\" start_experience_factor = 0.1"
-						owner = JAM
+				if = {
+					limit = { owns_state = 693 }
+					693 = {
+						create_unit = {
+							division = "name = \"Bahaman Militia\" division_template = \"Carribbean Militi\" start_experience_factor = 0.0"
+							owner = PREV
+						}
 					}
 				}
+				random_core_state = {
+					create_unit = {
+						division = "name = \"1st Local Militia\" division_template = \"Carribbean Militia\" start_experience_factor = 0.1"
+						owner = PREV
+					}
+				}
+				random_core_state = {
+					create_unit = {
+						division = "name = \"2nd Local Militia\" division_template = \"Carribbean Militia\" start_experience_factor = 0.1"
+						owner = PREV
+					}
+				}
+				random_core_state = {
+					create_unit = {
+						division = "name = \"1st Provisional Guard\" division_template = \"Carribbean Militia\" start_experience_factor = 0.1"
+						owner = PREV
+					}
+				}
+				random_core_state = {
+					create_unit = {
+						division = "name = \"2nd Provisional Guard\" division_template = \"Carribbean Militia\" start_experience_factor = 0.1"
+						owner = PREV
+					}
+				}
+			}
+			news_event = {
+				id = interwar_news.25
+				hours = 3
 			}
 		}
 	}
@@ -3250,199 +3298,89 @@ country_event = {
 	picture = GFX_report_event_royal_parade
 	trigger = {
 		tag = ENG
+		has_global_flag = frankfurt_treaty
 		OR = {
 			has_civil_war = yes
-			tag = UOB
+			has_country_flag = ENG_socialist_britain_flag
 		}
-		OR = {
-			owns_state = 700
-			owns_state = 701
-			owns_state = 703
-			owns_state = 704
-			owns_state = 720
-			owns_state = 299
-			owns_state = 118
+		any_owned_state = {
+			OR = {
+				region = 62
+				region = 64
+				region = 226
+				state = 118
+			}
 		}
 	}
 	mean_time_to_happen = { days = 3 }
 	fire_only_once = yes
 	option = {
 		name = ww1_england.73.a
-		if = {
+		every_owned_state = {
 			limit = {
-				owns_state = 703
-				owns_state = 704
-			}
-			if = {
-				limit = {
-					GER = {
-						has_country_flag = great_war_winner
-					}
-				}	
-				GER = {
-					transfer_state = 703
-					transfer_state = 704
-				}	
-				else_if = {
-					limit = {
-						FRA = {
-							has_country_flag = great_war_winner
-						}
-					}	
-					FRA = {
-						transfer_state = 703
-						transfer_state = 704
-					}	
-				}
-			}
-		}
-		if = {
-			limit = {
-				owns_state = 118
-			}
-			every_other_country = {
-				limit = {
-					owns_state = 173
-					NOT = { has_country_flag = great_war_loser }
-				}
-				transfer_state = 118
-			}
-			if = {
-				limit = {
-					owns_state = 118
-				}
-				every_other_country = {
-					limit = {
-						OR = {
-							tag = GER
-							tag = FRA
-						}
-						has_country_flag = great_war_winner
-					}
-					transfer_state = 118
-				}
-			}
-		}
-		if = {
-			limit = {
-				owns_state = 720
-				owns_state = 299
-			}
-			every_other_country = {
-				limit = {
-					owns_state = 512
-				}
-				transfer_state = 299
-				transfer_state = 720
-			}
-		}
-		if = {
-			limit = {
-				owns_state = 701
-			}
-			every_other_country = {
-				limit = {
-					owns_state = 272
-				}
-				transfer_state = 701
-			}
-		}
-		if = {
-			limit = {
-				owns_state = 700
-			}
-			every_other_country = {
-				limit = {
-					owns_state = 780
-				}
-				transfer_state = 700
-			}
-		}
-		if = {
-			limit = {
-				ENG = {
-					owns_state = 269
-				}
-			}
-			SOM = {
-				transfer_state = 269
-			}
-		}
-		if = {
-			limit = {
-				ENG = {
-					owns_state = 656
-				}
-			}
-			KUW = {
-				transfer_state = 656
-			}
-		}
-		if = {
-			limit = {
-				ENG = {
-					owns_state = 183
+				OR = {
+					region = 62
+					region = 64
+					region = 226
+					state = 118
 				}
 			}
 			if = {
 				limit = {
-					TUR = {
-						NOT = {
-							has_country_flag = great_war_loser
-						}
-	 				}					
-				}	
-				TUR = {
-					transfer_state = 183
+					region = 62
 				}
-				else_if = {
+				transfer_state_to = GER
+			}
+			if = {
+				limit = {
+					state = 118
+				}
+				if = {
 					limit = {
-						GRE = {
-							NOT = {
-								has_country_flag = great_war_loser
-							}
+						any_country = {
+							owns_state = 173
+							NOT = { has_country_flag = great_war_loser }
 						}
 					}
-					GRE = {
-						transfer_state = 183
-					}
-					else = {
-						CYP = {
-							transfer_state = 183
+					random_country = {
+						limit = {
+							owns_state = 173
 						}
+						transfer_state = PREV
 					}
 				}
+				else = {
+					transfer_state_to = GER
+				}
 			}
-		}
-		if = {
-			limit = {
-				has_subject = OMA
+			if = {
+				limit = {
+					region = 64
+				}
+				random_country = {
+					limit = {
+						owns_state = 512
+					}
+					transfer_state = PREV
+				}
 			}
-			end_puppet = OMA
-		}
-		if = {
-			limit = {
-				has_subject = DAR
+			if = {
+				limit = {
+					region = 226
+				}
+				random_country = {
+					limit = {
+						owns_state = 272
+					}
+					transfer_state = PREV
+				}
 			}
-			end_puppet = DAR
-		}
-		if = {
-			limit = {
-				has_subject = KUW
+			if = {
+				limit = {
+					is_owned_by = ROOT
+				}
+				transfer_state_to = GER
 			}
-			end_puppet = KUW
-		}
-		if = {
-			limit = {
-				has_subject = QAT
-			}
-			end_puppet = QAT
-		}
-		if = {
-			limit = {
-				has_subject = BHR
-			}
-			end_puppet = BHR
 		}
 	}
 }
@@ -3455,35 +3393,89 @@ country_event = {
 	picture = GFX_report_event_royal_parade
 	trigger = {
 		tag = ENG
+		has_global_flag = versallies_treaty
 		has_country_flag = great_war_loser
 		OR = {
 			has_civil_war = yes
-			tag = UOB
+			has_country_flag = ENG_socialist_britain_flag
 		}
-		FRA = {
-			has_country_flag = great_war_winner
+		any_owned_state = {
+			OR = {
+				region = 62
+				region = 64
+				region = 226
+				state = 118
+			}
 		}
-		OR = {
-			owns_state = 701
-			owns_state = 703
-			owns_state = 704
-			owns_state = 720
-			owns_state = 299
-			owns_state = 118
-		}	
 	}
 	fire_only_once = yes
 	option = {
 		name = ww1_england.74.a
-		FRA = {
-			transfer_state = 118
-			transfer_state = 703
-			transfer_state = 704
-			transfer_state = 720
-			transfer_state = 701
-		}
-		ARG = {
-			transfer_state = 299
+		every_owned_state = {
+			limit = {
+				OR = {
+					region = 62
+					region = 64
+					region = 226
+					state = 118
+				}
+			}
+			if = {
+				limit = {
+					region = 62
+				}
+				transfer_state_to = FRA
+			}
+			if = {
+				limit = {
+					state = 118
+				}
+				if = {
+					limit = {
+						any_country = {
+							owns_state = 173
+							NOT = { has_country_flag = great_war_loser }
+						}
+					}
+					random_country = {
+						limit = {
+							owns_state = 173
+						}
+						transfer_state = PREV
+					}
+				}
+				else = {
+					transfer_state_to = FRA
+				}
+			}
+			if = {
+				limit = {
+					region = 64
+				}
+				random_country = {
+					limit = {
+						owns_state = 512
+					}
+					transfer_state = PREV
+				}
+			}
+			if = {
+				limit = {
+					region = 226
+				}
+				random_country = {
+					limit = {
+						owns_state = 272
+					}
+					transfer_state = PREV
+				}
+			}
+			if = {
+				limit = {
+					is_owned_by = ROOT
+				}
+				transfer_state_to = FRA
+			}
 		}
 	}
 }
@@ -3690,9 +3682,13 @@ country_event = {
 		has_country_flag = great_war_loser
 		OR = {
 			has_subject = SAF
-			owns_state = 542
-			owns_state = 789
-			owns_state = 545
+			any_owned_state = {
+				OR = {
+					is_core_of = SAF
+					is_core_of = ZIM
+					is_core_of = BOT
+				}
+			}
 		}		
 		OR = {
 			has_global_flag = frankfurt_treaty
@@ -3703,10 +3699,21 @@ country_event = {
 	fire_only_once = yes
 	option = {
 		name = ww1_england.83.a
-		release = ZIM
-		end_puppet = ZIM
-		hidden_effect = {		
+		effect_tooltip = {
+			release = SAF
+			release = ZIM
+			SAF = { declare_war_on = { target = ZIM type = civil_war } }
+		}
+		hidden_effect = {
+			release = ZIM
+			if = {
+				limit = {
+					has_subject = ZIM
+				}
+				end_puppet = ZIM
+			}
 			ZIM = {
+				leave_faction = yes
 				inherit_technology = SAF
 				set_politics = {
 					ruling_party = democratic
@@ -3718,24 +3725,44 @@ country_event = {
 					neutrality = 48
 				}
 			}
-		}		
-		if = {
-			limit = {
-				GER = {
-					has_country_flag = great_war_winner
+			if = {
+				limit = {
+					789 = {
+						OR = {
+							is_owned_by = ROOT
+							owner = { is_subject_of = ROOT }
+						}
+					}
+				}
+				random_other_country = {
+					limit = {
+						owns_state = 541
+						NOT = { has_country_flag = great_war_loser } 
+					}
+					transfer_state = 789
 				}
 			}
-			GER = {
-				transfer_state = 789
+			if = {
+				limit = {
+					owns_state = 542
+				}
+				SAF = { transfer_state = 542 }
 			}
-		}
-		end_puppet = SAF
-		SAF = {
-			transfer_state = 542
-			add_state_core = 542
-		}
-		hidden_effect = {
+			else_if = {
+				limit = {
+					has_subject = BOT
+				}
+				SAF = {
+					annex_country = {
+						target = BOT
+					}
+				}
+			}
+			release = SAF
+			end_puppet = SAF
 			SAF = {
+				add_state_claim = 542
+				add_state_claim = 545
 				leave_faction = yes
 				start_civil_war = {
 					ideology = fascism
@@ -3747,11 +3774,24 @@ country_event = {
 						has_trait = trait_royalist
 					}
 				}
-				add_state_core = 545
 				declare_war_on = {
 					target = ZIM
 					type = annex_everything
 				}
+				random_other_country = {
+					limit = {
+						original_tag = SAF
+						has_government = fascism
+					}
+					declare_war_on = {
+						target = ZIM
+						type = annex_everything
+					}
+				}
+			}
+			news_event = {
+				id = interwar_news.26
+				hours = 3
 			}
 		}
 	}
@@ -3765,11 +3805,14 @@ country_event = {
 	picture = GFX_report_event_saf_soldiers
 	trigger = {
 		original_tag = SAF
-		has_civil_war = no
+		is_subject = no
+		has_war = no
 		ENG = {
+			is_subject = no
 			has_country_flag = english_civil_war
-			has_civil_war = no
+			has_war = no
 			NOT = {
+				has_country_flag = ENG_socialist_britain_flag
 				has_government = communism
 			}
 		}
@@ -3787,14 +3830,14 @@ country_event = {
 			}
 			ENG = {
 				set_autonomy = {
-					target = SAF
+					target = ROOT
 					autonomous_state = autonomy_dominion
 					freedom_level = 0.2
 				}
 			}
 			else = {
 				ENG = {
-					puppet = SAF
+					puppet = ROOT
 				}
 			}
 		}
@@ -3819,30 +3862,31 @@ country_event = {
 #Asian-Oriented Germany unites their African colonies
 country_event = {
 	id = ww1_england.85
-	picture = GFX_report_event_royal_parade
+	hidden = yes
 	trigger = {
 		original_tag = GER
+		is_subject = no
+		has_global_flag = GER_turn_to_asia
 		has_country_flag = great_war_winner
 		ENG = {
 			OR = {
 				has_civil_war = yes
-				tag = UOB
+				has_country_flag = ENG_socialist_britain_flag
 			}
 			owns_state = 771
 			owns_state = 770
 		}
+		owns_state = 541
+		owns_state = 546
 		OR = {
 			has_global_flag = versallies_treaty
 			has_global_flag = frankfurt_treaty
 		}
 	}
-	hidden = yes
 	fire_only_once = yes
 	immediate = {
-		hidden_effect = {
-			transfer_state = 771
-			transfer_state = 770
-		}
+		transfer_state = 771
+		transfer_state = 770
 	}
 }
 
