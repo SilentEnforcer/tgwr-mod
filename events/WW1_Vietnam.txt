@@ -1,61 +1,76 @@
 add_namespace = ww1_vietnam
 
-#taking advantage
-#country_event = {
-#	id = ww1_vietnam.2
-#	title = ww1_vietnam.2.t
-#	desc = ww1_vietnam.2.d
-#	fire_only_once = yes
-#		trigger = {
-#			tag = SIA
-#			has_global_flag = frankfurt_treaty
-#			FRA = {
-#				has_civil_war = yes
-#			}
-#			is_subject = no
-#			has_war = no
-#			VIN = {
-#				has_war = no
-#			}
-#		}
-#		immediate = {
-#			hidden_effect = {
-#				every_country = {
-#					limit = {
-#						has_war_with = VIN
-#					}
-#					white_peace = VIN
-#				}
-#				VIN = {
-#					leave_faction = yes
-#					OVERLORD = { end_puppet = VIN }
-#				}
-#			}
-#		}
-#	mean_time_to_happen = { days = 1 }
-#	option = {
-#		name = ww1_vietnam.2.a
-#		ai_chance = { factor = 90 }
-#		SIA = {
-#			declare_war_on = {
-#				target = VIN
-#				type = annex_everything
-#			}
-#		}
-#		hidden_effect = {
-#			VIN = {
-#				country_event = {
-#					id = ww1_vietnam.3
-#					days = 3
-#				}
-#			}
-#		}
-#	}
-#	option = {
-#		name = ww1_vietnam.2.b
-#		ai_chance = { factor = 10 }
-#	}
-#}
+# French Indochina reclamation
+country_event = {
+	id = ww1_vietnam.2
+	title = ww1_vietnam.2.t
+	desc = ww1_vietnam.2.d
+	picture = GFX_report_event_france_victory_syria
+	fire_only_once = yes
+	trigger = {
+		original_tag = VIN
+		has_war = no
+		is_subject = no
+		has_country_flag = french_indochina
+		has_global_flag = french_civil_war
+		OR = {
+			has_government = fascism
+			has_government = neutrality
+		}
+		any_other_country = {
+			original_tag = FRA
+			NOT = {
+				has_government = communism
+				has_country_flag = FRA_socialist_france_flag
+			}
+			has_war = no
+			is_subject = no
+		}
+	}
+	mean_time_to_happen = { days = 0 }
+	option = {
+		name = ww1_vietnam.2.a
+		hidden_effect = {
+			add_ideas = OST_colonial_question
+			every_owned_state = {
+				limit = {
+					OR = {
+						is_core_of = VIN
+						is_core_of = CAM
+						is_core_of = LAO
+					}
+				}
+				remove_claim_by = ROOT
+				add_core_of = ROOT
+			}
+		}
+		remove_country_leader_trait = standing_alone
+		random_other_country = {
+			limit = {
+				original_tag = FRA
+				NOT = {
+					has_government = communism
+					has_country_flag = FRA_socialist_france_flag
+				}
+				has_war = no
+				is_subject = no
+			}
+			if = {
+				limit = {
+					has_dlc = "Together for Victory"
+				}
+				set_autonomy = {
+					target = ROOT
+					autonomy_state = autonomy_colony
+				}
+				else = {
+					puppet = ROOT
+				}
+			}
+		}
+	}
+}
+
 #fragmentation of indochina
 #country_event = {
 #	id = ww1_vietnam.3
@@ -186,9 +201,168 @@ country_event = {
 		release = CAM
 		release = LAO
 		release = VIN
+		hidden_effect = {
+			every_other_country = {
+				limit = {
+					is_subject_of = ROOT
+					OR = {
+						original_tag = CAM
+						original_tag = LAO
+						original_tag = VIN
+					}
+				}
+				ROOT = { end_puppet = PREV }
+			}
+			every_other_country = {
+				limit = {
+					is_in_faction_with = ROOT
+					OR = {
+						original_tag = CAM
+						original_tag = LAO
+						original_tag = VIN
+					}
+				}
+				leave_faction = yes
+			}
+			VIN = {
+				add_state_claim = 670
+				add_state_claim = 741
+				start_civil_war = {
+					ruling_party = neutrality
+					ideology = neutrality
+					size = 0.60
+					states = { 820 }
+					capital = 820
+					keep_unit_leaders_trigger = {
+						always = yes
+					}
+					keep_political_leader = yes
+					set_cosmetic_tag = VIN_FRA
+					set_country_flag = great_war_loser
+					set_country_flag = french_indochina
+					set_party_name = {
+						ideology = fascism
+						long_name = VIN_colonial_party
+						name = VIN_colonial_party
+					}
+					set_party_name = {
+						ideology = neutrality
+						long_name = VIN_colonial_party
+						name = VIN_colonial_party
+					}
+					add_ideas = {
+						VIN_bleeding_us_dry
+						VIN_dysfunctional_government
+					}
+					create_country_leader = {
+						name = "VIN_colonial_party"
+						picture = "gfx/leaders/FRA/FRA_provisional_government.png"
+						ideology = stratocracy
+						traits = { foreign_leader standing_alone }
+					}
+					create_country_leader = {
+						name = "VIN_colonial_party"
+						picture = "gfx/leaders/FRA/FRA_provisional_government.png"
+						ideology = oligarchism
+						traits = { foreign_leader standing_alone }
+					}
+					division_template = {
+						name = "Brigade française de garnison en Indochine"
+						regiments = {
+							infantry = {
+								x = 0
+								y = 0
+							}
+							infantry = {
+								x = 0
+								y = 1
+							}
+							infantry = {
+								x = 0
+								y = 2
+							}
+							infantry = {
+								x = 0
+								y = 3
+							}
+							infantry = {
+								x = 1
+								y = 0
+							}
+							infantry = {
+								x = 1
+								y = 1
+							}
+							infantry = {
+								x = 1
+								y = 2
+							}
+							infantry = {
+								x = 1
+								y = 3
+							}
+						}
+					}
+					random_owned_state = {
+						create_unit = {
+							division = "name = \"1ère brigade\" division_template = \"Brigade française de garnison en Indochine\" start_experience_factor = 1.0 start_equipment_factor = 0.3"
+							owner = PREV
+						}
+						create_unit = {
+							division = "name = \"2e brigade\" division_template = \"Brigade française de garnison en Indochine\" start_experience_factor = 1.0 start_equipment_factor = 0.3"
+							owner = PREV
+						}
+						create_unit = {
+							division = "name = \"3e brigade\" division_template = \"Brigade française de garnison en Indochine\" start_experience_factor = 1.0 start_equipment_factor = 0.3"
+							owner = PREV
+						}
+						create_unit = {
+							division = "name = \"4e brigade\" division_template = \"Brigade française de garnison en Indochine\" start_experience_factor = 1.0 start_equipment_factor = 0.3"
+							owner = PREV
+						}
+					}
+					every_state = {
+						limit = {
+							OR = {
+								is_core_of = LAO
+								is_core_of = VIN
+								is_core_of = CAM
+							}
+						}
+						remove_core_of = PREV
+						add_claim_by = PREV
+					}
+				}
+				random_other_country = {
+					limit = {
+						original_tag = VIN
+						has_country_flag = french_indochina
+					}
+					every_other_country = {
+						limit = {
+							OR = {
+								original_tag = LAO
+								original_tag = CAM
+							}
+							is_subect = no
+							NOT = {
+								is_in_faction_with = PREV
+								has_war_with = PREV
+							}
+						}
+						PREV = {
+							declare_war_on = {
+								target = PREV
+								type = annex_everything
+							}
+						}
+					}
+				}
+			}
+		}
 		ai_chance = {
 			factor = 1
-			modifier {
+			modifier = {
 				factor = 0
 				GER = {
 					exists = yes
