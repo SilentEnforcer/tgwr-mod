@@ -11,6 +11,7 @@ country_event = {
 		original_tag = QIN
 		has_war_with = FRA
 		has_government = neutrality
+		is_historical_focus_on = no
 	}
 	mean_time_to_happen = { days = 0 }
 	
@@ -132,6 +133,7 @@ country_event = {
 	desc = {
 		text = ww1_qing.3.d
 		trigger = {
+			is_qing_monarchy = yes
 			OR = {
 				has_country_leader_ideology = despotism
 				has_country_leader_ideology = oligarchism
@@ -142,6 +144,7 @@ country_event = {
 	desc = {
 		text = ww1_qing.3.d2
 		trigger = {
+			is_qing_monarchy = yes
 			NOT = {
 				has_country_leader_ideology = despotism
 				has_country_leader_ideology = oligarchism
@@ -149,77 +152,99 @@ country_event = {
 			}
 		}
 	}
+	desc = {
+		text = ww1_qing.3.d3
+		trigger = {
+			is_qing_monarchy = no
+		}
+	}
 	desc = ww1_qing.3.d
 	picture = GFX_report_event_generic_military_parade
 	fire_only_once = yes	
 	trigger = {
-		is_qing_monarchy = yes
+		OR = {
+			is_qing_monarchy = yes
+			has_idea = QIN_abdicated_qing_imperial_family
+		}
 		date > 1922.2.1
 		NOT = { has_global_flag = puyi_age }
 	}
 	mean_time_to_happen = { days = 7 }
 	immediate = {
-		set_global_flag = puyi_age
+		hidden_effect = {
+			if = {
+				limit = {
+					NOT = { has_global_flag = puyi_age }
+				}
+				every_possible_country = {
+					limit = {
+						has_character = QIN_xuantong
+					}
+					QIN_xuantong = {
+						set_portraits = {
+							civilian = {
+								large = "GFX_portrait_man_henry_pu_yi_emperor"
+							}
+						}
+						add_country_leader_role = {
+							country_leader = {
+								ideology = autocracy
+								traits = { emperor_of_unity_proclamation }
+							}
+						}
+					}
+				}
+				every_possible_country = {
+					limit = {
+						has_character = CHI_xuantong
+					}
+					CHI_xuantong = {
+						set_portraits = {
+							civilian = {
+								large = "GFX_portrait_man_henry_pu_yi_emperor"
+							}
+						}
+						add_country_leader_role = {
+							country_leader = {
+								ideology = autocracy
+								traits = { emperor_of_unity_proclamation }
+							}
+						}
+					}
+				}
+				every_possible_country = {
+					limit = {
+						has_character = ZHC_xuantong
+					}
+					ZHC_xuantong = {
+						set_portraits = {
+							civilian = {
+								large = "GFX_portrait_man_henry_pu_yi_emperor"
+							}
+						}
+						add_country_leader_role = {
+							country_leader = {
+								ideology = autocracy
+								traits = { emperor_of_unity_proclamation }
+							}
+						}
+					}
+				}
+			}
+			set_global_flag = puyi_age
+		}
 	}
 	option = {
 		name = ww1_qing.3.a
+		trigger = { is_qing_monarchy = yes }
 		hidden_effect = {
-			swap_ideas = {
-				remove_idea = QIN_idea_xuantong_young
-				add_idea = QIN_idea_xuantong
-			}
-			every_possible_country = {
+			if = {
 				limit = {
-					has_character = QIN_xuantong
+					has_idea = QIN_idea_xuantong_young
 				}
-				QIN_xuantong = {
-					set_portraits = {
-						civilian = {
-							large = "GFX_portrait_man_henry_pu_yi_emperor"
-						}
-					}
-					add_country_leader_role = {
-						country_leader = {
-							ideology = autocracy
-							traits = { emperor_of_unity_proclamation }
-						}
-					}
-				}
-			}
-			every_possible_country = {
-				limit = {
-					has_character = CHI_xuantong
-				}
-				CHI_xuantong = {
-					set_portraits = {
-						civilian = {
-							large = "GFX_portrait_man_henry_pu_yi_emperor"
-						}
-					}
-					add_country_leader_role = {
-						country_leader = {
-							ideology = autocracy
-							traits = { emperor_of_unity_proclamation }
-						}
-					}
-				}
-			}
-			every_possible_country = {
-				limit = {
-					has_character = SDC_xuantong
-				}
-				SDC_xuantong = {
-					set_portraits = {
-						civilian = {
-							large = "GFX_portrait_man_henry_pu_yi_emperor"
-						}
-					}
-					add_country_leader_role = {
-						country_leader = {
-							ideology = autocracy
-							traits = { emperor_of_unity_proclamation }
-						}
-					}
+				swap_ideas = {
+					remove_idea = QIN_idea_xuantong_young
+					add_idea = QIN_idea_xuantong
 				}
 			}
 		}
@@ -248,88 +273,173 @@ country_event = {
 			}
 			else_if = {
 				limit = {
-					has_character = SDC_xuantong
+					has_character = ZHC_xuantong
 				}
-				promote_character = SDC_xuantong
+				promote_character = ZHC_xuantong
 				hidden_effect = { remove_ideas = QIN_idea_xuantong }
 			}
 		}
 	}
+	option = {
+		name = ww1_qing.3.b
+		trigger = { is_qing_monarchy = no }
+		add_political_power = 75
+	}
 }
 
+# Request Hong Kong
 country_event = {
 	id = ww1_qing.4
 	title = ww1_qing.4.t
 	desc = ww1_qing.4.d
-	picture = GFX_report_event_generic_military_parade
+	picture = GFX_report_event_generic_sign_treaty2
 
 	is_triggered_only = yes
 
 	option = {
 		name = ww1_qing.4.a
-		if = {
-			limit = { owns_state = 746 }
-			QIN = { transfer_state = 746 }
+		every_state = {
+			limit = {
+				owns_or_subject_of = yes
+				OR = {
+					state = 746
+					state = 744
+					state = 745
+					state = 326
+					state = 729
+					state = 728
+					state = 524
+					state = 593
+					state = 592
+					state = 613
+					state = 872
+					state = 591
+					state = 594
+				}
+			}
+			FROM = { transfer_state = PREV }
 		}
-		if = {
-			limit = { owns_state = 744 }
-			QIN = { transfer_state = 744 }
+		ai_chance = {
+			base = 1
+			modifier = {
+				factor = 0
+				is_major = no
+			}
+			modifier = {
+				factor = 0
+				has_government = fascism
+			}
+			modifier = {
+				factor = 0
+				any_other_country = {
+					is_china_or_warlord = yes
+					has_war_with = ROOT
+				}
+			}
+			modifier = {
+				factor = 0
+				any_other_country = {
+					is_china_or_warlord = yes
+					is_subject_of = ROOT
+				}
+			}
+			modifier = {
+				factor = 0
+				has_war_with = JAP
+			}
+			modifier = {
+				factor = 0
+				has_opinion = {
+					target = FROM
+					value < 0
+				}
+			}
 		}
-		if = {
-			limit = { owns_state = 745 }
-			QIN = { transfer_state = 745 }
-		}
-		if = {
-			limit = { owns_state = 326 }
-			QIN = { transfer_state = 326 }
-		}
-		if = {
-			limit = { owns_state = 729 }
-			QIN = { transfer_state = 729 }
-		}
-		if = {
-			limit = { owns_state = 728 }
-			QIN = { transfer_state = 728 }
-		}
-		if = {
-			limit = { owns_state = 524 }
-			QIN = { transfer_state = 524 }
-		}
-		ai_chance = { factor = 50 }
 	}
 	option = {
 		name = ww1_qing.4.b
 		QIN = { country_event = ww1_qing.5 }
 		ai_chance = {
-			factor = 10
+			base = 10
 			modifier = {
-				factor = 10
-				QIN = { has_army_manpower = { size < 750000 } }
+				add = -5
+				is_in_faction_with = FROM
 			}
 			modifier = {
-				factor = 100
-				original_tag = OST
+				add = -5
+				has_opinion = {
+					target = FROM
+					value > 30
+				}
+			}
+			modifier = {
+				add = -5
+				strength_ratio = {
+					tag = FROM
+					ratio < 1
+				}
 			}
 		}
 	}
 }
+
+# Request rejected
 country_event = {
 	id = ww1_qing.5
 	title = ww1_qing.5.t
 	desc = ww1_qing.5.d
-	picture = GFX_report_event_japan_army_mountainside
+	picture = GFX_report_event_generic_sign_treaty2
 
 	is_triggered_only = yes
 
 	option = {
 		name = ww1_qing.5.a
+		trigger = {
+			is_major = yes
+			NOT = {
+				is_in_faction_with = FROM
+				has_idea = idea_armistice
+				has_idea = idea_army_restrictions
+			}
+		}
 		create_wargoal = {
 			target = FROM
 			type = take_core_state
 		}
-		ai_chance = { factor = 50 }
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 10
+				has_government = fascism
+			}
+			modifier = {
+				add = 3
+				threat > 0.5
+			}
+			modifier = {
+				add = 5
+				strength_ratio = {
+					tag = FROM
+					ratio > 1.5
+				}
+			}
+			modifier = {
+				factor = 0
+				has_country_flag = great_war_loser
+				NOT = {
+					has_government = fascism
+					has_government = communism
+				}
+			}
+		}
+	}
+	option = {
+		name = ww1_qing.5.b
+		add_political_power = -15
+		ai_chance = { factor = 20 }
 	}
 }
+
 # CONSTITUTIONAL QING
 ######################
 country_event = {
@@ -482,12 +592,6 @@ country_event = {
 	option = {
 		name = ww1_qing.9.a
 		add_political_power = -25
-		hidden_effect = {
-			country_event = {
-				id = ww1_qing.10
-				days = 30
-			}
-		}
 	}
 }
 
@@ -505,7 +609,7 @@ country_event = {
 		hidden_effect = {
 			country_event = {
 				id = ww1_qing.11
-				days = 20
+				days = 110
 			}
 		}
 	}
@@ -565,222 +669,5 @@ country_event = {
 		add_political_power = 75
 		add_war_support = -0.05
 		add_stability = -0.10
-	}
-}
-
-# Socialists in Qing?
-country_event = {
-	id = ww1_qing.14
-	title = ww1_qing.14.t
-	desc = ww1_qing.14.d
-	fire_only_once = yes
-	picture = GFX_report_event_china_soviet_volunteers
-	trigger = {
-		is_china_or_warlord = yes
-		owns_state = 283
-		NOT = {
-			has_government = communism
-			any_other_country = {
-				is_china_or_warlord = yes
-				has_government = communism
-			}
-		}
-		any_other_country = {
-			is_china_or_warlord = no
-			has_government = communism
-			is_major = yes
-			exists = yes
-		}
-		country_exists = QIN
-		NOT = {
-			country_exists = CHI
-			has_global_flag = warlord_era_end
-		}
-		has_global_flag = warlord_era
-	}
-	mean_time_to_happen = {
-		days = 180
-	}
-	option = {
-		name = ww1_qing.14.a
-		start_civil_war = {
-			ideology = communism
-			size = 0.7
-			set_cosmetic_tag = CSR
-			hidden_effect = {
-				create_country_leader = {
-					name = "PRC_mao_zedong"
-					picture = "GFX_portrait_prc_mao_zedong"
-					ideology = national_syndicalism
-					traits = { cornered_fox }
-				}
-				create_country_leader = {
-					name = "CHI_li_dazhao"
-					picture = "gfx/leaders/CHI/CHI_li_dazhao.png"
-					ideology = socialism
-				}
-			}
-			create_country_leader = {
-				name = "CHI_li_dazhao"
-				picture = "gfx/leaders/CHI/CHI_li_dazhao.png"
-				ideology = anarcho_syndicalism
-				traits = { standing_alone }
-			}
-			keep_political_party_members = yes
-			keep_unit_leaders_trigger = {
-				always = yes
-			}
-			set_party_name = {
-				ideology = communism
-				long_name = CHI_communist_party_long
-				name = CHI_communist_party
-			}
-			set_rule = {
-				can_join_factions = no
-			}
-			add_ideas = {
-				closed_economy
-				service_by_requirement
-				partial_economic_mobilisation
-			}
-			set_war_support = 0.85
-			set_stability = 0.67
-			create_field_marshal = {
-				name = "PRC_mao_zedong"
-				gfx = "GFX_portrait_prc_mao_zedong"
-				traits = {
-					defensive_doctrine
-					trait_cautious
-					politically_connected
-				}
-				skill = 4
-				attack_skill = 2
-				defense_skill = 4
-				planning_skill = 3
-				logistics_skill = 4
-			}
-			create_corps_commander = {
-				name = "PRC_zhu_de"
-				gfx = "GFX_portrait_prc_zhu_de"
-				traits = {
-					infantry_officer
-					organizer
-				}
-				skill = 4
-				attack_skill = 3
-				defense_skill = 3
-				planning_skill = 3
-				logistics_skill = 4
-			}
-			create_corps_commander = {
-				name = "PRC_chen_yi"
-				gfx = "GFX_portrait_prc_chen_yi"
-				traits = {
-					infantry_officer
-				}
-				skill = 3
-				attack_skill = 4
-				defense_skill = 3
-				planning_skill = 2
-				logistics_skill = 2
-			}
-			create_corps_commander = {
-				name = "PRC_peng_duhuai"
-				gfx = "GFX_portrait_prc_peng_dehuai"
-				traits = {
-					infantry_officer
-					trait_mountaineer
-				}
-				skill = 4
-				attack_skill = 3
-				defense_skill = 5
-				planning_skill = 3
-				logistics_skill = 2
-			}
-			create_corps_commander = {
-				name = "PRC_lin_biao"
-				portrait_path = "gfx/leaders/Asia/Portrait_Asia_Generic_warlord1.dds"
-				traits = {
-					infantry_officer
-					trait_mountaineer
-				}
-				skill = 5
-				attack_skill = 4
-				defense_skill = 5
-				planning_skill = 3
-				logistics_skill = 4
-			}
-			division_template = {
-				name = "Gongnong Hongjun"
-				regiments = {
-					infantry = {
-						x = 0
-						y = 0
-					}
-					infantry = {
-						x = 0
-						y = 1
-					}
-					infantry = {
-						x = 0
-						y = 2
-					}
-					infantry = {
-						x = 1
-						y = 0
-					}
-					infantry = {
-						x = 1
-						y = 1
-					}
-					infantry = {
-						x = 1
-						y = 2
-					}
-				}
-			}
-			283 = {
-				create_unit = {
-					division = "name = \"1. Gongnong Hongjun\" division_template = \"Gongnong Hongjun\" start_experience_factor = 0.7"
-					owner = PREV
-				}
-				create_unit = {
-					division = "name = \"2. Gongnong Hongjun\" division_template = \"Gongnong Hongjun\" start_experience_factor = 0.7"
-					owner = PREV
-				}
-				create_unit = {
-					division = "name = \"3. Gongnong Hongjun\" division_template = \"Gongnong Hongjun\" start_experience_factor = 0.7"
-					owner = PREV
-				}
-				create_unit = {
-					division = "name = \"4. Gongnong Hongjun\" division_template = \"Gongnong Hongjun\" start_experience_factor = 0.7"
-					owner = PREV
-				}
-				create_unit = {
-					division = "name = \"5. Gongnong Hongjun\" division_template = \"Gongnong Hongjun\" start_experience_factor = 0.7"
-					owner = PREV
-				}
-				create_unit = {
-					division = "name = \"6. Gongnong Hongjun\" division_template = \"Gongnong Hongjun\" start_experience_factor = 0.7"
-					owner = PREV
-				}
-			}
-			hidden_effect = {
-				if = {
-					limit = {
-						PRC = {
-							is_neighbor_of = PREV
-							is_ai = yes
-							is_major = no
-						}
-					}
-					annex_country = {
-						target = PRC
-						transfer_troops = yes
-					}
-				}
-			}
-		}
-		news_event = ww1_china.107
 	}
 }
