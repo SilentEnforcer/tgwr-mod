@@ -222,19 +222,32 @@ country_event = {
 	}
 	option = {
 		name = ww1_serbia.7.a
-		create_country_leader = {
-			name = "Alexander II"
-			picture = "gfx/leaders/SER/SER_alexander_i.dds"
-			expire = "1935.1.1"
-			ideology = fascism_ideology
-			traits = {
-				trait_proto_fascism
-				divisive_absolute_monarch
+		SER_prince_regent_alexander = {
+			add_country_leader_role = {
+				promote_leader = yes
+				country_leader = {
+					ideology = fascism_ideology				
+					traits = {					
+						divisive_absolute_monarch						
+					}
+				}	
+			}
+			add_field_marshal_role = {
+				traits={ politically_connected trait_royal media_personality harsh_leader }
+				skill=1
+				attack_skill=1
+				defense_skill=1
+				planning_skill=1
+				logistics_skill=1
+				legacy_id=82052
+				visible = {
+					is_country_leader = yes			
+				}
 			}
 		}
 		set_country_flag = fascist_alexander_i
 		ai_chance = {
-			factor = 100
+			factor = 50
 		}
 	}
 	option = {
@@ -251,6 +264,7 @@ news_event = {
 	id = ww1_serbia.8
 	title = ww1_serbia.8.t
 	desc = ww1_serbia.8.d
+	picture = GFX_news_event_ser_black_hand
 	is_triggered_only = yes
 	major = yes
 	trigger = {
@@ -729,18 +743,16 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		tag = SER
-		SER = {
-			is_subject = no
-		}
+		is_subject = no
+		NOT = { has_country_flag = great_war_loser }
 		CRO = {
 			exists = yes
 			is_subject = no
+			has_cosmetic_tag = CRO_SSCS	
 		}
-		OR = {
-			AUH = {
+		AUH = {
+			OR = {
 				exists = no
-			}
-			AUH = {
 				has_country_flag = great_war_loser
 			}
 		}
@@ -750,44 +762,104 @@ country_event = {
 		SER = {
 			puppet = CRO
 		}
+		hidden_effect = {
+			CRO = {
+				if = { 
+					limit = {
+						has_government = fascism
+					}
+				}
+				set_politics = {
+					ruling_party = neutrality
+					elections_allowed = no
+				}	
+				set_popularities = {
+					fascism = 3
+					communism = 1
+					democratic = 42
+					neutrality = 54
+				}
+			}
+		}
 		ai_chance = {
 			factor = 100
 		}
 	}
 }
 
-#Austrija zahteva povlačenje s Jadranske obale
+# Austria/Italy/Germany demands to liberate Albania in the London Conference
 country_event = {
 	id = ww1_serbia.24
 	title = ww1_serbia.24.t
 	desc = ww1_serbia.24.d
+	picture = GFX_report_event_generic_sign_treaty3
 	is_triggered_only = yes
 	fire_only_once = yes
 	option = {
 		#predajem se
 		name = ww1_serbia.24.a
-		ALB = {
-			transfer_state = 44
-			transfer_state = 803
-		}
-		ITA = {
-			give_guarantee = ALB
+		every_state = {
+			limit = {
+				OWNER = {
+					OR = {
+						tag = ROOT
+						is_in_faction_with = ROOT
+						is_subject_of = ROOT
+						has_country_flag = won_balkan_war
+					}
+				}
+				OR = {
+					state = 44
+					state = 870
+					state = 871
+					state = 803
+				}
+			}
+			transfer_state_to = ALB
 		}
 		ai_chance = {
-			factor = 100
+			base = 75
+			modifier = {
+				factor = 0
+				has_game_rule = {
+					rule = ultimatum_on_albania
+					option = WAR_ON_ALBANIA
+				}
+			}
 		}
 	}
 	option = {
 		#se nosite u 3 lepe pičke materine 
 		name = ww1_serbia.24.b
-		AUH = {
-			country_event = ww1_austria.23
+		FROM = {
+			country_event = ww1_auh.23
 		}
 		SER = {
 			set_country_flag = odbili_albaniju
 		}
 		ai_chance = {
-			factor = 0
+			base = 100
+			modifier = {
+				add = 50
+				has_war_support > 0.5
+			}
+			modifier = {
+				add = 50
+				any_other_country = {
+					is_major = yes
+					has_guaranteed = PREV
+				}
+			}
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+				NOT = {
+					has_game_rule = {
+						rule = ultimatum_on_albania
+						option = WAR_ON_ALBANIA
+					}
+				}
+			}
 		}
 	}
 }
@@ -802,17 +874,25 @@ country_event = {
 	option = {
 		#ne smeta nam embargo, idemo mi preko mora
 		name = ww1_serbia.25.a
-		SER = {
-			add_opinion_modifier = {
-				target = AUH
-				modifier = embargo
-			}
+		add_opinion_modifier = {
+			target = FROM
+			modifier = diplomatic_protest
 		}
-		AUH = {
+		add_opinion_modifier = {
+			target = FROM
+			modifier = embargo
+		}
+		send_embargo = FROM
+		FROM = {
 			add_opinion_modifier = {
-				target = AUH
+				target = PREV
+				modifier = diplomatic_protest
+			}
+			add_opinion_modifier = {
+				target = PREV
 				modifier = embargo
 			}
+			send_embargo = PREV
 		}
 		ai_chance = {
 			factor = 100
@@ -835,6 +915,7 @@ country_event = {
 			has_country_flag = odbili_albaniju			#Ja mogu razumem srpski jezik, ali je bolje pisati na engleskom, every flag
 		}
 		owns_state = 44
+		owns_state = 203
 		NOT = {
 			has_completed_focus = SER_great_serbia
 		}
@@ -1110,8 +1191,9 @@ country_event = {
 		tag = SER
 		has_country_flag = great_war_winner
 		has_completed_focus = SER_form_yugoslavia
-		NOT = {
-			country_exists = AUH
+		AUH = {
+			exists = no
+			AUH_svetozar_von_bojna = { is_unit_leader = yes }
 		}
 	}
 	mean_time_to_happen = {
@@ -1125,13 +1207,11 @@ country_event = {
 			add_stability = -0.03
 		}
 		AUH = {
-			every_unit_leader = {
-				limit = {
-					has_id = 82008
-				}
+			AUH_svetozar_von_bojna = {
+				set_character_name = "SER_svetozar_borojevic"
 				set_nationality = SER
 			}
-		}
+		}	
 		ai_chance = {
 			factor = 50
 			modifier = {
@@ -1158,6 +1238,10 @@ news_event = {
 	picture = GFX_news_event_004
 	major = yes
 	trigger = {
+		has_global_flag = kis_war
+		NOT = {
+			has_global_flag = kolubara_battle
+		}
 		SER = {
 			has_war_with = AUH
 			owns_state = 107
@@ -1166,12 +1250,7 @@ news_event = {
 		AUH = {
 			casualties > 100000
 		}
-		has_global_flag = kis_war
-		NOT = {
-			has_global_flag = kolubara_battle
-		}
 	}
-	fire_only_once = yes
 	immediate = {
 		set_global_flag = kolubara_battle
 	}

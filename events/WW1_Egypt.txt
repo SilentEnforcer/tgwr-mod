@@ -1,5 +1,7 @@
 add_namespace = ww1_egypt
 
+# EGYPTIAN REVOLUTION
+#####################
 country_event = {
 	id = ww1_egypt.1
 	title = interwar_news.5.t
@@ -7,14 +9,25 @@ country_event = {
 	picture = GFX_report_event_india_protests
 
 	fire_only_once = yes
-	is_triggered_only = yes
+
 	trigger = {
-		original_tag = EGY
+		tag = EGY
+		has_global_flag = interbellum
 		has_war = no
 		is_subject_of = ENG
 		NOT = {	has_global_flag = egyptian_revolution }
-		date > 1919.1.1
+		date > 1919.10.1
+		ENG = {
+			has_war = no
+			NOT = {
+				has_country_flag = great_war_loser
+			}
+		}	
 	}
+	
+	mean_time_to_happen = {
+			days = 5
+		}
 
 	immediate = {
 		set_global_flag = egyptian_revolution
@@ -22,31 +35,33 @@ country_event = {
 
 	option = {
 		name = ww1_egypt.1.a
-		ENG = {
-			end_puppet = EGY
-			remove_from_faction = EGY
-			declare_war_on = {
-				target = EGY
-				type = annex_everything
+		ENG = { 
+			country_event = { id = ww1_egypt.4 days = 1 hours = 1 } 
+			hidden_effect = {
+				unlock_national_focus = ENG_control_under_egypt
 			}
 		}
 		news_event = { id = interwar_news.5 days = 1 }
-		ai_chance = {
-			factor = 0
+		add_autonomy_score = {
+			value = 50
 		}
-	}
-	option = {
-		name = ww1_egypt.1.b
-		ENG = {
-			annex_country = {
-				target = EGY
-				transfer_troops = no
+		add_war_support = -0.01
+		every_owned_state = {
+			limit = {
+				OR = {
+					state = 446
+					state = 447
+				}
 			}
+			set_demilitarized_zone = yes
 		}
-		news_event = { id = interwar_news.5 days = 1 }
-		ai_chance = {
-			factor = 100
-		}
+		hidden_effect = {
+			TUR = {
+				country_event = {
+					id = ww1_england.82
+				}
+			}
+		}	
 	}
 }
 # British Coup
@@ -62,17 +77,7 @@ country_event = {
 	
 	option = {
 		name = ww1_egypt.2.a
-		ai_chance = { factor = 100 }
-		retire_country_leader = yes
-		create_country_leader = {
-			name = "Hussein Kamel"
-			picture = "gfx/leaders/EGY/EGY_hussein_kamel.dds"
-			expire = "1935.1.1"
-			ideology = despotism
-			traits = {
-				trait_despotism
-			}
-		}
+		promote_character = EGY_hussein_kamel
 	}
 }
 country_event = {
@@ -82,84 +87,143 @@ country_event = {
 	picture = GFX_report_event_saf_civil_war
 
 	fire_only_once = yes
-	is_triggered_only = yes
 	trigger = {
 		original_tag = EGY
 		has_country_leader = {
-			name = "Hussein Kamel"
-			ruling_only = yes
+			character = EGY_hussein_kamel
 		}
-		date > 1917.1.1
-		date < 1918.1.1
+		date > 1917.10.1
 	}
+	mean_time_to_happen = { days = 8 }
 	
 	option = {
 		name = ww1_egypt.2.a
-		ai_chance = { factor = 100 }
-		retire_country_leader = yes
-		create_country_leader = {
-			name = "Fuad I Muhammad Ali"
-			picture = "gfx/leaders/EGY/EGY_fuad_i.dds"
-			expire = "1935.1.1"
-			ideology = despotism
-			traits = {
-				trait_despotism
-			}
-		}
-		if = {
-			limit = { has_global_flag = EGY_sultanate }
-			set_cosmetic_tag = EGY_kingdom
-		}
+		kill_country_leader = yes
+		promote_character = EGY_fuad_i_muhammad_ali
 	}
 }
+# EGYPTIAN REVOLUTION - UK RESPONCE
+#####################
 country_event = {
 	id = ww1_egypt.4
 	title = interwar_news.5.t
-	desc = interwar_news.5.d
+	desc = ww1_egypt.4.d
 	picture = GFX_report_event_india_protests
 
 	is_triggered_only = yes
 	fire_only_once = yes
 
-	immediate = {
-		set_global_flag = egyptian_revolution
-	}
 
 	option = {
-		name = ww1_egypt.1.a
-		ENG = {
-			end_puppet = EGY
-			remove_from_faction = EGY
-			declare_war_on = {
-				target = EGY
-				type = annex_everything
-			}
-		}
-		news_event = { id = interwar_news.5 days = 1 }
+		name = ww1_egypt.4.a
+		add_political_power = -50
+		add_command_power = -50
 		ai_chance = {
 			factor = 1
 		}
+		if = {
+			limit = {
+				ENG_edmund_allenby = { is_unit_leader = yes is_country_leader = no }
+			}
+			ENG_edmund_allenby = {
+				set_nationality = EGY
+				if = {
+					limit = {
+						is_field_marshal = no									
+					}
+					promote_leader = yes
+				}
+			}
+		}
+		add_manpower = -29
+		AST = {
+			add_manpower = -1
+		}
+		unlock_decision_tooltip = ENG_recognize_egyptian_independence
+		set_global_flag = egyptian_revolution_suppressed
+		hidden_effect = {
+			every_owned_state = {
+				limit = {
+					OR = {
+						state = 446
+						state = 447
+					}
+				}
+				set_demilitarized_zone = no
+			}
+		}
+	}
+	option = {
+		name = ww1_egypt.4.b
+		add_political_power = 50
+		end_puppet = EGY
+		give_guarantee = EGY
+		EGY = {
+			set_cosmetic_tag = EGY_kingdom
+			if = {
+				limit = {
+					has_government = neutrality
+				}
+				set_country_leader_ideology = autocracy
+			}
+			add_ideas = ENG_british_officers_independent_egypt
+			country_lock_all_division_template = no	
+			add_popularity = {
+				ideology = democratic
+				popularity = 0.3
+			}
+			give_military_access = ENG
+		}
+		every_owned_state = {
+			limit = {
+				NOT = {
+					state = 447
+				}	
+				OR = {
+					is_core_of = EGY
+					is_core_of = SUD
+					is_claimed_by = EGY
+				}
+			}
+			transfer_state_to = EGY
+		}
+		hidden_effect = {
+			every_owned_state = {
+				limit = {
+					OR = {
+						state = 446
+						state = 447
+					}
+				}
+				set_demilitarized_zone = no
+			}
+		}
+		ai_chance = {
+			factor = 0
+		}
 	}
 }
-#QUESTION FOR SUEZ CANAL OWNERSHIP
+# QUESTION FOR SUEZ CANAL OWNERSHIP
 ######################################
 country_event = {
 	id = ww1_egypt.5
 	title = ww1_egypt.5.t
 	desc = ww1_egypt.5.d
+	picture = GFX_report_event_german_troops
 	fire_only_once = yes
 	trigger = {
 		original_tag = EGY
-		has_country_flag = great_war_winner
 		has_global_flag = interbellum
 		is_subject = no
 		has_war = no
 		owns_state = 447
-		NOT = { has_global_flag = ottoman_egypt_guaranteed }
-		ENG = {
-			has_country_flag = great_war_loser
+		NOT = {
+			has_global_flag = ottoman_egypt_guaranteed
+			has_country_flag = great_war_winner
 		}
 		TUR = {
+			is_neighbor_of = PREV
+			has_country_flag = great_war_winner
 			owns_state = 454
 			NOT = { has_country_flag = ottomans_hold_cairo_and_alexandria }
 		}
@@ -190,7 +254,7 @@ country_event = {
 				factor = 0
 				has_opinion = {
 					target = GER
-					value > 25
+					value > 80
 				}
 			}
 		}
@@ -203,36 +267,82 @@ country_event = {
 		ai_chance = {
 			base = 0
 			modifier = {
+				add = 200
+				has_opinion = {
+					target = GER
+					value > 80
+				}
+			}
+			modifier = {
 				add = 100
 				has_opinion = {
 					target = GER
-					value > 25
+					value > 50
+				}
+			}
+			modifier = {
+				add = 50
+				has_opinion = {
+					target = GER
+					value > 35
+				}
+			}
+			modifier = {
+				add = 10
+				has_opinion = {
+					target = GER
+					value > 20
 				}
 			}
 		}
 	}
 }
-#GERMAN PROTECTION ON SUEZ CANAL
+
+# GERMAN PROTECTION ON SUEZ CANAL
 ######################################
 country_event = {
 	id = ww1_egypt.6
 	title = ww1_egypt.6.t
 	desc = ww1_egypt.6.d
+	picture = GFX_report_event_german_troops
 	fire_only_once = yes
 	is_triggered_only = yes
 
 	option = {
 		name = ww1_egypt.6.a
-		
 		transfer_state = 447
+		give_guarantee = FROM
+		add_opinion_modifier = {
+			target = FROM
+			modifier = german_protection_of_suez_canal
+		}
+		diplomatic_relation = {
+			country = FROM
+			relation = non_aggression_pact
+			active = yes
+		}
+		FROM = {
+			diplomatic_relation = {
+				country = PREV
+				relation = docking_rights
+				active = yes
+			}
+			add_opinion_modifier = {
+				target = PREV
+				modifier = german_protection_of_suez_canal
+			}
+		}
+		news_event = ww1_egypt.10
 	}
 }
-#DO OTTOMAN SEIZES SUEZ CANAL?
+
+# DO OTTOMAN SEIZES SUEZ CANAL?
 ######################################
 country_event = {
 	id = ww1_egypt.7
 	title = ww1_egypt.7.t
 	desc = ww1_egypt.7.d
+	picture = GFX_report_event_german_troops
 	fire_only_once = yes
 	is_triggered_only = yes
 
@@ -295,7 +405,8 @@ country_event = {
 		}
 	}
 }
-#OTTOMAN SEIZES SUEZ CANAL
+
+# OTTOMAN SEIZES SUEZ CANAL
 ######################################
 news_event = {
 	id = ww1_egypt.8
@@ -344,7 +455,8 @@ news_event = {
 		}
 	}
 }
-#EGYPT HOLDS SUEZ CANAL
+
+# EGYPT HOLDS SUEZ CANAL
 ######################################
 news_event = {
 	id = ww1_egypt.9
@@ -397,6 +509,42 @@ news_event = {
 			NOT = {
 				tag = TUR
 				tag = EGY
+			}
+		}
+	}
+}
+
+# German Suez
+news_event = {
+	id = ww1_egypt.10
+	title = ww1_egypt.10.t
+	desc = ww1_egypt.10.d
+	picture = GFX_news_event_038
+	major = yes
+	is_triggered_only = yes
+	option = {
+		name = ww1_egypt.10.a
+		trigger = {
+			NOT = {
+				tag = GER
+				is_subject_of = GER
+				is_in_faction_with = GER
+				tag = EGY
+				is_subject_of = EGY
+				is_in_faction_with = EGY
+			}
+		}
+	}
+	option = {
+		name = ww1_egypt.10.b
+		trigger = {
+			OR = {
+				tag = GER
+				is_subject_of = GER
+				is_in_faction_with = GER
+				tag = EGY
+				is_subject_of = EGY
+				is_in_faction_with = EGY
 			}
 		}
 	}

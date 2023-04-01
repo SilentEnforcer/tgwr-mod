@@ -19,18 +19,21 @@ focus_tree = {
 		cost = 5
 		x = 7
 		y = 0
-		available = {
-			owns_state = 104
-		}
-		bypass = { country_exists = BOS }
-		completion_reward = {			
-			add_state_core = 104
-			hidden_effect = {
-				BOS = { remove_state_core = 104 }
-				CRO = { add_state_core = 104 }
+		bypass = {
+			OR = { 
+				country_exists = BOS 
+				NOT = {
+					owns_state = 104
+				}
 			}
 		}
+		completion_reward = {			
+			add_state_core = 104
+		}
 		ai_will_do = { factor = 10 }
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
+		}
 	}
 	focus = {
 		id = AUH_develop_austrian_cisleithania
@@ -46,6 +49,9 @@ focus_tree = {
 				uses = 1 
 				category = industry
 			}
+		}
+		search_filters = {
+			FOCUS_FILTER_INDUSTRY
 		}
 	}
 	focus = {
@@ -63,6 +69,9 @@ focus_tree = {
  
 			}
 		}
+		search_filters = {
+			FOCUS_FILTER_INDUSTRY
+		}
 	}
 	focus = {
 		id = AUH_landstreitkrafte
@@ -73,9 +82,9 @@ focus_tree = {
 		ai_will_do = { factor = 1 }
 		completion_reward = {
 			army_experience = 10
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = land_doc_bonus
-				bonus = 0.5
+				cost_reduction = 0.25
 				uses = 1
 				category = land_doctrine
 			}
@@ -89,9 +98,9 @@ focus_tree = {
 		y = 0
 		completion_reward = {
 			navy_experience = 10
-			add_tech_bonus = {
-				name = AUH_kriegsmarine
-				bonus = 1.0
+			add_doctrine_cost_reduction = {
+			    name = AUH_kriegsmarine
+				cost_reduction = 0.5
 				uses = 1
 				category = naval_doctrine
 			}
@@ -109,6 +118,9 @@ focus_tree = {
 		ai_will_do = { factor = 1 }
 		completion_reward = { 
 			add_political_power = 120 
+		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
 		}
 	}
 	focus = {
@@ -154,7 +166,9 @@ focus_tree = {
 		completion_reward = {
 			add_opinion_modifier = { target = ITA modifier = large_decrease }
 			add_opinion_modifier = { target = ITA modifier = embargo }
+			send_embargo = ITA
 			ITA = {
+				send_embargo = PREV
 				add_opinion_modifier = { target = AUH modifier = large_decrease }
 				add_opinion_modifier = { target = AUH modifier = embargo }
 			}
@@ -256,7 +270,7 @@ focus_tree = {
 		        NOT = { owns_state = 244 }
 				is_in_faction_with = ITA
 			}
-        }		
+        }
 		x = 5
 		y = 3
 		available = {
@@ -276,7 +290,7 @@ focus_tree = {
 		continue_if_invalid = yes
 		available_if_capitulated = yes
 		completion_reward = {
-			country_event = { id = ww1_austria.2 }
+			country_event = { id = ww1_auh.2 }
 		}
 	}
 	focus = {
@@ -296,64 +310,37 @@ focus_tree = {
 			owns_state = 208
 		}
 		bypass = {
-			CRO = {exists = yes}
+			CRO = { exists = yes }
 		}	
 		completion_reward = {
 			remove_ideas = { AUH_croatian_separatism }
-
 			every_owned_state = {
 				limit = {
 					OR = {
 						is_core_of = CRO
 						is_core_of = BOS
+						state = 513
 					}
 					NOT = { is_fully_controlled_by = AUH } 
 				}
 				add_core_of = CRO
 				CRO = { set_state_owner = PREV }
 			}
-
 			every_owned_state = {
 				limit = {
 					OR = {
 						is_core_of = CRO
 						is_core_of = BOS
+						state = 513
 					}
 					is_fully_controlled_by = AUH
 				}
 				add_core_of = CRO
-				CRO = { transfer_state = PREV }
-			}
-			hidden_effect = {
-				CRO = {
-					create_country_leader = {
-						name = "Stjepan Radić"
-						picture = "gfx/leaders/CRO/CRO_Stjepan_Radic.dds"
-						expire = "1935.1.1"
-						ideology = authoritarian_democracy
-						traits = {
-							trait_authoritarian_democracy
-						}
-					}
-					set_cosmetic_tag = CRO_AUH
-					set_popularities = {
-						fascism = 0
-						communism = 0
-						democratic = 0
-						neutrality = 100
-					}
-					set_politics = {
-						ruling_party = neutrality 
-						elections_allowed = no
-					}
-				}
+				transfer_state_to = CRO
 			}
 			if = {
 				limit = {
-					OR = {
-						has_dlc = "Together for Victory"
-						has_dlc = "Waking the Tiger"
-					}
+					has_subject_autonomy_feature = yes
 				}
 				set_autonomy = {
 					target = CRO
@@ -362,6 +349,21 @@ focus_tree = {
 				}
 				else = {
 					puppet = CRO
+				}
+			}
+			hidden_effect = {
+				CRO = {
+					set_cosmetic_tag = CRO_AUH
+					set_popularities = {
+						fascism = 3
+						communism = 1
+						democratic = 42
+						neutrality = 54
+					}
+					set_politics = {
+						ruling_party = neutrality 
+						elections_allowed = yes
+					}
 				}
 			}
 			add_ai_strategy = {
@@ -373,7 +375,7 @@ focus_tree = {
 	}
 	focus = {
 		id = AUH_serbian_protectorate
-		icon = GFX_focus_AUH_serbian_protectorate
+		icon = GFX_focus_deal_with_serbia
 		cost = 10
 		prerequisite = {
 			focus = AUH_reform_croatian_region
@@ -388,20 +390,18 @@ focus_tree = {
 				has_war = no
 			}
 			OR = {
-			    has_global_flag = kis_secondbalkanwar_victory
 				has_global_flag = kis_secondbalkanwar_lose
 				has_global_flag = kis_firstbalkanwar_lose
-			
 			}
 		}
 		bypass = {
 		    SER = {
-			    OR = { is_subject = yes exists = no } 
+			    OR = { is_subject = yes exists = no has_global_flag = kis_secondbalkanwar_victory } 
 			}
 		}
 		completion_reward = {
 			add_opinion_modifier = { target = SER modifier = large_increase }
-			SER = { country_event = { id = ww1_austria.5 days = 2 } }
+			SER = { country_event = { id = ww1_auh.5 days = 2 } }
 			AUH = {
 				add_ai_strategy = {
 					type = protect
@@ -435,31 +435,40 @@ focus_tree = {
 
 			every_owned_state = {
 				limit = {
-					is_core_of = GAL
-					NOT = {
-						is_fully_controlled_by = AUH
-						state = 72 # Zaolzie
-					}
+					OR = {
+						is_core_of = GAL
+						state = 80
+						state = 867
+					}			
+					is_fully_controlled_by = ROOT
 				}
-				GAL = { set_state_owner = PREV }
+				transfer_state_to = GAL
 			}
-
 			every_owned_state = {
 				limit = {
-					is_core_of = GAL
-					is_fully_controlled_by = AUH
-					NOT = {
-						state = 72 # Zaolzie
-					}
+					OR = {
+						is_core_of = GAL
+						state = 80
+						state = 867
+					}			
+					NOT = { is_fully_controlled_by = ROOT }
 				}
-				GAL = { transfer_state = PREV }
+				set_state_owner_to = GAL
 			}
 			if = {
 				limit = {
-					OR = {
-						has_dlc = "Together for Victory"
-						has_dlc = "Waking the Tiger"
+					867 = {
+						is_claimed_by = ROOT
 					}
+				}
+				remove_state_claim = 857
+				GAL = {
+					add_state_claim = 867
+				}
+			}
+			if = {
+				limit = {
+					has_subject_autonomy_feature = yes
 				}
 				set_autonomy = {
 					target = GAL
@@ -511,15 +520,12 @@ focus_tree = {
 					is_core_of = CZE
 					is_fully_controlled_by = AUH
 				}
-				CZE = { transfer_state = PREV }
+				transfer_state_to = CZE
 			}		
 
 			if = {
 				limit = {
-					OR = {
-						has_dlc = "Together for Victory"
-						has_dlc = "Waking the Tiger"
-					}
+					has_subject_autonomy_feature = yes
 				}
 				set_autonomy = {
 					target = CZE
@@ -536,17 +542,9 @@ focus_tree = {
 				value = 50
 			}
 			hidden_effect = {
-				CZE = {
-					set_cosmetic_tag = CZE_AUH
-				}
 				if = {
 					limit = {
-						OR = {
-							has_cosmetic_tag = GER_confederation
-							has_cosmetic_tag = GER_HRE
-							has_cosmetic_tag = GER_suddeutscher_bund
-							has_cosmetic_tag = AUH_USGA
-						}
+						is_greater_german_cosmetic = yes
 					}
 					every_state = {
 						limit = { is_core_of = CZE }
@@ -591,7 +589,8 @@ focus_tree = {
 			CRO = { is_subject_of = AUH }
 		}
 		bypass = {
-			NOT = { SER = { is_subject_of = AUH }}
+			has_completed_focus = AUH_serbian_protectorate
+			NOT = { has_subject = SER }
 		}
 		x = 5
 		y = 8
@@ -670,7 +669,17 @@ focus_tree = {
 		available = {
 			is_subject = no
 			NOT = { has_war_with = ROM }
-			owns_state = 43
+			any_country = {
+				OR = {
+					tag = ROOT
+					is_subject_of = ROOT
+				}
+				OR = {
+					owns_state = 76
+					owns_state = 778
+					owns_state = 84
+				}			
+			}		
 		}
 		bypass = {
 			OR = {
@@ -685,7 +694,7 @@ focus_tree = {
 			}
 		}
 		completion_reward = {
-			ROM = { country_event = { id = ww1_austria.10 } }
+			ROM = { country_event = { id = ww1_auh.10 } }
 		}
 	}
 	focus = {
@@ -743,6 +752,36 @@ focus_tree = {
 					type = puppet_wargoal_focus
 					target = ROM
 				}
+				random_country = {
+					limit = {
+						OR = {
+							tag = ROOT
+							is_subject_of = ROOT
+						}
+						owns_state = 80
+					}
+					add_state_claim = 867
+				}
+				random_country = {
+					limit = {
+						OR = {
+							tag = ROOT
+							is_subject_of = ROOT
+						}
+						owns_state = 778
+					}
+					add_state_claim = 868
+				}
+				random_country = {
+					limit = {
+						OR = {
+							tag = ROOT
+							is_subject_of = ROOT
+						}
+						owns_state = 84
+					}
+					add_state_claim = 868
+				}
 				ROM = {
 					add_ai_strategy = {
 						type = alliance
@@ -778,6 +817,9 @@ focus_tree = {
 			custom_effect_tooltip = available_political_advisor
 			show_ideas_tooltip = AUH_alois_lexa_von_aehrenthal	
 		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
+		}
 	}
 	focus = {
 		id = AUH_ban_slovenian_nationalism
@@ -794,6 +836,9 @@ focus_tree = {
 		ai_will_do = { factor = 1 }
 		completion_reward = {
 			add_stability = 0.05
+		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
 		}
 	}
 	focus = {
@@ -836,7 +881,9 @@ focus_tree = {
 		}
 		x = 9
 		y = 4
-
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
+		}
 	}
 	focus = {
 		id = AUH_dissolve_croatian_parliament
@@ -853,7 +900,9 @@ focus_tree = {
 		}
 		x = 9
 		y = 5
-
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
+		}
 	}
 	focus = {
 		id = AUH_influence_in_balkans
@@ -867,7 +916,7 @@ focus_tree = {
 		completion_reward = {
 			add_opinion_modifier = { target = RUS modifier = large_decrease }
 			RUS = {
-				country_event = { id = ww1_austria.7 }
+				country_event = { id = ww1_auh.7 }
 				add_opinion_modifier = { target = AUH modifier = large_decrease } 
 				add_ai_strategy = {
 					type = protect
@@ -880,6 +929,9 @@ focus_tree = {
 					value = 200
 				}
 			}
+		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
 		}
 	}
 	focus = {
@@ -894,6 +946,9 @@ focus_tree = {
 		y = 4
 		completion_reward = {
 			remove_ideas = { AUH_czech_separatism }
+		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
 		}
 	}
 	focus = {
@@ -915,10 +970,13 @@ focus_tree = {
 				popularity = 0.1
 			}
 		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
+		}
 	}
 	focus = {
 		id = AUH_austrian_nationalism
-		icon = GFX_focus_ger_revive_kaiserreich
+		icon = GFX_focus_Austrian_Crown
 		cost = 10
 		prerequisite = {
 			focus = AUH_dissolve_aus_parliament
@@ -954,7 +1012,10 @@ focus_tree = {
 			has_war_support > 0.5
 		}
 		bypass = {
-			has_global_flag = kis_franzferdinand_murdered
+			OR = {
+				has_global_flag = kis_franzferdinand_murdered
+				has_war_with = SER
+			}
 		}
 		x = 10
 		y = 7
@@ -983,7 +1044,10 @@ focus_tree = {
 		completion_reward = {
 			if = {
 				limit = {
-				    NOT = {has_global_flag = great_war_ends}	
+				    NOT = {
+						has_global_flag = great_war_ends
+						SER = { has_country_flag = great_war_loser }
+					}
 				}	
 				custom_effect_tooltip = AUH_serbia_puppet_tt
 				else = {
@@ -1099,6 +1163,9 @@ focus_tree = {
 				}
 			}
 		}
+		search_filters = {
+			FOCUS_FILTER_INDUSTRY
+		}
 	}
 	focus = {
 		id = AUH_ban_election_in_hungary
@@ -1161,16 +1228,14 @@ focus_tree = {
 			add_political_power = 150
 			if = {
 				limit = {
-					NOT = { AUH = { has_cosmetic_tag = GER_confederation } }
-					NOT = { AUH = { has_cosmetic_tag = GER_HRE } }
-					NOT = { AUH = { has_cosmetic_tag = GER_suddeutscher_bund } }
-					NOT = { AUH = { has_cosmetic_tag = AUH_USGA } }
+					is_greater_german_cosmetic = no
+					NOT = { has_cosmetic_tag = AUH_USGA }
 				}
 				set_cosmetic_tag = AUH_EMP
 			}
 			set_country_flag = auh_unitary_monarchy
 			set_rule = { can_create_factions = yes }
-			news_event = { id = ww1_austria.9 }
+			news_event = { id = ww1_auh.9 }
 		}
 	}
 	focus = {
@@ -1194,6 +1259,9 @@ focus_tree = {
 					instant_build = yes
 				}
 			}
+		}
+		search_filters = {
+			FOCUS_FILTER_INDUSTRY
 		}
 	}
 	focus = {
@@ -1244,6 +1312,9 @@ focus_tree = {
 				}
 			}
 		}
+		search_filters = {
+			FOCUS_FILTER_INDUSTRY
+		}
 	}
 	focus = {
 		id = AUH_additional_research_slot1
@@ -1256,6 +1327,9 @@ focus_tree = {
 		y = 3
 		ai_will_do = { factor = 5 }
 		completion_reward = { add_research_slot = 1 }
+		search_filters = {
+			FOCUS_FILTER_RESEARCH
+		}
 	}
 	focus = {
 		id = AUH_czech_steel
@@ -1279,6 +1353,9 @@ focus_tree = {
 				amount = 10
 				state = 9
 			}
+		}
+		search_filters = {
+			FOCUS_FILTER_INDUSTRY
 		}
 	}
 	focus = {
@@ -1342,6 +1419,9 @@ focus_tree = {
 					}
 				}
 			}
+		}
+		search_filters = {
+			FOCUS_FILTER_INDUSTRY
 		}
 	}
 	focus = {
@@ -1410,6 +1490,9 @@ focus_tree = {
 				}
 			}
 		}
+		search_filters = {
+			FOCUS_FILTER_INDUSTRY
+		}
 	}
 	focus = {
 		id = AUH_hun_civilian_industry
@@ -1477,6 +1560,9 @@ focus_tree = {
 				}
 			}
 		}
+		search_filters = {
+			FOCUS_FILTER_INDUSTRY
+		}
 	}
 	focus = {
 		id = AUH_blockade_of_serbia
@@ -1495,8 +1581,9 @@ focus_tree = {
 		}	 
 		completion_reward = {
 			add_political_power = 100
+			send_embargo = SER
 			add_opinion_modifier = { target = SER modifier = embargo }
-			SER = { add_opinion_modifier = { target = AUH modifier = embargo } }
+			SER = { send_embargo = PREV add_opinion_modifier = { target = AUH modifier = embargo } }
 		}
 	}
 	focus = {
@@ -1521,6 +1608,9 @@ focus_tree = {
 				amount = 12
 				state = 154
 			}
+		}
+		search_filters = {
+			FOCUS_FILTER_INDUSTRY
 		}
 	}
 	focus = {
@@ -1554,6 +1644,9 @@ focus_tree = {
 				amount = 5000
 				producer = AUH
 			}
+		}
+		search_filters = {
+			FOCUS_FILTER_WAR_SUPPORT
 		}
 	}
 	focus = {
@@ -1668,6 +1761,9 @@ focus_tree = {
 				}
 			}
 		}
+		search_filters = {
+			FOCUS_FILTER_WAR_SUPPORT
+		}
 	}
 	focus = {
 		id = AUH_modernize_landwehr
@@ -1680,6 +1776,7 @@ focus_tree = {
 		y = 1
 		ai_will_do = { factor = 1 }
 		completion_reward = {
+			custom_effect_tooltip = GER_landsturm_deployment
 			add_tech_bonus = {
 				name = AUH_modernize_landwehr
 				bonus = 0.5
@@ -1716,14 +1813,15 @@ focus_tree = {
 		}
 		x = 23
 		y = 3
+		bypass = {
+			has_tech = tech_mountaineers3
+		}
 		completion_reward = {
 			add_tech_bonus = {
 				name = AUH_elite_gebirgstruppe
 				bonus = 1.0
 				uses = 2
-				technology = tech_mountaineers
-				technology = tech_mountaineers2
-				technology = tech_mountaineers3
+				category = mountaineers_tech
 			}
 		}	
 		ai_will_do = {
@@ -1753,7 +1851,7 @@ focus_tree = {
 	}
 	focus = {
 		id = AUH_motorgeschutz
-		icon = GFX_goal_generic_army_tanks
+		icon = GFX_focus_generic_A7V_tank
 		cost = 10
 		prerequisite = {
 			focus = AUH_transport_effort
@@ -2090,9 +2188,9 @@ focus_tree = {
 		ai_will_do = { factor = 1 }
 		completion_reward = {
 			air_experience = 25
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = air_doc_bonus
-				bonus = 1.0
+				cost_reduction = 0.5
 				uses = 1
 				category = air_doctrine
 			}
@@ -2338,8 +2436,6 @@ focus_tree = {
 		cost = 10
 		prerequisite = {
 			focus = AUH_form_illyria
-		}
-		prerequisite = {
 			focus = AUH_reform_czech_cisleithania
 		}
 		x = 4
@@ -2370,13 +2466,12 @@ focus_tree = {
 						is_claimed_by = HUN
 						is_core_of = TRA
 						is_core_of = SLO
+						state = 73
 					}
-					NOT = { is_fully_controlled_by = AUH } 
+					is_fully_controlled_by = ROOT
 				}
 				add_core_of = HUN
-				HUN = { 
-					set_state_owner = PREV 
-				}
+				transfer_state_to = HUN
 			}
 
 			every_owned_state = {
@@ -2386,87 +2481,51 @@ focus_tree = {
 						is_claimed_by = HUN
 						is_core_of = TRA
 						is_core_of = SLO
+						state = 73
 					}
-					is_fully_controlled_by = AUH
+					NOT = { is_fully_controlled_by = ROOT } 
 				}
 				add_core_of = HUN
-				HUN = { transfer_state = PREV }
-			}
-
-			hidden_effect = {
-				if = {
-					limit = {
-						has_government = neutrality
-					}    
-					HUN = {  						
-						set_party_name = {
-							ideology = neutrality
-							long_name = AUH_neutrality_party
-							name = AUH_neutrality_party
-						}
-						add_ideas = AUH_ww1_House_Habsburg_Lorraine
-					}
-				}	
-				if = {
-					limit = {
-						has_country_leader = {
-							name = "Franz Joseph I"
-							ruling_only = yes
-						}
-					}
-					HUN = {
-						create_country_leader = {
-							name = "I. Ferenc József"
-							picture = "gfx/leaders/AUH/AUH_franz_joseph_i.dds"
-							expire = "1935.1.1"
-							ideology = autocracy
-							traits = {oldschool_kaiser trait_autocracy}
-						}
-					}
-				}
-				if = {
-					limit = {
-						has_country_leader = {
-							name = "Franz Ferdinand I"
-							ruling_only = yes
-						}
-					}
-					HUN = {
-						create_country_leader={
-							name = "I. Ferenc Ferdinánd"
-							picture = "gfx/leaders/AUH/AUH_franz_ferdinand.dds"
-							expire = "1935.1.1"
-							ideology = autocracy
-							traits = { unpopular_monarch trait_autocracy}
-						}
-					}
-				}
-				if = {
-					limit = {
-						has_country_leader = {
-							name = "Karl I"
-							ruling_only = yes
-						}
-					}
-					HUN = {
-						create_country_leader = { 
-							name = "IV. Károly"
-							picture = "gfx/leaders/AUH/AUH_karl_i.dds"
-							expire = "1935.1.1"
-							ideology = autocracy
-							traits = { trait_autocracy}
-						}
-					}
-				}						
-				HUN =  { hidden_effect = { load_oob = "HUN_1918" } }
+				set_state_owner_to = HUN
 			}
 
 			if = {
 				limit = {
-					OR = {
-						has_dlc = "Together for Victory"
-						has_dlc = "Waking the Tiger"
+					868 = {
+						is_claimed_by = ROOT
 					}
+				}
+				remove_state_claim = 868
+				HUN = {
+					add_state_claim = 868
+				}
+			}
+			if = {
+				limit = {
+					866 = {
+						is_claimed_by = ROOT
+					}
+				}
+				remove_state_claim = 866
+				HUN = {
+					add_state_claim = 866
+				}
+			}
+
+			hidden_effect = {
+				AUH_HUN_create_habsburg = yes
+				HUN =  {
+					load_oob = "HUN_1918"
+					set_politics = {
+						ruling_party = neutrality
+						elections_allowed = no
+					}
+				}
+			}
+
+			if = {
+				limit = {
+					has_subject_autonomy_feature = yes
 				}
 				set_autonomy = {
 					target = HUN
@@ -2485,12 +2544,8 @@ focus_tree = {
 
 			if = {
 				limit = {
-					NOT = { 
-						has_cosmetic_tag = GER_confederation 
-						has_cosmetic_tag = GER_HRE
-						has_cosmetic_tag = GER_suddeutscher_bund
-						has_cosmetic_tag = AUH_USGA
-					} 
+					is_greater_german_cosmetic = no
+					NOT = { has_cosmetic_tag = AUH_USGA }
 				}
 				set_cosmetic_tag = AUH_EMP
 			}
@@ -2527,8 +2582,19 @@ focus_tree = {
 		}
 		completion_reward = {
 			add_political_power = 120
-			add_state_claim = 159
-			add_state_claim = 160
+			every_state = {
+				limit = {
+					NOT = { is_owned_by = ROOT }
+					OR = {
+						state = 159
+						state = 160
+						state = 244
+						state = 513
+						state = 736
+					}
+				}
+				add_claim_by = ROOT
+			}
 			add_named_threat = {
 				threat = 3
 				name = AUH_claims_on_veneto
@@ -2589,7 +2655,11 @@ focus_tree = {
 				SER = { is_subject_of = AUH }
 			}
 		}
-		available = { is_subject = no }
+		available = {
+			is_subject = no
+			NOT = { has_country_flag = great_war_loser }
+			SER = { NOT = { has_country_flag = great_war_loser } }
+		}
 		will_lead_to_war_with = SER
 		ai_will_do = { factor = 100 }
 		completion_reward = {
@@ -2675,6 +2745,9 @@ focus_tree = {
 				}
 			}				
 		}
+		search_filters = {
+			FOCUS_FILTER_WAR_SUPPORT
+		}
 	}
 	focus = {
 		id = AUH_strategy_effort
@@ -2687,9 +2760,9 @@ focus_tree = {
 		y = 5
 		ai_will_do = { factor = 1 }
 		completion_reward = {
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = AUH_strategy_effort
-				bonus = 1.0
+				cost_reduction = 0.5
 				uses = 2
 				category = land_doctrine
 				category = naval_doctrine
@@ -2736,10 +2809,10 @@ focus_tree = {
 				uses = 1
 				category = bb_tech
 			}
-			add_tech_bonus = {
-				name = AUH_drednought_effort
-				bonus = 0.5
-				uses = 1 
+			add_doctrine_cost_reduction = {
+			    name = AUH_drednought_effort
+				cost_reduction = 0.5
+				uses = 1
 				category = naval_doctrine
 			}
 		}

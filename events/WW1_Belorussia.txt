@@ -155,25 +155,33 @@ country_event = {
 					limit = { has_government = neutrality }
 					if = {
 						limit = { date < 1929.4.20 }
-						create_country_leader = {
-							name = "Heinrich"
-							picture = "gfx/leaders/GER/GER_Albert_Wilhelm_Heinrich.dds"
-							expire = "1935.1.1"
-							ideology = autocracy
-							traits = {
-								german_agent
-								foreign_leader
-								trait_autocracy
-							} 
+						BLR_genrikh = {
+							add_country_leader_role = {
+								promote_leader = yes
+								country_leader = {
+									ideology = autocracy
+									traits = { german_agent foreign_leader }							
+								}
+							}
+						}
+						GER = {
+							GER_albert_wilhelm_heinrich = {
+								set_character_name = BLR_genrikh
+								set_nationality = BLR
+							}
 						}
 					}	
 					else = {
-						create_country_leader = {
-							name = "Uladzimir"
-							picture = "gfx/leaders/BLR/BLR_waldemar.dds"
-							expire = "1935.1.1"
-							ideology = autocracy
-							traits = { trait_autocracy } 
+						BLR_uladzimir = {
+							add_country_leader_role = {
+								promote_leader = yes
+								country_leader = {
+									ideology = autocracy							
+								}
+							}
+						}
+						GER = {
+							retire_character = GER_albert_wilhelm_heinrich
 						}
 					}
 					set_party_name = {
@@ -224,15 +232,7 @@ country_event = {
 		}
 		if = {
 			limit = { has_government = neutrality }
-			create_country_leader = { 
-				name = "Vladimir Sokolinskiy" 
-				picture = "gfx/leaders/BLR/BLR_vladimir_sokolinskiy.dds" 
-				expire = "1935.1.1" 
-				ideology = autocracy
-				traits = {
-					trait_autocracy
-				}
-			}
+			promote_character = BLR_vladimir_sokolinskiy
 		}
 		ai_chance = { factor = 25 }
 	}
@@ -253,21 +253,27 @@ country_event = {
 	trigger = {
 		original_tag = BLR
 		has_country_leader = {
-			name = "Heinrich"
+			character = BLR_genrikh
+			ruling_only = yes
 		}
-		date > 1929.4.20
+		date > 1929.4.1
 	}
-	mean_time_to_happen = { days = 0 }
+	mean_time_to_happen = { days = 20 }
 	immediate = {
 		hidden_effect = {
-			kill_ideology_leader = neutrality
-			create_country_leader = {
-				name = "Uladzimir"
-				picture = "gfx/leaders/BLR/BLR_waldemar.dds"
-				expire = "1935.1.1"
-				ideology = autocracy
-				traits = {
-					trait_autocracy
+			every_possible_country = {
+				limit = {
+					has_character = GER_albert_wilhelm_heinrich
+				}
+				retire_character = GER_albert_wilhelm_heinrich
+			}
+			retire_character = BLR_genrikh
+			BLR_uladzimir = {
+				add_country_leader_role = {
+					promote_leader = yes
+					country_leader = {
+						ideology = autocracy
+					}
 				}
 			}
 		}
@@ -275,5 +281,48 @@ country_event = {
 	option = {
 		name = ww1_belorussia.6.a
 		ai_chance = { factor = 100 }
+		effect_tooltip = {
+			retire_character = BLR_genrikh
+		}
 	}
 }
+
+# German pressure to keep the buffer state
+country_event = {
+	id = ww1_belorussia.7
+	title = ww1_belorussia.7.t
+	desc = ww1_belorussia.7.d
+	picture = GFX_report_event_generic_peaceful_annexation
+	trigger = {
+		tag = BLR
+		has_war = no
+		is_subject = no
+		is_neighbor_of = SOV
+		communism > 0.45
+		NOT = { has_government = communism }
+		GER = {
+			OR = {
+				is_neighbor_of = PREV
+				any_other_country = {
+					is_subject_of = PREV
+					is_neighbor_of = PREV.PREV
+				}
+			}
+			is_subject = no
+			has_capitulated = no
+			NOT = {
+				has_country_flag = great_war_loser
+				has_government = communism
+			}
+		}
+	}
+	fire_only_once = yes
+	option = {
+		name = ww1_belorussia.7.a
+		add_popularity = {
+			ideology = communism
+			popularity = -0.10
+		}
+	}
+}
+
