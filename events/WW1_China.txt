@@ -1,6 +1,5 @@
 add_namespace = ww1_xinhai
 add_namespace = ww1_china
-add_namespace = ww1_xinjiang
 
 # GUANGZHOU UPRISING
 #######################
@@ -10,12 +9,12 @@ country_event = {
 	picture = GFX_report_event_chinese_army_training
 	id = ww1_xinhai.1
 	mean_time_to_happen = {
-		days = 5
+		days = 0
 	}
 	fire_only_once = yes
 	trigger = {
 		original_tag = QIN
-		date > 1911.8.1
+		date > 1911.4.27
 		NOT = {
 			has_global_flag = guangzhou_uprising
 		}
@@ -27,6 +26,12 @@ country_event = {
 		}
 		set_global_flag = guangzhou_uprising
 		activate_mission_tooltip = CHI_xinhai_revolution_mission
+		hidden_effect = {
+			country_event = {
+				id = ww1_qing.10
+				days = 17
+			}
+		}
 	}
 }
 
@@ -454,13 +459,24 @@ country_event = {
 	immediate = {
 		hidden_effect = {
 			CHI = {
-				transfer_state = 605
-				transfer_state = 603
-				transfer_state = 602
-				transfer_state = 600
-				transfer_state = 595
-				transfer_state = 593
-				transfer_state = 592
+				every_state = {
+					limit = {
+						is_owned_by = QIN
+						OR = {
+							state = 592
+							state = 593
+							state = 595
+							state = 600
+							state = 602
+							state = 603
+							state = 605
+							state = 613
+							state = 892
+							state = 893
+						}
+					}
+					transfer_state_to = PREV
+				}
 				promote_character = CHI_huang_xing
 				set_politics = {
 					ruling_party = democratic
@@ -505,14 +521,14 @@ country_event = {
 			has_global_flag = xinhai_revolution_ends
 		}
 		OR = {
-			surrender_progress > 0.15
+			surrender_progress > 0.35
 			AND = {
 				casualties > 100000
 				CHI = { surrender_progress < 0.5 }
 			}
 			AND = {
 				date > 1912.2.1
-				surrender_progress > 0.05
+				surrender_progress > 0.15
 				CHI = { surrender_progress < 0.25 }
 			}
 		}
@@ -626,6 +642,9 @@ country_event = {
 						ruling_party = neutrality
 						elections_allowed = no
 					}
+					set_capital = {
+						state = 608
+					}
 				}
 			}
 			news_event = {
@@ -724,13 +743,11 @@ country_event = {
 				change_tag_from = QIN
 			}
 		}
-		ai_chance = {
-			factor = 100
-		}
 	}
 	option = {
 		name = ww1_xinhai.4.b
-		add_political_power = -100
+		add_war_support = -0.15
+		add_political_power = -200
 		QIN_yuan_shikai = {
 			remove_country_leader_role = {
 				ideology = oligarchism
@@ -741,9 +758,7 @@ country_event = {
 			long_name = QIN_neutrality_cabinet_party
 			name = QIN_neutrality_cabinet_party
 		}
-		ai_chance = {
-			factor = 0
-		}
+		ai_chance = { factor = 0 }
 	}
 }
 
@@ -860,43 +875,52 @@ country_event = {
 	id = ww1_china.2
 	picture = GFX_report_event_manchukuo_army
 	trigger = {
+		OR = {
+			tag = CHI
+			tag = QIN
+		}
 		has_global_flag = warlord_era
 		YUN = {
 			exists = no
 		}
 	}
 	fire_only_once = yes
-	option = {
-		name = ww1_china.2.a
-		YUN = {
-			every_other_country = {
-				limit = {
-					is_china_or_warlord = yes
-				}
-				every_owned_state = {
+	immediate = {
+		hidden_effect = {
+			YUN = {
+				every_other_country = {
 					limit = {
-						OR = {
-							state = 325
+						is_china_or_warlord = yes
+					}
+					every_owned_state = {
+						limit = {
+							OR = {
+								state = 325
+							}
+						}
+						add_core_of = YUN
+						YUN = {
+							transfer_state = PREV
 						}
 					}
-					add_core_of = YUN
-					YUN = {
-						transfer_state = PREV
-					}
 				}
-			}
-			every_owned_state = {
-				set_demilitarized_zone = no
-			}
-			hidden_effect = {
-				every_possible_country = {
+				every_owned_state = {
+					set_demilitarized_zone = no
+				}
+				every_unit_leader = {
 					limit = {
-						has_character = QIN_tang_jiyao
+						has_id = 50318
 					}
-					QIN_tang_jiyao = {
-						set_nationality = YUN
-					}
+					set_nationality = YUN
 				}
+				# every_possible_country = {
+				# 	limit = {
+				# 		has_character = QIN_tang_jiyao
+				# 	}
+				# 	QIN_tang_jiyao = {
+				# 		set_nationality = YUN
+				# 	}
+				# }
 				every_possible_country = {
 					limit = {
 						has_character = CHI_cai_e
@@ -905,51 +929,13 @@ country_event = {
 						set_nationality = YUN
 					}
 				}
-				division_template = {
-					name = "Juntuán"
-					regiments = {
-						infantry = {
-							x = 0
-							y = 0
-						}
-						infantry = {
-							x = 0
-							y = 1
-						}
-						infantry = {
-							x = 0
-							y = 2
-						}
-						infantry = {
-							x = 1
-							y = 0
-						}
-						infantry = {
-							x = 1
-							y = 1
-						}
-						infantry = {
-							x = 1
-							y = 2
-						}
-					}
-				}
-				325 = {
+				load_oob = CHI_warlord
+				capital_scope = {
 					create_unit = {
-						division = "name = \"1. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
+						division = "division_template = \"Juntuán\"	start_experience_factor = 0.4	start_equipment_factor = 1"
 						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"2. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"3. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"4. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
+						allow_spawning_on_enemy_provs = yes
+						count = 6
 					}
 				}
 				if = {
@@ -958,14 +944,19 @@ country_event = {
 					}
 					inherit_technology = QIN
 					add_equipment_to_stockpile = {
-						type = infantry_equipment_0
+						type = infantry_equipment
 						amount = 5000
 						producer = QIN
 					}
-					add_equipment_to_stockpile = {
-						type = support_equipment
-						amount = 500
-						producer = QIN
+					if = {
+						limit = {
+							has_tech = tech_support
+						}
+						add_equipment_to_stockpile = {
+							type = support_equipment
+							amount = 500
+							producer = QIN
+						}
 					}
 					QIN = {
 						add_to_faction = PREV
@@ -973,14 +964,19 @@ country_event = {
 					else = {
 						inherit_technology = CHI
 						add_equipment_to_stockpile = {
-							type = infantry_equipment_0
+							type = infantry_equipment
 							amount = 5000
 							producer = CHI
 						}
-						add_equipment_to_stockpile = {
-							type = support_equipment
-							amount = 500
-							producer = CHI
+						if = {
+							limit = {
+								has_tech = tech_support
+							}
+							add_equipment_to_stockpile = {
+								type = support_equipment
+								amount = 500
+								producer = CHI
+							}
 						}
 						CHI = {
 							set_truce = {
@@ -992,9 +988,9 @@ country_event = {
 				}
 			}
 		}
-		ai_chance = {
-			factor = 100
-		}
+	}
+	option = {
+		name = ww1_china.2.a
 	}
 }
 
@@ -1041,18 +1037,22 @@ country_event = {
 			ideology = democratic
 			size = 0.2
 			states = {
+				591
 				592
 				593
 				594
+				595
 				598
 				600
 				602
+				605
 				606
+				613
+				892
+				893
 			}
 			keep_unit_leaders_trigger = {
-				NOT = {
-					has_trait = chinese_nationalist
-				}
+				NOT = { has_trait = chinese_nationalist }
 			}
 			keep_political_party_members = yes
 			set_cosmetic_tag = CHI_uprising
@@ -1102,7 +1102,7 @@ country_event = {
 						add_country_leader_role = {
 							country_leader = {
 								ideology = socialism
-								traits = { father_of_the_republic }
+								traits = { chinese_nationalist father_of_the_republic }
 							}
 							promote_leader = yes
 						}
@@ -1177,9 +1177,7 @@ country_event = {
 				872
 			}
 			keep_unit_leaders_trigger = {
-				NOT = {
-					has_trait = yuan_shikai_loyalist
-				}
+				has_trait = chinese_nationalist
 			}
 			keep_political_party_members = yes
 			set_cosmetic_tag = CHI_uprising
@@ -1332,6 +1330,10 @@ country_event = {
 			CHI_duan_qirui = {
 				promote_character = oligarchism
 			}
+			swap_ideas = {
+				remove_idea = CHI_idea_feng_guozhang_vice_president
+				add_idea = CHI_idea_feng_guozhang_president
+			}
 		}
 	}
 	option = {
@@ -1342,28 +1344,37 @@ country_event = {
 		}
 		QIN = {
 			transfer_state = 608
-			QIN_zhang_xun = {
-				add_country_leader_role = {
-					promote_leader = yes
-					country_leader = {
-						ideology = oligarchism
-						traits = {
-							generallissimo
+			hidden_effect = {
+				QIN_zhang_xun = {
+					add_country_leader_role = {
+						promote_leader = yes
+						country_leader = {
+							ideology = oligarchism
+							traits = {
+								chinese_royalist generallissimo
+							}
+						}
+					}
+					add_country_leader_role = {
+						promote_leader = yes
+						country_leader = {
+							ideology = stratocracy
+							traits = {
+								chinese_royalist generallissimo
+							}
 						}
 					}
 				}
-			}
-			set_party_name = {
-				ideology = neutrality
-				long_name = QIN_neutrality_restoration_party_long
-				name = QIN_neutrality_restoration_party
-			}
-			hidden_effect = {
+				set_party_name = {
+					ideology = neutrality
+					long_name = QIN_neutrality_restoration_party_long
+					name = QIN_neutrality_restoration_party
+				}
 				set_politics = {
 					ruling_party = neutrality
 					elections_allowed = no
 				}
-				add_war_support = 0.75
+				add_war_support = 0.40
 				every_state = {
 					limit = {
 						is_core_of = CHI
@@ -1377,13 +1388,14 @@ country_event = {
 					add_claim_by = QIN
 				}
 				load_oob = "QIN_restoration"
+				set_rule = {
+					can_join_factions = no
+				}
+				add_country_leader_trait = standing_alone
 			}
 			declare_war_on = {
 				target = CHI
 				type = annex_everything
-			}
-			set_rule = {
-				can_join_factions = no
 			}
 		}
 	}
@@ -1392,26 +1404,26 @@ country_event = {
 		QIN_zhang_xun = {
 			set_nationality = QIN
 			promote_leader = yes
-		}
+		}		
 		QIN = {
 			transfer_state = 608
-			QIN_zhang_xun = {
-				add_country_leader_role = {
-					promote_leader = yes
-					country_leader = {
-						ideology = oligarchism
-						traits = {
-							generallissimo
+			hidden_effect = {
+				QIN_zhang_xun = {
+					add_country_leader_role = {
+						promote_leader = yes
+						country_leader = {
+							ideology = oligarchism
+							traits = {
+								generallissimo
+							}
 						}
 					}
 				}
-			}
-			set_party_name = {
-				ideology = neutrality
-				long_name = QIN_neutrality_restoration_party_long
-				name = QIN_neutrality_restoration_party
-			}
-			hidden_effect = {
+				set_party_name = {
+					ideology = neutrality
+					long_name = QIN_neutrality_restoration_party_long
+					name = QIN_neutrality_restoration_party
+				}
 				set_politics = {
 					ruling_party = neutrality
 					elections_allowed = no
@@ -1430,16 +1442,15 @@ country_event = {
 					add_claim_by = QIN
 				}
 				load_oob = "QIN_restoration"
+				set_rule = {
+					can_join_factions = no
+				}
+				add_country_leader_trait = standing_alone
 			}
 			declare_war_on = {
 				target = CHI
 				type = annex_everything
 			}
-			set_rule = {
-				can_join_factions = no
-			}
-		}
-		QIN = {
 			change_tag_from = ROOT
 		}
 		trigger = {
@@ -1600,6 +1611,14 @@ country_event = {
 		days = 10
 	}
 	immediate = {
+		every_possible_country = {
+			limit = {
+				has_character = QIN_liu_xianshi
+			}
+			QIN_liu_xianshi = {
+				set_nationality = GZC
+			}
+		}
 		GZC = {
 			every_other_country = {
 				limit = {
@@ -1632,51 +1651,13 @@ country_event = {
 						set_nationality = GZC
 					}
 				}
-				division_template = {
-					name = "Juntuán"
-					regiments = {
-						infantry = {
-							x = 0
-							y = 0
-						}
-						infantry = {
-							x = 0
-							y = 1
-						}
-						infantry = {
-							x = 0
-							y = 2
-						}
-						infantry = {
-							x = 1
-							y = 0
-						}
-						infantry = {
-							x = 1
-							y = 1
-						}
-						infantry = {
-							x = 1
-							y = 2
-						}
-					}
-				}
-				603 = {
+				load_oob = CHI_warlord
+				capital_scope = {
 					create_unit = {
-						division = "name = \"1. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
+						division = "division_template = \"Juntuán\"	start_experience_factor = 0.4	start_equipment_factor = 1"
 						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"2. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"3. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"4. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
+						allow_spawning_on_enemy_provs = yes
+						count = 4
 					}
 				}
 				if = {
@@ -1685,14 +1666,19 @@ country_event = {
 					}
 					inherit_technology = QIN
 					add_equipment_to_stockpile = {
-						type = infantry_equipment_0
+						type = infantry_equipment
 						amount = 5000
 						producer = QIN
 					}
-					add_equipment_to_stockpile = {
-						type = support_equipment
-						amount = 500
-						producer = QIN
+					if = {
+						limit = {
+							has_tech = tech_support
+						}
+						add_equipment_to_stockpile = {
+							type = support_equipment
+							amount = 500
+							producer = QIN
+						}
 					}
 					QIN = {
 						add_to_faction = PREV
@@ -1700,14 +1686,19 @@ country_event = {
 					else = {
 						inherit_technology = CHI
 						add_equipment_to_stockpile = {
-							type = infantry_equipment_0
+							type = infantry_equipment
 							amount = 5000
 							producer = CHI
 						}
-						add_equipment_to_stockpile = {
-							type = support_equipment
-							amount = 500
-							producer = CHI
+						if = {
+							limit = {
+								has_tech = tech_support
+							}
+							add_equipment_to_stockpile = {
+								type = support_equipment
+								amount = 500
+								producer = CHI
+							}
 						}
 						CHI = {
 							set_truce = {
@@ -1732,9 +1723,9 @@ country_event = {
 		GXC = {
 			exists = no
 		}
-		HNC = {
-			exists = yes
-		}
+		# HNC = {
+		# 	exists = yes
+		# }
 		has_global_flag = warlord_era
 	}
 	mean_time_to_happen = {
@@ -1754,6 +1745,7 @@ country_event = {
 							state = 593
 							state = 594
 							state = 599
+							state = 892
 						}
 					}
 					add_core_of = GXC
@@ -1804,60 +1796,19 @@ country_event = {
 				}
 				every_possible_country = {
 					limit = {
-						has_unit_leader = 15098
+						has_character = CHI_cai_e
 					}
-					every_unit_leader = {
-						limit = {
-							has_id = 15098
-						}
+					CHI_cai_e = {
 						set_nationality = GXC
 					}
 				}
-				division_template = {
-					name = "Juntuán"
-					regiments = {
-						infantry = {
-							x = 0
-							y = 0
-						}
-						infantry = {
-							x = 0
-							y = 1
-						}
-						infantry = {
-							x = 0
-							y = 2
-						}
-						infantry = {
-							x = 1
-							y = 0
-						}
-						infantry = {
-							x = 1
-							y = 1
-						}
-						infantry = {
-							x = 1
-							y = 2
-						}
-					}
-				}
-				599 = {
+				load_oob = CHI_warlord
+				capital_scope = {
 					create_unit = {
-						division = "name = \"1. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
+						division = "division_template = \"Juntuán\"	start_experience_factor = 0.4	start_equipment_factor = 1"
 						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"2. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"3. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"4. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
+						allow_spawning_on_enemy_provs = yes
+						count = 10
 					}
 				}
 				if = {
@@ -1866,14 +1817,19 @@ country_event = {
 					}
 					inherit_technology = QIN
 					add_equipment_to_stockpile = {
-						type = infantry_equipment_0
+						type = infantry_equipment
 						amount = 5000
 						producer = QIN
 					}
-					add_equipment_to_stockpile = {
-						type = support_equipment
-						amount = 500
-						producer = QIN
+					if = {
+						limit = {
+							has_tech = tech_support
+						}
+						add_equipment_to_stockpile = {
+							type = support_equipment
+							amount = 500
+							producer = QIN
+						}
 					}
 					QIN = {
 						add_to_faction = PREV
@@ -1881,14 +1837,19 @@ country_event = {
 					else = {
 						inherit_technology = CHI
 						add_equipment_to_stockpile = {
-							type = infantry_equipment_0
+							type = infantry_equipment
 							amount = 5000
 							producer = CHI
 						}
-						add_equipment_to_stockpile = {
-							type = support_equipment
-							amount = 500
-							producer = CHI
+						if = {
+							limit = {
+								has_tech = tech_support
+							}
+							add_equipment_to_stockpile = {
+								type = support_equipment
+								amount = 500
+								producer = CHI
+							}
 						}
 						CHI = {
 							set_truce = {
@@ -1946,51 +1907,13 @@ country_event = {
 						set_nationality = GDC
 					}
 				}
-				division_template = {
-					name = "Juntuán"
-					regiments = {
-						infantry = {
-							x = 0
-							y = 0
-						}
-						infantry = {
-							x = 0
-							y = 1
-						}
-						infantry = {
-							x = 0
-							y = 2
-						}
-						infantry = {
-							x = 1
-							y = 0
-						}
-						infantry = {
-							x = 1
-							y = 1
-						}
-						infantry = {
-							x = 1
-							y = 2
-						}
-					}
-				}
-				592 = {
+				load_oob = CHI_warlord
+				capital_scope = {
 					create_unit = {
-						division = "name = \"1. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
+						division = "division_template = \"Juntuán\"	start_experience_factor = 0.4	start_equipment_factor = 1"
 						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"2. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"3. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"4. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
+						allow_spawning_on_enemy_provs = yes
+						count = 4
 					}
 				}
 				if = {
@@ -1999,14 +1922,19 @@ country_event = {
 					}
 					inherit_technology = QIN
 					add_equipment_to_stockpile = {
-						type = infantry_equipment_0
+						type = infantry_equipment
 						amount = 5000
 						producer = QIN
 					}
-					add_equipment_to_stockpile = {
-						type = support_equipment
-						amount = 500
-						producer = QIN
+					if = {
+						limit = {
+							has_tech = tech_support
+						}
+						add_equipment_to_stockpile = {
+							type = support_equipment
+							amount = 500
+							producer = QIN
+						}
 					}
 					QIN = {
 						add_to_faction = PREV
@@ -2014,14 +1942,19 @@ country_event = {
 					else = {
 						inherit_technology = CHI
 						add_equipment_to_stockpile = {
-							type = infantry_equipment_0
+							type = infantry_equipment
 							amount = 5000
 							producer = CHI
 						}
-						add_equipment_to_stockpile = {
-							type = support_equipment
-							amount = 500
-							producer = CHI
+						if = {
+							limit = {
+								has_tech = tech_support
+							}
+							add_equipment_to_stockpile = {
+								type = support_equipment
+								amount = 500
+								producer = CHI
+							}
 						}
 						CHI = {
 							set_truce = {
@@ -2088,96 +2021,23 @@ country_event = {
 						set_nationality = SHX
 					}
 				}
-				division_template = {
-					name = "Juntuán"
-					regiments = {
-						infantry = {
-							x = 0
-							y = 0
-						}
-						infantry = {
-							x = 0
-							y = 1
-						}
-						infantry = {
-							x = 0
-							y = 2
-						}
-						infantry = {
-							x = 1
-							y = 0
-						}
-						infantry = {
-							x = 1
-							y = 1
-						}
-						infantry = {
-							x = 1
-							y = 2
-						}
+				load_oob = CHI_warlord
+				capital_scope = {
+					create_unit = {
+						division = "division_template = \"Juntuán\"	start_experience_factor = 0.4	start_equipment_factor = 1"
+						owner = PREV
+						allow_spawning_on_enemy_provs = yes
+						count = 10
 					}
 				}
-				615 = {
-					create_unit = {
-						division = "name = \"1. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
+				every_other_country = {
+					limit = {
+						OR = {
+							original_tag = ANC
+							original_tag = ZHC
+						}
 					}
-					create_unit = {
-						division = "name = \"2. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"3. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"4. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"5. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"6. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"7. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"8. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"9. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"10. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"11. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"12. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"13. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"14. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"15. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
+					PREV = { give_military_access = PREV }
 				}
 				if = {
 					limit = {
@@ -2185,14 +2045,19 @@ country_event = {
 					}
 					inherit_technology = QIN
 					add_equipment_to_stockpile = {
-						type = infantry_equipment_0
+						type = infantry_equipment
 						amount = 5000
 						producer = QIN
 					}
-					add_equipment_to_stockpile = {
-						type = support_equipment
-						amount = 500
-						producer = QIN
+					if = {
+						limit = {
+							has_tech = tech_support
+						}
+						add_equipment_to_stockpile = {
+							type = support_equipment
+							amount = 500
+							producer = QIN
+						}
 					}
 					QIN = {
 						add_to_faction = PREV
@@ -2200,14 +2065,19 @@ country_event = {
 					else = {
 						inherit_technology = ANC
 						add_equipment_to_stockpile = {
-							type = infantry_equipment_0
+							type = infantry_equipment
 							amount = 5000
 							producer = ANC
 						}
-						add_equipment_to_stockpile = {
-							type = support_equipment
-							amount = 500
-							producer = ANC
+						if = {
+							limit = {
+								has_tech = tech_support
+							}
+							add_equipment_to_stockpile = {
+								type = support_equipment
+								amount = 500
+								producer = ANC
+							}
 						}
 						diplomatic_relation = {
 							country = ANC
@@ -2215,7 +2085,7 @@ country_event = {
 							active = yes
 						}
 						diplomatic_relation = {
-							country = SDC
+							country = ZHC
 							relation = military_access
 							active = yes
 						}
@@ -2310,51 +2180,13 @@ country_event = {
 						set_nationality = XSM
 					}
 				}
-				division_template = {
-					name = "Juntuán"
-					regiments = {
-						infantry = {
-							x = 0
-							y = 0
-						}
-						infantry = {
-							x = 0
-							y = 1
-						}
-						infantry = {
-							x = 0
-							y = 2
-						}
-						infantry = {
-							x = 1
-							y = 0
-						}
-						infantry = {
-							x = 1
-							y = 1
-						}
-						infantry = {
-							x = 1
-							y = 2
-						}
-					}
-				}
-				604 = {
+				load_oob = CHI_warlord
+				capital_scope = {
 					create_unit = {
-						division = "name = \"1. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
+						division = "division_template = \"Juntuán\"	start_experience_factor = 0.4	start_equipment_factor = 1"
 						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"2. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"3. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"4. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
+						allow_spawning_on_enemy_provs = yes
+						count = 4
 					}
 				}
 				if = {
@@ -2363,14 +2195,19 @@ country_event = {
 					}
 					inherit_technology = QIN
 					add_equipment_to_stockpile = {
-						type = infantry_equipment_0
+						type = infantry_equipment
 						amount = 5000
 						producer = QIN
 					}
-					add_equipment_to_stockpile = {
-						type = support_equipment
-						amount = 500
-						producer = QIN
+					if = {
+						limit = {
+							has_tech = tech_support
+						}
+						add_equipment_to_stockpile = {
+							type = support_equipment
+							amount = 500
+							producer = QIN
+						}
 					}
 					QIN = {
 						add_to_faction = PREV
@@ -2378,14 +2215,19 @@ country_event = {
 					else = {
 						inherit_technology = CHI
 						add_equipment_to_stockpile = {
-							type = infantry_equipment_0
+							type = infantry_equipment
 							amount = 5000
 							producer = CHI
 						}
-						add_equipment_to_stockpile = {
-							type = support_equipment
-							amount = 500
-							producer = CHI
+						if = {
+							limit = {
+								has_tech = tech_support
+							}
+							add_equipment_to_stockpile = {
+								type = support_equipment
+								amount = 500
+								producer = CHI
+							}
 						}
 						if = {
 							limit = {
@@ -2427,6 +2269,7 @@ country_event = {
 							state = 287
 							state = 618
 							state = 749
+							state = 894
 						}
 					}
 					add_core_of = SIK
@@ -2490,51 +2333,13 @@ country_event = {
 						set_nationality = SIK
 					}
 				}
-				division_template = {
-					name = "Juntuán"
-					regiments = {
-						infantry = {
-							x = 0
-							y = 0
-						}
-						infantry = {
-							x = 0
-							y = 1
-						}
-						infantry = {
-							x = 0
-							y = 2
-						}
-						infantry = {
-							x = 1
-							y = 0
-						}
-						infantry = {
-							x = 1
-							y = 1
-						}
-						infantry = {
-							x = 1
-							y = 2
-						}
-					}
-				}
-				287 = {
+				load_oob = CHI_warlord
+				capital_scope = {
 					create_unit = {
-						division = "name = \"1. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
+						division = "division_template = \"Juntuán\"	start_experience_factor = 0.4	start_equipment_factor = 1"
 						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"2. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"3. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"4. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
+						allow_spawning_on_enemy_provs = yes
+						count = 4
 					}
 				}
 				if = {
@@ -2543,14 +2348,19 @@ country_event = {
 					}
 					inherit_technology = QIN
 					add_equipment_to_stockpile = {
-						type = infantry_equipment_0
+						type = infantry_equipment
 						amount = 5000
 						producer = QIN
 					}
-					add_equipment_to_stockpile = {
-						type = support_equipment
-						amount = 500
-						producer = QIN
+					if = {
+						limit = {
+							has_tech = tech_support
+						}
+						add_equipment_to_stockpile = {
+							type = support_equipment
+							amount = 500
+							producer = QIN
+						}
 					}
 					QIN = {
 						add_to_faction = PREV
@@ -2558,14 +2368,19 @@ country_event = {
 					else = {
 						inherit_technology = CHI
 						add_equipment_to_stockpile = {
-							type = infantry_equipment_0
+							type = infantry_equipment
 							amount = 5000
 							producer = CHI
 						}
-						add_equipment_to_stockpile = {
-							type = support_equipment
-							amount = 500
-							producer = CHI
+						if = {
+							limit = {
+								has_tech = tech_support
+							}
+							add_equipment_to_stockpile = {
+								type = support_equipment
+								amount = 500
+								producer = CHI
+							}
 						}
 						if = {
 							limit = {
@@ -2755,63 +2570,30 @@ country_event = {
 						set_nationality = PREV
 					}
 				}
-				division_template = {
-					name = "Juntuán"
-					regiments = {
-						infantry = {
-							x = 0
-							y = 0
-						}
-						infantry = {
-							x = 0
-							y = 1
-						}
-						infantry = {
-							x = 0
-							y = 2
-						}
-						infantry = {
-							x = 1
-							y = 0
-						}
-						infantry = {
-							x = 1
-							y = 1
-						}
-						infantry = {
-							x = 1
-							y = 2
-						}
-					}
-				}
-				598 = {
+				load_oob = CHI_warlord
+				capital_scope = {
 					create_unit = {
-						division = "name = \"1. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
+						division = "division_template = \"Juntuán\"	start_experience_factor = 0.4	start_equipment_factor = 1"
 						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"2. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"3. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"4. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
+						allow_spawning_on_enemy_provs = yes
+						count = 4
 					}
 				}
 				inherit_technology = QIN
 				add_equipment_to_stockpile = {
-					type = infantry_equipment_0
+					type = infantry_equipment
 					amount = 5000
 					producer = QIN
 				}
-				add_equipment_to_stockpile = {
-					type = support_equipment
-					amount = 500
-					producer = QIN
+				if = {
+					limit = {
+						has_tech = tech_support
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 500
+						producer = QIN
+					}
 				}
 				QIN = {
 					transfer_units_fraction = {
@@ -2912,6 +2694,12 @@ country_event = {
 			exists = yes
 		}
 		has_global_flag = warlord_era
+		if = {
+			limit = {
+				country_exists = CHI
+			}
+			has_global_flag = constitutional_protection_war_end
+		}
 	}
 	mean_time_to_happen = {
 		days = 25
@@ -2926,6 +2714,7 @@ country_event = {
 					limit = {
 						OR = {
 							state = 602
+							state = 893
 						}
 					}
 					add_core_of = HNC
@@ -2940,57 +2729,19 @@ country_event = {
 			hidden_effect = {
 				every_possible_country = {
 					limit = {
-						has_character = QIN_liu_xianshi
+						has_character = CHI_zhao_hengti
 					}
-					QIN_liu_xianshi = {
+					CHI_zhao_hengti = {
 						set_nationality = HNC
 					}
 				}
-				division_template = {
-					name = "Juntuán"
-					regiments = {
-						infantry = {
-							x = 0
-							y = 0
-						}
-						infantry = {
-							x = 0
-							y = 1
-						}
-						infantry = {
-							x = 0
-							y = 2
-						}
-						infantry = {
-							x = 1
-							y = 0
-						}
-						infantry = {
-							x = 1
-							y = 1
-						}
-						infantry = {
-							x = 1
-							y = 2
-						}
-					}
-				}
-				602 = {
+				load_oob = CHI_warlord
+				capital_scope = {
 					create_unit = {
-						division = "name = \"1. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
+						division = "division_template = \"Juntuán\"	start_experience_factor = 0.4	start_equipment_factor = 1"
 						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"2. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"3. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"4. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
+						allow_spawning_on_enemy_provs = yes
+						count = 4
 					}
 				}
 				if = {
@@ -2999,14 +2750,19 @@ country_event = {
 					}
 					inherit_technology = QIN
 					add_equipment_to_stockpile = {
-						type = infantry_equipment_0
+						type = infantry_equipment
 						amount = 5000
 						producer = QIN
 					}
-					add_equipment_to_stockpile = {
-						type = support_equipment
-						amount = 500
-						producer = QIN
+					if = {
+						limit = {
+							has_tech = tech_support
+						}
+						add_equipment_to_stockpile = {
+							type = support_equipment
+							amount = 500
+							producer = QIN
+						}
 					}
 					QIN = {
 						add_to_faction = PREV
@@ -3014,14 +2770,19 @@ country_event = {
 					else = {
 						inherit_technology = CHI
 						add_equipment_to_stockpile = {
-							type = infantry_equipment_0
+							type = infantry_equipment
 							amount = 5000
 							producer = CHI
 						}
-						add_equipment_to_stockpile = {
-							type = support_equipment
-							amount = 500
-							producer = CHI
+						if = {
+							limit = {
+								has_tech = tech_support
+							}
+							add_equipment_to_stockpile = {
+								type = support_equipment
+								amount = 500
+								producer = CHI
+							}
 						}
 						CHI = {
 							set_truce = {
@@ -3037,122 +2798,95 @@ country_event = {
 }
 
 #WARLORD ERA - JXC
+## Sun Chuanfang
 ##################
 country_event = {
 	id = ww1_china.20
+	# title = ww1_china.20.t
+	# desc = ww1_china.20.d
+	# picture = GFX_news_event_chinese_street
 	hidden = yes
-	fire_only_once = yes
 	is_triggered_only = yes
 	immediate = {
-		JXC = {
-			every_other_country = {
-				limit = {
-					is_china_or_warlord = yes
+		hidden_effect = {
+			JXC = {
+				every_possible_country = {
+					limit = { has_character = ZHC_sun_chuanfang }
+					ZHC_sun_chuanfang = { set_nationality = JXC }
+				}
+				every_possible_country = {
+					limit = { has_character = ZHC_wang_zhanyuan }
+					ZHC_wang_zhanyuan = { set_nationality = JXC }
+				}
+				every_state = {
+					limit = {
+						is_core_of = ZHC
+					}
+					add_core_of = PREV
+				}
+				every_state = {
+					limit = {
+						is_claimed_by = ZHC
+					}
+					add_claim_by = PREV
+				}
+				every_state = {
+					limit = {
+						is_owned_by = ZHC
+						OR = {
+							state = 595
+							state = 596
+							state = 598
+							state = 600
+							state = 606
+							state = 613
+						}
+					}
+					transfer_state_to = PREV
 				}
 				every_owned_state = {
-					limit = {
-						OR = {
-							state = 600
-						}
-					}
-					add_core_of = JXC
-					JXC = {
-						transfer_state = PREV
-					}
+					set_demilitarized_zone = no
 				}
-			}
-			every_owned_state = {
-				set_demilitarized_zone = no
-			}
-			hidden_effect = {
-				division_template = {
-					name = "Juntuán"
-					regiments = {
-						infantry = {
-							x = 0
-							y = 0
-						}
-						infantry = {
-							x = 0
-							y = 1
-						}
-						infantry = {
-							x = 0
-							y = 2
-						}
-						infantry = {
-							x = 1
-							y = 0
-						}
-						infantry = {
-							x = 1
-							y = 1
-						}
-						infantry = {
-							x = 1
-							y = 2
-						}
-					}
+				inherit_technology = ZHC
+				set_truce = {
+					target = ZHC
+					days = 365
 				}
-				600 = {
-					create_unit = {
-						division = "name = \"1. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"2. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"3. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"4. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
+				set_cosmetic_tag = LEF
+				set_party_name = {
+					ideology = fascism
+					long_name = ZHC_neutrality_party
+					name = ZHC_neutrality_party
 				}
-				if = {
-					limit = {
-						country_exists = QIN
-					}
-					inherit_technology = QIN
-					add_equipment_to_stockpile = {
-						type = infantry_equipment_0
-						amount = 5000
-						producer = QIN
-					}
-					add_equipment_to_stockpile = {
-						type = support_equipment
-						amount = 500
-						producer = QIN
-					}
-					QIN = {
-						add_to_faction = PREV
-					}
-					else = {
-						inherit_technology = CHI
-						add_equipment_to_stockpile = {
-							type = infantry_equipment_0
-							amount = 5000
-							producer = CHI
+				set_party_name = {
+					ideology = neutrality
+					long_name = ZHC_neutrality_party
+					name = ZHC_neutrality_party
+				}
+				ZHC = {
+					transfer_units_fraction = {
+						target = PREV
+						size = 0.50
+						keep_unit_leaders_trigger = {
+							always = yes
 						}
-						add_equipment_to_stockpile = {
-							type = support_equipment
-							amount = 500
-							producer = CHI
-						}
-						CHI = {
-							set_truce = {
-								target = PREV
-								days = 330
-							}
-						}
+					}
+					set_truce = {
+						target = JXC
+						days = 365
 					}
 				}
 			}
 		}
 	}
+	# option = {
+	# 	name = ww1_china.20.a
+	# }
+	# option = {
+	# 	name = ww1_china.20.a
+	# 	trigger = { is_ai = no }
+	# 	JXC = { change_tag_from = ROOT }
+	# }
 }
 
 #WARLORD ERA - SDC
@@ -3176,98 +2910,50 @@ country_event = {
 	}
 	immediate = {
 		SDC = {
-			every_other_country = {
-				limit = {
-					is_china_or_warlord = yes
-				}
-				every_owned_state = {
-					limit = {
-						OR = {
-							state = 597
-						}
-					}
-					add_core_of = SDC
-					SDC = {
-						transfer_state = PREV
-					}
-				}
-			}
 			every_owned_state = {
+				limit = {
+					OWNER = { is_china_or_warlord = yes }
+					state = 597
+				}
+				add_core_of = PREV
+				transfer_state_to = PREV
 				set_demilitarized_zone = no
 			}
-			hidden_effect = {
-				every_possible_country = {
-					limit = {
-						has_unit_leader = 73051
-					}
-					every_unit_leader = {
-						limit = {
-							has_id = 73051
-						}
-						set_nationality = SDC
-					}
+			every_possible_country = {
+				limit = {
+					has_character = QIN_zhang_huaizhi
 				}
-				division_template = {
-					name = "Juntuán"
-					regiments = {
-						infantry = {
-							x = 0
-							y = 0
-						}
-						infantry = {
-							x = 0
-							y = 1
-						}
-						infantry = {
-							x = 0
-							y = 2
-						}
-						infantry = {
-							x = 1
-							y = 0
-						}
-						infantry = {
-							x = 1
-							y = 1
-						}
-						infantry = {
-							x = 1
-							y = 2
-						}
-					}
+				QIN_zhang_huaizhi = {
+					set_nationality = SDC
 				}
-				597 = {
-					create_unit = {
-						division = "name = \"1. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"2. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"3. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"4. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
+			}
+			load_oob = CHI_warlord
+			capital_scope = {
+				create_unit = {
+					division = "division_template = \"Juntuán\"	start_experience_factor = 0.4	start_equipment_factor = 1"
+					owner = PREV
+					allow_spawning_on_enemy_provs = yes
+					count = 4
 				}
-				inherit_technology = QIN
-				add_equipment_to_stockpile = {
-					type = infantry_equipment_0
-					amount = 5000
-					producer = QIN
+			}
+			inherit_technology = QIN
+			add_equipment_to_stockpile = {
+				type = infantry_equipment
+				amount = 5000
+				producer = QIN
+			}
+			if = {
+				limit = {
+					has_tech = tech_support
 				}
 				add_equipment_to_stockpile = {
 					type = support_equipment
 					amount = 500
 					producer = QIN
 				}
-				QIN = {
-					add_to_faction = PREV
-				}
+			}
+			QIN = {
+				add_to_faction = PREV
 			}
 		}
 	}
@@ -3294,13 +2980,13 @@ country_event = {
 		days = 25
 	}
 	immediate = {
-		PRC = {
+		SHN = {
 			every_possible_country = {
 				limit = {
 					has_character = CHI_yang_hucheng
 				}
 				CHI_yang_hucheng = {
-					set_nationality = PRC
+					set_nationality = SHN
 				}
 			}
 			every_other_country = {
@@ -3311,63 +2997,24 @@ country_event = {
 					limit = {
 						OR = {
 							state = 622
+							state = 890
 						}
 					}
-					add_core_of = PRC
-					PRC = {
-						transfer_state = PREV
-					}
+					add_core_of = SHN
+					transfer_state_to = SHN
 				}
 			}
 			every_owned_state = {
 				set_demilitarized_zone = no
 			}
 			hidden_effect = {
-				division_template = {
-					name = "Juntuán"
-					regiments = {
-						infantry = {
-							x = 0
-							y = 0
-						}
-						infantry = {
-							x = 0
-							y = 1
-						}
-						infantry = {
-							x = 0
-							y = 2
-						}
-						infantry = {
-							x = 1
-							y = 0
-						}
-						infantry = {
-							x = 1
-							y = 1
-						}
-						infantry = {
-							x = 1
-							y = 2
-						}
-					}
-				}
-				622 = {
+				load_oob = CHI_warlord
+				capital_scope = {
 					create_unit = {
-						division = "name = \"1. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
+						division = "division_template = \"Juntuán\"	start_experience_factor = 0.4	start_equipment_factor = 1"
 						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"2. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"3. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"4. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
+						allow_spawning_on_enemy_provs = yes
+						count = 4
 					}
 				}
 				if = {
@@ -3376,14 +3023,19 @@ country_event = {
 					}
 					inherit_technology = QIN
 					add_equipment_to_stockpile = {
-						type = infantry_equipment_0
+						type = infantry_equipment
 						amount = 5000
 						producer = QIN
 					}
-					add_equipment_to_stockpile = {
-						type = support_equipment
-						amount = 500
-						producer = QIN
+					if = {
+						limit = {
+							has_tech = tech_support
+						}
+						add_equipment_to_stockpile = {
+							type = support_equipment
+							amount = 500
+							producer = QIN
+						}
 					}
 					QIN = {
 						add_to_faction = PREV
@@ -3391,14 +3043,19 @@ country_event = {
 					else = {
 						inherit_technology = CHI
 						add_equipment_to_stockpile = {
-							type = infantry_equipment_0
+							type = infantry_equipment
 							amount = 5000
 							producer = CHI
 						}
-						add_equipment_to_stockpile = {
-							type = support_equipment
-							amount = 500
-							producer = CHI
+						if = {
+							limit = {
+								has_tech = tech_support
+							}
+							add_equipment_to_stockpile = {
+								type = support_equipment
+								amount = 500
+								producer = CHI
+							}
 						}
 						CHI = {
 							set_truce = {
@@ -3453,51 +3110,13 @@ country_event = {
 				set_demilitarized_zone = no
 			}
 			hidden_effect = {
-				division_template = {
-					name = "Juntuán"
-					regiments = {
-						infantry = {
-							x = 0
-							y = 0
-						}
-						infantry = {
-							x = 0
-							y = 1
-						}
-						infantry = {
-							x = 0
-							y = 2
-						}
-						infantry = {
-							x = 1
-							y = 0
-						}
-						infantry = {
-							x = 1
-							y = 1
-						}
-						infantry = {
-							x = 1
-							y = 2
-						}
-					}
-				}
-				605 = {
+				load_oob = CHI_warlord
+				capital_scope = {
 					create_unit = {
-						division = "name = \"1. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
+						division = "division_template = \"Juntuán\"	start_experience_factor = 0.4	start_equipment_factor = 1"
 						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"2. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"3. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"4. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
+						allow_spawning_on_enemy_provs = yes
+						count = 5
 					}
 				}
 				if = {
@@ -3506,14 +3125,19 @@ country_event = {
 					}
 					inherit_technology = QIN
 					add_equipment_to_stockpile = {
-						type = infantry_equipment_0
+						type = infantry_equipment
 						amount = 5000
 						producer = QIN
 					}
-					add_equipment_to_stockpile = {
-						type = support_equipment
-						amount = 500
-						producer = QIN
+					if = {
+						limit = {
+							has_tech = tech_support
+						}
+						add_equipment_to_stockpile = {
+							type = support_equipment
+							amount = 500
+							producer = QIN
+						}
 					}
 					QIN = {
 						add_to_faction = PREV
@@ -3521,14 +3145,19 @@ country_event = {
 					else = {
 						inherit_technology = CHI
 						add_equipment_to_stockpile = {
-							type = infantry_equipment_0
+							type = infantry_equipment
 							amount = 5000
 							producer = CHI
 						}
-						add_equipment_to_stockpile = {
-							type = support_equipment
-							amount = 500
-							producer = CHI
+						if = {
+							limit = {
+								has_tech = tech_support
+							}
+							add_equipment_to_stockpile = {
+								type = support_equipment
+								amount = 500
+								producer = CHI
+							}
 						}
 						CHI = {
 							set_truce = {
@@ -3572,51 +3201,13 @@ country_event = {
 				set_demilitarized_zone = no
 			}
 			hidden_effect = {
-				division_template = {
-					name = "Juntuán"
-					regiments = {
-						infantry = {
-							x = 0
-							y = 0
-						}
-						infantry = {
-							x = 0
-							y = 1
-						}
-						infantry = {
-							x = 0
-							y = 2
-						}
-						infantry = {
-							x = 1
-							y = 0
-						}
-						infantry = {
-							x = 1
-							y = 1
-						}
-						infantry = {
-							x = 1
-							y = 2
-						}
-					}
-				}
-				596 = {
+				load_oob = CHI_warlord
+				capital_scope = {
 					create_unit = {
-						division = "name = \"1. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
+						division = "division_template = \"Juntuán\"	start_experience_factor = 0.4	start_equipment_factor = 1"
 						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"2. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"3. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"4. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
+						allow_spawning_on_enemy_provs = yes
+						count = 4
 					}
 				}
 				if = {
@@ -3625,14 +3216,19 @@ country_event = {
 					}
 					inherit_technology = QIN
 					add_equipment_to_stockpile = {
-						type = infantry_equipment_0
+						type = infantry_equipment
 						amount = 5000
 						producer = QIN
 					}
-					add_equipment_to_stockpile = {
-						type = support_equipment
-						amount = 500
-						producer = QIN
+					if = {
+						limit = {
+							has_tech = tech_support
+						}
+						add_equipment_to_stockpile = {
+							type = support_equipment
+							amount = 500
+							producer = QIN
+						}
 					}
 					QIN = {
 						add_to_faction = PREV
@@ -3640,14 +3236,19 @@ country_event = {
 					else = {
 						inherit_technology = CHI
 						add_equipment_to_stockpile = {
-							type = infantry_equipment_0
+							type = infantry_equipment
 							amount = 5000
 							producer = CHI
 						}
-						add_equipment_to_stockpile = {
-							type = support_equipment
-							amount = 500
-							producer = CHI
+						if = {
+							limit = {
+								has_tech = tech_support
+							}
+							add_equipment_to_stockpile = {
+								type = support_equipment
+								amount = 500
+								producer = CHI
+							}
 						}
 						CHI = {
 							set_truce = {
@@ -3700,7 +3301,10 @@ country_event = {
 				}
 				if = {
 					limit = {
-						country_exists = QIN
+						OR = {
+							country_exists = QIN
+							CHI = { has_idea = QIN_idea_fractured_empire }
+						}
 					}
 					every_owned_state = {
 						limit = {
@@ -3711,9 +3315,8 @@ country_event = {
 							}
 						}
 						add_core_of = FNG
-						FNG = {
-							transfer_state = PREV
-						}
+						transfer_state_to = FNG
+						set_demilitarized_zone = no
 					}
 				}
 			}
@@ -3721,51 +3324,13 @@ country_event = {
 				set_demilitarized_zone = no
 			}
 			hidden_effect = {
-				division_template = {
-					name = "Juntuán"
-					regiments = {
-						infantry = {
-							x = 0
-							y = 0
-						}
-						infantry = {
-							x = 0
-							y = 1
-						}
-						infantry = {
-							x = 0
-							y = 2
-						}
-						infantry = {
-							x = 1
-							y = 0
-						}
-						infantry = {
-							x = 1
-							y = 1
-						}
-						infantry = {
-							x = 1
-							y = 2
-						}
-					}
-				}
-				716 = {
+				load_oob = CHI_warlord
+				capital_scope = {
 					create_unit = {
-						division = "name = \"1. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
+						division = "division_template = \"Juntuán\"	start_experience_factor = 0.4	start_equipment_factor = 1"
 						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"2. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"3. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"4. Juntuán\" division_template = \"Juntuán\" start_experience_factor = 0.7"
-						owner = PREV
+						allow_spawning_on_enemy_provs = yes
+						count = 10
 					}
 				}
 				if = {
@@ -3774,33 +3339,46 @@ country_event = {
 					}
 					inherit_technology = QIN
 					add_equipment_to_stockpile = {
-						type = infantry_equipment_0
+						type = infantry_equipment
 						amount = 5000
 						producer = QIN
 					}
-					add_equipment_to_stockpile = {
-						type = support_equipment
-						amount = 500
-						producer = QIN
+					if = {
+						limit = {
+							has_tech = tech_support
+						}
+						add_equipment_to_stockpile = {
+							type = support_equipment
+							amount = 500
+							producer = QIN
+						}
 					}
 					QIN = {
 						add_to_faction = PREV
 						transfer_units_fraction = {
 							target = FNG
 							size = 0.2
+							keep_unit_leaders_trigger = {
+								always = yes
+							}
 						}
 					}
 					else = {
 						inherit_technology = CHI
 						add_equipment_to_stockpile = {
-							type = infantry_equipment_0
+							type = infantry_equipment
 							amount = 5000
 							producer = CHI
 						}
-						add_equipment_to_stockpile = {
-							type = support_equipment
-							amount = 500
-							producer = CHI
+						if = {
+							limit = {
+								has_tech = tech_support
+							}
+							add_equipment_to_stockpile = {
+								type = support_equipment
+								amount = 500
+								producer = CHI
+							}
 						}
 						CHI = {
 							set_truce = {
@@ -3811,6 +3389,9 @@ country_event = {
 							transfer_units_fraction = {
 								target = FNG
 								size = 0.2
+								keep_unit_leaders_trigger = {
+									always = yes
+								}
 							}
 						}
 					}
@@ -3931,23 +3512,24 @@ country_event = {
 	title = ww1_china.28.t
 	desc = ww1_china.28.d
 	id = ww1_china.28
-	picture = GFX_report_event_japan_army_mountainside
+	picture = GFX_report_event_chinese_soldiers_running
 	trigger = {
  		tag = CHI
 		has_global_flag = chinese_warlord_crisis
 		has_war = no
  		is_subject = no
-		OR = {
-			AND = {
-				has_global_flag = interbellum
-				country_exists = GXC
-				NOT = {
-					has_subject = GXC
-					has_country_flag = great_war_winner
-				}
-			}
-			has_country_flag = chinese_government_crackdown
-		}
+		has_country_flag = chinese_government_crackdown
+		# OR = {
+		# 	AND = {
+		# 		has_global_flag = interbellum
+		# 		country_exists = GXC
+		# 		NOT = {
+		# 			has_subject = GXC
+		# 			has_country_flag = great_war_winner
+		# 		}
+		# 	}
+		# 	has_country_flag = chinese_government_crackdown
+		# }
  	}
  	fire_only_once = yes
 	immediate = {
@@ -3970,24 +3552,6 @@ country_event = {
 						state = 717
 					}
 				}
-				if = {
-					limit = {
-						OR = {
-							state = 287
-							state = 618
-							state = 619
-							state = 749
-						}
-					}
-					add_core_of = SIK
-				}
-				if = {
-					limit = {
-						state = 604
-						state = 755
-					}
-					add_core_of = XSM
-				}
 				set_demilitarized_zone = yes
 			}
 		}
@@ -4000,6 +3564,17 @@ country_event = {
 		if = {
 			limit = {
 				is_faction_leader = yes
+			}
+			hidden_effect = {
+				every_other_country = {
+					limit = {
+						is_china_or_warlord = yes
+					}
+					set_truce = {
+						target = ROOT
+						days = 365
+					}
+				}
 			}
 			dismantle_faction = yes
 		}
@@ -4036,16 +3611,17 @@ country_event = {
 }
 
 # ANHUI CLIQUE RULE
-##################
+######################
 country_event = {
 	title = ww1_china.30.t
 	desc = ww1_china.30.d
 	id = ww1_china.30
-	picture = GFX_report_event_japan_army_mountainside
+	picture = GFX_report_event_chinese_soldiers_02
 	fire_only_once = yes
 	trigger = {
-		original_tag = CHI
+		tag = CHI
 		has_global_flag = CHI_government_split_mission
+		NOT = { country_exists = ANC }
 	}
 	mean_time_to_happen = {
 		days = 1
@@ -4078,23 +3654,20 @@ country_event = {
 						has_character = QIN_feng_guozhang
 						has_character = QIN_qi_xieyuan
 						has_character = QIN_cao_kun
-						has_character = QIN_qi_xieyuan
 					}
 				}
 				QIN_feng_guozhang = {
-					set_nationality = SDC
+					set_nationality = ZHC
 				}
 				QIN_qi_xieyuan = {
-					set_nationality = SDC
+					set_nationality = ZHC
 				}
 				QIN_cao_kun = {
-					set_nationality = SDC
-				}
-				QIN_qi_xieyuan = {
-					set_nationality = SDC
+					set_nationality = ZHC
 				}
 			}
 			ANC = {
+				load_oob = CHI_warlord
 				inherit_technology = CHI
 				set_research_slots = 3
 				annex_country = {
@@ -4102,161 +3675,121 @@ country_event = {
 					transfer_troops = yes
 				}
 				add_ideas = CHI_idea_warlord_neutrality
+				if = {
+					limit = {
+						CHI = { has_idea = CHI_idea_feng_guozhang_president }
+					}
+					meta_effect = {
+						text = {
+							set_politics = {
+								ruling_party = neutrality
+								last_election = "[CURRENT_DATE]"
+								election_frequency = 60
+								elections_allowed = no
+							}
+						}
+						CURRENT_DATE = "[?global.date.GetDateStringNoHour]"
+					}
+					add_ideas = CHI_idea_xu_shichang_president
+					else = {
+						add_ideas = CHI_idea_xu_shichang_president
+					}
+				}
 			}
 			every_state = {
 				limit = {
-					is_core_of = CHI
+					OR = {
+						is_core_of = CHI
+						is_core_of = QIN
+					}
 				}
 				add_core_of = ANC
 				# STOP RELEASE DAMN CHINA
 				remove_core_of = CHI
+				remove_core_of = QIN
 			}
 			every_state = {
 				limit = {
-					is_claimed_by = CHI
+					OR = {
+						is_claimed_by = CHI
+						is_claimed_by = QIN
+					}
 				}
 				add_claim_by = ANC
 				remove_claim_by = CHI
+				remove_claim_by = QIN
 			}
-			SDC = {
-				set_research_slots = 3
+			ZHC = {
 				inherit_technology = CHI
-				SDC_cao_kun = {
-					add_country_leader_role = {
-						promote_leader = yes
-						country_leader = {
-							ideology = despotism
-						}
-					}	
-					add_country_leader_role = {
-						promote_leader = yes	
-						country_leader = {
-							ideology = stratocracy
-						}
-					}
-				}
-				every_unit_leader = {
+				every_state = {
 					limit = {
-						has_id = 73006
-					}
-					set_nationality = PREV
-				}
-				if = {
-					limit = {
-						NOT = {
-							has_global_flag = feng_guozhang_dead
-						}
-					}
-					SDC_feng_guozhang = {
-						add_country_leader_role = {
-							promote_leader = yes
-							country_leader = {
-								ideology = despotism
-							}
-						}
-						add_country_leader_role = {
-							promote_leader = yes
-							country_leader = {
-								ideology = stratocracy
-							}
-						}
-					}
-					every_unit_leader = {
-						limit = {
-							has_id = 73005
-						}
-						set_nationality = PREV
-					}
-				}
-				set_cosmetic_tag = CHI_ZHC
-				set_country_flag = CHI_zhili_flag
-				set_party_name = {
-					ideology = neutrality
-					long_name = ZHC_neutrality_party
-					name = ZHC_neutrality_party
-				}
-				every_other_country = {
-					limit = {
-						is_china_or_warlord = yes
-					}
-					every_owned_state = {
-						limit = {
+						OWNER = {
+							is_china_or_warlord = yes
 							OR = {
-								state = 614
-								state = 620
-								state = 597
-								state = 598
-								state = 600
+								is_subject = no
+								AND = {
+									is_subject = yes
+									OVERLORD = { is_china_or_warlord = no }
+								}
 							}
 						}
-						SDC = {
-							add_state_core = PREV
-							transfer_state = PREV
+						OR = {
+							state = 614
+							state = 620
+							state = 597
+							state = 598
+							state = 600
+							state = 745
+							state = 746
 						}
 					}
+					add_core_of = PREV
+					transfer_state_to = PREV
 				}
-				set_capital = { state = 598 }
-				remove_unit_leader = 73051
 				add_ideas = CHI_idea_warlord_neutrality
 				every_owned_state = {
 					set_demilitarized_zone = no
 				}
+				every_other_country = {
+					limit = {
+						is_china_or_warlord = yes
+						NOT = { has_war_with = PREV }
+					}
+					set_truce = {
+						target = PREV
+						days = 365
+					}
+				}
 			}
 			ANC = {
 				transfer_units_fraction = {
-					target = SDC
+					target = ZHC
 					size = 0.5
 					stockpile_ratio = 0.5
 					army_ratio = 0.5
 					navy_ratio = 0.5
 					air_ratio = 0.5
 					keep_unit_leaders_trigger = {
-						has_id = 73009
+						always = yes
 					}
 				}
+				set_capital = { state = 608 }
 				if = {
 					limit = {
-						owns_state = 745
+						country_exists = FNG
 					}
-					SDC = {
-						transfer_state = 745
-						add_state_core = 745
-					}
-				}
-				if = {
-					limit = {
-						owns_state = 746
-					}
-					SDC = {
-						transfer_state = 746
-						add_state_core = 746
-					}
-				}
-				set_capital = {
-					state = 608
-				}
-			}
-			if = {
-				limit = {
-					FNG = {
-						exists = yes
-					}
-					ANC = {
-						owns_state = 328
-						owns_state = 717
-					}
-				}
-				FNG = {
-					transfer_state = 328
-					transfer_state = 717
-					add_state_core = 328
-					add_state_core = 717
 					every_owned_state = {
+						limit = {
+							OR = {
+								state = 328
+								state = 717
+							}
+						}
+						add_core_of = FNG
+						transfer_state_to = FNG
 						set_demilitarized_zone = no
 					}
 				}
-			}
-			SDC = {
 				every_other_country = {
 					limit = {
 						is_china_or_warlord = yes
@@ -4267,32 +3800,12 @@ country_event = {
 						days = 365
 					}
 				}
-			}
-			ANC = {
-				every_other_country = {
-					limit = {
-						is_china_or_warlord = yes
-						NOT = { has_war_with = PREV }
-					}
-					set_truce = {
-						target = PREV
-						days = 365
-					}
-				}
-				# set_country_flag = china_warlord_focus
-				# load_focus_tree = china_warlord_focus
-				# unlock_national_focus = CHI_focus_national_protection_war
-				# unlock_national_focus = CHI_focus_government_divided
 				change_tag_from = CHI
 			}
 		}
 	}
 	option = {
 		name = ww1_china.30.a
-		ai_chance = {
-			factor = 100
-		}
-		news_event = ww1_china.56
 	}
 }
 
@@ -4389,6 +3902,8 @@ country_event = {
 			modifier = {
 				factor = 0
 				OR = {
+					tag = ANC
+					tag = ZHC
 					tag = XSM
 					tag = SHX
 					tag = GXC
@@ -4398,7 +3913,19 @@ country_event = {
 					tag = FNG
 					tag = JNC
 					tag = PRC
+					tag = SHN
 				}
+			}
+			modifier = {
+				factor = 0
+				strength_ratio = {
+					tag = FROM
+					ratio > 0.7
+				}
+			}
+			modifier = {
+				factor = 0
+				is_major = yes
 			}
 		}
 	}
@@ -4439,79 +3966,24 @@ country_event = {
 	id = ww1_china.35
 	hidden = yes
 	trigger = {
-		OR = {
-			tag = ANC
-			tag = XSM
-			tag = SHX
-			tag = SIK
-			tag = FNG
-			tag = PRC
-			tag = SDC
-			tag = JNC
-			tag = JXC
-			tag = SCC
-			tag = ZHE
-			tag = GDC
-			tag = GXC
-			tag = YUN
-			tag = HNC
-			tag = GZC
-			tag = GMJ
-		}
-		NOT = {
-			has_country_flag = part_of_china
-		}
+		is_chinese_warlord = yes
+		NOT = { has_country_flag = part_of_china }
 	}
 	mean_time_to_happen = { days = 0 }
 	immediate = {
 		set_country_flag = part_of_china
-		if = {
-			limit = {
-				OR = {
-					QIN = {
-						OR = {
-							has_idea = CHI_idea_inflation5
-							has_idea = CHI_idea_inflation4
-							has_idea = CHI_idea_inflation3
-							has_idea = CHI_idea_inflation2
-							has_idea = CHI_idea_inflation
-						}
-					}
-					CHI = {
-						OR = {
-							has_idea = CHI_idea_inflation5
-							has_idea = CHI_idea_inflation4
-							has_idea = CHI_idea_inflation3
-							has_idea = CHI_idea_inflation2
-							has_idea = CHI_idea_inflation
-						}
-					}
-				}
-			}
-			add_ideas = CHI_idea_inflation3
-		}
-		if = {
-			limit = {
-				OR = {
-					QIN = {
-						OR = {
-							has_idea = CHI_idea_army_corruption3
-							has_idea = CHI_idea_army_corruption2
-							has_idea = CHI_idea_army_corruption
-						}
-					}
-					CHI = {
-						OR = {
-							has_idea = CHI_idea_army_corruption3
-							has_idea = CHI_idea_army_corruption2
-							has_idea = CHI_idea_army_corruption
-						}
-					}
-				}
-			}
-			add_ideas = CHI_idea_army_corruption
-		}
+
 		add_ideas = CHI_idea_warlord_neutrality
+		add_ideas = CHI_ineffective_bureaucracy_warlord
+		add_ideas = PRC_government_corruption
+		add_ideas = CHI_idea_inflation5
+		add_ideas = CHI_idea_army_corruption3
+		if = {
+			limit = {
+				num_of_factories > 4
+			}
+			add_ideas = CHI_rampant_opiate_addiction
+		}
 	}
 }
 
@@ -4607,6 +4079,7 @@ country_event = {
 					}
 					set_cosmetic_tag = NPA
 					set_country_flag = CHI_national_protection_flag
+					reserve_dynamic_country = yes
 				}
 				every_owned_state = {
 					limit = {
@@ -4681,6 +4154,7 @@ country_event = {
 							has_id = 15098
 							has_id = 15099
 							has_trait = chinese_nationalist
+							has_trait = chinese_federalist
 							NOT = {
 								has_trait = yuan_shikai_loyalist
 								has_trait = chinese_royalist
@@ -4694,6 +4168,7 @@ country_event = {
 					}
 					set_nationality = NPA
 				}
+				add_country_leader_trait = standing_alone
 				complete_national_focus = CHI_focus_national_protection_war
 				NPA = {
 					CHI_duan_qirui = {
@@ -4719,6 +4194,7 @@ country_event = {
 						}
 					}
 					complete_national_focus = CHI_focus_national_protection_war
+					add_country_leader_trait = standing_alone
 				}
 			}
 			else = {
@@ -4736,6 +4212,7 @@ country_event = {
 					}
 					set_cosmetic_tag = NPA
 					set_country_flag = CHI_national_protection_flag
+					reserve_dynamic_country = yes
 				}
 				every_owned_state = {
 					limit = {
@@ -4790,27 +4267,16 @@ country_event = {
 					}
 					transfer_units_fraction = {
 						target = NPA
-						size = 0.3
-						stockpile_ratio = 0.5
-						army_ratio = 0.6
-						navy_ratio = 0.6
-						air_ratio = 0.6
+						size = 0.1
 						keep_unit_leaders_trigger = {
 							OR = {
-								has_id = 73004
-								has_id = 73005
-								has_id = 73009
-								has_id = 73046
-								has_id = 73049
-								has_id = 73051
-								has_id = 73069
-								has_id = 73047
+								has_id = 15097
 								has_id = 15099
-								has_id = 73048
-								has_trait = yuan_shikai_loyalist
+								NOT = { has_trait = chinese_nationalist }
 							}
 						}
 					}
+					add_country_leader_trait = standing_alone
 					complete_national_focus = CHI_focus_national_protection_war
 				}
 				every_unit_leader = {
@@ -4845,20 +4311,18 @@ country_event = {
 							}
 						}
 						promote_leader = yes #field marshall
-						add_country_leader_trait = standing_alone
 					}
 					CHI_sun_yatsen = {
 						add_country_leader_role = {
 							promote_leader = yes
 							country_leader = {
 								ideology = socialism
-								traits = {
-									father_of_the_republic
-								}
+								traits = { chinese_nationalist father_of_the_republic }
 							}
 						}
 					}
 					complete_national_focus = CHI_focus_national_protection_war
+					add_country_leader_trait = standing_alone
 				}
 			}
 			NPA = {
@@ -5023,13 +4487,11 @@ country_event = {
 			factor = 100
 		}
 		news_event = kis_news.121
-		NPA = {
-			declare_war_on = {
-				target = CHI
-				type = civil_war
-			}
-			add_civil_war_target = CHI
+		declare_war_on = {
+			target = NPA
+			type = civil_war
 		}
+		add_civil_war_target = NPA
 	}
 	option = {
 		name = ww1_china.37.b
@@ -5037,12 +4499,12 @@ country_event = {
 			factor = 0
 		}
 		news_event = kis_news.121
+		declare_war_on = {
+			target = NPA
+			type = civil_war
+		}
+		add_civil_war_target = NPA
 		NPA = {
-			declare_war_on = {
-				target = CHI
-				type = civil_war
-			}
-			add_civil_war_target = CHI
 			change_tag_from = CHI
 		}
 	}
@@ -5070,11 +4532,35 @@ country_event = {
 						has_character = CHI_yuan_shikai
 					}
 				}
-				QIN_yuan_shikai = {
-					set_character_name = CHI_yuan_shikai
+				if = {
+					limit = {
+						has_character = QIN_yuan_shikai
+					}
+					QIN_yuan_shikai = {
+						set_character_name = CHI_yuan_shikai
+						remove_country_leader_role = {
+							ideology = oligarchism
+						}
+						remove_country_leader_role = {
+							ideology = stratocracy
+						}
+						remove_unit_leader_role = yes
+					}
 				}
-				CHI_yuan_shikai = {
-					set_character_name = CHI_yuan_shikai
+				if = {
+					limit = {
+						has_character = CHI_yuan_shikai
+					}
+					CHI_yuan_shikai = {
+						set_character_name = CHI_yuan_shikai
+						remove_country_leader_role = {
+							ideology = oligarchism
+						}
+						remove_country_leader_role = {
+							ideology = stratocracy
+						}
+						remove_unit_leader_role = yes
+					}
 				}
 			}
 			NPA = {
@@ -5087,9 +4573,16 @@ country_event = {
 				state = 608
 			}
 		}
-		set_politics = {
-			ruling_party = neutrality
-			elections_allowed = no
+		meta_effect = {
+			text = {
+				set_politics = {
+					ruling_party = neutrality
+					last_election = "[CURRENT_DATE]"
+					election_frequency = 60
+					elections_allowed = yes
+				}
+			}
+			CURRENT_DATE = "[?global.date.GetDateStringNoHour]"
 		}
 		add_popularity = {
 			ideology = neutrality
@@ -5115,6 +4608,7 @@ country_event = {
 		create_faction = republic_of_china
 		hidden_effect = {
 			set_global_flag = warlord_era
+			country_event = ww1_china.2
 			retire_character = CHI_yuan_keding
 			set_capital = { state = 608 }
 			NPA = {
@@ -5206,7 +4700,7 @@ country_event = {
 						add_country_leader_role = {
 							country_leader = {
 								ideology = socialism
-								traits = { father_of_the_republic }
+								traits = { chinese_nationalist father_of_the_republic }
 							}
 							promote_leader = yes
 						}
@@ -5214,6 +4708,13 @@ country_event = {
 				}
 			}
 			CHI_duan_qirui = {
+				if = {
+					limit = {
+						is_unit_leader = yes
+						is_field_marshal = no
+					}
+					promote_leader = yes
+				}
 				if = {
 					limit = { has_ideology = oligarchism }
 					promote_character = oligarchism
@@ -5262,6 +4763,7 @@ country_event = {
 				}
 			}
 			add_ideas = CHI_idea_duan_qirui
+			add_ideas = CHI_idea_feng_guozhang_vice_president
 			country_event = {
 				id = ww1_china.98
 				days = 10
@@ -5287,7 +4789,7 @@ country_event = {
 	title = ww1_china.39.t
 	desc = ww1_china.39.d
 	id = ww1_china.39
-	picture = GFX_report_event_manchukuo_army
+	picture = GFX_report_event_china_infiltration
 	is_triggered_only = yes
 	fire_only_once = yes
 	immediate = {
@@ -5296,7 +4798,6 @@ country_event = {
 				create_faction = constitutional_protection_government
 				add_to_faction = YUN
 				add_to_faction = GZC
-				add_to_faction = HNC
 			}
 			CHI = {
 				if = {
@@ -5310,21 +4811,20 @@ country_event = {
 	}
 	option = {
 		name = ww1_china.39.a
-		ai_chance = {
-			factor = 100
-		}
-		GXC = {
-			declare_war_on = {
-				target = CHI
-				type = annex_everything
-			}
+		custom_effect_tooltip = ww1_china.39.a.tt
+		declare_war_on = {
+			target = GXC
+			type = annex_everything
 		}
 		hidden_effect = {
-			every_country = {
+			every_other_country = {
 				limit = {
 					is_in_faction_with = GXC
 					NOT = {
+						tag = GXC
 						has_war_with = CHI
+						is_subject_of = CHI
+						is_in_faction_with = ROOT
 					}
 				}
 				add_to_war = {
@@ -5336,22 +4836,21 @@ country_event = {
 	}
 	option = {
 		name = ww1_china.39.b
-		ai_chance = {
-			factor = 0
-		}
-		GXC = {
-			declare_war_on = {
-				target = CHI
-				type = annex_everything
-			}
-			change_tag_from = CHI
+		trigger = { is_ai = no }
+		custom_effect_tooltip = ww1_china.39.b.tt
+		declare_war_on = {
+			target = GXC
+			type = annex_everything
 		}
 		hidden_effect = {
-			every_country = {
+			every_other_country = {
 				limit = {
 					is_in_faction_with = GXC
 					NOT = {
+						tag = GXC
 						has_war_with = CHI
+						is_subject_of = CHI
+						is_in_faction_with = ROOT
 					}
 				}
 				add_to_war = {
@@ -5360,6 +4859,7 @@ country_event = {
 				}
 			}
 		}
+		GXC = { change_tag_from = ROOT }
 	}
 }
 
@@ -5373,48 +4873,45 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_china.40.a
+		add_political_power = -200
+		add_stability = -0.10
+		add_war_support = -0.10
+		set_global_flag = constitutional_protection_war_end
 		set_country_flag = chinese_government_crackdown
 	}
 }
 
-#ALLIANCE OF EIGHT PROVINCES
-##################
+# PLAYABLE SELECTION FOR WARLORD ERA
+#######################################
 country_event = {
 	id = ww1_china.41
 	title = ww1_china.41.t
 	desc = ww1_china.41.desc
 	picture = GFX_report_event_chinese_officers
+	fire_only_once = yes
 	trigger = {
 		tag = ANC
-		has_global_flag = warlord_era
-		has_active_mission = CHI_zhili_anhui_war
-		has_war = no
-		country_exists = SDC
-		country_exists = FNG
-		country_exists = SHX
-		NOT = {
-			country_exists = CHI
-			is_in_faction_with = SDC
-		}
+		is_subject = no
 	}
-	fire_only_once = yes
 	mean_time_to_happen = {
 		days = 35
 	}
-	option = {
-		name = ww1_china.41.a
-		ai_chance = {
-			factor = 100
-		}
-		trigger = {
-			ANC = {
-				exists = yes
+	immediate = {
+		hidden_effect = {
+			if = {
+				limit = {
+					NOT = { has_global_flag = warlord_era_news }
+				}
+				news_event = ww1_china.56
 			}
 		}
+	}
+	option = {
+		name = ww1_china.41.a
 		hidden_effect = {
-			SDC = {
+			ZHC = {
 				set_truce = {
-					target = FNG
+					target = ZHC
 					days = 965
 				}
 				set_truce = {
@@ -5429,16 +4926,14 @@ country_event = {
 	}
 	option = {
 		name = ww1_china.41.b
-		ai_chance = {
-			factor = 0
-		}
 		trigger = {
-			SDC = {
+			is_ai = no
+			ZHC = {
 				exists = yes
 			}
 		}
 		hidden_effect = {
-			SDC = {
+			ZHC = {
 				set_truce = {
 					target = FNG
 					days = 965
@@ -5449,22 +4944,20 @@ country_event = {
 				}
 			}
 		}
-		SDC = {
+		ZHC = {
 			change_tag_from = PREV
 		}
 	}
 	option = {
 		name = ww1_china.41.c
-		ai_chance = {
-			factor = 0
-		}
 		trigger = {
+			is_ai = no
 			FNG = {
 				exists = yes
 			}
 		}
 		hidden_effect = {
-			SDC = {
+			ZHC = {
 				set_truce = {
 					target = FNG
 					days = 965
@@ -5481,10 +4974,8 @@ country_event = {
 	}
 	option = {
 		name = ww1_china.41.d
-		ai_chance = {
-			factor = 0
-		}
 		trigger = {
+			is_ai = no
 			GXC = {
 				exists = yes
 			}
@@ -5494,20 +4985,6 @@ country_event = {
 		}
 		custom_effect_tooltip = ww1_china.41.d.tt
 	}
-	# option = {
-	# 	name = ww1_china.41.e
-	# 	ai_chance = {
-	# 		factor = 0
-	# 	}
-	# 	trigger = {
-	# 		SHX = {
-	# 			exists = yes
-	# 		}
-	# 	}
-	# 	SHX = {
-	# 		change_tag_from = PREV
-	# 	}
-	# }
 }
 
 #ZHILI-ANHUI WAR
@@ -5517,40 +4994,35 @@ country_event = {
 	title = ww1_china.42.t
 	desc = ww1_china.42.d
 	picture = GFX_report_event_chinese_soldiers_fighting
-	trigger = {
-		original_tag = SDC
-		country_exists = ANC
-		OR = {
-			has_global_flag = zhili_anhui_war
-			has_war_with = ANC
-		}
-		NOT = {
-			has_global_flag = zhili_anhui_war_end
-			has_global_flag = first_zhili_fengtian_war
-			has_global_flag = second_zhili_fengtian_war
-			has_global_flag = zhili_fengtian_fengyushang_war
-			has_global_flag = zhili_fengtian_fengyushang_war_end
-			has_global_flag = northern_expedition
-		}
-	}
-	fire_only_once = yes
-	mean_time_to_happen = { days = 0 }
-	immediate = {
-		hidden_effect = {
-			SDC = {
-				create_faction = eight_provinces
-				if = {
-					limit = {
-						country_exists = FNG
-					}
-					add_to_faction = FNG
-					FNG = { set_major = yes }
-				}
-				if = {
-					limit = {
-						country_exists = HNC
-					}
-					add_to_faction = HNC
+	# trigger = {
+	# 	original_tag = ZHC
+	# 	country_exists = ANC
+	# 	OR = {
+	# 		has_global_flag = zhili_anhui_war
+	# 		has_war_with = ANC
+	# 	}
+	# 	NOT = {
+	# 		has_global_flag = zhili_anhui_war_end
+	# 		has_global_flag = first_zhili_fengtian_war
+	# 		has_global_flag = second_zhili_fengtian_war
+	# 		has_global_flag = zhili_fengtian_fengyushang_war
+	# 		has_global_flag = zhili_fengtian_fengyushang_war_end
+	# 		has_global_flag = northern_expedition
+	# 	}
+	# }
+	# fire_only_once = yes
+	# mean_time_to_happen = { days = 0 }
+	is_triggered_only = yes
+	option = {
+		name = ww1_china.42.a
+		if = {
+			limit = {
+				NOT = { has_global_flag = first_zhili_fengtian_war }
+			}
+			set_global_flag = zhili_anhui_war
+			if = {
+				limit = {
+					NOT = { has_war_with = ANC }
 				}
 				declare_war_on = {
 					target = ANC
@@ -5559,19 +5031,18 @@ country_event = {
 			}
 			every_other_country = {
 				limit = {
-					is_in_faction_with = SDC
+					is_in_faction_with = ROOT
 				}
 				add_to_war = {
-					targeted_alliance = SDC
+					targeted_alliance = ROOT
 					enemy = ANC
 				}
 			}
-		}
-	}
-	option = {
-		name = ww1_china.42.a
-		ai_chance = {
-			factor = 100
+			hidden_effect = {
+				FNG = {
+					country_event = ww1_china.42
+				}
+			}
 		}
 	}
 }
@@ -5588,7 +5059,14 @@ country_event = {
 	immediate = {
 		hidden_effect = {
 			ANC = {
-				white_peace = SDC
+				if = {
+					limit = {
+						has_idea = CHI_idea_xu_shichang_president
+					}
+					remove_ideas = CHI_idea_xu_shichang_president
+					ZHC = { add_ideas = CHI_idea_xu_shichang_president }
+				}
+				white_peace = ZHC
 				transfer_units_fraction = {
 					target = FNG
 					size = 0.3
@@ -5597,17 +5075,17 @@ country_event = {
 					}
 				}
 				transfer_units_fraction = {
-					target = SDC
+					target = ZHC
 					size = 0.6
 					keep_unit_leaders_trigger = {
 						always = yes
 					}
 				}
 				ANC_li_houji = {
-					set_nationality = SDC
+					set_nationality = ZHC
 				}
 				transfer_navy = {
-					target = SDC
+					target = ZHC
 				}
 				every_other_country = {
 					limit = {
@@ -5622,7 +5100,7 @@ country_event = {
 							}
 						}
 						ANC = {
-							add_state_core = PREV
+							#add_state_core = PREV
 							transfer_state = PREV
 							country_event = ww1_china.44
 							set_capital = {
@@ -5641,37 +5119,38 @@ country_event = {
 							state = 613
 						}
 					}
-					SDC = {
+					ZHC = {
 						transfer_state = PREV
 					}
 				}
 			}
-			SDC = {
+			ZHC = {
 				if = {
 					limit = {
 						is_faction_leader = yes
 					}
 					dismantle_faction = yes
 				}
-				every_state = {
-					limit = {
-						is_core_of = ANC
-					}
-					add_core_of = SDC
-				}
-				every_state = {
-					limit = {
-						is_claimed_by = ANC
-					}
-					add_claim_by = SDC
-				}
+				# every_state = {
+				# 	limit = {
+				# 		is_core_of = ANC
+				# 	}
+				# 	add_core_of = ZHC
+				# }
+				# every_state = {
+				# 	limit = {
+				# 		is_claimed_by = ANC
+				# 	}
+				# 	add_claim_by = ZHC
+				# }
+				add_state_core = 608
 				set_capital = {
 					state = 608
 				}
 			}
 			every_state = {
 				limit = {
-					is_owned_by = SDC
+					is_owned_by = ZHC
 					OR = {
 						state = 609
 						state = 610
@@ -5680,7 +5159,7 @@ country_event = {
 					}
 				}
 				FNG = {
-					add_state_core = PREV
+					#add_state_core = PREV
 					transfer_state = PREV
 					country_event = ww1_china.44
 				}
@@ -5691,7 +5170,7 @@ country_event = {
 				}
 				every_state = {
 					limit = {
-						is_owned_by = SDC
+						is_owned_by = ZHC
 						OR = {
 							state = 283
 							state = 616
@@ -5699,7 +5178,7 @@ country_event = {
 						}
 					}
 					XSM = {
-						add_state_core = PREV
+						#add_state_core = PREV
 						transfer_state = PREV
 						country_event = ww1_china.44
 					}
@@ -5724,7 +5203,7 @@ country_event = {
 				limit = {
 					OR = {
 						tag = ANC
-						tag = SDC
+						tag = ZHC
 						tag = HNC
 						tag = FNG
 					}
@@ -5733,7 +5212,7 @@ country_event = {
 					limit = {
 						OR = {
 							tag = ANC
-							tag = SDC
+							tag = ZHC
 							tag = HNC
 							tag = FNG
 						}
@@ -5749,25 +5228,22 @@ country_event = {
 	}
 	option = {
 		name = ww1_china.43.a
-		ai_chance = {
-			factor = 100
-		}
 	}
 	option = {
 		name = ww1_china.43.b
-		trigger = { SDC = { is_ai = yes } }
-		SDC = { change_tag_from = PREV }
-		ai_chance = {
-			factor = 0
+		trigger = {
+			is_ai = no
+			ZHC = { is_ai = yes }
 		}
+		ZHC = { change_tag_from = PREV }
 	}
 	option = {
 		name = ww1_china.43.c
-		trigger = { FNG = { is_ai = yes } }
-		FNG = { change_tag_from = PREV }
-		ai_chance = {
-			factor = 0
+		trigger = {
+			is_ai = no
+			FNG = { is_ai = yes }
 		}
+		FNG = { change_tag_from = PREV }
 	}
 }
 
@@ -5782,11 +5258,11 @@ country_event = {
 	immediate = {
 		if = {
 			limit = {
-				SDC = {
+				ZHC = {
 					is_faction_leader = yes
 				}
 			}
-			SDC = {
+			ZHC = {
 				dismantle_faction = yes
 			}
 		}
@@ -5806,32 +5282,35 @@ country_event = {
 	title = ww1_china.45.t
 	desc = ww1_china.45.d
 	picture = GFX_report_event_chinese_soldiers_fighting
-	trigger = {
-		original_tag = SDC
-		NOT = {
-			has_global_flag = second_zhili_fengtian_war
-		}
-		OR = {
-			has_global_flag = first_zhili_fengtian_war
-			has_war_with = FNG
-		}
-	}
-	fire_only_once = yes
-	mean_time_to_happen = { days = 0 }
-	immediate = {
-		hidden_effect = {
-			SDC = {
-				declare_war_on = {
-					target = FNG
-					type = annex_everything
-				}
-			}
-		}
-	}
+	# trigger = {
+	# 	original_tag = ZHC
+	# 	NOT = {
+	# 		has_global_flag = second_zhili_fengtian_war
+	# 	}
+	# 	OR = {
+	# 		has_global_flag = first_zhili_fengtian_war
+	# 		has_war_with = FNG
+	# 	}
+	# }
+	# fire_only_once = yes
+	# mean_time_to_happen = { days = 0 }
+	is_triggered_only = yes
 	option = {
 		name = ww1_china.45.a
-		ai_chance = {
-			factor = 100
+		if = {
+			limit = {
+				NOT = { has_global_flag = first_zhili_fengtian_war  }
+			}
+			set_global_flag = first_zhili_fengtian_war
+			declare_war_on = {
+				target = FNG
+				type = annex_everything
+			}
+			hidden_effect = {
+				FNG = {
+					country_event = ww1_china.45
+				}
+			}
 		}
 	}
 }
@@ -5847,7 +5326,7 @@ country_event = {
 	fire_only_once = yes
 	immediate = {
 		hidden_effect = {
-			SDC = {
+			ZHC = {
 				white_peace = FNG
 				set_truce = {
 					target = FNG
@@ -5892,8 +5371,7 @@ country_event = {
 	fire_only_once = yes
 	immediate = {
 		hidden_effect = {
-			create_dynamic_country = {
-				original_tag = GDC
+			GDC = {
 				set_politics = {
 					ruling_party = democratic
 					elections_allowed = no
@@ -5909,36 +5387,6 @@ country_event = {
 				}
 				set_country_flag = CHI_kuomintang_flag
 				set_cosmetic_tag = CPG
-				reserve_dynamic_country = yes
-			}
-			GDC = {
-				GDC_chen_jiongming = {
-					set_nationality = KMT
-				}
-				GDC_chiang_kaishek = {
-					set_nationality = KMT
-				}
-				GDC_wang_jingwei = {
-					set_nationality = KMT
-				}
-				GDC_sun_yatsen = {
-					set_nationality = KMT
-				}
-				GDC_hu_hanmin = {
-					set_nationality = KMT
-				}
-				GDC_li_dazhao = {
-					set_nationality = KMT
-				}
-				GDC_mikhail_borodin = {
-					set_nationality = KMT
-				}
-				GDC_bai_chongxi = {
-					set_nationality = KMT
-				}
-				GDC_li_zongren = {
-					set_nationality = KMT
-				}
 				GDC_li_jishen = {
 					add_corps_commander_role = {
 						skill = 1
@@ -5947,9 +5395,27 @@ country_event = {
 						planning_skill = 2
 						logistics_skill = 2
 					}
-					set_nationality = KMT
 				}
 			}
+			# create_dynamic_country = {
+			# 	original_tag = GDC
+			# 	set_politics = {
+			# 		ruling_party = democratic
+			# 		elections_allowed = no
+			# 	}
+			# 	set_popularities = {
+			# 		democratic = 32
+			# 		neutrality = 65
+			# 		fascism = 0
+			# 		communism = 3
+			# 	}
+			# 	set_capital = {
+			# 		state = 592
+			# 	}
+			# 	set_country_flag = CHI_kuomintang_flag
+			# 	set_cosmetic_tag = CPG
+			# 	reserve_dynamic_country = yes
+			# }
 			GXC = {
 				CHI_chen_jiongming = {
 					set_nationality = KMT
@@ -5978,6 +5444,7 @@ country_event = {
 				}
 			}
 			KMT = {
+				unlock_national_focus = CHI_cooperation_with_the_nationalists
 				# set_country_flag = china_warlord_focus
 				# load_focus_tree = china_warlord_focus
 				# unlock_national_focus = CHI_focus_national_protection_war
@@ -6013,6 +5480,7 @@ country_event = {
 				}
 				set_stability = 0.9
 				set_war_support = 0.7
+				add_ideas = CHI_idea_constitutional_movement
 				if = {
 					limit = {
 						NOT = {
@@ -6024,9 +5492,7 @@ country_event = {
 							promote_leader = yes
 							country_leader = {
 								ideology = socialism
-								traits = {
-									father_of_the_republic
-								}
+								traits = { chinese_nationalist father_of_the_republic }
 							}
 						}
 					}
@@ -6076,15 +5542,6 @@ country_event = {
 							ideology = stratocracy
 							traits = { decentralist_liberal }
 						}
-					}
-				}
-				GDC_chiang_kaishek = {
-					add_corps_commander_role = {
-						skill = 3
-						attack_skill = 3
-						defense_skill = 3
-						planning_skill = 2
-						logistics_skill = 2
 					}
 				}
 				every_other_country = {
@@ -6141,8 +5598,8 @@ country_event = {
 	}
 }
 
-#YUNG FENG INCIDENT
-######################
+# YUNG FENG INCIDENT
+#######################
 country_event = {
 	id = ww1_china.48
 	title = ww1_china.48.t
@@ -6152,22 +5609,26 @@ country_event = {
 	immediate = {
 		hidden_effect = {
 			KMT = {
-				start_civil_war = {
-					ideology = neutrality
-					size = 0.3
-					states = {
-						593
+				create_dynamic_country = {
+					original_tag = GDC
+					set_politics = {
+						ruling_party = neutrality
+						elections_allowed = no
 					}
-					keep_political_party_members = yes
-					hidden_effect = {
-						set_country_flag = CHI_zhigongdang_flag
-						set_cosmetic_tag = GDC
-						set_popularities = {
-							democratic = 57
-							neutrality = 38
-							communism = 5
-						}
+					set_popularities = {
+						democratic = 57
+						neutrality = 38
+						communism = 5
 					}
+					set_country_flag = CHI_zhigongdang_flag
+					transfer_state = 593
+					transfer_state = 892
+					reserve_dynamic_country = yes
+				}
+				transfer_units_fraction = {
+					target = ZGP
+					size = 0.40
+					keep_unit_leaders_trigger = { has_trait = chinese_nationalist }
 				}
 				GDC_chen_jiongming = {
 					promote_leader = yes
@@ -6176,36 +5637,7 @@ country_event = {
 				CHI_chen_jiongming = {
 					set_nationality = ZGP
 				}
-				GDC_li_jishen = {
-					set_nationality = ZGP
-				}
 				ZGP = {
-					GDC_li_jishen = {
-						add_country_leader_role = {
-							promote_leader = yes
-							country_leader = {
-								ideology = social_liberalism
-							}
-						}
-						add_country_leader_role = {
-							promote_leader = yes
-							country_leader = {
-								ideology = authoritarian_democracy
-							}
-						}
-						add_country_leader_role = {
-							promote_leader = yes
-							country_leader = {
-								ideology = stratocracy
-							}
-						}
-						add_country_leader_role = {
-							promote_leader = yes
-							country_leader = {
-								ideology = reformist_socialism
-							}
-						}
-					}
 					GDC_chen_jiongming = {
 						add_country_leader_role = {
 							promote_leader = yes
@@ -6259,42 +5691,39 @@ country_event = {
 					set_rule = {
 						can_join_factions = no
 					}
-					every_other_country = {
-						limit = {
-							is_subject_of = PREV.PREV
-						}
-						add_to_war = {
-							targeted_alliance = PREV.PREV
-							enemy = PREV
-						}
-					}
-					# set_country_flag = china_warlord_focus
- 					# load_focus_tree = china_warlord_focus
- 					# unlock_national_focus = CHI_focus_national_protection_war
- 					# unlock_national_focus = CHI_focus_government_divided
- 					# unlock_national_focus = CHI_focus_guangxi
- 					# unlock_national_focus = CHI_focus_cp_movement
- 					# unlock_national_focus = CHI_focus_cpg
- 					# unlock_national_focus = CHI_focus_yung_feng_incident
-					# unlock_national_focus = CHI_focus_zhigongdang
 				}
-				# unlock_national_focus = CHI_focus_nationalist_government
+				every_other_country = {
+					limit = {
+						is_subject_of = PREV
+					}
+					add_to_war = {
+						targeted_alliance = PREV
+						enemy = ZGP
+					}
+				}
 			}
 		}
 	}
 	option = {
 		name = ww1_china.48.a
-		ai_chance = {
-			factor = 100
+		custom_effect_tooltip = ww1_china.48.a.tt
+		ZGP = {
+			declare_war_on = {
+				target = PREV
+				type = annex_everything
+			}
 		}
 	}
 	option = {
 		name = ww1_china.48.b
-		ai_chance = {
-			factor = 0
-		}
+		custom_effect_tooltip = ww1_china.48.b.tt
+		trigger = { is_ai = no }
 		ZGP = {
-			change_tag_from = KMT
+			declare_war_on = {
+				target = PREV
+				type = annex_everything
+			}
+			change_tag_from = PREV
 		}
 	}
 }
@@ -6309,21 +5738,26 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_china.49.a
-		ai_chance = {
-			factor = 100
-		}
 		declare_war_on = {
 			target = ANC
 			type = annex_everything
 		}
 		hidden_effect = {
-			every_state = {
+			if = {
 				limit = {
-					is_core_of = ANC
+					FNG = {
+						exists = yes
+						is_subject = no
+						NOT = { is_in_faction_with = ROOT }
+					}
 				}
-				add_core_of = ROOT
+				FNG = {
+					country_event = {
+						id = ww1_china.50
+						days = 3
+					}
+				}
 			}
-			set_global_flag = jiangsu_zhejiang_war
 		}
 	}
 	# option = {
@@ -6343,64 +5777,85 @@ country_event = {
 	desc = ww1_china.50.d
 	picture = GFX_report_event_chinese_soldiers_fighting
 	is_triggered_only = yes
-	immediate = {
-		hidden_effect = {
-			PRC = {
-				set_politics = {
-					ruling_party = neutrality
-					elections_allowed = no
-				}
-				set_popularities = {
-					neutrality = 40
-					democratic = 32
-					communism = 23
-					fascism = 5
-				}
-				PRC_yang_hucheng = {
-					add_country_leader_role = {
-						promote_leader = yes
-						country_leader = {
-							ideology = despotism
-						}
-					}
-					add_country_leader_role = {
-						promote_leader = yes
-						country_leader = {
-							ideology = stratocracy
-						}
-					}
-				}
-			}
-		}
-	}
+	# immediate = {
+	# 	hidden_effect = {
+	# 		SHN = {
+	# 			set_politics = {
+	# 				ruling_party = neutrality
+	# 				elections_allowed = no
+	# 			}
+	# 			set_popularities = {
+	# 				neutrality = 40
+	# 				democratic = 32
+	# 				communism = 23
+	# 				fascism = 5
+	# 			}
+	# 			SHN_yang_hucheng = {
+	# 				add_country_leader_role = {
+	# 					promote_leader = yes
+	# 					country_leader = {
+	# 						ideology = despotism
+	# 					}
+	# 				}
+	# 				add_country_leader_role = {
+	# 					promote_leader = yes
+	# 					country_leader = {
+	# 						ideology = stratocracy
+	# 					}
+	# 				}
+	# 			}
+	# 		}
+	# 	}
+	# }
 	option = {
 		name = ww1_china.50.a
-		ai_chance = {
-			factor = 100
-		}
-		create_faction = anti_zhili_alliance
-		add_to_faction = ANC
+		set_global_flag = second_zhili_fengtian_war
 		declare_war_on = {
-			target = SDC
+			target = ZHC
 			type = annex_everything
 		}
 		if = {
 			limit = {
-				any_other_country = {
-					has_country_flag = CHI_kuomintang_flag
-					NOT = {
-						has_war_with = ROOT
-						is_in_faction_with = SDC
-					}
+				is_faction_leader = yes
+			}
+			set_faction_name = anti_zhili_alliance
+		}
+		else = {
+			create_faction = anti_zhili_alliance
+		}
+		add_to_faction = ANC
+		
+		# if = {
+		# 	limit = {
+		# 		any_other_country = {
+		# 			has_country_flag = CHI_kuomintang_flag
+		# 			NOT = {
+		# 				has_war_with = ROOT
+		# 				is_in_faction_with = ZHC
+		# 			}
+		# 		}
+		# 	}
+		# 	create_faction = anti_zhili_alliance
+		# 	KMT = {
+		# 		country_event = ww1_china.51
+		# 	}
+		# }
+	}
+	option = {
+		name = ww1_china.50.b
+		add_war_support = -0.15
+		every_state = {
+			limit = {
+				OR = {
+					is_claimed_by = ROOT
+					is_core_of = ROOT
 				}
+				is_owned_by = ZHC
 			}
-			KMT = {
-				country_event = ww1_china.51
-			}
+			remove_claim_by = ROOT
+			remove_core_of = ROOT
 		}
-		hidden_effect = {
-			set_global_flag = second_zhili_fengtian_war
-		}
+		ai_chance = { factor = 0 }
 	}
 }
 
@@ -6421,7 +5876,7 @@ country_event = {
 			add_to_faction = ROOT
 			add_to_war = {
 				targeted_alliance = ROOT
-				enemy = SDC
+				enemy = ZHC
 			}
 		}
 	}
@@ -6452,9 +5907,9 @@ country_event = {
 						is_in_faction_with = FNG
 					}
 				}
-				white_peace = SDC
+				white_peace = ZHC
 				set_truce = {
-					target = SDC
+					target = ZHC
 					days = 644
 				}
 			}
@@ -6489,7 +5944,7 @@ country_event = {
 						state = 611
 					}
 				}
-				SDC = {
+				ZHC = {
 					transfer_units_fraction = {
 						target = GMJ
 						size = 0.5
@@ -6499,7 +5954,7 @@ country_event = {
 					}
 				}
 			}
-			SDC = {
+			ZHC = {
 				transfer_units_fraction = {
 					target = FNG
 					size = 0.3
@@ -6516,6 +5971,7 @@ country_event = {
 					}
 					dismantle_faction = yes
 				}
+				country_event = ww1_china.20
 			}
 			every_country = {
 				limit = {
@@ -6553,7 +6009,7 @@ country_event = {
 				}
 				ANC = {
 					transfer_navy = {
-						target = SDC
+						target = ZHC
 					}
 					every_owned_state = {
 						limit = {
@@ -6575,7 +6031,7 @@ country_event = {
 						limit = {
 							is_core_of = ANC
 						}
-						add_core_of = SDC
+						add_core_of = ZHC
 					}
 					transfer_units_fraction = {
 						target = FNG
@@ -6585,7 +6041,7 @@ country_event = {
 						}
 					}
 					transfer_units_fraction = {
-						target = SDC
+						target = ZHC
 						size = 0.7
 						keep_unit_leaders_trigger = {
 							always = yes
@@ -6605,31 +6061,31 @@ country_event = {
 							state = 613
 						}
 					}
-					add_core_of = SDC
-					transfer_state_to = SDC
+					add_core_of = ZHC
+					transfer_state_to = ZHC
 				}
 			}
 			every_state = {
 				limit = {
-					is_core_of = SDC
+					is_core_of = ZHC
 				}
 				if = {
 					limit = {
-						NOT = { is_owned_by = SDC }
+						NOT = { is_owned_by = ZHC }
 					}
-					remove_core_of = SDC
+					remove_core_of = ZHC
 				}
 				add_core_of = FNG
 			}
 			every_state = {
 				limit = {
-					is_claimed_by = SDC
+					is_claimed_by = ZHC
 				}
 				if = {
 					limit = {
-						NOT = { is_owned_by = SDC }
+						NOT = { is_owned_by = ZHC }
 					}
-					remove_claim_by = SDC
+					remove_claim_by = ZHC
 				}
 				add_claim_by = FNG
 			}
@@ -6652,7 +6108,7 @@ country_event = {
 	desc = ww1_china.53.d
 	picture = GFX_report_event_chinese_soldiers_fighting
 	trigger = {
-		original_tag = SDC
+		original_tag = ZHC
 		owns_state = 608
 		has_global_flag = first_zhili_fengtian_war_end
 		has_war_with = FNG
@@ -6678,7 +6134,7 @@ country_event = {
 					set_nationality = GMJ
 				}
 			}
-			SDC = {
+			ZHC = {
 				transfer_units_fraction = {
 					target = GMJ
 					size = 0.3
@@ -6690,7 +6146,7 @@ country_event = {
 						has_trait = yuan_shikai_loyalist
 					}
 				}
-				SDC_wu_peifu = {
+				ZHC_wu_peifu = {
 					add_country_leader_role = {
 						promote_leader = yes
 						country_leader = {
@@ -6704,7 +6160,7 @@ country_event = {
 						}
 					}
 				}
-				SDC_feng_yuhsiang = {
+				ZHC_feng_yuhsiang = {
 					set_nationality = GMJ
 				}
 			}
@@ -6719,60 +6175,18 @@ country_event = {
 			GMJ = {
 				add_state_core = 608
 				transfer_state = 608
-				inherit_technology = SDC
+				inherit_technology = ZHC
 				declare_war_on = {
-					target = SDC
+					target = ZHC
 					type = annex_everything
 				}
-				division_template = {
-					name = "Guominjun"
-					regiments = {
-						infantry = {
-							x = 0
-							y = 0
-						}
-						infantry = {
-							x = 0
-							y = 1
-						}
-						infantry = {
-							x = 0
-							y = 2
-						}
-						infantry = {
-							x = 1
-							y = 0
-						}
-						infantry = {
-							x = 1
-							y = 1
-						}
-						infantry = {
-							x = 1
-							y = 2
-						}
-					}
-				}
-				608 = {
+				load_oob = CHI_warlord
+				capital_scope = {
 					create_unit = {
-						division = "name = \"1. Juntuán\" division_template = \"Guominjun\" start_experience_factor = 0.7"
-						owner = ROOT
-					}
-					create_unit = {
-						division = "name = \"2. Juntuán\" division_template = \"Guominjun\" start_experience_factor = 0.7"
-						owner = ROOT
-					}
-					create_unit = {
-						division = "name = \"3. Juntuán\" division_template = \"Guominjun\" start_experience_factor = 0.7"
-						owner = ROOT
-					}
-					create_unit = {
-						division = "name = \"4. Juntuán\" division_template = \"Guominjun\" start_experience_factor = 0.7"
-						owner = ROOT
-					}
-					create_unit = {
-						division = "name = \"5. Juntuán\" division_template = \"Guominjun\" start_experience_factor = 0.7"
-						owner = ROOT
+						division = "division_template = \"Juntuán\"	start_experience_factor = 0.4	start_equipment_factor = 1"
+						owner = PREV
+						allow_spawning_on_enemy_provs = yes
+						count = 6
 					}
 				}
 			}
@@ -6926,38 +6340,36 @@ country_event = {
 	desc = ww1_china.55.d
 	picture = GFX_report_event_chinese_soldiers_fighting
 	trigger = {
-		tag = QIN
+		original_tag = QIN
 		has_global_flag = warlord_era
+		country_exists = FNG
+		country_exists = JNC
 	}
 	fire_only_once = yes
-	mean_time_to_happen = {
-		days = 0
-	}
+	mean_time_to_happen = { days = 0 }
 	immediate = {
 		hidden_effect = {
-			news_event = ww1_china.56
+			if = {
+				limit = {
+					NOT = { has_global_flag = warlord_era_news }
+				}
+				news_event = ww1_china.56
+			}
 		}
 	}
 	option = {
 		name = ww1_china.55.a
-		ai_chance = {
-			factor = 100
-		}
 	}
 	option = {
 		name = ww1_china.55.b
-		ai_chance = {
-			factor = 0
-		}
+		trigger = { is_ai = no }
 		JNC = {
 			change_tag_from = QIN
 		}
 	}
 	option = {
 		name = ww1_china.55.c
-		ai_chance = {
-			factor = 0
-		}
+		trigger = { is_ai = no }
 		FNG = {
 			change_tag_from = QIN
 		}
@@ -6974,6 +6386,9 @@ news_event = {
 	is_triggered_only = yes
 	major = yes
 	fire_only_once = yes
+	immediate = {
+		hidden_effect = { set_global_flag = warlord_era_news }
+	}
 	option = {
 		name = ww1_china.56.a
 		ai_chance = {
@@ -7028,47 +6443,58 @@ country_event = {
 	desc = ww1_china.57.d
 	picture = GFX_report_event_china_soviet_volunteers
 	trigger = {
-		has_global_flag = sun_yatsen_dead
-		has_global_flag = russian_civil_war
+		date > 1919.1.1
 		is_china_or_warlord = yes
-		NOT = { has_government = communism }
+		has_global_flag = sun_yatsen_dead
 		OR = {
-			AND = {
-				has_global_flag = yung_feng_incident
-				has_country_flag = CHI_kuomintang_flag
+			has_global_flag = russian_civil_war
+			has_global_flag = french_civil_war
+		}
+		NOT = {
+			has_government = communism
+			has_global_flag = chinese_communist_party
+		}
+		# on chinese mainland
+		capital_scope = {
+			OR = {
+				region = 143
+				region = 144
+				region = 164
+				region = 165
 			}
-			AND = {
-				tag = CHI
-				OR = {
-					has_global_flag = warlord_era_end
-					NOT = { has_global_flag = chinese_warlord_crisis }
-				}
-			}
-			has_country_flag = reunited_china
 		}
 	}
-	mean_time_to_happen = { days = 45 }
+	mean_time_to_happen = { days = 100 }
 	fire_only_once = yes
+	immediate = {
+		hidden_effect = { set_global_flag = chinese_communist_party }
+	}
 	option = {
 		name = ww1_china.57.a
+		set_country_flag = chinese_communist_party
 		add_popularity = {
 			ideology = communism
 			popularity = 0.05
 		}
-		every_country = {
+		add_timed_idea = {
+			idea = CHI_idea_communist_movement
+			days = 365
+		}
+		set_party_name = {
+			ideology = communism
+			long_name = CHI_communist_party_long
+			name = CHI_communist_party
+		}
+		every_other_country = {
 			limit = {
 				is_china_or_warlord = yes
-				NOT = { has_country_leader_ideology = reformist_socialism }
+				NOT = {
+					original_tag = PRC
+					has_country_flag = chinese_communist_party
+					has_government = communism
+				}
 			}
-			set_party_name = {
-				ideology = communism
-				long_name = CHI_communist_party_long
-				name = CHI_communist_party
-			}
-			add_timed_idea = {
-				idea = CHI_idea_communist_movement
-				days = 365
-			}
+			country_event = ww1_china.57
 		}
 		if = {
 			limit = { tag = CHI }
@@ -7084,7 +6510,7 @@ country_event = {
 		}
 		else_if = {
 			limit = {
-				original_tag = GDC
+				tag = GDC
 			}
 			GDC_li_dazhao = {
 				remove_country_leader_role = { ideology = marxism }
@@ -7096,7 +6522,6 @@ country_event = {
 				}
 			}
 		}
-		set_global_flag = chinese_communist_party
 	}
 }
 
@@ -7109,25 +6534,17 @@ country_event = {
 	picture = GFX_report_event_china_soviet_volunteers
 	trigger = {
 		has_global_flag = chinese_communist_party
+		has_global_flag = warlord_era
 		is_china_or_warlord = yes
 		NOT = {
 			has_government = communism
-		}
-		OR = {
-			AND = {
-				has_global_flag = northern_expedition_end
-				has_country_flag = CHI_kuomintang_flag
-			}
-			AND = {
-				tag = CHI
-				OR = {
-					has_global_flag = warlord_era_end
-					NOT = { has_global_flag = chinese_warlord_crisis }
-				}
-			}
-			has_country_flag = reunited_china
+			has_global_flag = chinese_soviet_republic
 		}
 		owns_state = 600
+		any_owned_state = {
+			is_chinese_core = yes
+			NOT = { state = 600 }
+		}
 		OR = {
 			date > 1931.11.1
 			communism > 0.3
@@ -7143,232 +6560,50 @@ country_event = {
 				}
 				remove_ideas = CHI_idea_communist_movement
 			}
-			create_dynamic_country = {
-				original_tag = GDC
-				set_politics = {
-					ruling_party = communism
-					elections_allowed = no
-				}
-				set_popularities = {
-					democratic = 0
-					neutrality = 0
-					fascism = 0
-					communism = 100
-				}
-				set_capital = {
-					state = 600
-				}
+			PRC = {
+				transfer_state = 600
 				set_country_flag = CHI_soviet_republic_flag
 				set_cosmetic_tag = CSR
-				reserve_dynamic_country = yes
-			}
-			CSR = {
-				every_other_country = {
-					limit = {
-						is_china_or_warlord = yes
-					}
-					every_state = {
-						limit = {
-							is_core_of = PREV
-						}
-						add_core_of = PREV.PREV
-					}
-					every_state = {
-						limit = {
-							is_claimed_by = PREV
-						}
-						add_claim_by = PREV.PREV
-					}
-				}
-				transfer_state = 600
+				unlock_national_focus = CHI_cooperation_with_the_communists
 				inherit_technology = ROOT
-				set_party_name = {
-					ideology = communism
-					long_name = CHI_communist_party_long
-					name = CHI_communist_party
-				}
-				set_party_name = {
-					ideology = democratic
-					long_name = CHI_left_kuomintang_party_long
-					name = CHI_left_kuomintang_party
-				}
-				set_rule = {
-					can_join_factions = no
-				}
-				create_country_leader = {
-					name = "PRC_mao_zedong"
-					picture = "GFX_portrait_prc_mao_zedong"
-					ideology = vanguardism
-					traits = {
-						cornered_fox
-						standing_alone
-					}
-				}
-				add_ideas = {
-					closed_economy
-					service_by_requirement
-					partial_economic_mobilisation
-				}
-				set_war_support = 0.85
-				set_stability = 0.67
-				create_field_marshal = {
-					name = "PRC_mao_zedong"
-					gfx = "GFX_portrait_prc_mao_zedong"
-					traits = {
-						defensive_doctrine
-						trait_cautious
-						politically_connected
-					}
-					skill = 4
-					attack_skill = 2
-					defense_skill = 4
-					planning_skill = 3
-					logistics_skill = 4
-				}
-				create_corps_commander = {
-					name = "PRC_zhu_de"
-					gfx = "GFX_portrait_prc_zhu_de"
-					traits = {
-						infantry_officer
-						organizer
-					}
-					skill = 4
-					attack_skill = 3
-					defense_skill = 3
-					planning_skill = 3
-					logistics_skill = 4
-				}
-				create_corps_commander = {
-					name = "PRC_chen_yi"
-					gfx = "GFX_portrait_prc_chen_yi"
-					traits = {
-						infantry_officer
-					}
-					skill = 3
-					attack_skill = 4
-					defense_skill = 3
-					planning_skill = 2
-					logistics_skill = 2
-				}
-				create_corps_commander = {
-					name = "PRC_peng_duhuai"
-					gfx = "GFX_portrait_prc_peng_dehuai"
-					traits = {
-						infantry_officer
-						trait_mountaineer
-					}
-					skill = 4
-					attack_skill = 3
-					defense_skill = 5
-					planning_skill = 3
-					logistics_skill = 2
-				}
-				create_corps_commander = {
-					name = "PRC_lin_biao"
-					portrait_path = "gfx/leaders/Asia/Portrait_Asia_Generic_warlord1.dds"
-					traits = {
-						infantry_officer
-						trait_mountaineer
-					}
-					skill = 5
-					attack_skill = 4
-					defense_skill = 5
-					planning_skill = 3
-					logistics_skill = 4
-				}
-				division_template = {
-					name = "Gongnong Hongjun"
-					regiments = {
-						infantry = {
-							x = 0
-							y = 0
-						}
-						infantry = {
-							x = 0
-							y = 1
-						}
-						infantry = {
-							x = 0
-							y = 2
-						}
-						infantry = {
-							x = 1
-							y = 0
-						}
-						infantry = {
-							x = 1
-							y = 1
-						}
-						infantry = {
-							x = 1
-							y = 2
-						}
-					}
-				}
-				600 = {
+				set_rule = { can_join_factions = no }
+				capital_scope = {
 					create_unit = {
-						division = "name = \"1. Gongnong Hongjun\" division_template = \"Gongnong Hongjun\" start_experience_factor = 0.7"
+						division = "division_template = \"Juntuán\"	start_experience_factor = 0.4	start_equipment_factor = 1"
 						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"2. Gongnong Hongjun\" division_template = \"Gongnong Hongjun\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"3. Gongnong Hongjun\" division_template = \"Gongnong Hongjun\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"4. Gongnong Hongjun\" division_template = \"Gongnong Hongjun\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"5. Gongnong Hongjun\" division_template = \"Gongnong Hongjun\" start_experience_factor = 0.7"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"6. Gongnong Hongjun\" division_template = \"Gongnong Hongjun\" start_experience_factor = 0.7"
-						owner = PREV
+						allow_spawning_on_enemy_provs = yes
+						count = 10
 					}
 				}
 				news_event = ww1_china.107
 			}
-			if = {
-				limit = {
-					communism > 0.3
-				}
-			}
-			add_popularity = {
-				ideology = communism
-				popularity = -0.2
-			}
-			
 		}
 	}
 	option = {
 		name = ww1_china.58.a
-		ai_chance = {
-			factor = 100
+		add_popularity = {
+			ideology = communism
+			popularity = -0.10
 		}
 		declare_war_on = {
 			target = CSR
 			type = civil_war
 		}
-		add_civil_war_target = CSR
+		#add_civil_war_target = CSR
 	}
 	option = {
 		name = ww1_china.58.b
-		ai_chance = {
-			factor = 0
+		trigger = { is_ai = no }
+		add_popularity = {
+			ideology = communism
+			popularity = -0.10
 		}
 		declare_war_on = {
 			target = CSR
 			type = civil_war
 		}
-		add_civil_war_target = CSR
-		CSR = {
-			change_tag_from = PREV
-		}
+		#add_civil_war_target = CSR
+		CSR = { change_tag_from = PREV }
 	}
 }
 
@@ -7394,7 +6629,7 @@ country_event = {
 				target = FNG
 				type = annex_everything
 			}
-			SDC = {
+			ZHC = {
 				declare_war_on = {
 					target = GMJ
 					type = annex_everything
@@ -7448,7 +6683,7 @@ country_event = {
 					state = 610
 				}
 			}
-			SDC = {
+			ZHC = {
 				add_state_core = PREV
 				transfer_state = PREV
 			}
@@ -7469,7 +6704,7 @@ country_event = {
 			limit = {
 				OR = {
 					is_owned_by = GMJ
-					is_owned_by = SDC
+					is_owned_by = ZHC
 				}
 				OR = {
 					state = 610
@@ -7562,13 +6797,13 @@ country_event = {
 			}
 			if = {
 				limit = {
-					SDC = {
+					ZHC = {
 						exists = yes
 					}
 				}
 				KMT = {
 					annex_country = {
-						target = SDC
+						target = ZHC
 						transfer_troops = no
 					}
 					set_capital = {
@@ -7578,17 +6813,17 @@ country_event = {
 				}
 				every_state = {
 					limit = {
-						is_core_of = SDC
+						is_core_of = ZHC
 					}
 					add_core_of = KMT
-					remove_core_of = SDC
+					remove_core_of = ZHC
 				}
 				every_state = {
 					limit = {
-						is_claimed_by = SDC
+						is_claimed_by = ZHC
 					}
 					add_claim_by = KMT
-					remove_claim_by = SDC
+					remove_claim_by = ZHC
 				}
 			}
 			if = {
@@ -7627,7 +6862,7 @@ country_event = {
 				every_state = {
 					limit = {
 						OR = {
-							is_owned_by = SDC
+							is_owned_by = ZHC
 						}
 						OR = {
 							state = 607
@@ -7648,7 +6883,7 @@ country_event = {
 			every_state = {
 				limit = {
 					OR = {
-						is_owned_by = SDC
+						is_owned_by = ZHC
 						is_owned_by = FNG
 					}
 					OR = {
@@ -7677,7 +6912,7 @@ country_event = {
 				every_state = {
 					limit = {
 						OR = {
-							is_owned_by = SDC
+							is_owned_by = ZHC
 							is_owned_by = FNG
 							is_owned_by = KMT
 						}
@@ -7735,7 +6970,7 @@ country_event = {
 				every_state = {
 					limit = {
 						OR = {
-							is_owned_by = SDC
+							is_owned_by = ZHC
 							is_owned_by = FNG
 							is_owned_by = KMT
 						}
@@ -7907,9 +7142,22 @@ country_event = {
 				}
 			}
 			create_faction = nanjing_government
-			declare_war_on = {
-				target = SHX
-				type = annex_everything
+			if = {
+				limit = {
+					YUN = {
+						exists = yes
+						is_subject = no
+						is_in_faction = no
+						NOT = {
+							has_war_with = ROOT
+						}
+						has_country_leader = {
+							character = YUN_long_yun
+							ruling_only = yes
+						}
+					}
+				}
+				add_to_faction = YUN
 			}
 			SHX = {
 				create_faction = beiping_government
@@ -7983,11 +7231,87 @@ country_event = {
 		ai_chance = {
 			factor = 100
 		}
+		declare_war_on = {
+			target = SHX
+			type = annex_everything
+		}
+		hidden_effect = {
+			every_other_country = {
+				limit = {
+					is_china_or_warlord = yes
+					OR = {
+						is_in_faction_with = ROOT
+						is_subject_of = ROOT
+					}
+				}
+				ROOT = {
+					add_to_war = {
+						targeted_alliance = PREV
+						enemy = SHX
+					}
+				}
+			}
+			SHX = {
+				every_other_country = {
+					limit = {
+						is_china_or_warlord = yes
+						OR = {
+							is_in_faction_with = ROOT
+							is_subject_of = ROOT
+						}
+					}
+					PREV = {
+						add_to_war = {
+							targeted_alliance = PREV
+							enemy = ROOT
+						}
+					}
+				}
+			}
+		}
 	}
 	option = {
 		name = ww1_china.63.b
 		ai_chance = {
 			factor = 0
+		}
+		declare_war_on = {
+			target = SHX
+			type = annex_everything
+		}
+		hidden_effect = {
+			every_other_country = {
+				limit = {
+					is_china_or_warlord = yes
+					OR = {
+						is_in_faction_with = ROOT
+						is_subject_of = ROOT
+					}
+				}
+				ROOT = {
+					add_to_war = {
+						targeted_alliance = PREV
+						enemy = SHX
+					}
+				}
+			}
+			SHX = {
+				every_other_country = {
+					limit = {
+						is_china_or_warlord = yes
+						OR = {
+							is_in_faction_with = ROOT
+							is_subject_of = ROOT
+						}
+					}
+					PREV = {
+						add_to_war = {
+							targeted_alliance = PREV
+							enemy = ROOT
+						}
+					}
+				}
+			}
 		}
 		#unlock_national_focus = CHI_focus_nanjing_victory
 		SHX = {
@@ -8415,7 +7739,7 @@ country_event = {
 											OR = {
 												original_tag = HNC
 												original_tag = SCC
-												original_tag = SDC
+												original_tag = ZHC
 												original_tag = JNC
 												original_tag = JXC
 												original_tag = ZHE
@@ -8669,24 +7993,44 @@ country_event = {
 	desc = ww1_china.67.d
 	picture = GFX_report_event_german_detained_china
 	trigger = {
-		has_country_leader = {
-			character = YUN_tang_jiyao
-			ruling_only = yes
-		}
+		tag = YUN
 		OR = {
-			date > 1927.2.6
 			has_global_flag = northern_expedition_end
+			any_other_country = {
+				is_kuomintang_state = yes
+				has_country_flag = reunited_china
+			}
+		}
+		NOT = {
+			has_completed_focus = CHI_cooperation_with_the_nationalists
+			has_cosmetic_tag = YUN_KMT
 		}
 	}
-	mean_time_to_happen = { days = 0 }
 	fire_only_once = yes
 	option = {
 		name = ww1_china.67.a
-		hidden_effect = {
-			retire_character = QIN_tang_jiyao
+		if = {
+			limit = {
+				has_country_leader = {
+					character = YUN_tang_jiyao
+				}
+			}
+			hidden_effect = {
+				retire_character = QIN_tang_jiyao
+			}
+			retire_character = YUN_tang_jiyao
+			promote_character = YUN_long_yun
 		}
-		retire_character = YUN_tang_jiyao
-		promote_character = YUN_long_yun
+		hidden_effect = {
+			set_cosmetic_tag = YUN_KMT
+			complete_national_focus = CHI_cooperation_with_the_nationalists
+			uncomplete_national_focus = {
+				focus = CHI_cooperation_with_the_communists
+			}
+			uncomplete_national_focus = {
+				focus = CHI_opposition
+			}
+		}
 		ai_chance = {
 			factor = 100
 		}
@@ -8702,17 +8046,25 @@ country_event = {
 		text = ww1_china.68.d
 		trigger = {
 			OR = {
-				country_exists = JNC
-				country_exists = SDC
+				country_exists = CHI
+				AND = {
+					country_exists = ZHC
+					country_exists = ANC
+				}
 			}
 		}
 	}
 	desc = {
 		text = ww1_china.68.d2
 		trigger = {
-			NOT = {
-				country_exists = JNC
-				country_exists = SDC
+			NOT = { country_exists = CHI }
+		}
+	}
+	desc = {
+		text = ww1_china.68.d3
+		trigger = {
+			any_country = {
+				has_idea = CHI_idea_feng_guozhang_president
 			}
 		}
 	}
@@ -8721,7 +8073,7 @@ country_event = {
 		date > 1919.12.1
 		OR = {
 			has_country_flag = JNC_feng_guozhang
-			has_character = SDC_feng_guozhang
+			has_character = ZHC_feng_guozhang
 			has_character = QIN_feng_guozhang
 		}
 	}
@@ -8737,9 +8089,9 @@ country_event = {
 			}
 			every_possible_country = {
 				limit = {
-					has_character = SDC_feng_guozhang
+					has_character = ZHC_feng_guozhang
 				}
-				retire_character = SDC_feng_guozhang
+				retire_character = ZHC_feng_guozhang
 			}
 			every_possible_country = {
 				limit = {
@@ -8769,6 +8121,42 @@ country_event = {
 			retire_character = QIN_feng_guozhang
 		}
 		add_political_power = -75
+		if = {
+			limit = {
+				has_idea = CHI_idea_feng_guozhang_president
+			}
+			remove_ideas = CHI_idea_feng_guozhang_president
+			set_country_flag = duan_qirui_president
+			set_country_flag = chinese_government_crackdown
+			meta_effect = {
+				text = {
+					set_politics = {
+						ruling_party = ROOT
+						last_election = "[CURRENT_DATE]"
+						election_frequency = 60
+						elections_allowed = yes
+					}
+				}
+				CURRENT_DATE = "[?global.date.GetDateStringNoHour]"
+			}
+			hidden_effect = {
+				# prepare government divide
+				ANC = {
+					meta_effect = {
+						text = {
+							set_politics = {
+								ruling_party = neutrality
+								last_election = "[CURRENT_DATE]"
+								election_frequency = 60
+								elections_allowed = no
+							}
+						}
+						CURRENT_DATE = "[?global.date.GetDateStringNoHour]"
+					}
+					# Duan is president, no need to add ideas
+				}
+			}
+		}
 		ai_chance = {
 			factor = 100
 		}
@@ -8859,21 +8247,16 @@ country_event = {
 	title = ww1_china.70.t
 	desc = ww1_china.70.d
 	picture = GFX_report_event_chinese_army_training
-	trigger = {
-		has_country_flag = CHI_kuomintang_flag
-		has_global_flag = northern_expedition
-		controls_state = 620
-		controls_state = 598
-	}
-	mean_time_to_happen = {
-		days = 5
-	}
-	fire_only_once = yes
+	is_triggered_only = yes
 	immediate = {
 		hidden_effect = {
-			set_faction_name = nanjing_government
+			if = {
+				limit = {
+					is_faction_leader = yes
+				}
+				set_faction_name = nanjing_government
+			}
 			set_cosmetic_tag = KMT_NANJING
-			transfer_state = 598
 			add_state_core = 598
 			set_capital = {
 				state = 598
@@ -8895,23 +8278,23 @@ country_event = {
 				}
 				set_country_flag = CHI_left_kuomintang_flag
 				set_cosmetic_tag = KMT_WUHAN
+				reserve_dynamic_country = yes
 			}
 			GDC_wang_jingwei = {
 				set_nationality = WHN
 			}
-			WHN = {
-				transfer_state = 620
-				add_state_core = 620
-				if = {
-					limit = {
-						KMT = {
-							owns_state = 602
-						}
+			every_owned_state = {
+				limit = {
+					OR = {
+						state = 602
+						state = 620
 					}
-					transfer_state = 602
-					add_state_core = 602
 				}
-				inherit_technology = KMT
+				add_core_of = WHN
+				transfer_state_to = WHN
+			}
+			WHN = {
+				inherit_technology = PREV
 				set_party_name = {
 					ideology = democratic
 					long_name = CHI_left_kuomintang_party_long
@@ -8927,12 +8310,14 @@ country_event = {
 						promote_leader = yes
 						country_leader = {
 							ideology = socialism
+							traits = { chinese_nationalist }
 						}
 					}
 					add_country_leader_role = {
 						promote_leader = yes
 						country_leader = {
 							ideology = reformist_socialism
+							traits = { chinese_nationalist }
 						}
 					}
 				}
@@ -8940,41 +8325,37 @@ country_event = {
 					can_join_factions = no
 				}
 				diplomatic_relation = {
-					country = KMT
+					country = PREV
 					relation = military_access
 					active = yes
 				}
-				KMT = {
+				PREV = {
 					transfer_units_fraction = {
-						target = WHN
-						size = 0.3
-						stockpile_ratio = 0.3
-						army_ratio = 0.2
+						target = PREV
+						size = 0.4
 						navy_ratio = 0
-						air_ratio = 0.2
 						keep_unit_leaders_trigger = {
 							always = yes
 						}
 					}
 					set_truce = {
-						target = WHN
-						days = 365
+						target = PREV
+						days = 180
 					}
 					diplomatic_relation = {
-						country = WHN
+						country = PREV
 						relation = military_access
 						active = yes
 					}
 				}
-				every_country = {
+				every_other_country = {
 					limit = {
-						has_war_with = KMT
+						is_china_or_warlord = yes
+						NOT = { is_subject_of = PREV }
 					}
-					PREV = {
-						declare_war_on = {
-							target = PREV
-							type = annex_everything
-						}
+					set_truce = {
+						target = PREV
+						days = 180
 					}
 				}
 			}
@@ -9073,15 +8454,17 @@ country_event = {
 				promote_leader = yes
 				country_leader = {
 					ideology = socialism
+					traits = { chinese_nationalist }
 				}
 			}
 		}
 		GDC_chiang_kaishek = {
+			promote_leader = yes
 			add_country_leader_role = {
 				promote_leader = yes
 				country_leader = {
 					ideology = authoritarian_democracy
-					traits = { generallissimo }
+					traits = { chinese_nationalist generallissimo }
 				}
 			}
 		}
@@ -9126,7 +8509,7 @@ country_event = {
 				add_country_leader_role = {
 					country_leader = {
 						ideology = stratocracy
-						traits = { generallissimo }
+						traits = { chinese_nationalist generallissimo }
 					}
 					promote_leader = yes
 				}
@@ -9139,7 +8522,7 @@ country_event = {
 				add_country_leader_role = {
 					country_leader = {
 						ideology = conservatism
-						traits = { generallissimo }
+						traits = { chinese_nationalist generallissimo }
 					}
 					promote_leader = yes
 				}
@@ -9165,7 +8548,7 @@ country_event = {
 			ruling_only = yes
 		}
 		country_exists = ANC
-		country_exists = SDC
+		country_exists = ZHC
 		NOT = { has_government = fascism }
 	}
 	mean_time_to_happen = {
@@ -9179,12 +8562,14 @@ country_event = {
 				promote_leader = yes
 				country_leader = {
 					ideology = authoritarian_democracy
+					traits = { chinese_federalist }
 				}
 			}
 			add_country_leader_role = {
 				promote_leader = yes
 				country_leader = {
 					ideology = social_liberalism
+					traits = { chinese_federalist }
 				}
 			}
 		}
@@ -9192,6 +8577,14 @@ country_event = {
 			ideology = democratic
 			long_name = CHI_zhigong_party_long
 			name = CHI_zhigong_party
+		}
+		if = {
+			limit = {
+				is_in_faction_with = SDC
+				has_war = no
+				is_subject = no
+			}
+			leave_faction = yes
 		}
 	}
 }
@@ -9306,54 +8699,7 @@ country_event = {
 	title = ww1_china.77.t
 	desc = ww1_china.77.d
 	picture = GFX_report_event_chinese_army_training
-	trigger = {
-		OR = {
-			tag = QIN
-			tag = CHI
-			has_country_flag = CHI_kuomintang_flag
-			has_country_flag = reunited_china
-		}
-		OR = {
-			NOT = { has_government = communism }
-			has_government = GER
-		}
-		OR = {
-			date > 1928.11.1
-			any_country = {
-				exists = yes
-				has_country_flag = CHI_soviet_republic_flag
-			}
-			PRC = {
-				has_government = communism
-			}
-		}
-		if = {
-			limit = {
-				OR = {
-					original_tag = QIN
-					original_tag = CHI
-				}
-			}
-			has_completed_focus = CHI_modern_staff
-		}
-		else = {
-			GER = {
-				has_opinion = {
-					target = ROOT
-					value > 25
-				}
-			}
-		}
-		GER = {
-			exists = yes
-			has_war = no
-			NOT = {
-				has_government = communism
-			}
-		}
-	}
-	fire_only_once = yes
-	mean_time_to_happen = { days = 0 }
+	is_triggered_only = yes
 	option = {
 		name = ww1_china.77.a
 		add_ideas = german_advisors
@@ -9497,8 +8843,12 @@ country_event = {
 	# Send Zhang Xun to Beijing
 	option = {
 		name = ww1_china.81.a
+		add_stability = 0.05
 		hidden_effect = {
-			set_global_flag = zhang_xun_in_beijing
+			country_event = {
+				id = ww1_china.146
+				days = 3
+			}
 		}
 		ai_chance = {
 			factor = 100
@@ -9507,34 +8857,36 @@ country_event = {
 	# Side with Li Yuanhong
 	option = {
 		name = ww1_china.81.b
-		set_cosmetic_tag = CHI_uprising_alt
-		promote_character = CHI_li_yuanhong
-		remove_ideas = CHI_idea_duan_qirui
-		remove_ideas = CHI_idea_li_duan_conflict
-		if = {
-			limit = {
-				is_faction_leader = yes
-			}
-			dismantle_faction = yes
-		}
-		if = {
-			limit = {
-				country_exists = FNG
-			}
-			every_owned_state = {
+		hidden_effect = {
+			set_cosmetic_tag = CHI_uprising_alt
+			promote_character = CHI_li_yuanhong
+			remove_ideas = CHI_idea_duan_qirui
+			remove_ideas = CHI_idea_li_duan_conflict
+			if = {
 				limit = {
-					OR = {
-						state = 328
-						state = 717
-					}
+					is_faction_leader = yes
 				}
-				add_core_of = FNG
-				transfer_state_to = FNG
+				dismantle_faction = yes
 			}
-		}
-		set_politics = {
-			ruling_party = neutrality
-			elections_allowed = no
+			if = {
+				limit = {
+					country_exists = FNG
+				}
+				every_owned_state = {
+					limit = {
+						OR = {
+							state = 328
+							state = 717
+						}
+					}
+					add_core_of = FNG
+					transfer_state_to = FNG
+				}
+			}
+			set_politics = {
+				ruling_party = neutrality
+				elections_allowed = no
+			}
 		}
 		start_civil_war = {
 			ideology = fascism
@@ -9576,7 +8928,19 @@ country_event = {
 			}
 		}
 		ai_chance = {
-			factor = 0
+			base = 0
+			modifier = {
+				add = 30
+				democratic > 0.40
+			}
+			modifier = {
+				add = 30
+				fascism < 0.05
+			}
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+			}
 		}
 	}
 }
@@ -9703,7 +9067,7 @@ country_event = {
 			AND = {
 				OR = {
 					tag = ANC
-					tag = SDC
+					tag = ZHC
 					tag = FNG
 				}
 				owns_state = 608
@@ -10252,7 +9616,7 @@ country_event = {
 						ruling_only = yes
 					}
 					has_country_leader = {
-						character = SDC_wu_peifu
+						character = ZHC_wu_peifu
 						ruling_only = yes
 					}
 					original_tag = SCC
@@ -10511,6 +9875,14 @@ country_event = {
 	fire_only_once = yes
 	option = {
 		name = ww1_china.102.a
+		hidden_effect = {
+			every_possible_country = {
+				limit = {
+					has_character = CHI_kuo_sung_ling
+				}
+				retire_character = CHI_kuo_sung_ling
+			}
+		}
 		add_political_power = 75
 		retire_character = FNG_guo_songling
 		remove_ideas = CHI_FNG_idea_regionalist_sentiment
@@ -10573,6 +9945,7 @@ country_event = {
 	fire_only_once = yes
 	option = {
 		name = ww1_china.103.a
+		set_global_flag = shanghai_massacre
 		if = {
 			limit = {
 				has_idea = CHI_idea_communist_movement
@@ -10833,12 +10206,46 @@ country_event = {
 	option = {
 		name = ww1_china.111.a
 		add_political_power = -100
+		if = {
+			limit = {
+				has_global_flag = kis_war
+				NOT = {
+					has_global_flag = great_war_ends
+					is_in_faction_with = GER
+					is_in_faction_with = FRA
+					has_war_with = GER
+					has_war_with = FRA
+					has_country_flag = CHI_join_great_war
+				}
+			}
+			country_event = {
+				id = ww1_china.143
+				days = 30
+			}
+		}
 	}
 	option = {
 		name = ww1_china.111.b
 		custom_effect_tooltip = ww1_china.111.b.tt
 		add_stability = -0.10
 		set_country_flag = li_yuanhong_in_charge
+		if = {
+			limit = {
+				has_global_flag = kis_war
+				NOT = {
+					has_global_flag = great_war_ends
+					is_in_faction_with = GER
+					is_in_faction_with = FRA
+					has_war_with = GER
+					has_war_with = FRA
+					has_country_flag = CHI_join_great_war
+				}
+			}
+			country_event = {
+				id = ww1_china.143
+				days = 30
+			}
+		}
 		ai_chance = {
 			factor = 0
 		}
@@ -10879,13 +10286,14 @@ country_event = {
 		}
 		add_stability = -0.10
 		add_political_power = 200
-		activate_mission = CHI_constitutional_protection_war
 		hidden_effect = {
+			country_event = ww1_china.144
 			set_country_flag = new_assembly
 		}
 	}
 	option = {
 		name = ww1_china.112.b
+		custom_effect_tooltip = ww1_china.112.b.tt
 		add_popularity = {
 			ideology = democratic
 			popularity = 0.10
@@ -10897,6 +10305,7 @@ country_event = {
 				id = ww1_china.113
 				days = 10
 			}
+			set_country_flag = old_assembly
 		}
 		ai_chance = {
 			factor = 0
@@ -11078,12 +10487,15 @@ country_event = {
 			QIN_lu_rongting = {
 				set_nationality = NPA
 			}
-			NPA = { set_state_controller = 599 }
-			transfer_units_fraction = {
-				target = NPA
-				size = 0.15
-				keep_unit_leaders_trigger = {
-					always = yes
+			NPA = {
+				set_state_controller = 599
+				599 = {
+					create_unit = {
+						division = "division_template = \"Juntuán\"	start_experience_factor = 0.4	start_equipment_factor = 1"
+						owner = PREV
+						allow_spawning_on_enemy_provs = yes
+						count = 6
+					}
 				}
 			}
 		}
@@ -11117,11 +10529,14 @@ country_event = {
 				}
 				set_state_controller_to = NPA
 			}
-			transfer_units_fraction = {
-				target = NPA
-				size = 0.2
-				keep_unit_leaders_trigger = {
-					always = yes
+			NPA = {
+				593 = {
+					create_unit = {
+						division = "division_template = \"Juntuán\"	start_experience_factor = 0.4	start_equipment_factor = 1"
+						owner = PREV
+						allow_spawning_on_enemy_provs = yes
+						count = 6
+					}
 				}
 			}
 		}
@@ -11149,7 +10564,17 @@ country_event = {
 				}
 			}
 		}
-		NPA = { set_state_controller = 603 }
+		NPA = {
+			set_state_controller = 603
+			603 = {
+				create_unit = {
+					division = "division_template = \"Juntuán\"	start_experience_factor = 0.4	start_equipment_factor = 1"
+					owner = PREV
+					allow_spawning_on_enemy_provs = yes
+					count = 4
+				}
+			}
+		}
 	}
 }
 
@@ -11172,18 +10597,27 @@ country_event = {
 			original_tag = CHI
 			has_war_with = PREV
 			has_country_flag = CHI_national_protection_flag
-			has_country_flag = lu_rongting_npa
+			OR = {
+				has_country_flag = lu_rongting_npa
+				ROOT = { surrender_progress > 0.30 }
+			}
 		}
 	}
 	mean_time_to_happen = { days = 30 }
 	option = {
 		name = ww1_china.117.a
+		QIN_duan_qirui = {
+			remove_unit_leader_trait = yuan_shikai_loyalist
+		}
+		QIN_feng_guozhang = {
+			remove_unit_leader_trait = yuan_shikai_loyalist
+		}
 		activate_decision = CHI_sue_for_peace_NPA
 	}
 	option = {
 		name = ww1_china.117.b
-		add_stability = -0.50
-		add_war_support = -0.50
+		add_stability = -0.25
+		add_war_support = -0.25
 		custom_effect_tooltip = ww1_china.117.b.tt
 		hidden_effect = {
 			country_event = {
@@ -11224,13 +10658,13 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_china.119.a
-		add_stability = -0.30
-		add_war_support = -0.40
-		add_political_power = -400
+		add_stability = -0.10
+		add_war_support = -0.10
+		add_political_power = -200
 		hidden_effect = {
 			country_event = {
 				id = ww1_china.120
-				days = 15
+				hours = 3
 			}
 		}
 		ai_chance = {
@@ -11240,7 +10674,12 @@ country_event = {
 	option = {
 		name = ww1_china.119.b
 		custom_effect_tooltip = ww1_china.119.b.tt
-		hidden_effect = { NPA = { country_event = ww1_china.114 } }
+		hidden_effect = {
+			NPA = {
+				set_country_flag = lu_rongting_npa
+				country_event = ww1_china.114
+			}
+		}
 	}
 }
 
@@ -11253,6 +10692,7 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_china.120.a
+		custom_effect_tooltip = ww1_china.120.tt
 		CHI_yuan_keding = {
 			add_corps_commander_role = {
 				traits = { politically_connected }
@@ -11284,7 +10724,7 @@ country_event = {
 		text = ww1_china.121.d2
 		trigger = {
 			CHI_yuan_keding = {
-				skill > 2
+				skill > 1
 			}
 		}
 	}
@@ -11303,52 +10743,108 @@ country_event = {
 			country_exists = NPA
 		}
 	}
+	mean_time_to_happen = { days = 0 }
 	fire_only_once = yes
 	option = {
 		name = ww1_china.121.a
 		retire_character = CHI_yuan_keding
 		set_cosmetic_tag = CHI_uprising
-		set_country_flag = beiyang_triumvirate
+		retire_character = CHI_beiyang_triumvirate
+		meta_effect = {
+			text = {
+				set_politics = {
+					ruling_party = neutrality
+					last_election = "[CURRENT_DATE]"
+					election_frequency = 60
+					elections_allowed = yes
+				}
+			}
+			CURRENT_DATE = "[?global.date.GetDateStringNoHour]"
+		}
+		CHI_duan_qirui = {
+			if = {
+				limit = { has_ideology = oligarchism }
+				promote_character = oligarchism
+			}
+			else = {
+				add_country_leader_role = {
+					country_leader = {
+						ideology = oligarchism
+					}
+					promote_leader = yes
+				}
+			}
+			if = {
+				limit = { has_ideology = stratocracy }
+				promote_character = stratocracy
+			}
+			else = {
+				add_country_leader_role = {
+					country_leader = {
+						ideology = stratocracy
+					}
+					promote_leader = yes
+				}
+			}
+		}
+		CHI_li_yuanhong = {
+			if = {
+				limit = { has_ideology = oligarchism }
+				promote_character = oligarchism
+			}
+			else = {
+				add_country_leader_role = {
+					country_leader = {
+						ideology = oligarchism
+					}
+					promote_leader = yes
+				}
+			}
+		}
+		set_rule = {
+			can_not_declare_war = yes
+			can_join_factions = no
+		}
+		hidden_effect = {
+			set_global_flag = chinese_warlord_crisis
+			set_global_flag = warlord_era
+			country_event = ww1_china.2
+			#set_country_flag = chinese_government_crackdown
+			retire_character = CHI_yuan_keding
+			set_capital = { state = 608 }
+			if = {
+				limit = {
+					NOT = {
+						has_global_flag = sun_yatsen_dead
+					}
+				}
+				CHI_sun_yatsen = {
+					add_country_leader_role = {
+						country_leader = {
+							ideology = socialism
+							traits = { chinese_nationalist father_of_the_republic }
+						}
+					}
+				}
+			}
+			set_popularities = {
+				democratic = 40
+				neutrality = 50
+				fascism = 8
+				communism = 2
+			}
+			add_ideas = CHI_idea_duan_qirui
+			add_ideas = CHI_idea_feng_guozhang_vice_president
+		}
+		country_event = {
+			id = ww1_china.98
+			days = 10
+		}
 		ai_chance = {
 			factor = 10
 			modifier = {
 				factor = 0
-				CHI_yuan_keding = {
-					skill > 2
-				}
-			}
-			modifier = {
-				factor = 0
 				GER = { has_country_flag = great_war_winner }
-			}
-		}
-	}
-	option = {
-		name = ww1_china.121.b
-		trigger = {
-			CHI_yuan_keding = {
-				skill > 2
-			}
-		}
-		set_country_flag = epic_chinese_empire
-		set_cosmetic_tag = CHI_fascism
-		add_political_power = -120
-		add_stability = -0.15
-		CHI_yuan_keding = {
-			set_character_name = CHI_taiping_emperor
-			add_country_leader_role = {
-				promote_leader = yes
-				country_leader = {
-					ideology = fascism_ideology
-					traits = { divisive_emperor }
-				}
-			}
-			add_country_leader_role = {
-				promote_leader = yes
-				country_leader = {
-					ideology = autocracy
-					traits = { divisive_emperor }
-				}
 			}
 		}
 	}
@@ -11374,7 +10870,9 @@ country_event = {
 				}
 			}
 		}
+		retire_character = CHI_yuan_keding
 		set_global_flag = warlord_era
+		country_event = ww1_china.2
 		set_cosmetic_tag = QIN_government
 		QIN_restore_xuantong = yes
 		add_ideas = QIN_idea_beiyang_army
@@ -11385,6 +10883,42 @@ country_event = {
 			modifier = {
 				add = 100
 				GER = { has_country_flag = great_war_winner }
+			}
+		}
+	}
+	option = {
+		name = ww1_china.121.c
+		trigger = {
+			CHI_yuan_keding = {
+				skill > 1
+			}
+		}
+		set_country_flag = epic_chinese_empire
+		set_cosmetic_tag = CHI_fascism
+		add_political_power = -120
+		add_stability = -0.15
+		CHI_yuan_keding = {
+			set_character_name = CHI_taiping_emperor
+			add_country_leader_role = {
+				promote_leader = yes
+				country_leader = {
+					ideology = fascism_ideology
+					traits = { divisive_emperor }
+				}
+			}
+			add_country_leader_role = {
+				promote_leader = yes
+				country_leader = {
+					ideology = autocracy
+					traits = { divisive_emperor }
+				}
+			}
+		}
+		ai_chance = {
+			factor = 10
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
 			}
 		}
 	}
@@ -11584,7 +11118,7 @@ country_event = {
 				add_country_leader_role = {
 					country_leader = {
 						ideology = socialism
-						traits = { father_of_the_republic }
+						traits = { chinese_nationalist father_of_the_republic }
 					}
 					promote_leader = yes
 				}
@@ -12040,8 +11574,9 @@ country_event = {
 	option = {
 		name = ww1_china.123.l
 		trigger = {
-			has_character = CHI_li_dazhao
-			communism > 0.10
+			always = no
+			# has_character = CHI_li_dazhao
+			# communism > 0.10
 		}
 		ai_chance = {
 			base = 0
@@ -12186,6 +11721,114 @@ country_event = {
 		set_cosmetic_tag = CSR
 		promote_character = CHI_li_dazhao
 		news_event = ww1_china.107
+	}
+
+	#authoritarian leaders
+	option = {
+		name = ww1_china.123.m
+		trigger = {
+			has_character = CHI_xu_shichang
+			has_government = neutrality
+			NOT = { has_country_flag = xu_shichang_president }
+		}
+		ai_chance = { factor = 200 }
+		meta_effect = {
+			text = {
+				set_politics = {
+					ruling_party = ROOT
+					last_election = "[CURRENT_DATE]"
+					election_frequency = 60
+					elections_allowed = yes
+				}
+			}
+			CURRENT_DATE = "[?global.date.GetDateStringNoHour]"
+		}
+		CHI_xu_shichang = {
+			if = {
+				limit = { has_ideology = oligarchism }
+				promote_character = oligarchism
+			}
+			else = {
+				add_country_leader_role = {
+					country_leader = {
+						ideology = oligarchism
+						traits = { civil_administration chinese_royalist }
+					}
+					promote_leader = yes
+				}
+			}
+		}
+		set_country_flag = xu_shichang_president
+	}
+	option = {
+		name = ww1_china.123.n
+		trigger = {
+			has_character = CHI_duan_qirui
+			has_government = neutrality
+			NOT = { has_country_flag = duan_qirui_president }
+		}
+		ai_chance = { factor = 150 }
+		meta_effect = {
+			text = {
+				set_politics = {
+					ruling_party = ROOT
+					last_election = "[CURRENT_DATE]"
+					election_frequency = 60
+					elections_allowed = yes
+				}
+			}
+			CURRENT_DATE = "[?global.date.GetDateStringNoHour]"
+		}
+		CHI_duan_qirui = {
+			if = {
+				limit = { has_ideology = oligarchism }
+				promote_character = oligarchism
+			}
+			else = {
+				add_country_leader_role = {
+					country_leader = {
+						ideology = oligarchism
+					}
+					promote_leader = yes
+				}
+			}
+		}
+		set_country_flag = duan_qirui_president
+	}
+	option = {
+		name = ww1_china.123.o
+		trigger = {
+			has_character = CHI_li_yuanhong
+			has_government = neutrality
+			NOT = { has_country_flag = li_yuanhong_president }
+		}
+		ai_chance = { factor = 200 }
+		meta_effect = {
+			text = {
+				set_politics = {
+					ruling_party = ROOT
+					last_election = "[CURRENT_DATE]"
+					election_frequency = 60
+					elections_allowed = yes
+				}
+			}
+			CURRENT_DATE = "[?global.date.GetDateStringNoHour]"
+		}
+		CHI_li_yuanhong = {
+			if = {
+				limit = { has_ideology = oligarchism }
+				promote_character = oligarchism
+			}
+			else = {
+				add_country_leader_role = {
+					country_leader = {
+						ideology = oligarchism
+					}
+					promote_leader = yes
+				}
+			}
+		}
+		set_country_flag = duan_qirui_president
 	}
 }
 
@@ -12387,16 +12030,52 @@ country_event = {
 	id = ww1_china.128
 	title = ww1_china.128.t
 	desc = ww1_china.128.d
-	picture = GFX_report_event_chinese_officers
+	picture = GFX_report_event_chinese_soldiers
 	is_triggered_only = yes
 	option = {
 		name = ww1_china.128.a
+		hidden_effect = {
+			complete_national_focus = CHI_cooperation_with_the_nationalists
+			uncomplete_national_focus = {
+				focus = CHI_cooperation_with_the_communists
+			}
+			uncomplete_national_focus = {
+				focus = CHI_opposition
+			}
+			every_country = {
+				limit = {
+					OR = {
+						is_china_or_warlord = yes
+						is_neighbor_of = ROOT #JAPAN
+					}
+				}
+				news_event = {
+					id = ww1_china.156
+					hours = 3
+				}
+			}
+		}
 		KMT = {
 			add_to_faction = PREV
-			add_to_war = {
-				targeted_alliance = PREV
-				enemy = SHX
+			if = {
+				limit = {
+					has_war_with = SHX
+				}
+				add_to_war = {
+					targeted_alliance = ROOT
+					enemy = SHX
+				}
 			}
+		}
+		every_state = {
+			limit = {
+				is_chinese_core = yes
+				NOT = {
+					region = 200
+				}
+			}
+			remove_core_of = ROOT
+			remove_claim_by = ROOT
 		}
 		ai_chance = {
 			base = 10
@@ -12411,15 +12090,16 @@ country_event = {
 	}
 	option = {
 		name = ww1_china.128.b
+		add_political_power = -75
+		add_stability = -0.10
+		add_ideas = CHI_FNG_idea_regionalist_sentiment
 		ai_chance = {
 			base = 10
 			modifier = {
 				factor = 0
-				NOT = {
-					has_country_leader = {
-						character = FNG_zhang_zuolin
-						ruling_only = yes
-					}
+				has_country_leader = {
+					character = FNG_zhang_xueliang
+					ruling_only = yes
 				}
 				is_historical_focus_on = yes
 			}
@@ -12534,29 +12214,26 @@ country_event = {
 }
 
 # End of Beiyang Triumvirate
+## This for when Yuan Shikai died without declaring the empire
 country_event = {
 	id = ww1_china.131
 	title = ww1_china.131.t
 	desc = ww1_china.131.d
 	picture = GFX_report_event_chinese_officers
-	trigger = {
-		tag = CHI
-		has_country_leader = {
-			character = CHI_beiyang_triumvirate
-			ruling_only = yes
-		}
-		NOT = {
-			has_global_flag = national_protection_war
-		}
-	}
-	fire_only_once = yes
-	mean_time_to_happen = { days = 100 }
+	is_triggered_only = yes
 	option = {
 		name = ww1_china.131.a
 		retire_character = CHI_beiyang_triumvirate
-		set_politics = {
-			ruling_party = neutrality
-			elections_allowed = no
+		meta_effect = {
+			text = {
+				set_politics = {
+					ruling_party = neutrality
+					last_election = "[CURRENT_DATE]"
+					election_frequency = 60
+					elections_allowed = yes
+				}
+			}
+			CURRENT_DATE = "[?global.date.GetDateStringNoHour]"
 		}
 		CHI_duan_qirui = {
 			if = {
@@ -12584,6 +12261,20 @@ country_event = {
 				}
 			}
 		}
+		CHI_li_yuanhong = {
+			if = {
+				limit = { has_ideology = oligarchism }
+				promote_character = oligarchism
+			}
+			else = {
+				add_country_leader_role = {
+					country_leader = {
+						ideology = oligarchism
+					}
+					promote_leader = yes
+				}
+			}
+		}
 		set_rule = {
 			can_not_declare_war = yes
 			can_join_factions = no
@@ -12591,7 +12282,7 @@ country_event = {
 		hidden_effect = {
 			set_global_flag = chinese_warlord_crisis
 			set_global_flag = warlord_era
-			set_country_flag = chinese_government_crackdown
+			country_event = ww1_china.2
 			retire_character = CHI_yuan_keding
 			set_capital = { state = 608 }
 			if = {
@@ -12604,7 +12295,7 @@ country_event = {
 					add_country_leader_role = {
 						country_leader = {
 							ideology = socialism
-							traits = { father_of_the_republic }
+							traits = { chinese_nationalist father_of_the_republic }
 						}
 					}
 				}
@@ -12615,6 +12306,8 @@ country_event = {
 				fascism = 8
 				communism = 2
 			}
+			add_ideas = CHI_idea_duan_qirui
+			add_ideas = CHI_idea_feng_guozhang_vice_president
 		}
 		country_event = {
 			id = ww1_china.98
@@ -12645,374 +12338,1231 @@ country_event = {
 	}
 }
 
-
-
 # Chiang Kai-shek opposes Chen Jiongming
 country_event = {
 	id = ww1_china.133
 	title = ww1_china.133.t
 	desc = ww1_china.133.d
-	picture = GFX_report_event_china_infiltration
+	picture = GFX_report_event_china_chiang_kai_shek
 	is_triggered_only = yes
 	option = {
 		name = ww1_china.133.a
+		if = {
+			limit = {
+				has_character = CHI_chen_jiongming
+			}
+			CHI_chen_jiongming = {
+				remove_unit_leader_trait = chinese_nationalist
+			}
+		}
 		add_war_support = 0.10
 	}
 }
 
-
-
-# ASSASSINATE YANG ZENGXIN
-#############################
+# Chinese warlord wants to set up a close diplomacy
 country_event = {
-	id = ww1_xinjiang.1
-	title = ww1_xinjiang.1.t
-	desc = ww1_xinjiang.1.d
-	picture = GFX_report_event_chinese_army_training
-	trigger = {
-		OR = {
-			date > 1928.7.7
-			has_global_flag = northern_expedition_end
-		}
-		has_country_leader = {
-			character = SIK_yang_zengxin
-			ruling_only = no
-		}
-		any_country = {
-			OR = {
-				has_country_leader = {
-					character = GDC_sun_yatsen
-					ruling_only = yes
-				}
-				has_country_leader = {
-					character = CHI_sun_yatsen
-					ruling_only = yes
-				}
-				has_country_leader = {
-					character = GDC_hu_hanmin
-					ruling_only = yes
-				}
-				has_country_leader = {
-					character = GDC_wang_jingwei
-					ruling_only = yes
-				}
-				has_country_leader = {
-					character = CHI_wang_jingwei
-					ruling_only = yes
-				}
-				has_country_leader = {
-					character = GDC_chiang_kaishek
-					ruling_only = yes
-				}
-				has_country_leader = {
-					character = CHI_chiang_kaishek
-					ruling_only = yes
-				}
-			}
-		}
-	}
-	fire_only_once = yes
-	mean_time_to_happen = { days = 0 }
+	id = ww1_china.134
+	title = ww1_china.134.t
+	desc = ww1_china.134.d
+	picture = GFX_report_event_generic_sign_treaty2
+	is_triggered_only = yes
 	option = {
-		name = ww1_xinjiang.1.a
-		retire_character = SIK_yang_zengxin
-		SIK_jin_shuren = {
-			promote_character = despotism
-			promote_character = stratocracy
+		name = ww1_china.134.a
+		add_opinion_modifier = {
+			target = FROM
+			modifier = CHI_appeased_us
+		}
+		FROM = {
+			country_event = { id = ww1_china.135 hours = 3 }
 		}
 		ai_chance = {
-			factor = 100
-		}
-	}
-}
-
-# DEATH OF MAQSUD SHAH
-#########################
-country_event = {
-	id = ww1_xinjiang.2
-	title = ww1_xinjiang.2.t
-	desc = ww1_xinjiang.2.d
-	picture = GFX_report_event_generic_funeral
-	trigger = {
-		date > 1930.6.1
-		has_character = KUM_maqsud_shah
-	}
-	fire_only_once = yes
-	mean_time_to_happen = { days = 6 }
-	immediate = {
-		hidden_effect = {
-			KUM = {
-				if = {
-					limit = {
-						has_character = KUM_maqsud_shah
+			base = 0
+			modifier = {
+				add = 100
+				is_historical_focus_on = yes
+				original_tag = JAP
+				NOT = { has_government = communism }
+				FROM = {
+					OR = {
+						original_tag = FNG
+						original_tag = SHX
+						original_tag = ZHC
+						original_tag = ANC
 					}
-					retire_character = KUM_maqsud_shah
-					promote_character = KUM_nasir_shah
-				}
+					NOT = { has_government = communism }
+				}	
 			}
-			if = {
-				limit = {
-					country_exists = SIK
-				}
-				SIK = { country_event = ww1_xinjiang.2 }
+			modifier = {
+				add = 100
+				has_government = communism
+				FROM = {
+					is_china_or_warlord = yes
+					has_government = communism
+				}	
+			}
+			modifier = {
+				add = 15
+				is_in_faction_with = FROM
+			}
+			modifier = {
+				add = 15
+				has_subject = FROM
+			}
+			modifier = {
+				add = 15
+				FROM = { is_major = yes }
+			}
+			modifier = {
+				add = 15
+				FROM = { has_country_flag = reunited_china }
 			}
 		}
 	}
 	option = {
-		name = ww1_xinjiang.2.a
-		trigger = {
-			original_tag = KUM
+		name = ww1_china.134.b
+		FROM = {
+			country_event = { id = ww1_china.136 hours = 3 }
 		}
-		effect_tooltip = {
-			retire_character = KUM_maqsud_shah
-			promote_character = KUM_nasir_shah
-		}
-		add_stability = -0.1
-	}
-	option = {
-		name = ww1_xinjiang.2.b
-		trigger = {
-			original_tag = SIK
-		}
-		effect_tooltip = {
-			KUM = { retire_character = KUM_maqsud_shah }
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = 1000
+				has_war_with = FROM
+			}
+			modifier = {
+				add = 1000
+				has_wargoal_against = FROM
+			}
 		}
 	}
 }
 
-# KUMUL REBELLION
-######################
+# Diplomatic relationship established
 country_event = {
-	id = ww1_xinjiang.3
-	title = ww1_xinjiang.3.t
-	desc = ww1_xinjiang.3.d
-	picture = GFX_report_event_chinese_soldiers_fighting
+	id = ww1_china.135
+	title = ww1_china.135.t
+	desc = ww1_china.135.d
+	picture = GFX_report_event_generic_sign_treaty2
+	is_triggered_only = yes
+	option = {
+		name = ww1_china.135.a
+		add_stability = 0.02
+		add_political_power = 50
+		effect_tooltip = {
+			FROM = {
+				add_opinion_modifier = {
+					target = ROOT
+					modifier = CHI_appeased_us
+				}
+			}
+		}
+	}
+}
+
+# Diplomatic relationship denied
+country_event = {
+	id = ww1_china.136
+	title = ww1_china.136.t
+	desc = ww1_china.136.d
+	picture = GFX_report_event_generic_sign_treaty2
+	is_triggered_only = yes
+	option = {
+		name = ww1_china.136.a
+		add_stability = -0.02
+		add_political_power = -25
+	}
+}
+
+# Yunnan - Gu Pinzhen coup
+country_event = {
+	id = ww1_china.137
+	title = ww1_china.137.t
+	desc = ww1_china.137.d
+	picture = GFX_report_event_chinese_officers
 	trigger = {
-		tag = SIK
-		is_subject = no
-		owns_state = 619
-		NOT = { country_exists = KUM }
+		original_tag = YUN
 		has_country_leader = {
-			character = SIK_jin_shuren
+			character = YUN_tang_jiyao
 			ruling_only = yes
 		}
-		date > 1931.2.1
-		date < 1933.4.24
+		date < 1925.1.1
+		has_global_flag = second_constitutional_protection_movement
 	}
 	fire_only_once = yes
-	mean_time_to_happen = {
-		days = 10
-	}
-	immediate = {
-		hidden_effect = {
-			KUM = {
-				add_state_core = 619
-				transfer_state = 619
-				division_template = {
-					name = "Kumulik tsereg"
-					regiments = {
-						infantry = {
-							x = 0
-							y = 0
-						}
-						infantry = {
-							x = 0
-							y = 1
-						}
-						infantry = {
-							x = 0
-							y = 2
-						}
-						infantry = {
-							x = 1
-							y = 0
-						}
-						infantry = {
-							x = 1
-							y = 1
-						}
-						infantry = {
-							x = 1
-							y = 2
-						}
-					}
-				}
-				619 = {
-					create_unit = {
-						division = "name = \"Negdügeer brigad\" division_template = \"Kumulik tsereg\" start_experience_factor = 0.3"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"Khoyordugaar brigad\" division_template = \"Kumulik tsereg\" start_experience_factor = 0.3"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"Guravdugaar brigad\" division_template = \"Kumulik tsereg\" start_experience_factor = 0.3"
-						owner = PREV
-					}
+	option = {
+		name = ww1_china.137.a
+		YUN_gu_pinzhen = {
+			add_country_leader_role = {
+				promote_leader = yes
+				country_leader = {
+					ideology = oligarchism
 				}
 			}
 		}
 	}
-	option = {
-		name = ww1_xinjiang.3.a
-		add_stability = -0.2
-		declare_war_on = {
-			target = KUM
-			type = annex_everything
+}
+
+# Yunnan - Gu Pinzhen get killed
+country_event = {
+	id = ww1_china.138
+	title = ww1_china.138.t
+	desc = ww1_china.138.d
+	picture = GFX_report_event_generic_funeral
+	trigger = {
+		original_tag = YUN
+		has_country_leader = {
+			character = YUN_gu_pinzhen
+			ruling_only = yes
 		}
+		date > 1922.3.20
 	}
+	fire_only_once = yes
 	option = {
-		name = ww1_xinjiang.3.b
-		ai_chance = { factor = 0 }
-		add_stability = -0.2
-		declare_war_on = {
-			target = KUM
-			type = annex_everything
-		}
-		KUM = { change_tag_from = ROOT }
+		name = ww1_china.138.a
+		retire_character = YUN_gu_pinzhen
+		promote_character = YUN_tang_jiyao
 	}
 }
 
-# MA CLIQUE SUPPORTS KUMUL REBELLION
-#######################################
+# Guizhou - Wang Wenhua coup
 country_event = {
-	id = ww1_xinjiang.4
-	title = ww1_xinjiang.4.t
-	desc = ww1_xinjiang.4.d
-	picture = GFX_report_event_chinese_soldiers_fighting
+	id = ww1_china.139
+	title = ww1_china.137.t
+	desc = ww1_china.137.d
+	picture = GFX_report_event_chinese_officers
+	trigger = {
+		original_tag = GZC
+		has_country_leader = {
+			character = GZC_liu_xianshi
+			ruling_only = yes
+		}
+		date > 1920.11.1
+		date < 1921.3.1
+		NOT = { has_country_flag = wang_wenhua_killed }
+	}
+	fire_only_once = yes
+	option = {
+		name = ww1_china.137.a
+		GZC_wang_wenhua = {
+			add_country_leader_role = {
+				promote_leader = yes
+				country_leader = {
+					ideology = despotism
+				}
+			}
+			add_country_leader_role = {
+				promote_leader = yes
+				country_leader = {
+					ideology = stratocracy
+				}
+			}
+		}
+	}
+}
+
+# Guizhou - Wang Wenhua get killed
+country_event = {
+	id = ww1_china.140
+	title = ww1_china.138.t
+	desc = ww1_china.138.d
+	picture = GFX_report_event_generic_funeral
+	trigger = {
+		original_tag = GZC
+		has_country_leader = {
+			character = GZC_wang_wenhua
+			ruling_only = yes
+		}
+		date > 1921.3.1
+		NOT = { has_country_flag = wang_wenhua_killed }
+	}
+	mean_time_to_happen = { days = 16 }
+	fire_only_once = yes
+	option = {
+		name = ww1_china.138.a
+		set_country_flag = wang_wenhua_killed
+		retire_character = GZC_wang_wenhua
+	}
+}
+
+# Guizhou - He Yingqin expelled
+country_event = {
+	id = ww1_china.141
+	title = ww1_china.141.t
+	desc = ww1_china.141.d
+	picture = GFX_report_event_chinese_officers
+	trigger = {
+		original_tag = GZC
+		has_character = GZC_he_yingqin
+		has_country_flag = wang_wenhua_killed
+	}
+	mean_time_to_happen = { days = 10 }
+	fire_only_once = yes
+	option = {
+		name = ww1_china.141.a
+		random_other_country = {
+			limit = {
+				exists = yes
+				is_kuomintang_state = yes
+			}
+			PREV = {
+				GZC_he_yingqin = {
+					add_unit_leader_trait = chinese_nationalist
+					set_nationality = PREV.PREV
+				}
+			}
+		}
+	}
+}
+
+# Anhui - Offensive or Deffensive posture
+country_event = {
+	id = ww1_china.142
+	title = ww1_china.142.t
+	desc = ww1_china.142.d
+	picture = GFX_report_event_chinese_soldiers_mountain
+	is_triggered_only = yes
+	option = {
+		name = ww1_china.142.a
+		add_ideas = CHI_offensive_posture
+	}
+	option = {
+		name = ww1_china.142.b
+		add_ideas = CHI_defensive_posture
+	}
+}
+
+# Duan Qirui proposes to join the Great War
+country_event = {
+	id = ww1_china.143
+	title = ww1_china.143.t
+	desc = ww1_china.143.d
+	picture = GFX_report_event_soldiers_marching
+	is_triggered_only = yes
+	option = {
+		name = ww1_china.143.a
+		activate_decision = CHI_join_great_war
+		add_popularity = {
+			ideology = fascism
+			popularity = 0.05
+		}
+		add_popularity = {
+			ideology = neutrality
+			popularity = 0.05
+		}
+		add_war_support = 0.05
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = 40
+				fascism > 0.10
+			}
+			modifier = {
+				add = 40
+				fascism > 0.30
+			}
+			modifier = {
+				add = 100
+				is_historical_focus_on = yes
+			}
+		}
+	}
+	option = {
+		name = ww1_china.143.b
+		add_popularity = {
+			ideology = fascism
+			popularity = -0.05
+		}
+		add_popularity = {
+			ideology = neutrality
+			popularity = -0.10
+		}
+		add_war_support = -0.10
+		ai_chance = {
+			base = 1
+			modifier = {
+				add = 40
+				democratic > 0.25
+			}
+			modifier = {
+				add = 40
+				democratic > 0.60
+			}
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+			}
+		}
+	}
+}
+
+# Southern Warlords Reproachs Duan Qirui
+country_event = {
+	id = ww1_china.144
+	title = ww1_china.144.t
+	desc = ww1_china.144.d
+	picture = GFX_report_event_chinese_officers
+	is_triggered_only = yes
+	option = {
+		name = ww1_china.144.a
+		activate_mission = CHI_constitutional_protection_war
+	}
+}
+
+# Li Yuanhong restores democracy
+country_event = {
+	id = ww1_china.145
+	title = ww1_china.145.t
+	desc = ww1_china.145.d
+	picture = GFX_report_event_SWI_assembly_hall
+	trigger = {
+		has_country_leader = {
+			character = CHI_li_yuanhong
+			ruling_only = yes
+		}
+		has_government = neutrality
+		has_civil_war = no
+		is_subject = no
+		NOT = {
+			has_idea = CHI_idea_li_duan_conflict
+			has_idea = CHI_idea_duan_qirui
+			has_global_flag = constitutional_protection_war
+		}
+	}
+	fire_only_once = yes
+	option = {
+		name = ww1_china.145.a
+		add_stability = 0.10
+		set_politics = {
+			ruling_party = neutrality
+			elections_allowed = yes
+		}
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = 30
+				neutrality > 30
+			}
+			modifier = {
+				add = 60
+				neutrality > 60
+			}
+			modifier = {
+				add = 80
+				neutrality > 80
+			}
+		}
+	}
+	option = {
+		name = ww1_china.145.b
+		add_stability = 0.10
+		set_politics = {
+			ruling_party = democratic
+			elections_allowed = yes
+		}
+		# Li Yuanhong clique transfered to democratic
+		add_popularity = {
+			ideology = democratic
+			popularity = 0.30
+		}
+		ai_chance = {
+			base = 5
+			modifier = {
+				add = 10
+				democratic > 10
+			}
+			modifier = {
+				add = 30
+				democratic > 30
+			}
+			modifier = {
+				add = 60
+				democratic > 60
+			}
+			modifier = {
+				add = 80
+				democratic > 80
+			}
+		}
+	}
+}
+
+# Zhang Xun Demands the Assembly Dissolution
+country_event = {
+	id = ww1_china.146
+	title = ww1_china.146.t
+	desc = ww1_china.146.d
+	picture = GFX_report_event_chinese_officers
+	is_triggered_only = yes
+	option = {
+		name = ww1_china.146.a
+		custom_effect_tooltip = ww1_china.146.tt
+		add_political_power = -200
+		hidden_effect = { set_global_flag = zhang_xun_in_beijing }
+	}
+}
+
+# Decision on the Remnant Court of the Abdicated Qing Imperial Family
+country_event = {
+	id = ww1_china.147
+	title = ww1_china.147.t
+	desc = ww1_china.147.d
+	picture = GFX_report_event_manchukuo_army
+	trigger = {
+		tag = CHI
+		has_global_flag = xinhai_revolution_ends
+		has_war = no
+		controls_state = 608
+		NOT = {
+			country_exists = QIN
+			has_government = communism
+			has_global_flag = abdicated_qing_imperial_family_allowed
+		}
+	}
+	fire_only_once = yes
+	option = {
+		name = ww1_china.147.a
+		set_global_flag = abdicated_qing_imperial_family_allowed
+		add_ideas = QIN_abdicated_qing_imperial_family
+		ai_chance = { factor = 100 }
+	}
+	option = {
+		name = ww1_china.147.b
+		add_political_power = -75
+		ai_chance = {
+			base = 25
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+			}
+		}
+	}
+}
+
+# Little Imperial Court of the Qing Dynasty Abolished
+news_event = {
+	id = ww1_china.148
+	title = ww1_china.148.t
+	desc = ww1_china.148.d
+	major = yes
+	picture = GFX_news_event_chinese_street
+	is_triggered_only = yes
+	option = {
+		name = ww1_china.148.a
+		trigger = {
+			NOT = { has_government = communism }
+		}
+	}
+	option = {
+		name = ww1_china.148.b
+		trigger = {
+			has_government = communism
+		}
+	}
+}
+
+# Feng Guozhang Presidency ended
+country_event = {
+	id = ww1_china.149
+	title = ww1_china.149.t
+	desc = ww1_china.149.d
+	picture = GFX_report_event_election_vote
+	is_triggered_only = yes
+	option = {
+		name = ww1_china.149.a
+		hidden_effect = {
+			# prepare government divide
+			ANC = {
+				meta_effect = {
+					text = {
+						set_politics = {
+							ruling_party = neutrality
+							last_election = "[CURRENT_DATE]"
+							election_frequency = 60
+							elections_allowed = no
+						}
+					}
+					CURRENT_DATE = "[?global.date.GetDateStringNoHour]"
+				}
+				add_ideas = CHI_idea_xu_shichang_president
+			}
+		}
+		swap_ideas = {
+			remove_idea = CHI_idea_feng_guozhang_president
+			add_idea = CHI_idea_xu_shichang_president
+		}
+		meta_effect = {
+			text = {
+				set_politics = {
+					ruling_party = ROOT
+					last_election = "[CURRENT_DATE]"
+					election_frequency = 60
+					elections_allowed = yes
+				}
+			}
+			CURRENT_DATE = "[?global.date.GetDateStringNoHour]"
+		}
+	}
+}
+
+# Zhili Clique tries to restore the "Old" National Assembly
+country_event = {
+	id = ww1_china.150
+	title = ww1_china.150.t
+	desc = ww1_china.150.d
+	picture = GFX_report_event_chinese_soldiers_running
 	is_triggered_only = yes
 	fire_only_once = yes
 	option = {
-		name = ww1_xinjiang.4.a
-		ai_chance = {
-			factor = 100
-		}
-		KUM = {
-			diplomatic_relation = {
-				country = PREV
-				relation = military_access
-				active = yes
-			}
-		}
-		declare_war_on = {
-			target = SIK
-			type = annex_everything
-		}
-	}
-	option = {
-		name = ww1_xinjiang.4.b
-		ai_chance = {
-			factor = 0
-		}
+		add_stability = 0.05
 	}
 }
 
-# TIHWA COUP
-######################
+# Xu Shichang resigns
 country_event = {
-	id = ww1_xinjiang.5
-	title = ww1_xinjiang.5.t
-	desc = ww1_xinjiang.5.d
-	picture = GFX_report_event_chinese_soldiers_fighting
-	trigger = {
-		tag = SIK
-		has_country_flag = sheng_shicai_in_sinkiang
-		has_country_leader = {
-			character = SIK_jin_shuren
-			ruling_only = yes
-		}
-		OR = {
-			has_war_with = KUM
-			has_war_with = XSM
-		}
-		surrender_progress > 0.25
-	}
-	fire_only_once = yes
-	mean_time_to_happen = { days = 0 }
-	immediate = {
-		hidden_effect = {
-			if = {
-				limit = {
-					has_war_with = KUM
-				}
-				white_peace = KUM
-			}
-			else_if = {
-				limit = {
-					owns_state = 749
-					NOT = { country_exists = KUM }
-				}
-				# East Turkestan
-				every_state = {
-					limit = {
-						is_core_of = SIK
-					}
-					add_core_of = KUM
-				}
-				749 = {
-					transfer_state_to = KUM
-					KUM = {
-						set_capital = { state = PREV }
-						set_politics = {
-							ruling_party = democratic
-							elections_allowed = yes
-						}
-						add_popularity = {
-							ideology = democratic
-							popularity = 0.5
-						}
-					}
-				}
-			}
+	id = ww1_china.151
+	title = ww1_china.151.t
+	desc = {
+		text = ww1_china.151.d
+		trigger = {
+			has_idea = CHI_idea_xu_shichang_president
 		}
 	}
+	desc = {
+		text = ww1_china.151.d2
+		trigger = {
+			NOT = { has_idea = CHI_idea_xu_shichang_president }
+		}
+	}
+	picture = GFX_report_event_generic_sign_treaty2
+	is_triggered_only = yes
 	option = {
-		name = ww1_xinjiang.5.a
-		ai_chance = {
-			factor = 100
-		}
-		retire_character = SIK_jin_shuren
-		promote_character = SIK_sheng_shicai
 		if = {
 			limit = {
-				has_dlc = "Together for Victory"
+				has_idea = CHI_idea_xu_shichang_president
 			}
-			set_autonomy = {
-				target = KUM
-				autonomy_state = autonomy_tgwr_protectorate
+			swap_ideas = {
+				remove_idea = CHI_idea_xu_shichang_president
+				add_idea = CHI_idea_li_yuanhong_president
 			}
-			KUM = { set_country_flag = protectorate }
+			else = {
+				add_ideas = CHI_idea_li_yuanhong_president
+			}
+		}
+		meta_effect = {
+			text = {
+				set_politics = {
+					ruling_party = ROOT
+					last_election = "[CURRENT_DATE]"
+					election_frequency = 60
+					elections_allowed = no
+				}
+			}
+			CURRENT_DATE = "[?global.date.GetDateStringNoHour]"
+		}
+		# hidden_effect = {
+		# 	country_event = {
+		# 		id = ww1_china.159
+		# 		days = 365
+		# 	}
+		# }
+	}
+}
+
+# Assassination of Chen Qimei
+##############################
+country_event = {
+	id = ww1_china.152
+	title = ww1_china.152.t
+	desc = ww1_china.152.d
+	picture = GFX_report_event_generic_funeral
+	trigger = {
+		has_character = CHI_ch_en_ch_i_mei
+		has_completed_focus = CHI_second_empire
+		has_global_flag = national_protection_war
+		has_war = no
+		NOT = {
+			has_global_flag = yuan_shikai_dead
+			has_country_flag = CHI_national_protection_flag
+		}
+	}
+	mean_time_to_happen = {
+		days = 70
+	}
+	fire_only_once = yes
+	option = {
+		name = ww1_china.152.a
+		retire_character = CHI_ch_en_ch_i_mei
+	}
+}
+
+# Li Yuanhong Presidency ended
+country_event = {
+	id = ww1_china.153
+	title = ww1_china.153.t
+	desc = ww1_china.153.d
+	picture = GFX_report_event_election_vote
+	is_triggered_only = yes
+	option = {
+		name = ww1_china.153.a
+		if = {
+			limit = {
+				has_global_flag = feng_guozhang_dead
+			}
+			set_country_flag = chinese_government_crackdown
+			hidden_effect = {
+				ANC = {
+					meta_effect = {
+						text = {
+							set_politics = {
+								ruling_party = neutrality
+								last_election = "[CURRENT_DATE]"
+								election_frequency = 60
+								elections_allowed = no
+							}
+						}
+						CURRENT_DATE = "[?global.date.GetDateStringNoHour]"
+					}
+					# Duan is president, no need to add ideas
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				has_idea = CHI_idea_feng_guozhang_vice_president
+			}
+			swap_ideas = {
+				remove_idea = CHI_idea_feng_guozhang_vice_president
+				add_idea = CHI_idea_feng_guozhang_president
+			}
 		}
 		else = {
-			puppet = KUM
-			KUM = { add_ideas = protectorate }
+			add_ideas = CHI_idea_feng_guozhang_president
+		}
+		if = {
+			limit = {
+				has_idea = CHI_idea_duan_qirui
+			}
+			remove_ideas = CHI_idea_duan_qirui
+		}
+		if = {
+			limit = {
+				has_idea = CHI_idea_li_duan_conflict
+			}
+			remove_ideas = CHI_idea_li_duan_conflict
+		}
+		CHI_duan_qirui = {
+			if = {
+				limit = { has_ideology = oligarchism }
+				promote_character = oligarchism
+			}
+			else = {
+				add_country_leader_role = {
+					country_leader = {
+						ideology = oligarchism
+					}
+					promote_leader = yes
+				}
+			}
+		}
+		meta_effect = {
+			text = {
+				set_politics = {
+					ruling_party = ROOT
+					last_election = "[CURRENT_DATE]"
+					election_frequency = 60
+					elections_allowed = yes
+				}
+			}
+			CURRENT_DATE = "[?global.date.GetDateStringNoHour]"
 		}
 	}
 }
 
-# DEATH OF MA QI
-###################
+# NPA Victorious
+##############################
 country_event = {
-	id = ww1_xinjiang.6
-	title = ww1_xinjiang.6.t
-	desc = ww1_xinjiang.6.d
-	picture = GFX_report_event_generic_funeral
-	trigger = {
-		date > 1931.8.1
-		has_country_leader = {
-			character = XSM_ma_qi
-			ruling_only = no
+	id = ww1_china.154
+	title = ww1_china.154.t
+	desc = ww1_china.154.d
+	picture = GFX_report_event_china_infiltration
+	is_triggered_only = yes
+	immediate = {
+		hidden_effect = {
+			CHI = {
+				set_politics = {
+					ruling_party = neutrality
+					elections_allowed = no
+				}
+				set_popularities = {
+					democratic = 31
+					neutrality = 63
+					fascism = 4
+					communism = 2
+				}
+				set_party_name = {
+					ideology = neutrality
+					long_name = CHI_national_protection_army_long
+					name = CHI_national_protection_army
+				}
+				set_party_name = {
+					ideology = fascism
+					long_name = CHI_national_protection_army_long
+					name = CHI_national_protection_army
+				}
+				NPA = {
+					every_state = {
+						limit = {
+							OR = {
+								is_core_of = PREV
+								is_claimed_by = PREV
+							}
+						}
+						remove_core_of = PREV
+						remove_claim_by = PREV
+					}
+					transfer_navy = {
+						target = CHI
+					}
+					every_unit_leader = {
+						set_nationality = CHI
+					}
+					CHI_cai_e = {
+						set_nationality = CHI
+					}
+					CHI_sun_yatsen = {
+						set_nationality = CHI
+					}
+					CHI_tang_jiyao = {
+						set_nationality = CHI
+					}
+					CHI_liang_qichao = {
+						set_nationality = CHI
+					}
+				}
+				annex_country = {
+					target = NPA
+					transfer_troops = yes
+				}
+				retire_character = QIN_yuan_shikai
+				retire_character = CHI_yuan_shikai
+				retire_character = CHI_yuan_keding
+				every_unit_leader = {
+					limit = {
+						has_trait = yuan_shikai_loyalist
+					}
+					remove_unit_leader_role = yes
+				}
+				CHI_tang_jiyao = {
+					if = {
+						limit = { has_ideology = authoritarian_democracy }
+						promote_character = authoritarian_democracy
+					}
+					else = {
+						add_country_leader_role = {
+							country_leader = {
+								ideology = authoritarian_democracy
+							}
+							promote_leader = yes
+						}
+					}
+					if = {
+						limit = { has_ideology = stratocracy }
+						promote_character = stratocracy
+					}
+					else = {
+						add_country_leader_role = {
+							country_leader = {
+								ideology = stratocracy
+							}	
+							promote_leader = yes
+						}
+					}
+				}
+				if = {
+					limit = {
+						NOT = { has_global_flag = cai_e_dead }
+					}
+					CHI_cai_e = {
+						if = {
+							limit = { has_ideology = stratocracy }
+							promote_character = stratocracy
+						}
+						else = {
+							add_country_leader_role = {
+								country_leader = {
+									ideology = stratocracy
+									traits = {
+										revolutionary_general
+										generallissimo
+									}
+								}	
+								promote_leader = yes
+							}
+						}
+						if = {
+							limit = { has_ideology = authoritarian_democracy }
+							promote_character = authoritarian_democracy
+						}
+						else = {
+							add_country_leader_role = {
+								country_leader = {
+									ideology = authoritarian_democracy
+									traits = {
+										revolutionary_general
+										generallissimo
+									}
+								}	
+								promote_leader = yes
+							}
+						}
+					}
+				}
+				CHI_liang_qichao = {
+					if = {
+						limit = { has_ideology = conservatism }
+						promote_character = conservatism
+					}
+					else = {
+						add_country_leader_role = {
+							country_leader = {
+								ideology = conservatism
+								traits = { gentle_scholar  }
+							}
+							promote_leader = yes
+						}
+					}
+				}
+				if = {
+					limit = {
+						NOT = { has_global_flag = sun_yatsen_dead }
+					}
+					CHI_sun_yatsen = {
+						if = {
+							limit = { has_ideology = socialism }
+							promote_character = socialism
+						}
+						else = {
+							add_country_leader_role = {
+								country_leader = {
+									ideology = socialism
+									traits = { father_of_the_republic  }
+								}
+								promote_leader = yes
+							}
+						}
+						if = {
+							limit = { has_ideology = reformist_socialism }
+							promote_character = reformist_socialism
+						}
+						else = {
+							add_country_leader_role = {
+								country_leader = {
+									ideology = reformist_socialism
+									traits = { father_of_the_republic  }
+								}
+								promote_leader = yes
+							}
+						}
+					}
+				}
+				set_cosmetic_tag = NPA
+				set_country_flag = CHI_national_protection_flag
+				change_tag_from = NPA
+			}
 		}
 	}
-	fire_only_once = yes
-	mean_time_to_happen = { days = 5 }
 	option = {
-		name = ww1_xinjiang.6.a
-		retire_character = XSM_ma_qi
-		promote_character = XSM_ma_lin
+		name = ww1_china.154.a
+		remove_country_leader_trait = standing_alone
+		add_stability = 0.10
+	}
+}
+
+# Empire of China victorious
+##############################
+country_event = {
+	id = ww1_china.155
+	title = ww1_china.155.t
+	desc = ww1_china.155.d
+	picture = GFX_report_event_china_infiltration
+	is_triggered_only = yes
+	immediate = {
+		hidden_effect = {
+			NPA = {
+				every_state = {
+					limit = {
+						OR = {
+							is_core_of = PREV
+							is_claimed_by = PREV
+						}
+					}
+					remove_core_of = PREV
+					remove_claim_by = PREV
+				}
+				retire_character = CHI_cai_e
+				transfer_navy = {
+					target = CHI
+				}
+				every_unit_leader = {
+					set_nationality = CHI
+				}
+				CHI_cai_e = {
+					set_nationality = CHI
+				}
+				CHI_sun_yatsen = {
+					set_nationality = CHI
+				}
+				CHI_tang_jiyao = {
+					set_nationality = CHI
+				}
+				CHI_liang_qichao = {
+					set_nationality = CHI
+				}
+			}
+			annex_country = {
+				target = NPA
+				transfer_troops = no
+			}
+		}
+	}
+	option = {
+		name = ww1_china.155.a
+		remove_country_leader_trait = standing_alone
+		add_popularity = {
+			ideology = fascism
+			popularity = 0.10
+		}
+	}
+}
+
+# Northeast Flag Replacement
+news_event = {
+	id = ww1_china.156
+	title = ww1_china.156.t
+	desc = ww1_china.156.d
+	picture = GFX_news_event_chinese_street
+	is_triggered_only = yes
+	option = {
+		name = ww1_china.156.a
+		trigger = {
+			OR = {
+				is_kuomintang_state = yes
+				is_in_faction_with = KMT
+			}
+			NOT = { has_war_with = KMT }
+		}
+	}
+	option = {
+		name = ww1_china.156.b
+		trigger = {
+			OR = {
+				has_war_with = KMT
+				is_kuomintang_state = no
+			}
+			NOT = { is_in_faction_with = KMT }
+		}
+	}
+}
+
+# Anguojun
+##############################
+country_event = {
+	id = ww1_china.157
+	title = ww1_china.157.t
+	desc = ww1_china.157.d
+	picture = GFX_report_event_china_infiltration
+	is_triggered_only = yes
+	option = {
+		name = ww1_china.157.a
+		if = {
+			limit = {
+				is_faction_leader = yes
+			}
+			set_faction_name = national_pacification_army
+			else = {
+				create_faction = national_pacification_army
+			}
+		}
+	}
+}
+
+# Invite to the Northern Expedition
+######################################
+country_event = {
+	id = ww1_china.158
+	title = ww1_china.158.t
+	desc = ww1_china.158.d
+	picture = GFX_report_event_chinese_soldiers
+	is_triggered_only = yes
+	option = {
+		name = ww1_china.158.a
+		FROM = { add_to_faction = ROOT }
+		every_other_country = {
+			limit = {
+				is_china_or_warlord = yes
+				has_war_with = FROM
+			}
+			ROOT = {
+				add_to_war = {
+					targeted_alliance = FROM
+					enemy = PREV
+				}
+			}
+		}
+		add_ideas = CHI_idea_nationalist_revolution
 		ai_chance = {
-			factor = 100
+			base = 10
+			modifier = {
+				add = 100
+				has_country_leader_with_trait = chinese_nationalist
+			}
+			modifier = {
+				factor = 0
+				has_government = communism
+			}
+		}
+	}
+	option = {
+		name = ww1_china.158.b
+		FROM = {
+			create_wargoal = {
+				target = ROOT
+				type = annex_everything
+			}
+		}
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 100
+				has_government = communism
+			}
+		}
+	}
+}
+
+# Cao Kun Puts Pressure on Li Yuanhong to Resign
+country_event = {
+	id = ww1_china.159
+	title = ww1_china.159.t
+	desc = ww1_china.159.d
+	picture = GFX_report_event_generic_sign_treaty2
+	is_triggered_only = yes
+	option = {
+		add_stability = -0.05
+		remove_ideas = CHI_idea_li_yuanhong_president
+		activate_mission = CHI_president_cao_kun_mission
+	}
+}
+
+# President Cao Kun
+country_event = {
+	id = ww1_china.160
+	title = ww1_china.123.t
+	desc = ww1_china.160.d
+	picture = GFX_report_event_election_vote
+	is_triggered_only = yes
+	option = {
+		add_popularity = {
+			ideology = fascism
+			popularity = 0.05
+		}
+		add_ideas = CHI_idea_cao_kun_president
+	}
+}
+
+# Zhili-Fengtian Alliance
+country_event = {
+	id = ww1_china.161
+	title = ww1_china.161.t
+	desc = ww1_china.161.d
+	picture = GFX_report_event_china_infiltration
+	fire_only_once = yes
+	is_triggered_only = yes
+	option = {
+		name = ww1_china.161.a
+		FROM = {
+			create_faction = eight_provinces
+			add_to_faction = ROOT
+			hidden_effect = {
+				if = {
+					limit = {
+						HNC = {
+							exists = yes
+							OR = {
+								has_government = neutrality
+								has_government = fascism
+							}
+							NOT = {
+								has_country_leader_with_trait = chinese_nationalist
+							}
+						}
+					}
+					add_to_faction = HNC
+				}
+			}
+		}
+	}
+	option = {
+		name = ww1_china.161.b
+		add_war_support = -0.20
+		ai_chance = { factor = 0 }
+	}
+}
+
+# Democratic Chinese Flag
+country_event = {
+	id = ww1_china.162
+	title = ww1_china.162.t
+	desc = ww1_china.162.d
+	picture = GFX_report_event_generic_peaceful_annexation
+	fire_only_once = yes
+	is_triggered_only = yes
+	option = {
+		name = ww1_china.162.a
+		# Song Jiaoren's Five Races Under One Union
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = 100
+				has_country_leader_ideology = liberal_conservatism
+			}
+		}
+	}
+	option = {
+		name = ww1_china.162.b
+		# Sun Yat-sen's the Blue Sky, White Sun, and a Wholly Red Earth
+		set_cosmetic_tag = CHI_kmt
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = 100
+				has_country_leader_ideology = socialism
+			}
+			modifier = {
+				add = 100
+				has_country_leader_ideology = conservatism
+			}
+		}
+	}
+	option = {
+		name = ww1_china.162.c
+		# 19 star flag
+		set_cosmetic_tag = CHI_wuchang
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 1000
+				NOT = {
+					any_owned_state = {
+						OR = {
+							region = 146
+							region = 145
+							region = 155
+							region = 152
+						}
+					}
+				}
+			}
 		}
 	}
 }
