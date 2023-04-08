@@ -26,11 +26,14 @@ focus_tree = {
 		}
 		completion_reward = {
 			POL_jozef_pilsudski = {
-				promote_character = authoritarian_democracy					
+				promote_character = authoritarian_democracy
+				if = {
+					limit = {
+						is_advisor = yes
+					}
+					ROOT = { activate_advisor = POL_jozef_pilsudski_chief }
+				}
 			}
-			add_ideas = {
-                POL_jozef_pilsudski_chief
-            }
 			if = {
 				limit = {
 					NOT = {
@@ -673,7 +676,7 @@ focus_tree = {
 					limit = {
 						SCO = {
 							has_country_leader = {
-								name = "Robert IV"
+								character = SCO_robert_iv
 								ruling_only = yes
 							}
 						}
@@ -694,7 +697,7 @@ focus_tree = {
 						promote_leader = yes
 						country_leader = {
 							ideology = autocracy
-							traits = { auwi german_agent }
+							traits = { auwi foreign_leader german_agent }
 						}
 					}
 				}
@@ -707,7 +710,7 @@ focus_tree = {
 					limit = { is_subject_of = WUR }
 					every_possible_country = {
 						limit = {
-							has_unit_leader = 34337
+							has_character = GER_albrecht_von_wurttemberg
 						}
 						GER_albrecht_von_wurttemberg = {
 							set_character_name = POL_albrecht_i
@@ -719,10 +722,10 @@ focus_tree = {
 							promote_leader = yes
 							country_leader = {
 								ideology = autocracy
-								traits = { german_agent }
+								traits = { foreign_leader german_agent }
 							}
 						}
-					}					
+					}
 					set_party_name = {
 						ideology = neutrality
 						name = WUR_neutrality_party
@@ -736,16 +739,16 @@ focus_tree = {
 									is_subject_of = SCO
 									SCO = {
 										has_country_leader = {
-											name = "Robert IV"
+											character = SCO_robert_iv
 											ruling_only = yes
 										}
 									}
-								}			
-							}							
+								}
+							}
 						}
 						every_possible_country = {
 							limit = {
-								has_unit_leader = 34316
+								has_character = GER_lepold_von_bayern
 							}
 							GER_lepold_von_bayern = {
 								set_character_name = POL_leopold_i
@@ -757,10 +760,10 @@ focus_tree = {
 								promote_leader = yes
 								country_leader = {
 									ideology = autocracy
-									traits = { german_agent }
+									traits = { foreign_leader german_agent }
 								}
 							}
-						}						
+						}
 						set_party_name = {
 							ideology = neutrality
 							name = BAY_neutrality_party
@@ -774,19 +777,19 @@ focus_tree = {
 										is_subject_of = SCO
 										SCO = {
 											has_country_leader = {
-												name = "Robert IV"
+												character = SCO_robert_iv
 												ruling_only = yes
 											}
 										}
-									}			
-								}							
+									}
+								}
 							}
 							POL_fryderyk_krystian_i = {
 								add_country_leader_role = {
 									promote_leader = yes
 									country_leader = {
 										ideology = autocracy
-										traits = { german_agent }
+										traits = { foreign_leader german_agent }
 									}
 								}
 							}
@@ -857,20 +860,43 @@ focus_tree = {
 		x = 15
 		y = 1
 		completion_reward = {
-			AUH = {
-				AUH_Karl_Stephan = {
-					set_character_name = POL_karol_stefan_i
-					set_nationality = ROOT
+			if = {
+				limit = {
+					date < 1933.4.1
+					has_character = POL_karol_stefan_i
 				}
-			}
-			POL_karol_stefan_i = {
-				add_country_leader_role = {
-					promote_leader = yes
-					country_leader = {
-						ideology = autocracy
+				every_possible_country = {
+					limit = {
+						has_character = AUH_Karl_Stephan
+					}
+					AUH_Karl_Stephan = {
+						set_character_name = POL_karol_stefan_i
+						set_nationality = ROOT
 					}
 				}
-			}		
+				POL_karol_stefan_i = {
+					add_country_leader_role = {
+						country_leader = {
+							ideology = autocracy
+						}
+						#he spoke fluent Polish, so no foreign leader trait
+					}
+					promote_character = autocracy
+				}
+			}
+			else = {
+				POL_karol_olbracht = {
+					set_character_name = POL_karol_olbracht_i
+					promote_leader = yes
+					add_country_leader_role = {
+						country_leader = {
+							ideology = autocracy
+							traits = { patriot_king POL_soldier_king }
+						}
+					}
+					promote_character = autocracy
+				}
+			}
 			set_party_name = {
 				ideology = neutrality
 				name = AUH_neutrality_party
@@ -1011,7 +1037,7 @@ focus_tree = {
 	focus = {
 		id = POL_rebuild_poland
 		icon = GFX_goal_generic_production
-		cost = 10
+		cost = 3
 		prerequisite = {
 			focus = POL_declare_a_republic
 		}
@@ -1021,11 +1047,14 @@ focus_tree = {
 			add_political_power = 170
 			add_stability = 0.10
 		}
+		ai_will_do = {
+			factor = 1000
+		}
 	}
 	focus = {
 		id = POL_old_borders
 		icon = GFX_focus_generic_provoke_border_clashes
-		cost = 5
+		cost = 1
 		prerequisite = {
 			focus = POL_take_galicia
 		}
@@ -1044,7 +1073,7 @@ focus_tree = {
 	focus = {
 		id = POL_take_galicia
 		icon = GFX_goal_generic_occupy_states_ongoing_war
-		cost = 10
+		cost = 3
 		prerequisite = {
 			focus = POL_rebuild_poland
 			focus = POL_polish_king
@@ -1091,19 +1120,23 @@ focus_tree = {
 	focus = {
 		id = POL_kiev_offensive
 		icon = GFX_focus_POL_ukrainian_army
-		cost = 10
+		cost = 3
 		prerequisite = {
 			focus = POL_old_borders
 		}
 		relative_position_id = POL_old_borders
-		x = 0
+		x = 2
 		y = 1
 		available = {
-			owns_state = 562
+			is_neighbor_of = UKR
 			is_subject = no
 			NOT = {
 				has_global_flag = miracle_on_the_vistula
 				has_global_flag = soviet_polish_war_truce
+			}
+			OR = {
+				NOT = { country_exists = WUK }
+				has_war_with = WUK
 			}
 		}
 		bypass = {
@@ -1129,11 +1162,20 @@ focus_tree = {
 			add_state_claim = 89
 			if = {
 				limit = {
-					country_exists = UKR
+					UKR = {
+						exists = yes
+						is_subject = no
+					}
 				}
-				create_wargoal = {
+				declare_war_on = {
 					target = UKR
 					type = take_claimed_state
+				}
+				hidden_effect = {
+					news_event = {
+						id = interwar_news.27
+						hours = 3
+					}
 				}
 			}
 		}
@@ -1171,7 +1213,7 @@ focus_tree = {
 			focus = POL_old_borders
 		}
 		relative_position_id = POL_old_borders
-		x = 2
+		x = 0
 		y = 1
 		available = {
 			owns_state = 97
@@ -1234,7 +1276,7 @@ focus_tree = {
 	}
 	focus = {
 		id = POL_claim_lithuania
-		icon = GFX_goal_generic_more_territorial_claims
+		icon = GFX_focus_LIT_restore_the_grand_duchy
 		cost = 10
 		prerequisite = {
 			focus = POL_old_borders
@@ -1330,6 +1372,154 @@ focus_tree = {
 		}
 	}
 	focus = {
+		id = POL_eastern_territories
+		icon = GFX_focus_POL_common_organization_of_society
+		cost = 20
+		prerequisite = {
+			focus = POL_minsk_offensive
+			focus = POL_kiev_offensive
+		}
+		relative_position_id = POL_minsk_offensive
+		x = 1
+		y = 1
+		available = {
+			is_subject = no
+			has_war = no
+			OR = {
+				owns_state = 93
+				owns_state = 95
+			}
+		}
+		completion_reward = {
+			custom_effect_tooltip = POL_eastern_territories_tt
+			add_stability = -0.1
+			every_owned_state = {
+				limit = {
+					OR = {
+						state = 80
+						state = 89
+						state = 91
+						state = 93
+						state = 94
+						state = 95
+						state = 773
+						state = 808
+					}
+				}
+				add_core_of = ROOT
+			}
+		}
+		ai_will_do = {
+			base = 10
+		}
+	}
+	focus = {
+		id = POL_lithuanian_territories
+		icon = GFX_goal_generic_territory_or_war
+		cost = 20
+		prerequisite = {
+			focus = POL_claim_lithuania
+			focus = POL_minsk_offensive
+		}
+		relative_position_id = POL_claim_lithuania
+		x = 1
+		y = 1
+		available = {
+			is_subject = no
+			has_war = no
+			owns_state = 784
+		}
+		completion_reward = {
+			add_stability = -0.1
+			every_owned_state = {
+				limit = {
+					is_core_of = LIT
+				}
+				add_core_of = ROOT
+			}
+		}
+		ai_will_do = {
+			base = 10
+		}
+	}
+	focus = {
+		id = POL_the_old_commonwealth
+		icon = GFX_focus_generic_monarchy_1
+		cost = 10
+		prerequisite = {
+			focus = POL_lithuanian_territories
+		}
+		prerequisite = {
+			focus = POL_eastern_territories
+		}
+		relative_position_id = POL_lithuanian_territories
+		x = 1
+		y = 1
+		available = {
+			is_subject = no
+			has_war = no
+			OR = {
+				AND = {
+					owns_state = 11
+					owns_state = 189
+					owns_state = 784
+				}
+				has_subject = LIT
+			}
+			owns_state = 95
+			owns_state = 93
+			hidden_trigger = {
+				NOT = { has_global_flag = form_commonwealth_flag }
+			}
+		}
+		completion_reward = {
+			LIT = {
+				if = {
+					limit = {
+						is_subject_of = ROOT
+					}
+					ROOT = {
+						annex_country = {
+							target = PREV
+							transfer_troops = yes
+						}
+					}
+				}
+			}
+			every_state = {
+				limit = {
+					NOT = {
+						is_owned_by = ROOT
+					}
+					OR = {
+						state = 194
+						state = 198
+						state = 201
+						state = 202
+						state = 204
+						state = 206
+						state = 207
+						state = 241
+						state = 243
+					}
+				}
+				add_claim_by = ROOT
+			}
+			add_named_threat = {
+				threat = 10
+				name = POL_the_old_commonwealth
+			}
+			set_cosmetic_tag = PLC_UNIFIED
+			hidden_effect = {
+				news_event = { id = wtt_news.57 hours = 6 }
+				set_global_flag = form_commonwealth_flag
+			}
+		}
+		ai_will_do = {
+			base = 10
+		}
+	}
+	focus = {
 		id = POL_cult_of_the_marshal
 		icon = GFX_focus_pol_pilsudski
 		cost = 10
@@ -1388,24 +1578,21 @@ focus_tree = {
 	}
 	focus = {
 		id = POL_silesia_referendum
-		icon = GFX_goal_generic_intelligence_exchange
-		cost = 10
+		icon = GFX_goal_generic_neutrality_focus
+		cost = 5
 		prerequisite = {
 			focus = POL_rebuild_poland
 		}
-		x = 21
+		x = 20
 		y = 2
 		bypass = {
 			OR = {
 				owns_state = 67
-				GER = {
-					has_country_flag = great_war_winner
-				}
 				has_war_with = GER
-				has_government = communism
 			}
 		}
 		available = {
+			has_global_flag = interbellum
 			is_subject = no
 			owns_state = 87
 			GER = {
@@ -1415,11 +1602,85 @@ focus_tree = {
 		}
 		will_lead_to_war_with = GER
 		completion_reward = {
-			add_state_claim = 67
 			add_political_power = 100
+			every_state = {
+				limit = {
+					OR = {
+						state = 67
+						state = 762
+					}
+					OR = {
+						is_owned_by = GER
+						is_owned_by = ROOT
+					}
+				}
+				add_claim_by = ROOT
+				set_demilitarized_zone = yes
+			}
+			GER = {
+				country_event = {
+					id = ww1_poland.17
+					days = 45
+				}
+			}
 		}
 		ai_will_do = {
-			factor = 0
+			factor = 5
+			modifier = {
+				factor = 0
+				has_war = yes
+			}
+			modifier = {
+				factor = 0
+				UKR = { has_war_with = SOV }
+				NOT = { has_completed_focus = POL_kiev_offensive }
+			}
+		}
+	}
+	focus = {
+		id = POL_east_prussian_plebiscite
+		icon = GFX_focus_POL_prussia_line
+		cost = 5
+		prerequisite = {
+			focus = POL_rebuild_poland
+		}
+		relative_position_id = POL_silesia_referendum
+		x = 2
+		y = 0
+		bypass = {
+			OR = {
+				owns_state = 5
+				has_war_with = GER
+			}
+		}
+		available = {
+			has_global_flag = interbellum
+			is_subject = no
+			owns_state = 85
+			GER = {
+				owns_state = 5
+				has_country_flag = great_war_loser
+			}
+		}
+		will_lead_to_war_with = GER
+		completion_reward = {
+			add_political_power = 100
+			5 = {
+				add_claim_by = ROOT
+				set_demilitarized_zone = yes
+			}
+		}
+		ai_will_do = {
+			factor = 5
+			modifier = {
+				factor = 0
+				has_war = yes
+			}
+			modifier = {
+				factor = 0
+				UKR = { has_war_with = SOV }
+				NOT = { has_completed_focus = POL_kiev_offensive }
+			}
 		}
 	}
 	focus = {
@@ -1427,13 +1688,10 @@ focus_tree = {
 		icon = GFX_goal_generic_war_with_comintern
 		cost = 10
 		prerequisite = {
-			focus = POL_silesia_referendum
+			focus = POL_rebuild_poland
 		}
 		prerequisite = {
 			focus = POL_take_galicia
-		}
-		prerequisite = {
-			focus = POL_silesia_referendum
 		}
 		mutually_exclusive = {
 			focus = POL_cult_of_the_marshal
@@ -1504,7 +1762,7 @@ focus_tree = {
 		icon = GFX_focus_generic_voting
 		cost = 10
 		prerequisite = {
-			focus = POL_silesia_referendum
+			focus = POL_rebuild_poland
 		}
 		prerequisite = {
 			focus = POL_take_galicia
@@ -1530,7 +1788,7 @@ focus_tree = {
 			}
 		}
 		ai_will_do = {
-			factor = 1
+			factor = 0
 		}
 		completion_reward = {
 			country_event = ww1_poland.8

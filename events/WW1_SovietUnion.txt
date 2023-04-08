@@ -81,7 +81,12 @@ country_event = {
 		add_political_power = -50
 		news_event = { id = ww1_soviet.5 } #Царь убит большевиками.
 		hidden_effect = {
-			RUS = { retire_character = RUS_nikolai_ii }
+			RUS = {
+				retire_character = RUS_nikolai_ii
+				retire_character = RUS_mikhail_ii
+				retire_character = RUS_nikolai_mikhailovich_romanov
+				# they killed him before but added here
+			}
 			# Kill him effectively
 		}
 		ai_chance = {
@@ -273,6 +278,9 @@ country_event = {
 	
 	option = {
 		name = ww1_soviet.7.a # Царь спасен.
+		trigger = {
+			is_russia_a_monarchy = no
+		}
 		add_popularity = {
 			ideology = neutrality
 			popularity = 0.1
@@ -331,8 +339,42 @@ country_event = {
 				}
 				promote_character = autocracy
 			}
+			if = {
+				limit = {
+					has_global_flag = tsar_mikhail
+				}
+				RUS_mikhail_ii = {
+					remove_country_leader_role = {
+						ideology = autocracy
+					}
+					remove_country_leader_role = {
+						ideology = authoritarian_democracy
+					}
+					set_character_name = RUS_mikhail_aleksandrovich_romanov
+				}
+			}
 		}
 		news_event = { id = ww1_soviet.8 }
+		ai_chance = {
+			base = 100
+			modifier = {
+				add = -40
+				has_global_flag = tsar_mikhail
+			}
+		}
+	}
+	option = {
+		name = ww1_soviet.7.c #We have a new tsar already :)
+		trigger = {
+			has_completed_focus = RUS_white_movenment
+			has_global_flag = tsar_mikhail
+		}
+		if = {
+			limit = {
+				has_country_leader_with_trait = controversy_over_legitimacy
+			}
+			remove_country_leader_trait = controversy_over_legitimacy
+		}
 		ai_chance = { factor = 100 }
 	}
 }
@@ -860,10 +902,10 @@ country_event = {
 								is_owned_by = PREV
 							}
 						}
-						random_other_country = {
+						random_country = {
 							limit = {
 								original_tag = BLR
-								is_subject_of = PREV
+								is_subject_of = PREV.PREV
 							}
 							set_state_controller = PREV
 						}
@@ -883,10 +925,10 @@ country_event = {
 								is_owned_by = PREV
 							}
 						}
-						random_other_country = {
+						random_country = {
 							limit = {
 								original_tag = UKR
-								is_subject_of = PREV
+								is_subject_of = PREV.PREV
 							}
 							set_state_controller = PREV
 						}
@@ -967,21 +1009,55 @@ country_event = {
 				target = POL
 				days = 200
 			}
+			set_country_flag = polish_soviet_war_winner
 		}
 		white_peace = POL
 		set_truce = {
 			target = POL
 			days = 200
 		}
+		set_country_flag = polish_soviet_war_winner
 		POL = {
 			country_event = ww1_soviet.45
 		}
-		ai_chance = { factor = 100 }
+		ai_chance = {
+			base = 100
+		}
 	}
 	option = {
 		name = ww1_soviet.18.b #no
 		POL = { country_event = ww1_soviet.19 }
-		ai_chance = { factor = 0 }
+		ai_chance = {
+			base = 0
+			# Poland is surronded
+			modifier = {
+				add = 70
+				GER = {
+					is_in_faction_with = ROOT
+					has_war_with = POL
+				}
+			}
+			# Russian civil war is over already
+			modifier = {
+				add = 40
+				NOT = { has_war_with = RUS }
+			}
+			# Socialism is already spreading in Europe
+			modifier = {
+				add = 20
+				any_other_country = {
+					is_subject = no
+					NOT = { is_in_faction_with = ROOT }
+					is_neighbor_of = POL
+					has_government = communism
+				}
+			}
+			# Not afford to wage it more
+			modifier = {
+				factor = 0
+				surrender_progress > 0.10
+			}
+		}
 	}
 }
 
@@ -1013,7 +1089,7 @@ country_event = {
 	is_triggered_only = yes
 	
 	option = {
-		name = ww1_soviet.18.a #yes
+		name = ww1_soviet.20.a #yes
 		
 		hidden_effect = {
 			# WAS UKRAINE DEFEATED?
@@ -1173,6 +1249,26 @@ country_event = {
 		}
 		
 		SOV = {
+			hidden_effect = {
+				if = {
+					limit = {
+						NOT = {
+							has_cosmetic_tag = SOV_union
+						}
+						OR = {
+							any_other_country = {
+								original_tag = UKR
+								is_subject_of = PREV
+							}
+							any_other_country = {
+								original_tag = BLR
+								is_subject_of = PREV
+							}
+						}
+					}
+					country_event = ww1_soviet.47
+				}
+			}
 			add_stability = -0.10
 			add_political_power = -100
 		}
@@ -1484,24 +1580,21 @@ country_event = {
 			days = 1000
 		}
 		retire_character = SOV_vladimir_lenin
-		if = {
-			limit = {
-				NOT = { has_global_flag = successor_bukharin }
-				NOT = { has_global_flag = successor_trotsky }
-			}
-			promote_character = SOV_iosif_stalin
-		}
+		
 		if = {
 			limit = {
 				has_global_flag = successor_trotsky
 			}
 			promote_character = SOV_leon_trotsky
 		}
-		if = {
+		else_if = {
 			limit = {
 				has_global_flag = successor_bukharin
 			}
 			promote_character = SOV_nikolai_bukharin
+		}
+		else = {
+			promote_character = SOV_iosif_stalin
 		}
 		ai_chance = {
 			factor = 100
@@ -1658,6 +1751,7 @@ country_event = {
 	picture = GFX_report_event_generic_communist_congress
 	trigger = {
 		tag = SOV
+		NOT = { country_exists = UBD }
 		OR = {
 			EST = {
 				exists = yes
@@ -1709,8 +1803,6 @@ country_event = {
 			}
 			hidden_effect = {
 				EST = {
-					add_ideas = idea_soviet_westward_offensive
-					add_ideas = idea_soviet_liberation_war
 					division_template = {
 						name = "Miilits"
 						regiments = {
@@ -1802,6 +1894,8 @@ country_event = {
 							owner = EST
 						}
 					}
+					add_ideas = idea_soviet_westward_offensive
+					add_ideas = idea_soviet_liberation_war
 				}
 			}
 		}
@@ -1823,8 +1917,6 @@ country_event = {
 			}
 			hidden_effect = {
 				LAT = {
-					add_ideas = idea_soviet_westward_offensive
-					add_ideas = idea_soviet_liberation_war
 					division_template = {
 						name = "Milicija"
 						regiments = {
@@ -1872,6 +1964,8 @@ country_event = {
 							owner = LAT
 						}
 					}
+					add_ideas = idea_soviet_westward_offensive
+					add_ideas = idea_soviet_liberation_war
 				}
 			}
 		}
@@ -1892,8 +1986,6 @@ country_event = {
 			}
 			hidden_effect = {
 				LIT = {
-					add_ideas = idea_soviet_westward_offensive
-					add_ideas = idea_soviet_liberation_war
 					division_template = {
 						name = "Milicija"
 						regiments = {
@@ -1965,6 +2057,8 @@ country_event = {
 							owner = LIT
 						}
 					}
+					add_ideas = idea_soviet_westward_offensive
+					add_ideas = idea_soviet_liberation_war
 				}
 			}
 		}
@@ -2211,9 +2305,14 @@ country_event = {
 			}
 			transfer_state_to = LIT
 		}
-		ai_chance = {
-			factor = 100
-		}
+		if = {
+			limit = {
+				NOT = {
+					has_subject = LIT
+				}
+			}
+			puppet = LIT
+		}	
 	}
 }
 
@@ -2388,6 +2487,85 @@ country_event = {
 		add_stability = -0.30
 		add_political_power = -200
 
+		# Galician territories
+		every_state = {
+			limit = {
+				OR = {
+					state = 80
+					#state = 88
+					state = 89
+					state = 91
+					state = 237
+					state = 562
+				}
+			}
+			hidden_effect = {
+				GAL = {
+					add_state_core = PREV
+					set_party_name = {
+						ideology = communism
+						long_name = GAL_communist_party_long
+						name = GAL_communist_party
+					}
+					set_politics = {
+						ruling_party = communism
+						elections_allowed = no
+					}
+					GAL_volodymyr_zatonskij = {
+						add_country_leader_role = {
+							promote_leader = yes
+							country_leader = {
+								ideology = vanguardism
+							}
+						}
+					}
+				}
+			}
+			if = {
+				limit = {
+					is_owned_by = ROOT
+					NOT = {
+						state = 88
+						state = 237
+					}
+				}
+				transfer_state_to = GAL
+				hidden_effect = {
+					SOV = {
+						if = {
+							limit = {
+								any_other_country = {
+									original_tag = UKR
+									is_subject_of = PREV
+								}
+							}
+							random_other_country = {
+								limit = {
+									original_tag = UKR
+									is_subject_of = PREV
+								}
+								puppet = GAL
+								GAL = { inherit_technology = PREV }
+							}
+							else = {
+								puppet = GAL
+								GAL = { inherit_technology = PREV }
+								if = {
+									limit = {
+										has_completed_focus = SOV_USSR
+										has_cosmetic_tag = SOV_ussr
+									}
+									GAL = {
+										country_event = { id = ww1_soviet.27 days = 8 }
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
 		# Lithuanian territories
 		if = {
 			limit = {
@@ -2478,6 +2656,54 @@ country_event = {
 				transfer_state_to = SOV
 			}
 		}
+
+		# Socialist Republic of Germany
+		if = {
+			limit = {
+				GER = {
+					exists = yes
+					has_country_flag = polish_soviet_war_winner
+				}
+			}
+			every_owned_state = {
+				limit = {
+					OR = {
+						state = 5
+						state = 67
+						state = 85
+						state = 86
+						state = 404
+						state = 762
+						state = 763
+					}
+				}
+				add_core_of = GER
+				transfer_state_to = GER
+			}
+		}
+
+		hidden_effect = {
+			SOV = {
+				if = {
+					limit = {
+						NOT = {
+							has_cosmetic_tag = SOV_union
+						}
+						OR = {
+							any_other_country = {
+								original_tag = UKR
+								is_subject_of = PREV
+							}
+							any_other_country = {
+								original_tag = BLR
+								is_subject_of = PREV
+							}
+						}
+					}
+					country_event = ww1_soviet.47
+				}
+			}
+		}
 		
 		every_state = {
 			limit = {
@@ -2493,6 +2719,7 @@ country_event = {
 		FRA = {
 			if = {
 				limit = {
+					exists = yes
 					has_country_flag = great_war_winner
 				}
 				country_event = ww1_soviet.38
@@ -2500,6 +2727,211 @@ country_event = {
 		}
 		
 		news_event = ww1_soviet.39
+	}
+}
+
+# POLISH-SOVIET WAR - SOVIET OFFERS SURRENDER
+#######################################
+country_event = {
+	id = ww1_soviet.46
+	title = ww1_soviet.46.t
+	desc = ww1_soviet.46.d
+	is_triggered_only = yes
+	picture = GFX_report_event_generic_sign_treaty3
+	option = {
+		name = ww1_soviet.46.a
+		every_country = {
+			limit = {
+				OR = {
+					tag = FROM
+					is_in_faction_with = FROM
+					is_subject_of = FROM
+				}
+			}
+			every_other_country = {
+				limit = {
+					OR = {
+						tag = PREV.PREV
+						is_in_faction_with = PREV.PREV
+						is_subject_of = PREV.PREV
+					}
+					has_war_with = PREV
+				}
+				white_peace = PREV
+			}
+		}
+		every_state = {
+			limit = {
+				is_owned_by = FROM
+				OR = {
+					is_core_of = PREV
+					is_claimed_by = PREV
+				}
+			}
+			transfer_state_to = PREV
+		}
+		every_other_country = {
+			limit = {
+				is_subject_of = PREV
+			}
+			every_state = {
+				limit = {
+					is_owned_by = PREV.PREV
+					OR = {
+						is_core_of = PREV
+						is_claimed_by = PREV
+					}
+				}
+				transfer_state_to = PREV
+			}
+		}
+		every_other_country = {
+			limit = {
+				NOT = { is_subject_of = PREV }
+				is_in_faction_with = PREV
+			}
+			every_state = {
+				limit = {
+					is_owned_by = PREV.PREV
+					OR = {
+						is_core_of = PREV
+						is_claimed_by = PREV
+					}
+				}
+				transfer_state_to = PREV
+			}
+		}
+		hidden_effect = {
+			SOV = {
+				if = {
+					limit = {
+						NOT = {
+							has_cosmetic_tag = SOV_union
+						}
+						OR = {
+							any_other_country = {
+								original_tag = UKR
+								is_subject_of = PREV
+							}
+							any_other_country = {
+								original_tag = BLR
+								is_subject_of = PREV
+							}
+						}
+					}
+					country_event = ww1_soviet.47
+				}
+			}
+		}
+	}
+	option = {
+		name = ww1_soviet.46.b
+		add_political_power = -200
+		add_named_threat = {
+			name = ww1_soviet.46.tt
+			threat = 10
+		}
+		ai_chance = {
+			factor = 0
+		}
+	}
+}
+
+# Ukrainian SSR and Belorusian SSR border
+country_event = {
+	id = ww1_soviet.47
+	hidden = yes
+	is_triggered_only = yes
+	immediate = {
+		every_country = {
+			limit = {
+				OR = {
+					original_tag = SOV
+					is_subject_of = SOV
+					has_country_flag = riga_peace
+				}
+			}
+			every_owned_state = {
+				limit = {
+					is_core_of = UKR
+					NOT = {
+						state = 94
+						state = 194
+						state = 222
+						state = 240
+						state = 241
+						state = 808
+					}
+				}
+				every_country = {
+					limit = {
+						original_tag = UKR
+						OR = {
+							is_subject_of = SOV
+							is_in_faction_with = SOV
+						}
+					}
+					transfer_state = PREV
+				}
+			}
+			every_controlled_state = {
+				limit = {
+					is_core_of = UKR
+					NOT = {
+						is_owned_by = PREV
+						state = 94
+						state = 194
+						state = 222
+						state = 240
+						state = 241
+						state = 808
+					}
+				}
+				every_country = {
+					limit = {
+						original_tag = UKR
+						OR = {
+							is_subject_of = SOV
+							is_in_faction_with = SOV
+						}
+					}
+					set_state_controller = PREV
+				}
+			}
+			every_owned_state = {
+				limit = {
+					is_core_of = BLR
+				}
+				every_country = {
+					limit = {
+						original_tag = BLR
+						OR = {
+							is_subject_of = SOV
+							is_in_faction_with = SOV
+						}
+					}
+					transfer_state = PREV
+				}
+			}
+			every_controlled_state = {
+				limit = {
+					is_core_of = BLR
+					NOT = {
+						is_owned_by = PREV
+					}
+				}
+				every_country = {
+					limit = {
+						original_tag = BLR
+						OR = {
+							is_subject_of = SOV
+							is_in_faction_with = SOV
+						}
+					}
+					set_state_controller = PREV
+				}
+			}
+		}
 	}
 }
 

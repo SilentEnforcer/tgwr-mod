@@ -126,9 +126,12 @@ interwar_decisions = {
 		allowed = { always = yes }
 		available = {
 			threat < 0.5
-			NOT = { has_idea = interwar_recovery }
-			NOT = { has_idea = idea_armistice }
-			NOT = { has_country_flag = secret_rearmament }
+			NOT = {
+				has_idea = interwar_recovery
+				has_idea = idea_armistice
+				has_country_flag = secret_rearmament
+				has_country_flag = ongoing_secret_rearmament
+			}
 			has_global_flag = interbellum
 		}
 		cost = 75
@@ -136,39 +139,43 @@ interwar_decisions = {
 		days_re_enable = 90
 		remove_effect = {
 			custom_effect_tooltip = remove_restrictions_if_no_faction_leaders_tt
-			if = {
-				limit = {
-					any_other_country = {
-						is_subject = no
-						OR = {
-							tag = GER
-							tag = FRA
-						}
-						has_country_flag = great_war_winner
-					}
-				}
+			hidden_effect = {
 				if = {
 					limit = {
-						has_country_flag = great_war_loser
-					}
-					random_other_country = {
-						limit = {
-							has_country_flag = great_war_winner
+						any_other_country = {
 							is_subject = no
 							OR = {
 								tag = GER
 								tag = FRA
 							}
+							has_country_flag = great_war_winner
+							exists = yes
 						}
-						country_event =  ww1_generic.29
+					}
+					if = {
+						limit = {
+							has_country_flag = great_war_loser
+						}
+						random_other_country = {
+							limit = {
+								has_country_flag = great_war_winner
+								is_subject = no
+								exists = yes
+								OR = {
+									tag = GER
+									tag = FRA
+								}
+							}
+							country_event =  ww1_generic.29
+						}
+					}
+					else = {
+						set_country_flag = remove_restrictions_idea
 					}
 				}
 				else = {
 					set_country_flag = remove_restrictions_idea
 				}
-			}
-			else = {
-				set_country_flag = remove_restrictions_idea
 			}
 		}
 		fire_only_once = no
@@ -199,45 +206,78 @@ interwar_decisions = {
 		allowed = { always = yes }
 		available = {
 			has_war_support > 0.5
-			NOT = { has_idea = interwar_recovery }
-			NOT = { has_idea = idea_armistice }
-			NOT = { has_country_flag = secret_rearmament }
+			NOT = {
+				has_idea = interwar_recovery
+				has_idea = idea_armistice
+				has_country_flag = secret_rearmament
+				has_country_flag = ongoing_secret_rearmament
+			}
 			has_global_flag = interbellum
 		}
 		cost = 120
 		days_remove = 90
 		days_re_enable = 90
 		remove_effect = {
-			set_country_flag = remove_restrictions_idea
-			custom_effect_tooltip = remove_restrictions_if_no_faction_leaders_tt
-			if = {
-				limit = {
-					has_country_flag = great_war_loser
-					is_subject = no
-				}
-				every_other_country = {
-					limit = { 
-						is_faction_leader = yes 
+			custom_effect_tooltip = denounce_the_army_restrictions_tt
+			hidden_effect = {
+				if = {
+					limit = {
+						has_country_flag = great_war_loser
 						is_subject = no
-						OR = {
-							tag = GER
-							tag = FRA
+					}
+					if = {
+						limit = {
+							OR = {
+								GER = {
+									has_country_flag = great_war_winner
+									is_subject = no
+									exists = yes
+									NOT = { has_war_with = ROOT }
+								}
+								FRA = {
+									has_country_flag = great_war_winner
+									is_subject = no
+									exists = yes
+									NOT = { has_war_with = ROOT }
+								}
+							}
+						}
+						every_other_country = {
+							limit = { 
+								has_country_flag = great_war_winner
+								is_subject = no
+								OR = {
+									tag = GER
+									tag = FRA
+								}
+							}
+							country_event = ww1_generic.32
 						}
 					}
-					country_event = ww1_generic.32
-				}				
+					else = {
+						set_country_flag = remove_restrictions_idea
+					}
+				}	
 			}
 		}
 		fire_only_once = yes
 		ai_will_do = {
-			factor = 0
+			base = 0
 			modifier = {
-				factor = 10
+				add = 10
 				OR = {
 					has_government = fascism
 					has_government = communism
 				}
 				threat > 0.25
+			}
+			modifier = {
+				factor = 0
+				original_tag = GER
+				any_other_country = {
+					original_tag = GER
+					has_war_with = PREV
+				}
 			}
 		}
 	}
@@ -247,12 +287,19 @@ interwar_decisions = {
 
 		cost = 0
 		fire_only_once = no
-		days_remove = 60
-		days_re_enable = 120
+		days_remove = 1000
+		days_re_enable = 365
 
 		available = {
 			has_idea = idea_army_restrictions
 			OR = {
+				has_government = communism
+				has_government = fascism
+			}
+		}
+		cancel_trigger = {
+			NOT = {
+				has_idea = idea_army_restrictions
 				has_government = communism
 				has_government = fascism
 			}
@@ -266,11 +313,16 @@ interwar_decisions = {
 			industrial_capacity_dockyard = 0.10
 			production_speed_arms_factory_factor = 0.1
 		}
+		cancel_effect = {
+			clr_country_flag = ongoing_secret_rearmament
+		}
 		complete_effect = {
-			hidden_effect = { set_country_flag = secret_rearmament }
+			set_country_flag = ongoing_secret_rearmament
 		}
 		remove_effect = {
-			hidden_effect = { clr_country_flag = secret_rearmament }
+			clr_country_flag = ongoing_secret_rearmament
+			set_country_flag = secret_rearmament
+			remove_ideas = idea_army_restrictions
 		}
 		ai_will_do = { factor = 200 }
 	}

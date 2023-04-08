@@ -1,5 +1,6 @@
 peace_deals = {
-	POL_sue_for_peace_SOV = {	
+	POL_sue_for_peace_SOV = {
+		icon = GFX_decision_eng_trade_unions_support
 		allowed = {
 			original_tag = POL
 		}
@@ -36,6 +37,7 @@ peace_deals = {
 }
 form_redania_category = {
 	POL_form_redania = {
+		icon = GFX_decision_generic_monarchy
 		allowed = {
 			original_tag = POL
 		}
@@ -56,7 +58,7 @@ form_redania_category = {
 }
 special_projects = {
 	POL_consctruct_gdynia = {
-		icon = GFX_decision_generic_special_project
+		icon = GFX_decision_generic_construction
 		allowed = {
 			original_tag = POL
 		}
@@ -67,29 +69,30 @@ special_projects = {
 		visible = {
 			NOT = { has_global_flag = gdynia_constructed }
 		}
+		cancel_trigger = {
+			NOT = { controls_state = 85 }
+		}
 		fire_only_once = no
-		days_remove = 730
+		days_remove = 365
 		cost = 200
 		modifier = {
 			civilian_factory_use = 3
 		}
+		cancel_effect = {
+			add_political_power = 100
+		}
 		remove_effect = {
-			if = {
-				limit = {
-					has_full_control_of_state = 85
-				}
-				set_global_flag = gdynia_constructed
-				add_victory_points = {
-					province = 9263
-					value = 1
-				}
-				85 = {
-					set_building_level = {
-						type = naval_base
-						level = 3
-						province = {
-							id = 9263
-						}
+			set_global_flag = gdynia_constructed
+			add_victory_points = {
+				province = 9263
+				value = 1
+			}
+			85 = {
+				set_building_level = {
+					type = naval_base
+					level = 3
+					province = {
+						id = 9263
 					}
 				}
 			}
@@ -100,28 +103,91 @@ special_projects = {
 	}
 }
 foreign_politics = {
-	POL_occupy_bialystok = {
-		icon = GFX_decision_generic_ignite_civil_war
+	POL_occupy_chelm = {
+		icon = GFX_decision_infiltrate_state
 		allowed = {
 			original_tag = POL
 		}
 		available = {
-			NOT = { has_war_with = LIT }
-			LIT = { has_war = yes }
+			controls_state = 92
+			OR = {
+				has_subject = UKR
+				AND = {
+					UKR = { has_war_with = SOV }
+					NOT = {
+						has_war_with = SOV
+						is_in_faction_with = UKR
+					}
+				}
+			}
 		}
 		visible = {
 			is_subject = no
-			LIT = {
-				is_neighbor_of = PREV
+			has_capitulated = no
+			owns_state = 92
+			UKR = {
+				owns_state = 766
 				is_subject = no
+				NOT = {
+					has_war_with = PREV
+				}
+			}
+		}
+		highlight_states = {
+			highlight_state_targets = {
+				state = 766
+			}
+		}
+		fire_only_once = yes
+		cost = 0
+		days_remove = 10
+		target_trigger = {
+			FROM = {
+				tag = UKR
+			}
+		}
+		ai_will_do = {
+			base = 1000
+		}
+		remove_effect = {
+			transfer_state = 766
+		}
+	}
+	POL_occupy_bialystok = {
+		icon = GFX_decision_infiltrate_state
+		allowed = {
+			original_tag = POL
+		}
+		available = {
+			OR = {
+				LIT = { has_war = yes }
+				has_war_with = BLR
+				has_war_with = SOV
+				has_subject = LIT
+			}
+			OR = {
+				owns_state = 92
+				controls_state = 92
+			}
+		}
+		visible = {
+			is_subject = no
+			any_other_country = {
+				is_neighbor_of = PREV
+				OR = {
+					is_subject = no
+					is_subject_of = SOV
+				}
 				owns_state = 97
 			}
 		}
 		highlight_states = {
-			state = 97
+			highlight_state_targets = {
+				state = 97
+			}
 		}
 		fire_only_once = yes
-		cost = 75
+		cost = 0
 		days_remove = 10
 		target_trigger = {
 			FROM = {
@@ -129,34 +195,91 @@ foreign_politics = {
 			}
 		}
 		ai_will_do = {
-			factor = 100
+			base = 0
+			modifier = {
+				add = 1000
+				SOV = {
+					has_war_with = LIT
+					controls_state = 97
+				}
+			}
+			modifier = {
+				add = 1000
+				OR = {
+					has_war_with = SOV
+					has_war_with = BLR
+				}
+			}
 		}
 		remove_effect = {
-			transfer_state = 97
+			if = {
+				limit = {
+					has_completed_focus = POL_eastern_territories
+				}
+				add_state_core = 97
+				else = {
+					add_state_claim = 97
+				}
+			}
+			if = {
+				limit = {
+					LIT = {
+						owns_state = 97
+						NOT = { has_war_with = ROOT }
+					}
+				}
+				transfer_state = 97
+			}
+			else_if = {
+				limit = {
+					any_other_country = {
+						owns_state = 97
+						has_war_with = ROOT
+					}
+					controls_state = 97
+				}
+				transfer_state = 97
+			}
+			else = {
+				set_state_owner = 97
+			}
 		}
 	}
 	POL_occupy_grodno = {
-		icon = GFX_decision_generic_ignite_civil_war
+		icon = GFX_decision_infiltrate_state
 		allowed = {
 			original_tag = POL
 		}
 		available = {
-			NOT = { has_war_with = LIT }
-			LIT = { has_war = yes }
+			OR = {
+				LIT = { has_war = yes }
+				has_war_with = BLR
+				has_war_with = SOV
+				has_subject = LIT
+			}
+			OR = {
+				owns_state = 97
+				controls_state = 97
+			}
 		}
 		visible = {
 			is_subject = no
-			LIT = {
+			any_other_country = {
 				is_neighbor_of = PREV
-				is_subject = no
+				OR = {
+					is_subject = no
+					is_subject_of = SOV
+				}
 				owns_state = 773
 			}
 		}
 		highlight_states = {
-			state = 773
+			highlight_state_targets = {
+				state = 773
+			}
 		}
 		fire_only_once = yes
-		cost = 75
+		cost = 0
 		days_remove = 10
 		target_trigger = {
 			FROM = {
@@ -164,14 +287,58 @@ foreign_politics = {
 			}
 		}
 		ai_will_do = {
-			factor = 100
+			base = 0
+			modifier = {
+				add = 1000
+				SOV = {
+					has_war_with = LIT
+					controls_state = 773
+				}
+			}
+			modifier = {
+				add = 1000
+				OR = {
+					has_war_with = SOV
+					has_war_with = BLR
+				}
+			}
 		}
 		remove_effect = {
-			transfer_state = 773
+			if = {
+				limit = {
+					has_completed_focus = POL_eastern_territories
+				}
+				add_state_core = 773
+				else = {
+					add_state_claim = 773
+				}
+			}
+			if = {
+				limit = {
+					LIT = {
+						owns_state = 773
+						NOT = { has_war_with = ROOT }
+					}
+				}
+				transfer_state = 773
+			}
+			else_if = {
+				limit = {
+					any_other_country = {
+						owns_state = 773
+						has_war_with = ROOT
+					}
+					controls_state = 773
+				}
+				transfer_state = 773
+			}
+			else = {
+				set_state_owner = 773
+			}
 		}
 	}
 	POL_occupy_wilno = {
-		icon = GFX_decision_generic_ignite_civil_war
+		icon = GFX_decision_infiltrate_state
 		allowed = {
 			tag = POL
 		}
@@ -194,10 +361,12 @@ foreign_politics = {
 			}
 		}
 		highlight_states = {
-			state = 784
+			highlight_state_targets = {
+				state = 784
+			}
 		}
 		fire_only_once = yes
-		cost = 120
+		cost = 50
 		days_remove = 10
 		target_trigger = {
 			FROM = {

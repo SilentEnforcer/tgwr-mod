@@ -10,7 +10,11 @@ news_event = {
 	mean_time_to_happen = {
 		days = 21
 	}
-	fire_only_once = yes
+	immediate = {
+		hidden_effect = {
+			set_global_flag = emperor_franz_dead
+		}
+	}
 	trigger = {
 		OR = {
 			any_country = {
@@ -70,18 +74,10 @@ news_event = {
 				}
 			}
 		}
+		NOT = { has_global_flag = emperor_franz_dead }
 	}
 	immediate = {
 		hidden_effect = {
-			if = {
-				limit = {
-					has_global_flag = kis_franzferdinand_murdered 
-				}
-
-				else = {
-					
-				}
-			}
 			AUH = {
 				if = {
 					limit = {
@@ -134,24 +130,35 @@ news_event = {
 					limit = {
 						has_country_leader = {
 							character = AUS_franz_joseph_i
-							ruling_only = yes
 						}	
 					}
 					AUS_karl_i = {
-						add_country_leader_role = {
-							country_leader = {
-								ideology = autocracy
+						if = {
+							limit = { has_ideology = autocracy }
+							promote_character = autocracy
+						}
+						else = {
+							add_country_leader_role = {
+								country_leader = {
+									ideology = autocracy
+								}
+								promote_leader = yes
 							}
 						}
-						promote_character = autocracy
 					}
 					AUS_franz_ferdinand_i = {
-						add_country_leader_role = {
-							country_leader = {
-								ideology = autocracy
+						if = {
+							limit = { has_ideology = autocracy }
+							promote_character = autocracy
+						}
+						else = {
+							add_country_leader_role = {
+								country_leader = {
+									ideology = autocracy
+								}
+								promote_leader = yes
 							}
 						}
-						promote_character = autocracy
 					}
 				}
 				set_country_flag = emperor_franz_dead
@@ -349,10 +356,7 @@ country_event = {
 		set_country_flag = protectorate
 		if = {
 			limit = {
-				OR = {
-					has_dlc = "Together for Victory"
-					has_dlc = "Waking the Tiger"
-				}
+				has_subject_autonomy_feature = yes
 			}
 			AUH = {
 				set_autonomy = {
@@ -774,6 +778,7 @@ country_event = {
 							state = 575
 							state = 163
 							state = 736
+							state = 875
 						}
 					}
 					add_core_of = CRO
@@ -782,6 +787,9 @@ country_event = {
 							OR = {
 								is_owned_by = ROOT
 								is_owned_by = AUS
+								OWNER = {
+									has_country_flag = great_war_loser
+								}
 							}
 						}	
 						transfer_state_to = CRO
@@ -860,6 +868,30 @@ country_event = {
 						transfer_state_to = ITA
 					}
 				}
+			}
+			every_owned_state = {
+				limit = {
+					is_core_of = MNT
+					NOT = {
+						is_core_of = SER
+					}
+				}
+				transfer_state_to = MNT
+			}
+			every_owned_state = {
+				limit = {
+					is_core_of = SER
+					NOT = {
+						is_core_of = HUN
+					}
+				}
+				transfer_state_to = SER
+			}
+			every_owned_state = {
+				limit = {
+					is_core_of = ALB
+				}
+				transfer_state_to = ALB
 			}
 			if = {
 				limit = {
@@ -1453,17 +1485,16 @@ country_event = {
 			inherit_technology = AUH
 			hidden_effect = {
 				load_oob = AUS_1918
-			}
-			if = {
-				limit = {
-					ITA = {
-						NOT = {
-							has_country_flag = great_war_winner
-							owns_state = 244
-						}
-					}
+				set_party_name = {
+					ideology = communism
+					name = AUS_AUH_communism_party
+					long_name = AUS_AUH_communism_party_long
 				}
-				transfer_state = 244
+				# provisional
+				set_politics = {
+					ruling_party = democratic
+					elections_allowed = no
+				}
 			}
 			# German-Austria
 			set_cosmetic_tag = AUS_AUH
@@ -1630,18 +1661,10 @@ news_event = {
 	title = ww1_auh.20.t
 	desc = ww1_auh.20.d
 	picture = GFX_news_event_ger_civil_war
-	fire_only_once = yes
-	trigger = {
-		GER = {
-			has_war_with = AUH
-			is_subject = no
-		}
-		AUH = {
-			is_subject = no
-		}
-		has_global_flag = brothers_war
-		NOT = {
-			has_global_flag = brothers_war_ends
+	is_triggered_only = yes
+	immediate = {
+		hidden_effect = {
+			set_global_flag = brothers_war_news
 		}
 	}
 	major = yes
@@ -1650,7 +1673,7 @@ news_event = {
 	}
 }
 
-#Austrija odlučuje da li će da zahteva od Srbije da se povuče s obale
+# Austria/Italy/Germany demands to liberate Albania in the London Conference
 country_event = {
 	id = ww1_auh.22
 	title = ww1_auh.22.t
@@ -1661,15 +1684,23 @@ country_event = {
 		tag = AUH
 		has_war = no
 		is_subject = no
-		SER = { owns_state = 44 }
+		SER = {
+			owns_state = 44
+			is_subject = no
+			NOT = { is_in_faction_with = PREV }
+		}
+		NOT = { has_global_flag = kis_war }
 	}
-	mean_time_to_happen = {
-		days = 1
-	}
+	mean_time_to_happen = { days = 0 }
 	option = {
 		name = ww1_auh.22.a
 		add_political_power = -75
-		SER = { country_event = ww1_serbia.24 }
+		SER = {
+			country_event = {
+				id = ww1_serbia.24
+				hours = 3
+			}
+		}
 		ai_chance = {
 			base = 60
 			modifier = {
@@ -1706,7 +1737,18 @@ country_event = {
 country_event = {
 	id = ww1_auh.23
 	title = ww1_auh.23.t
-	desc = ww1_auh.23.d
+	desc = {
+		text = ww1_auh.23.d
+		trigger = {
+			tag = AUH
+		}
+	}
+	desc = {
+		text = ww1_auh.23.d2
+		trigger = {
+			NOT = { tag = AUH }
+		}
+	}
 	picture = GFX_report_event_generic_sign_treaty3
 	is_triggered_only = yes
 	fire_only_once = yes
@@ -1725,13 +1767,35 @@ country_event = {
 				add = 40
 				has_war_support > 0.5
 			}
+			modifier = {
+				factor = 0
+				NOT = { is_neighbor_of = SER }
+			}
 		}
 	}
 	option = {
 		name = ww1_auh.23.b
+		trigger = { tag = AUH }
 		SER = { country_event = ww1_serbia.25 }
 		ai_chance = {
 			base = 50
+			modifier = {
+				factor = 0
+				has_game_rule = {
+					rule = ultimatum_on_albania
+					option = WAR_ON_ALBANIA
+				}
+			}
+		}
+	}
+	option = {
+		name = ww1_auh.23.c
+		trigger = {
+			NOT = { tag = AUH }
+		}
+		add_political_power = -75
+		ai_chance = {
+			base = 100
 			modifier = {
 				factor = 0
 				has_game_rule = {
@@ -1781,10 +1845,7 @@ country_event = {
 			}
 			if = {
 				limit = {
-					OR = {
-						has_dlc = "Together for Victory"
-						has_dlc = "Waking the Tiger"
-					}
+					has_subject_autonomy_feature = yes
 				}
 				set_autonomy = {
 					target = VNC
@@ -1995,6 +2056,7 @@ country_event = {
 	id = ww1_auh.27
 	title = ww1_auh.27.t
 	desc = ww1_auh.27.d
+	picture = GFX_report_event_gathering_protest
 	fire_only_once = yes
 	trigger = {
 		tag = AUH
@@ -2019,30 +2081,30 @@ country_event = {
 	}
 	option = {
 		name = ww1_auh.27.a
-		AUH = {
-			every_owned_state = {
-				limit = {
-					OR = {
-						is_core_of = POL
-						is_core_of = CZE
-						is_core_of = UKR
-						is_core_of = CRO
-					}
+		set_country_flag = austria_rejected_autonomy_request
+		every_owned_state = {
+			limit = {
+				OR = {
+					is_core_of = POL
+					is_core_of = CZE
+					is_core_of = UKR
+					is_core_of = CRO
 				}
-				remove_core_of = AUH
 			}
+			remove_core_of = AUH
 		}
 		add_stability = -0.2
+		add_war_support = -0.20
 		ai_chance = {
 			factor = 0
 		}
 	}
 	option = {
 		name = ww1_auh.27.b
-		AUH = {
-			set_country_flag = austria_promised_autonomy
-			add_stability = -0.1
-		}
+		set_country_flag = austria_promised_autonomy
+		add_political_power = -200
+		add_stability = -0.1
+		add_war_support = 0.05
 		ai_chance = {
 			factor = 100
 		}
@@ -2495,25 +2557,37 @@ country_event = {
 			tag = AUH
 		}
 		AUH_otto_von_habsburg = {
-			add_country_leader_role = {
-				country_leader = {
-					ideology = autocracy
+			if = {
+				limit = { has_ideology = autocracy }
+				promote_character = autocracy
+			}
+			else = {
+				add_country_leader_role = {
+					country_leader = {
+						ideology = autocracy
+					}
+					promote_leader = yes
 				}
 			}
-			promote_character = autocracy
 		}
 		if = {
 			limit = {
 				NOT = { date > 1932.11.20 }
 			}
 			AUH_zita_von_bourbonparma = {
-				add_country_leader_role = {
-					country_leader = {
-						ideology = autocracy
-					}
-				}
 				set_character_name = "AUH_zita"
-				promote_character = autocracy
+				if = {
+					limit = { has_ideology = autocracy }
+					promote_character = autocracy
+				}
+				else = {
+					add_country_leader_role = {
+						country_leader = {
+							ideology = autocracy
+						}
+						promote_leader = yes
+					}
+				}				
 			}
 		}
 		hidden_effect = {
@@ -2525,24 +2599,36 @@ country_event = {
 						}	
 					}
 					HUN_otto_von_habsburg = {
-						add_country_leader_role = {
-							country_leader = {
-								ideology = autocracy
+						if = {
+							limit = { has_ideology = autocracy }
+							promote_character = autocracy
+						}
+						else = {
+							add_country_leader_role = {
+								country_leader = {
+									ideology = autocracy
+								}
+								promote_leader = yes
 							}
 						}
-						promote_character = autocracy
 					}
 					if = {
 						limit = {
 							NOT = { date > 1932.11.20 }
 						}
 						HUN_zita_von_bourbonparma = {
-							add_country_leader_role = {
-								country_leader = {
-									ideology = autocracy
+							if = {
+								limit = { has_ideology = autocracy }
+								promote_character = autocracy
+							}
+							else = {
+								add_country_leader_role = {
+									country_leader = {
+										ideology = autocracy
+									}
+									promote_leader = yes
 								}
 							}
-							promote_character = autocracy
 						}
 					}
 				}
@@ -2556,24 +2642,36 @@ country_event = {
 			tag = AUS
 		}
 		AUS_otto_von_habsburg = {
-			add_country_leader_role = {
-				country_leader = {
-					ideology = autocracy
+			if = {
+				limit = { has_ideology = autocracy }
+				promote_character = autocracy
+			}
+			else = {
+				add_country_leader_role = {
+					country_leader = {
+						ideology = autocracy
+					}
+					promote_leader = yes
 				}
 			}
-			promote_character = autocracy
 		}
 		if = {
 			limit = {
 				NOT = { date > 1932.11.20 }
 			}
 			AUS_zita_von_bourbonparma = {
-				add_country_leader_role = {
-					country_leader = {
-						ideology = autocracy
+				if = {
+					limit = { has_ideology = autocracy }
+					promote_character = autocracy
+				}
+				else = {
+					add_country_leader_role = {
+						country_leader = {
+							ideology = autocracy
+						}
+						promote_leader = yes
 					}
 				}
-				promote_character = autocracy
 			}
 		}
 		hidden_effect = {
@@ -2585,24 +2683,36 @@ country_event = {
 						}	
 					}
 					HUN_otto_von_habsburg = {
-						add_country_leader_role = {
-							country_leader = {
-								ideology = autocracy
+						if = {
+							limit = { has_ideology = autocracy }
+							promote_character = autocracy
+						}
+						else = {
+							add_country_leader_role = {
+								country_leader = {
+									ideology = autocracy
+								}
+								promote_leader = yes
 							}
 						}
-						promote_character = autocracy
 					}
 					if = {
 						limit = {
 							NOT = { date > 1932.11.20 }
 						}
 						HUN_zita_von_bourbonparma = {
-							add_country_leader_role = {
-								country_leader = {
-									ideology = autocracy
+							if = {
+								limit = { has_ideology = autocracy }
+								promote_character = autocracy
+							}
+							else = {
+								add_country_leader_role = {
+									country_leader = {
+										ideology = autocracy
+									}
+									promote_leader = yes
 								}
 							}
-							promote_character = autocracy
 						}
 					}
 				}
@@ -2671,12 +2781,18 @@ country_event = {
 					}
 					HUN_otto_von_habsburg = {
 						set_character_name = "HUN_franz_joseph_ii"
-						add_country_leader_role = {
-							country_leader = {
-								ideology = autocracy
+						if = {
+							limit = { has_ideology = autocracy }
+							promote_character = autocracy
+						}
+						else = {
+							add_country_leader_role = {
+								country_leader = {
+									ideology = autocracy
+								}
+								promote_leader = yes
 							}
 						}
-						promote_character = autocracy
 					}
 				}
 				retire_character = HUN_zita_von_bourbonparma
@@ -2736,10 +2852,7 @@ country_event = {
 			}
 			if = {
 				limit = {
-					OR = {
-						has_dlc = "Together for Victory"
-						has_dlc = "Waking the Tiger"
-					}
+					has_subject_autonomy_feature = yes
 				}
 				set_autonomy = {
 					target = CZE
@@ -2781,10 +2894,7 @@ country_event = {
 			}
 			if = {
 				limit = {
-					OR = {
-						has_dlc = "Together for Victory"
-						has_dlc = "Waking the Tiger"
-					}
+					has_subject_autonomy_feature = yes
 				}
 				set_autonomy = {
 					target = GAL
@@ -2836,10 +2946,7 @@ country_event = {
 			}
 			if = {
 				limit = {
-					OR = {
-						has_dlc = "Together for Victory"
-						has_dlc = "Waking the Tiger"
-					}
+					has_subject_autonomy_feature = yes
 				}
 				set_autonomy = {
 					target = CRO
@@ -2881,10 +2988,7 @@ country_event = {
 			}
 			if = {
 				limit = {
-					OR = {
-						has_dlc = "Together for Victory"
-						has_dlc = "Waking the Tiger"
-					}
+					has_subject_autonomy_feature = yes
 				}
 				set_autonomy = {
 					target = HUN
@@ -3211,7 +3315,7 @@ country_event = {
 		has_war = no
 		OR = {
 			has_cosmetic_tag = GER_confederation
-			has_cosmetic_tag = GER_HRE
+			has_cosmetic_tag = AUH_HRE
 		}
 		capital_scope = { state = 4 }
 		owns_state = 55 # Frankfurt
@@ -3248,17 +3352,22 @@ country_event = {
 	}
 }
 
-# OLD ALLY IS IN DANGER FACING THE RED TIDE
-##############################################
-news_event = {
+# Mitteleuropa
+country_event = {
 	id = ww1_auh.41
-	title = ww1_auh.t
-	desc = ww1_auh.d
-	picture = GFX_news_event_german_troops_marching_in_brussels
+	title = ww1_auh.41.t
+	desc = ww1_auh.41.d
+	picture = GFX_report_event_germany_victory
 	is_triggered_only = yes
-	major = yes
 	option = {
 		name = ww1_auh.41.a
+		effect_tooltip = {
+			give_guarantee = AUH
+		}
+		AUH = { country_event = ww1_auh.43 }
+	}
+	option = {
+		name = ww1_auh.41.b
 	}
 }
 
@@ -3272,5 +3381,55 @@ news_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_auh.42.a
+	}
+}
+
+# Mitteleuropa yes
+country_event = {
+	id = ww1_auh.43
+	title = ww1_auh.41.t
+	desc = ww1_auh.43.d
+	picture = GFX_report_event_germany_victory
+	is_triggered_only = yes
+	option = {
+		name = ww1_auh.43.a
+		give_guarantee = FROM
+		FROM = { give_guarantee = PREV }
+		ai_chance = {
+			factor = 100
+			modifier = {
+				factor = 0
+				has_opinion = {
+					target = FROM
+					value < 0
+				}
+			}
+		}
+	}
+	option = {
+		name = ww1_auh.43.b
+		FROM = { country_event = ww1_auh.44 }
+		ai_chance = {
+			base = 1
+			modifier = {
+				factor = 0
+				has_opinion = {
+					target = FROM
+					value > 0
+				}
+			}
+		}
+	}
+}
+
+# Mitteleuropa rejected
+country_event = {
+	id = ww1_auh.44
+	title = ww1_auh.44.t
+	desc = ww1_auh.44.d
+	picture = GFX_report_event_germany_victory
+	is_triggered_only = yes
+	option = {
+		name = ww1_auh.44.a
 	}
 }

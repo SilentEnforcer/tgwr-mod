@@ -137,8 +137,8 @@ focus_tree = {
 						limit = {
 							TUR = {
 								OR = {
-									has_completed_focus = TUR_claim_caucasian_turan
-									has_completed_focus = TUR_rule_over_caucasus
+									has_completed_focus = TUR_liberate_caucasian_turks
+									has_completed_focus = TUR_negotiating_our_claims
 								}
 							}
 						}
@@ -151,7 +151,6 @@ focus_tree = {
 			news_event = { id = ww1_russia.10 }	
 			every_country = {
 				limit = {
-					has_war_with = RUS
 					OR = {
 						tag = GER
 						is_in_faction_with = GER
@@ -162,7 +161,7 @@ focus_tree = {
 				}
 				every_country = {
 					limit = {
-						has_war_with = GER
+						has_war_with = PREV
 						OR = {
 							is_in_faction_with = RUS
 							tag = RUS
@@ -190,6 +189,7 @@ focus_tree = {
 							OR = {
 								has_cosmetic_tag = GEO_TSCN_commissariat
 								has_cosmetic_tag = GEO_TSCN
+								has_cosmetic_tag = GEO_TSCN_communism
 							}
 							is_in_faction_with = RUS
 						}
@@ -854,7 +854,7 @@ focus_tree = {
 	}
 	focus = {
 		id = SOV_soviet_tanks
-		icon = GFX_goal_generic_army_tanks
+		icon = GFX_focus_generic_mark_IV_tank
 		cost = 10
 		prerequisite = {
 			focus = SOV_artillery_god_of_war
@@ -1069,6 +1069,9 @@ focus_tree = {
 		}
 		x = 20
 		y = 3
+		bypass = {
+			has_tech = marines3
+		}
 		completion_reward = {
 			add_tech_bonus = {
 				name = SOV_marine_expeditionary_division
@@ -1091,7 +1094,14 @@ focus_tree = {
 		}
 		x = 18
 		y = 4
-
+		completion_reward = {
+			add_tech_bonus = {
+				name = SOV_submarine_fleet
+				bonus = 2
+				uses = 1
+				category = ss_tech
+			}
+		}
 	}
 	focus = {
 		id = SOV_pacific_fleet
@@ -1106,7 +1116,15 @@ focus_tree = {
 		}
 		x = 20
 		y = 4
-
+		completion_reward = {
+			add_tech_bonus = {
+				name = SOV_submarine_fleet
+				bonus = 2
+				uses = 1
+				category = bb_tech
+				category = cv_tech
+			}
+		}
 	}
 	focus = {
 		id = SOV_maneuverable_fleet
@@ -1121,7 +1139,16 @@ focus_tree = {
 		}
 		x = 22
 		y = 4
-		
+		completion_reward = {
+			add_tech_bonus = {
+				name = SOV_submarine_fleet
+				bonus = 2
+				uses = 1
+				category = dd_tech
+				category = cl_tech
+				category = ca_tech
+			}
+		}
 	}
 	focus = {
 		id = SOV_navy_initiative
@@ -1268,7 +1295,7 @@ focus_tree = {
 		}
 	}
 	focus = {
-		id = RUS_revolution_in_finland
+		id = SOV_revolution_in_finland
 		icon = GFX_focus_generic_attack_finland
 		cost = 10
 		prerequisite = {
@@ -1297,7 +1324,7 @@ focus_tree = {
 		completion_reward = {
 			add_named_threat = {
 				threat = 5
-				name = SOV_revolution_in_finalnd
+				name = SOV_revolution_in_finland
 			}
 			if = {
 				limit = { FIN = { has_civil_war = yes } }
@@ -1431,47 +1458,117 @@ focus_tree = {
 			}
 		}
 		bypass = {
-			OR = {
-				has_war_with = JAP
-				FER = { exists = yes }
-				RUS = { exists = no }
-			}
+			RUS = { exists = no }
 		}
 		completion_reward = {
-			every_state = {
+			if = {
 				limit = {
-					OR = {
-						is_owned_by = RUS
-						is_owned_by = SOV						
-					}
-					OR = {
-						state = 409
-						state = 408
-						state = 560
-						state = 561
+					FER = {
+						exists = yes
+						NOT = {
+							has_government = communism
+							is_subject_of = ROOT
+						}
 					}
 				}
 				FER = {
-					transfer_state = PREV
+					start_civil_war = {
+						ideology = communism
+						size = 0
+						states = { 563 564 }
+						keep_political_party_members = yes
+						keep_unit_leaders_trigger = {
+							OR = {
+								has_trait = old_guard
+								has_trait = old_guard_navy
+								has_trait = trait_royalist
+								has_trait = trait_royal
+							}
+						}
+					}
+					hidden_effect = {
+						random_other_country = {
+							limit = {
+								original_tag = FER
+								has_government = communism
+							}
+							ROOT = { puppet = PREV }
+							declare_war_on = {
+								target = PREV
+								type = civil_war
+							}
+							add_civil_war_target = PREV
+							set_cosmetic_tag = SOV_puppet
+							load_oob = "FER_1918"
+							set_popularities = {
+								democratic = 18
+								neutrality = 42
+								fascism = 0
+								communism = 40
+							}
+						}
+					}
 				}
-			}
-			puppet = FER
-			hidden_effect = {
-				FER = {
-					set_cosmetic_tag = SOV_puppet
-					load_oob = "FER_1918"
-					add_state_core = 409
-					add_state_core = 408
-					add_state_core = 560
-					add_state_core = 561
-					add_state_core = 637
-					add_state_core = 563
-					add_state_core = 564
-					set_popularities = {
-						democratic = 18
-						neutrality = 42
-						fascism = 0
-						communism = 40
+				else_if = {
+					limit = {
+						FER = {
+							OR = {
+								has_government = communism
+								is_subject_of = ROOT
+							}
+						}
+					}
+					puppet = FER
+					hidden_effect = {
+						FER = {
+							set_cosmetic_tag = SOV_puppet
+							load_oob = "FER_1918"
+							set_popularities = {
+								democratic = 18
+								neutrality = 42
+								fascism = 0
+								communism = 40
+							}
+						}
+					}
+				}
+				else = {
+					every_state = {
+						limit = {
+							OR = {
+								is_owned_by = RUS
+								is_owned_by = SOV
+							}
+							OR = {
+								state = 409
+								state = 408
+								state = 560
+								state = 561
+							}
+						}
+						FER = {
+							transfer_state = PREV
+						}
+					}
+					puppet = FER
+					hidden_effect = {
+						FER = {
+							set_cosmetic_tag = SOV_puppet
+							load_oob = "FER_1918"
+							add_state_core = 409
+							add_state_core = 408
+							add_state_core = 560
+							add_state_core = 561
+							add_state_core = 637
+							add_state_core = 563
+							add_state_core = 564
+							set_popularities = {
+								democratic = 18
+								neutrality = 42
+								fascism = 0
+								communism = 40
+							}
+						}
 					}
 				}
 			}
@@ -1533,27 +1630,19 @@ focus_tree = {
 		available = {
 			is_subject = no
 			has_government = communism
-			PRC = { exists = no }
-			QIN = {
-				NOT = { has_war_with = CHI } 
+			any_neighbor_country = {
+				is_china_or_warlord = yes
+				NOT = { has_government = communism }
 			}
 		}
 		completion_reward = {
-			if = {
+			every_other_country = {
 				limit = {
-					QIN = { exists = yes } 
+					is_china_or_warlord = yes
+					is_neighbor_of = ROOT
+					NOT = { has_government = communism }
 				}
-				QIN = {
-					add_timed_idea = { idea = SOV_idea_influence_of_revolution days = 360 } 
-				}
-			}
-			if = {
-				limit = {
-					CHI = { exists = yes } 
-				}
-				CHI = {
-					add_timed_idea = { idea = SOV_idea_influence_of_revolution days = 360 } 
-				}
+				add_timed_idea = { idea = SOV_idea_influence_of_revolution days = 360 }
 			}
 		}
 	}
@@ -1727,6 +1816,7 @@ focus_tree = {
 					original_tag = WUK
 					original_tag = FER
 					original_tag = VLN
+					original_tag = GAL
 				}
 			}
 			has_government = communism
@@ -1771,6 +1861,7 @@ focus_tree = {
 							original_tag = WUK
 							original_tag = FER
 							original_tag = VLN
+							original_tag = GAL
 						}
 					}
 					random_list = {
@@ -1790,7 +1881,7 @@ focus_tree = {
 				}
 				retire_character = RUS_boris_savinkov
 				create_country_leader = { #too  to be a character
-					name = "Nikolai Nikiforov"
+					name = SOV_nikolai_nikiforov
 					picture = GFX_Portrait_Soviet_Generic_3
 					ideology = fascism_ideology
 				}
@@ -2153,25 +2244,6 @@ focus_tree = {
 		}
 	}
 	focus = {
-		id = SOV_VDV
-		icon = GFX_focus_generic_paratrooper
-		cost = 10
-		prerequisite = {
-			focus = SOV_cult_of_aviation
-			focus = SOV_mass_aviation
-		}
-		x = 15
-		y = 6
-		completion_reward = {
-			add_tech_bonus = {
-				name = SOV_VDV
-				bonus = 1.0
-				uses = 1
-				category = para_tech
-			}
-		}
-	}
-	focus = {
 		id = SOV_fleet_revival
 		icon = GFX_goal_generic_construct_naval_dockyard
 		cost = 10
@@ -2181,7 +2253,56 @@ focus_tree = {
 		}
 		x = 19
 		y = 6
-		
+		completion_reward = {
+			random_owned_state = {
+				limit = {
+					is_in_home_area = yes
+					free_building_slots = {
+						building = dockyard
+						size > 1
+						include_locked = yes
+					}
+				}
+				add_extra_state_shared_building_slots = 2
+				add_building_construction = {
+					type = dockyard
+					level = 2
+					instant_build = yes
+				}
+			}
+			random_owned_state = {
+				limit = {
+					is_in_home_area = yes
+					free_building_slots = {
+						building = dockyard
+						size > 1
+						include_locked = yes
+					}
+				}
+				add_extra_state_shared_building_slots = 2
+				add_building_construction = {
+					type = dockyard
+					level = 2
+					instant_build = yes
+				}
+			}
+			random_owned_state = {
+				limit = {
+					is_in_home_area = yes
+					free_building_slots = {
+						building = dockyard
+						size > 1
+						include_locked = yes
+					}
+				}
+				add_extra_state_shared_building_slots = 2
+				add_building_construction = {
+					type = dockyard
+					level = 2
+					instant_build = yes
+				}
+			}
+		}
 	}
 	focus = {
 		id = SOV_fleet_academy
@@ -2194,7 +2315,7 @@ focus_tree = {
 		x = 21
 		y = 6
 		completion_reward = {
-			add_ideas = SOV_idea_fleet_academy	
+			add_ideas = SOV_idea_fleet_academy
 		}
 	}
 	focus = {

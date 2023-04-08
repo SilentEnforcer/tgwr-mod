@@ -19,17 +19,12 @@ country_event = {
 		}
 		retire_character = GER_karl_liebknecht
 		retire_character = GER_rosa_luxemburg
-		promote_character = GER_ernst_thälmann
+		promote_character = GER_ernst_thalmann
 		add_manpower = -500
 		hidden_effect = {
 			BAY = { retire_character = BAY_karl_liebknecht }
 			set_global_flag = karl_leibknecht_dead
-			
-			# Kapp Putsch
-			country_event = {
-				id = ww1_germany.108
-				days = 410 #h1stor1cal
-			}
+			activate_mission = GER_kapp_putsch_timer
 		}
 	}
 	#The Spartakists escape to Bavaria Soviet Republic
@@ -130,11 +125,53 @@ country_event = {
 				}
 				end_puppet = SHL
 			}
+			every_owned_state = {
+				limit = {
+					is_core_of = OLD
+				}
+				transfer_state_to = OLD
+			}
+			if = {
+				limit = {
+					has_subject = OLD
+				}
+				end_puppet = OLD
+			}
+			every_owned_state = {
+				limit = {
+					is_core_of = MEK
+				}
+				transfer_state_to = MEK
+			}
+			if = {
+				limit = {
+					has_subject = MEK
+				}
+				end_puppet = MEK
+			}
+			# if = {
+			# 	limit = {
+			# 		owns_state = 56
+			# 	}
+			# 	56 = {
+			# 		add_core_of = HAN
+			# 		transfer_state_to = HAN
+			# 	}
+			# }
 			if = {
 				limit = {
 					owns_state = 57
 				}
 				57 = {
+					add_core_of = HAN
+					transfer_state_to = HAN
+				}
+			}
+			if = {
+				limit = {
+					owns_state = 873
+				}
+				873 = {
 					add_core_of = HAN
 					transfer_state_to = HAN
 				}
@@ -182,7 +219,7 @@ country_event = {
 					add_core_of = PREV
 				}
 				set_cosmetic_tag = BAY_germany
-				set_country_flag = great_war_loser
+				inherit_technology = GER
 			}
 			WUR = {
 				add_popularity = {
@@ -193,7 +230,7 @@ country_event = {
 					ruling_party = democratic
 					elections_allowed = yes
 				}
-				set_country_flag = great_war_loser
+				inherit_technology = GER
 			}
 			SHL = {
 				add_popularity = {
@@ -204,7 +241,7 @@ country_event = {
 					ruling_party = fascism
 				}
 				add_ideas = SHL_kiel_canal_profits
-				set_country_flag = great_war_loser
+				inherit_technology = GER
 			}
 			transfer_units_fraction= {
 				target = BAY
@@ -241,7 +278,8 @@ country_event = {
 					ruling_party = neutrality
 					elections_allowed = no
 				}
-				set_country_flag = great_war_loser
+				inherit_technology = GER
+				puppet = OLD
 			}
 			news_event = { id = freikorps.5 hours = 2 }
 			# Fix Memel
@@ -256,6 +294,34 @@ country_event = {
 					}
 					transfer_state = PREV
 				}
+			}
+			every_country = {
+				limit = {
+					OR = {
+						tag = HAN
+						tag = BAY
+						tag = SAX
+						tag = WUR
+						tag = SHL
+						tag = GER
+					}
+				}
+				set_rule = {
+					can_join_factions = no
+				}
+				add_country_leader_trait = standing_alone
+				if = {
+					limit = {
+						NOT = { has_idea = GER_idea_reparations }
+					}
+					add_timed_idea = {
+						idea = GER_idea_reparations
+						days = 365
+					}
+				}
+				set_country_flag = great_war_loser
+				add_ideas = idea_armistice
+				add_ideas = idea_army_restrictions
 			}
 		}
 	}
@@ -364,9 +430,14 @@ country_event = {
 					promote_leader = yes
 					country_leader = {
 						ideology = autocracy
-						traits = { imperial_connections kaiserin_of_the_people }
+						traits = { imperial_connections kaiserin_of_the_people standing_alone }
 					}
 				}
+			}
+			set_party_name = {
+				ideology = neutrality
+				name = GER_neutrality_party
+				long_name = GER_neutrality_party
 			}
 		}
 		set_cosmetic_tag = HAN_germany
@@ -401,6 +472,7 @@ country_event = {
 	id = freikorps.8
 	title = freikorps.8.t
 	desc = freikorps.8.d
+	picture = GFX_report_event_ger_civil_war
 	is_triggered_only = yes
 	immediate = {
 		hidden_effect = {
@@ -428,6 +500,7 @@ country_event = {
 							tag = SAX
 						}
 						has_government = communism
+						NOT = { has_war_with = PREV }
 					}
 					PREV = { add_to_faction = PREV }
 				}
@@ -473,6 +546,7 @@ country_event = {
 							tag = SAX
 						}
 						has_government = neutrality
+						NOT = { has_war_with = PREV }
 					}
 					PREV = { add_to_faction = PREV }
 				}
@@ -518,6 +592,7 @@ country_event = {
 							tag = SAX
 						}
 						has_government = democratic
+						NOT = { has_war_with = PREV }
 					}
 					PREV = { add_to_faction = PREV }
 				}
@@ -645,6 +720,16 @@ country_event = {
 			NOT = { country_exists = SAX }
 			is_in_faction_with = SAX
 		}
+		OR = {
+			has_subject = OLD
+			NOT = { country_exists = OLD }
+			is_in_faction_with = OLD
+		}
+		OR = {
+			has_subject = MEK
+			NOT = { country_exists = MEK }
+			is_in_faction_with = MEK
+		}
 	}
 	mean_time_to_happen = { days = 0 }
 	immediate = {
@@ -676,6 +761,13 @@ country_event = {
 				}
 				change_tag_from = PREV
 			}
+		}
+		remove_country_leader_trait = standing_alone
+		if = {
+			limit = {
+				is_faction_leader = yes
+			}
+			dismantle_faction = yes
 		}
 	}
 }
