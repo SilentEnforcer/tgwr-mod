@@ -282,8 +282,16 @@ country_event = {
 	picture = GFX_report_event_tur_turkish_soldiers
 	trigger = {
 		tag = TUR
-		controls_state = 446
-		controls_state = 447
+		446 = {
+			owns_or_subject_of = no
+			controls_or_subject_of = yes
+		}
+		447 = {
+			owns_or_subject_of = no
+			controls_or_subject_of = yes
+		}
+		has_war = yes
+		has_capitulated = no
 		has_global_flag = kis_war
 		NOT = {
 			has_global_flag = great_war_ends
@@ -292,6 +300,8 @@ country_event = {
 	fire_only_once = yes
 	option = {
 		name = ww1_ottoman.15.a
+		add_war_support = 0.10
+		add_political_power = 125
 		set_country_flag = ottomans_hold_cairo_and_alexandria
 	}
 }
@@ -319,111 +329,121 @@ country_event = {
 		hidden_effect = {
 			every_state = {
 				limit = {
-					OR = {
-						is_owned_by = ENG
-						is_owned_by = EGY
+					OWNER = {
+						has_country_flag = great_war_loser
 					}
 					OR = {
-						state = 447
-						state = 453
+						is_core_of = EGY
+						is_core_of = SUD
+						is_core_of = DAR
 					}
 				}
-				TUR = {
-					transfer_state = PREV
-				}
-			}
-			ENG = {
+				# Take Suez and Ottoman core states
 				if = {
 					limit = {
-						has_subject = EGY
+						OR = {
+							state = 447
+							state = 453
+							is_core_of = ROOT
+						}
 					}
-					end_puppet = EGY
+					transfer_state_to = ROOT
+					else = {
+						# The others belongs to the Khedivate
+						transfer_state_to = EGY
+					}
 				}
+				# Annex it if Egypt is no longer has any Egyptian core state
+				EGY = {
+					if = {
+						limit = {
+							NOT = {
+								any_owned_state = {
+									is_core_of = PREV
+								}
+							}
+						}
+						ROOT = {
+							annex_country = {
+								target = PREV
+							}
+						}
+					}
+				}
+			}
+			# No longer puppet of the defeated one
+			every_other_country = {
+				limit = {
+					has_subject = EGY
+					has_country_flag = great_war_loser
+				}
+				end_puppet = EGY
 			}
 			EGY = {
 				country_lock_all_division_template = no
-				promote_character = EGY_abbas_ii_helmy			
+				# Pro Ottoman Khedive
+				promote_character = EGY_abbas_ii_helmy
 				drop_cosmetic_tag = yes
-				every_state = {
+				# Fix Senussian border
+				if = {
 					limit = {
-						is_owned_by = ENG
-						OR = {
-							is_core_of = EGY
-							is_core_of = SUD
-							is_core_of = DAR
-						}
+						country_exists = LBA
 					}
-					EGY = {
-						transfer_state = PREV
+					every_owned_state = {
+						limit = {
+							OR = {
+								state = 552
+								state = 767
+							}
+						}
+						transfer_state_to = LBA
 					}
 				}
 			}
+			# Puppet Khedivate
 			if = {
 				limit = {
-					country_exists = LBA
+					NOT = { has_subject = EGY }
 				}
-				every_state = {
+				if = {
 					limit = {
-						is_owned_by = EGY
-						OR = {
-							state = 552
-							state = 767
-						}
+						has_dlc = "Together for Victory"
 					}
-					LBA = {
-						transfer_state = PREV
-					}
-				}
-			}
-		}
-		if = {
-			limit = {
-				NOT = { EGY = { is_subject_of = TUR } }
-			}
-			if = {
-				limit = {
-					has_dlc = "Together for Victory"
-				}
-				TUR = {
 					set_autonomy = {
 						target = EGY
 						autonomous_state = autonomy_dominion
 						freedom_level = 0.8
 					}
-				}
-				else = {
-					puppet = EGY
-				}
-				EGY = {
-					set_politics = {
-						ruling_party = neutrality
-						elections_allowed = no
-					}
-					set_popularities = {
-						democratic = 34
-						neutrality = 65
+					else = {
+						puppet = EGY
 					}
 				}
-			}
-		}
-		EGY = {
-			every_owned_state = {
-				limit = {
-					is_core_of = TUR
-				}
-				transfer_state_to = TUR
-			}
-			if = {
-				limit = {
-					NOT = {
-						any_owned_state = {
-							is_core_of = EGY
+				# For the Ottoman socialist path
+				if = {
+					limit = {
+						has_government = communism
+					}
+					EGY = {
+						set_politics = {
+							ruling_party = communism
+							elections_allowed = no
+						}
+						set_popularities = {
+							communism = 100
 						}
 					}
-				}
-				TUR = {
-					annex_country = {
-						target = EGY
+					# For the other paths
+					else = {
+						EGY = {
+							set_politics = {
+								ruling_party = neutrality
+								elections_allowed = no
+							}
+							set_popularities = {
+								democratic = 34
+								neutrality = 65
+							}
+						}
 					}
 				}
 			}
@@ -1539,7 +1559,7 @@ country_event = {
 			amount = 8
 			state = 656
 		}
-		291 = {
+		874 = {
 			add_extra_state_shared_building_slots = 1
 			add_building_construction = {
 				type = infrastructure
@@ -1550,7 +1570,7 @@ country_event = {
 		add_resource = {
 			type = oil
 			amount = 6
-			state = 291
+			state = 874
 		}
 		413 = {
 			add_extra_state_shared_building_slots = 1
@@ -1638,7 +1658,7 @@ country_event = {
 			amount = 8
 			state = 656
 		}
-		291 = {
+		874 = {
 			add_extra_state_shared_building_slots = 1
 			add_building_construction = {
 				type = infrastructure
@@ -1649,7 +1669,7 @@ country_event = {
 		add_resource = {
 			type = oil
 			amount = 6
-			state = 291
+			state = 874
 		}
 		413 = {
 			add_extra_state_shared_building_slots = 1
@@ -15649,6 +15669,15 @@ country_event = { #caliph hussein bin ali assumes throne
 		name = ottoman.184.a
 		remove_ideas = HJZ_hussein_bin_ali_caliph
 		promote_character = HJZ_hussein_bin_ali
+		add_country_leader_role = {
+   		   	character = HJZ_hussein_bin_ali
+    		promote_leader = yes
+    		country_leader = {
+        		ideology = autocracy_only_for_ottomans_2nd_family
+        		expire = "1965.1.1.1"
+        		traits = { HJZ_hussein_bin_ali_ottoman_trait }
+    		}
+		}
 		set_cosmetic_tag = TUR_hashemite
 		ai_chance = {
 			base = 5
@@ -15691,7 +15720,7 @@ country_event = { #question of the capital
 		}
 	}
 	option = {
-		name = ottoman.184.b
+		name = ottoman.185.b
 		set_capital = {
   		    state = 291
   		    remember_old_capital = no
@@ -15701,7 +15730,7 @@ country_event = { #question of the capital
 		}
 	}
 	option = {
-		name = ottoman.184.c
+		name = ottoman.185.c
 		set_province_name = {
     		id = 9833
     		name = Asatana
@@ -15711,7 +15740,7 @@ country_event = { #question of the capital
 		}
 	}
 	option = {
-		name = ottoman.184.e
+		name = ottoman.185.e
 		trigger = {
 			has_idea = HJZ_hussein_bin_ali_caliph
 		}
@@ -16770,11 +16799,11 @@ country_event = { #integration_of_economies
 	option = {
 		name = ottoman.203.a
 		transfer_state = 200
-		TUR = {
-			add_to_faction = BUL
+		FROM = {
+			add_to_faction = ROOT
 		}
 		hidden_effect = {
-			TUR = {
+			FROM = {
 				country_event = { id = ottoman.204 hours = 8 }
 			}
 		}
@@ -16827,7 +16856,7 @@ country_event = { #integration_of_economies
 	option = {
 		name = ottoman.203.b
 		hidden_effect = {
-			TUR = {
+			FROM = {
 				country_event = { id = ottoman.205 hours = 8 }
 			}
 		}
@@ -16876,10 +16905,11 @@ country_event = { #they accept
 	is_triggered_only = yes
 	option = {
 		name = ottoman.204.a
-		BUL = {
+		FROM = {
+			add_state_core = 200
 			transfer_state = 200
 		}
-		add_to_faction = BUL
+		add_to_faction = FROM
 		ai_chance = {
 			factor = 5
 		}
@@ -17586,7 +17616,7 @@ country_event = {
 					start_civil_war = {
 						ideology = communism
 						size = 0.2
-						capital = 64
+						capital = 229
 						states = { 229 }
 						keep_unit_leaders_trigger = {
 							OR = {
