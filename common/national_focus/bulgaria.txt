@@ -2662,6 +2662,10 @@
 		y = 12
 		available = {
 			is_subject = no
+			OR = {
+				is_in_faction = no
+				is_faction_leader = yes
+			}
 		}
 		ai_will_do = {
 			factor = 5
@@ -2675,6 +2679,9 @@
 					is_in_faction = no
 				}
 				create_faction = pact_of_sofia
+				else = {
+					set_faction_name = pact_of_sofia
+				}
 			}
 		}
 	}
@@ -3187,8 +3194,18 @@
 		x = 7
 		y = 12
 		available = {
-			is_in_faction = no
 			has_global_flag = kis_war
+			is_subject = no
+			is_in_faction = no
+			has_war = no
+			any_other_country = {
+				ROOT = {
+					NOT = {
+						has_wargoal_against = PREV
+						is_justifying_wargoal_against = PREV
+					}
+				}
+			}
 		}
 		ai_will_do = {
 			factor = 3
@@ -3972,39 +3989,64 @@
 		x = 5
 		y = 12
 		available = {
-			has_global_flag = kis_war
-			NOT = {
-				has_global_flag = great_war_ends
-			}
-			is_subject = no
-			GER = {
-				exists = yes
-				is_subject = no
-				is_in_faction = yes
-			}
 			if = {
 				limit = {
 					has_completed_focus = BUL_bulgarian_revanchism
 				}
 				has_completed_focus = BUL_secure_a_german_loan
 			}
-			NOT = {
-				has_war_with = GER
+			has_global_flag = kis_war
+			NOT = { has_global_flag = great_war_ends }
+			is_subject = no
+			has_civil_war = no
+			GER = {
+				exists = yes
+				is_subject = no
+				is_in_faction = yes
+				NOT = {
+					has_war_with = ROOT
+				}
 			}
 		}
 		ai_will_do = {
-			factor = 3
+			factor = 10
+			# nearby enemy don't exists
 			modifier = {
 				factor = 0
-				date < 1915.2.1
+				NOT = {
+					any_other_country = {
+						has_war_with = GER
+						has_capitulated = no
+						is_neighbor_of = ROOT
+						is_subject = no
+						NOT = { has_war_with = ROOT }
+					}
+				}
 			}
+			# no army to fight
 			modifier = {
-				factor = 100
-				date > 1915.6.1
+				factor = 0
+				has_army_size = {
+					size > 9
+					type = infantry
+				}
+			}
+			# no fight spirit
+			modifier = {
+				factor = 0
+				has_war_support < 0.30
+			}
+			# we hate germany
+			modifier = {
+				factor = 0
+				has_opinion = {
+					target = GER
+					value < -10
+				}
 			}
 		}
 		bypass = {
-			is_in_faction = yes
+			is_in_faction_with = GER
 		}
 		completion_reward = {
 			GER = {
@@ -4041,35 +4083,64 @@
 		x = 9
 		y = 12
 		available = {
-			has_global_flag = kis_war
-			NOT = {
-				has_global_flag = great_war_ends
-			}
-			is_subject = no
-			FRA = {
-				exists = yes
-				is_subject = no
-				is_in_faction = yes
-			}
 			if = {
 				limit = {
 					has_completed_focus = BUL_bulgarian_revanchism
 				}
 				has_completed_focus = BUL_secure_a_french_loan
 			}
-			NOT = {
-				has_war_with = FRA
+			has_global_flag = kis_war
+			NOT = { has_global_flag = great_war_ends }
+			is_subject = no
+			has_civil_war = no
+			FRA = {
+				exists = yes
+				is_subject = no
+				is_in_faction = yes
+				NOT = {
+					has_war_with = ROOT
+				}
 			}
 		}
 		ai_will_do = {
-			factor = 3
+			factor = 10
+			# nearby enemy don't exists
 			modifier = {
 				factor = 0
-				date < 1915.2.2
+				NOT = {
+					any_other_country = {
+						has_war_with = FRA
+						has_capitulated = no
+						is_neighbor_of = ROOT
+						is_subject = no
+						NOT = { has_war_with = ROOT }
+					}
+				}
+			}
+			# no army to fight
+			modifier = {
+				factor = 0
+				has_army_size = {
+					size > 9
+					type = infantry
+				}
+			}
+			# no fight spirit
+			modifier = {
+				factor = 0
+				has_war_support < 0.30
+			}
+			# we hate france
+			modifier = {
+				factor = 0
+				has_opinion = {
+					target = FRA
+					value < -10
+				}
 			}
 		}
 		bypass = {
-			is_in_faction = yes
+			is_in_faction_with = FRA
 		}
 		completion_reward = {
 			FRA = {
