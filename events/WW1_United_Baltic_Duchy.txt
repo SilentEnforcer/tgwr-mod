@@ -5,49 +5,57 @@ country_event = {
 	id = ww1_ubd.1
 	title = ww1_ubd.1.t
 	desc = ww1_ubd.1.d
-	picture = GFX_report_event_generic_conference
+	picture = GFX_report_event_royal_parade
 	mean_time_to_happen = {
 		days = 126
 	}
 	fire_only_once = yes
 	trigger = {
-		tag = UBD
-		has_war = no
-		is_subject_of = GER
-		GER = {
-			has_country_flag = great_war_winner
+		OR = {
+			original_tag = GER
+			original_tag = AUH
 		}
+		has_capitulated = no
+		is_subject = no
+		UBD = {
+			is_subject_of = ROOT
+			has_capitulated = no
+		}
+		has_country_flag = great_war_winner
+		has_global_flag = frankfurt_treaty
 	}
 	option = {
 		name = ww1_ubd.1.a
-		set_party_name = {
-			ideology = neutrality
-			long_name = UBD_neutrality_duke_party
-			name = UBD_neutrality_duke_party
-		}
-		UBD_adolf_friedrich = {
-			add_country_leader_role = {
-				promote_leader = yes
-				country_leader = {
-					ideology = autocracy
-					traits = {
-						afrika_herzog		
+		UBD = {
+			add_stability = 0.05
+			add_political_power = 75
+			set_party_name = {
+				ideology = neutrality
+				long_name = UBD_neutrality_duke_party
+				name = UBD_neutrality_duke_party
+			}
+			UBD_adolf_friedrich = {
+				add_country_leader_role = {
+					promote_leader = yes
+					country_leader = {
+						ideology = autocracy
+						traits = { afrika_herzog }
 					}
 				}
 			}
 		}
 		hidden_effect = {
 			TOG = {
-				retire_ideology_leader = neutrality
-				create_country_leader = {
-					name = "Hans Georg von Doering"
-					picture = "gfx/leaders/GER/Portrait_Germany_Generic_land_3.dds"
-					
-					ideology = oligarchism
-					traits = {
-						german_agent
-						foreign_leader
+				if = {
+					limit = {
+						TOG_adolf_von_mecklenburg = { is_country_leader = yes }
 					}
+					TOG_adolf_von_mecklenburg = {
+						remove_country_leader_role = {
+							ideology = oligarchism
+						}
+					}
+					promote_character = TOG_hans_georg_von_doering
 				}
 			}
 		}
@@ -65,29 +73,114 @@ country_event = {
 	}
 	fire_only_once = yes
 	trigger = {
-		tag = UBD
-		is_subject_of = GER
+		OR = {
+			original_tag = GER
+			original_tag = AUH
+		}
+		has_capitulated = no
+		is_subject = no
+		UBD = {
+			is_subject_of = ROOT
+			has_capitulated = no
+			has_civil_war = no
+			has_stability < 0.50
+			owns_state = 13
+		}
+		has_country_flag = great_war_winner
+		has_global_flag = frankfurt_treaty
+		OR = {
+			has_war_with = SOV
+			has_war_with = RUS
+		}
 		NOT = {
-			divisions_in_state = {
-				type = infantry
-				size > 0
-				state = 12
-			}
-			divisions_in_state = {
-				type = infantry
-				size > 0
-				state = 13
-			}
-			divisions_in_state = {
-				type = infantry
-				size > 0
-				state = 191
+			country_exists = EST
+		}
+	}
+	immediate = {
+		hidden_effect = {
+			hidden_effect = {
+				EST = {
+					transfer_state = 13
+					division_template = {
+						name = "Jalaväediviisi"				# Infantry Division	
+						division_names_group = EST_INF_01
+						# Note: Divisions were nowhere near full strength until mobilized
+						regiments = {
+							infantry = { x = 0 y = 0 }
+							infantry = { x = 0 y = 1 }
+							infantry = { x = 0 y = 2 }
+							infantry = { x = 1 y = 0 }
+							infantry = { x = 1 y = 1 }
+							infantry = { x = 1 y = 2 }
+						}
+					}
+					capital_scope = {
+						create_unit = {
+							division = "name = \"I. Jalaväediviisi\" division_template = \"Jalaväediviisi\" start_experience_factor = 1.0 start_equipment_factor = 1.0"
+							owner = PREV
+						}
+						create_unit = {
+							division = "name = \"II. Jalaväediviisi\" division_template = \"Jalaväediviisi\" start_experience_factor = 1.0 start_equipment_factor = 1.0"
+							owner = PREV
+						}
+						create_unit = {
+							division = "name = \"III. Jalaväediviisi\" division_template = \"Jalaväediviisi\" start_experience_factor = 1.0 start_equipment_factor = 1.0"
+							owner = PREV
+						}
+					}
+				}
 			}
 		}
 	}
 	option = {
 		name = ww1_ubd.2.a
-		add_stability = -0.05
-		add_war_support = -0.02
+		UBD = {
+			add_stability = -0.05
+			add_war_support = -0.02
+			EST = {
+				declare_war_on = {
+					target = PREV
+					type = take_core_state
+				}
+			}
+		}
+	}
+	option = {
+		name = ww1_ubd.2.b
+		UBD = {
+			add_stability = -0.15
+			add_war_support = -0.20
+			every_owned_state = {
+				limit = {
+					is_core_of = EST
+				}
+				transfer_state_to = EST
+			}
+			every_state = {
+				limit = {
+					is_core_of = PREV
+					is_core_of = EST
+				}
+				remove_core_of = UBD
+			}
+		}
+		hidden_effect = {
+			every_country = {
+				limit = {
+					OR = {
+						tag = PREV
+						is_subject_of = PREV
+						is_in_faction_with = PREV
+					}
+				}
+				set_truce = {
+					target = EST
+					days = 180
+				}
+			}
+		}
+		ai_chance = {
+			factor = 0
+		}
 	}
 }

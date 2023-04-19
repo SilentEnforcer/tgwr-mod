@@ -43,16 +43,80 @@ country_event = {
 	id = ww1_greece.5
 	title = ww1_greece.5.t
 	desc = ww1_greece.5.d
-	picture = GFX_report_event_gre_militaristic_march
-	trigger = {
-		has_active_mission = GRE_allied_landing_timer
-		has_idea = GRE_idea_national_schism
-	}
-	fire_only_once = yes
+	picture = GFX_report_event_french_british_officers
+	is_triggered_only = yes
 	option = {
 		name = ww1_greece.5.a
-		give_military_access = FRA
-		give_military_access = SER
+		give_military_access = FROM
+		SER = {
+			if = {
+				limit = {
+					has_war_with = GER
+					NOT = {
+						has_war_with = FROM
+						has_war_with = PREV
+					}
+				}
+				PREV = { give_military_access = PREV }
+			}
+		}
+		345 = {
+			transfer_state_to = FROM
+			set_border_war = yes
+			hidden_effect = {
+				set_state_flag = french_salonika
+				create_unit = {
+					division = "name = \"156e division d'infanterie\" division_template = \"Division de L'armée française d'Orient\" start_experience_factor = 0.5 start_equipment_factor = 0.1"
+					owner = FROM
+					allow_spawning_on_enemy_provs = yes
+				}
+				create_unit = {
+					division = "name = \"57e division d'infanterie\" division_template = \"Division de L'armée française d'Orient\" start_experience_factor = 0.2 start_equipment_factor = 0.1"
+					owner = FROM
+					allow_spawning_on_enemy_provs = yes
+				}
+				create_unit = {
+					division = "name = \"122e division d'infanterie\" division_template = \"Division de L'armée française d'Orient\" start_experience_factor = 0.2 start_equipment_factor = 0.1"
+					owner = FROM
+					allow_spawning_on_enemy_provs = yes
+				}
+				create_unit = {
+					division = "name = \"17e division d'infanterie coloniale\" division_template = \"Division de L'armée française d'Orient\" start_experience_factor = 0.5 start_equipment_factor = 0.1"
+					owner = FROM
+					allow_spawning_on_enemy_provs = yes
+				}
+				create_unit = {
+					division = "name = \"30e division d'infanterie\" division_template = \"Division de L'armée française d'Orient\" start_experience_factor = 0.2 start_equipment_factor = 0.1"
+					owner = FROM
+					allow_spawning_on_enemy_provs = yes
+				}
+				create_unit = {
+					division = "name = \"76e division d'infanterie\" division_template = \"Division de L'armée française d'Orient\" start_experience_factor = 0.2 start_equipment_factor = 0.1"
+					owner = FROM
+					allow_spawning_on_enemy_provs = yes
+				}
+				create_unit = {
+					division = "name = \"11e division d'infanterie coloniale\" division_template = \"Division de L'armée française d'Orient\" start_experience_factor = 0.2 start_equipment_factor = 0.1"
+					owner = FROM
+					allow_spawning_on_enemy_provs = yes
+				}
+				create_unit = {
+					division = "name = \"16e division d'infanterie coloniale\" division_template = \"Division de L'armée française d'Orient\" start_experience_factor = 0.2 start_equipment_factor = 0.1"
+					owner = FROM
+					allow_spawning_on_enemy_provs = yes
+				}
+			}
+		}
+		if = {
+			limit = {
+				owns_state = 184
+			}
+			184 = {
+				set_state_owner_to = FROM
+				set_border_war = yes
+			}
+		}
+		news_event = kis_news.137
 	}
 }
 
@@ -382,16 +446,11 @@ country_event = {
 		diplomatic_relation = {
 			country = SER
 			relation = non_aggression_pact
-		}
-		SER = {
-			diplomatic_relation = {
-				country = ROOT
-				relation = non_aggression_pact
-			}
+			active = yes
 		}
 		create_wargoal = {
 			target = BUL
-			type = take_claimed_state
+			type = take_core_state
 		}
 		add_political_power = 50
 		ai_chance = {
@@ -837,24 +896,6 @@ country_event = {
 	picture = GFX_report_event_gre_allied_diplomacy_military
 	is_triggered_only = yes
 	option = {
-		name = ww1_greece.20.a
-		FROM = { add_to_faction = ROOT }
-		ai_chance = {
-			base = 20
-			modifier = {
-				add = 5
-				has_country_leader = {
-					character = GRE_constantine_i
-					ruling_only = yes
-				}
-			}
-			modifier = {
-				factor = 0
-				is_historical_focus_on = yes
-			}
-		}
-	}
-	option = {
 		name = ww1_greece.20.b
 		add_war_support = -0.05
 		FROM = {
@@ -864,13 +905,53 @@ country_event = {
 			}
 		}
 		ai_chance = {
+			base = 70
+			modifier = {
+				add = 20
+				has_war = no
+			}
+			modifier = {
+				add = 20
+				has_government = democratic
+			}
+			modifier = {
+				factor = 10
+				has_opinion = {
+					target = FRA
+					value > 25
+				}
+			}
+		}
+	}
+	option = {
+		name = ww1_greece.20.a
+		FROM = {
+			add_to_faction = ROOT
+			add_to_war = {
+				targeted_alliance = ROOT
+				enemy = FRA
+			}
+		}
+		ai_chance = {
 			base = 20
 			modifier = {
+				add = 10
+				has_country_leader_with_trait = germanophile
+			}
+			modifier = {
 				add = 100
-				has_country_leader = {
-					character = GRE_eleftherios_venizelos
-					ruling_only = yes
+				has_country_leader_with_trait = german_agent
+			}
+			modifier = {
+				add = 10
+				has_opinion = {
+					target = FROM
+					value > 50
 				}
+			}
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
 			}
 		}
 	}
@@ -982,6 +1063,17 @@ country_event = {
 					}
 				}
 			}
+			every_state = {
+				limit = {
+					OR = {
+						state = 345
+						state = 184
+					}
+					is_owned_by = FRA
+				}
+				set_border_war = no
+				set_state_owner_to = THE
+			}
 			every_owned_state = {
 				limit = {
 					is_demilitarized_zone = yes
@@ -1019,7 +1111,7 @@ country_event = {
 		add_stability = -0.30
 		add_political_power = -200
 		activate_mission = GRE_allied_landing_timer
-		news_event = ww1_greece.50
+		news_event = ww1_greece.53
 	}
 }
 
@@ -1477,76 +1569,179 @@ country_event = {
 	desc = ww1_greece.30.d
 	picture = GFX_report_event_gre_greek_cavalry
 	is_triggered_only = yes
-	option = {
-		name = ww1_greece.30.a
-		start_civil_war = {
-			ruling_party = democratic
-			ideology = neutrality
-			size = 0.5
-			states = {
-				47
-				186
+	immediate = {
+		hidden_effect = {
+			if = {
+				limit = { is_in_faction = yes }
+				leave_faction = yes
 			}
-			keep_unit_leaders_trigger = {
-				NOT = {
-					has_trait = trait_royal
-					has_trait = trait_royalist
-					has_trait = old_guard
-					has_trait = politically_connected
-					has_trait = old_guard_navy
+			every_other_country = {
+				limit = {
+					has_war_with = ROOT
+				}
+				set_country_flag = has_war_with_greece
+			}
+			every_other_country = {
+				limit = {
+					is_in_faction_with = ROOT
+				}
+				set_country_flag = allied_with_greece
+			}
+			GRE_ioanis_metaxas = {
+				add_country_leader_role = {
+					promote_leader = yes
+					country_leader = {
+						ideology = authoritarian_democracy
+					}
 				}
 			}
-			hidden_effect = {
+			start_civil_war = {
+				ruling_party = democratic
+				ideology = neutrality
+				size = 0.5
+				states = {
+					47
+					898
+					900
+					186
+				}
+				promote_character = GRE_ioanis_metaxas
+				keep_unit_leaders_trigger = {
+					NOT = {
+						has_trait = trait_royal
+						has_trait = trait_royalist
+						has_trait = old_guard
+						has_trait = politically_connected
+						has_trait = old_guard_navy
+					}
+				}
+			}
+			set_cosmetic_tag = GRE_republic
+			add_popularity = {
+				ideology = democratic
+				popularity = 0.30
+			}
+			every_other_country = {
+				limit = {
+					has_country_flag = has_war_with_greece
+				}
+				declare_war_on = {
+					target = PREV
+					type = topple_government
+				}
+			}
+			every_other_country = {
+				limit = {
+					has_country_flag = allied_with_greece
+					has_war_with = ROOT
+				}
+				white_peace = ROOT
+			}
+			random_other_country = {
+				limit = {
+					original_tag = GRE
+					has_war_with = ROOT
+				}
+				set_party_name = {
+					ideology = neutrality
+					long_name = GRE_greek_army_party
+					name = GRE_greek_army_party
+				}
+				set_party_name = {
+					ideology = fascism
+					long_name = GRE_greek_army_party
+					name = GRE_greek_army_party
+				}
+				add_ideas = GRE_idea_constantine
+				add_popularity = {
+					ideology = fascism
+					popularity = 0.30
+				}
 				GRE_ioanis_metaxas = {
 					add_country_leader_role = {
 						promote_leader = yes
 						country_leader = {
-							ideology = authoritarian_democracy
+							ideology = stratocracy
 						}
 					}
 				}
+				every_other_country = {
+					limit = {
+						has_country_flag = allied_with_greece
+					}
+					declare_war_on = {
+						target = PREV
+						type = topple_government
+					}
+				}
+				every_other_country = {
+					limit = {
+						has_country_flag = has_war_with_greece
+						has_war_with = PREV
+					}
+					white_peace = PREV
+				}
+				ROOT = {
+					every_unit_leader = {
+						limit = {
+							OR = {
+								has_trait = trait_royal
+								has_trait = trait_royalist
+							}
+						}
+						set_nationality = PREV
+					}
+				}
+				if = {
+					limit = {
+						GER = { has_war_with = FRA }
+					}
+					GER = {
+						country_event = generic.2
+					}
+					ROOT = {
+						FRA = { country_event = generic.2 }
+					}
+				}
+			}
+			every_country = {
+				limit = {
+					OR = {
+						has_country_flag = allied_with_greece
+						has_country_flag = has_war_with_greece
+					}
+				}
+				clr_country_flag = allied_with_greece
+				clr_country_flag = has_war_with_greece
 			}
 		}
-		set_cosmetic_tag = GRE_republic
 	}
 	option = {
-		name = ww1_greece.30.b
-		start_civil_war = {
-			ruling_party = neutrality
-			ideology = democratic
-			size = 0.5
-			states = {
-				182
-				184
-				185
-				187
-				200
-				345
-				731
-				758
-				757
-				790
-				803
-				826
-			}
-			keep_unit_leaders_trigger = {
-				OR = {
-					has_trait = trait_royal
-					has_trait = trait_royalist
-					has_trait = old_guard
-					has_trait = politically_connected
-					has_trait = old_guard_navy
-				}
+		name = ww1_greece.30.a
+		effect_tooltip = {
+			start_civil_war = {
+				ruling_party = democratic
+				ideology = neutrality
 			}
 			set_cosmetic_tag = GRE_republic
 		}
-		GRE_ioanis_metaxas = {
-			add_country_leader_role = {
-				promote_leader = yes
-				country_leader = {
-					ideology = authoritarian_democracy
-				}
+	}
+	option = {
+		name = ww1_greece.30.b
+		effect_tooltip = {
+			start_civil_war = {
+				ruling_party = neutrality
+				ideology = democratic
 			}
+		}
+		hidden_effect = {
+			random_other_country = {
+				limit = {
+					original_tag = GRE
+					has_war_with = ROOT
+				}
+				change_tag_from = ROOT
+			}	
 		}
 	}
 }
@@ -1588,7 +1783,9 @@ country_event = {
 # prevent constantine i joining the great war early
 country_event = {
 	id = ww1_greece.49
-	hidden = yes
+	title = ww1_greece.49.t
+	desc = ww1_greece.49.d
+	picture = GFX_report_event_gre_political_upheaval
 	trigger = {
 		tag = GRE
 		has_country_leader = {
@@ -1603,8 +1800,10 @@ country_event = {
 			has_war_with = FRA
 		}
 	}
+	mean_time_to_happen = { days = 10 }
 	fire_only_once = yes
-	immediate = {
+	option = {
+		name = ww1_greece.49.a
 		add_country_leader_trait = standing_alone
 		add_ideas = neutrality_idea
 	}
@@ -1612,14 +1811,14 @@ country_event = {
 
 # Establishment of the State of National Defence
 news_event = {
-	id = ww1_greece.50
+	id = ww1_greece.53
 	title = ww1_greece.21.t
-	desc = ww1_greece.50.d
+	desc = ww1_greece.53.d
 	picture = GFX_news_event_greek_civil_war
 	major = yes
 	is_triggered_only = yes
 	option = {
-		name = ww1_greece.50.a
+		name = ww1_greece.53.a
 		trigger = {
 			OR = {
 				tag = GER
@@ -1630,7 +1829,7 @@ news_event = {
 		}
 	}
 	option = {
-		name = ww1_greece.50.b
+		name = ww1_greece.53.b
 		trigger = {
 			OR = {
 				tag = FRA
@@ -1640,7 +1839,7 @@ news_event = {
 		}
 	}
 	option = {
-		name = ww1_greece.50.c
+		name = ww1_greece.53.c
 		trigger = {
 			NOT = {
 				tag = GER
@@ -1649,6 +1848,221 @@ news_event = {
 				tag = GRE
 				tag = FRA
 				is_in_faction_with = FRA
+			}
+		}
+	}
+}
+
+# Kingdom of Greece is victorious over the National Defense Government in the Great War
+country_event = {
+	id = ww1_greece.54
+	hidden = yes
+	fire_only_once = yes
+	trigger = {
+		tag = GRE
+		has_country_flag = great_war_winner
+		has_global_flag = great_war_ends
+		has_global_flag = venizelist_government_established
+		NOT = {
+			has_country_flag = GRE_national_defense_flag
+		}
+		any_other_country = {
+			original_tag = GRE
+			has_country_flag = GRE_national_defense_flag
+			has_country_flag = great_war_loser
+			exists = yes
+		}
+	}
+	mean_time_to_happen = { days = 0 }
+	immediate = {
+		THE = {
+			every_state = {
+				limit = {
+					NOT = { is_owned_by = PREV }
+					is_controlled_by = PREV
+				}
+				set_state_controller_to = GRE
+			}
+			every_owned_state = {
+				limit = {
+					NOT = { 
+						is_controlled_by = PREV
+					}
+				}
+				set_state_owner_to = GRE
+			}
+			GRE_eleftherios_venizelos = {
+				set_nationality = GRE
+			}
+			GRE_theodoros_pangalos = {
+				set_nationality = GRE
+			}
+			GRE_panagiotis_danglis = {
+				set_nationality = GRE
+			}
+			GRE_nikolaos_trikoupis = {
+				set_nationality = GRE
+			}
+			GRE_emmanouil_zymvrakakis = {
+				set_nationality = GRE
+			}
+			GRE_konstantinos_mazarakis = {
+				set_nationality = GRE
+			}
+			GRE_pavlos_kountouriotis = {
+				remove_country_leader_role = {
+					ideology = authoritarian_democracy
+				}
+				set_nationality = GRE
+			}
+			GRE_mark_kerr = {
+				set_nationality = GRE
+			}
+			every_unit_leader = {
+				set_nationality = GRE
+			}
+			transfer_units_fraction = {
+				target = GRE
+				size = 1.0
+				keep_unit_leaders_trigger = {
+					always = no
+				}
+			}
+			every_state = {
+				limit = {
+					OR = {
+						is_core_of = PREV
+						is_claimed_by = PREV
+					}
+				}
+				remove_core_of = PREV
+				remove_claim_by = PREV
+			}
+		}
+		annex_country = {
+			target = THE
+			transfer_troops = yes
+		}
+		clr_country_flag = national_schism
+		remove_ideas = GRE_idea_national_schism
+		remove_ideas = GRE_idea_dual_power
+	}
+}
+
+# National Defense Government is victorious over the Kingdom of Greece in the Great War
+country_event = {
+	id = ww1_greece.55
+	hidden = yes
+	fire_only_once = yes
+	trigger = {
+		tag = GRE
+		has_country_flag = great_war_loser
+		has_global_flag = great_war_ends
+		has_global_flag = venizelist_government_established
+		NOT = {
+			has_country_flag = GRE_national_defense_flag
+		}
+		any_other_country = {
+			original_tag = GRE
+			has_country_flag = GRE_national_defense_flag
+			has_country_flag = great_war_winner
+			exists = yes
+		}
+	}
+	mean_time_to_happen = { days = 0 }
+	immediate = {
+		THE = {
+			every_state = {
+				limit = {
+					NOT = { is_owned_by = PREV }
+					is_controlled_by = PREV
+				}
+				set_state_controller_to = GRE
+			}
+			every_owned_state = {
+				limit = {
+					NOT = { 
+						is_controlled_by = PREV
+					}
+				}
+				set_state_owner_to = GRE
+			}
+			GRE_eleftherios_venizelos = {
+				set_nationality = GRE
+			}
+			GRE_theodoros_pangalos = {
+				set_nationality = GRE
+			}
+			GRE_panagiotis_danglis = {
+				set_nationality = GRE
+			}
+			GRE_nikolaos_trikoupis = {
+				set_nationality = GRE
+			}
+			GRE_emmanouil_zymvrakakis = {
+				set_nationality = GRE
+			}
+			GRE_konstantinos_mazarakis = {
+				set_nationality = GRE
+			}
+			GRE_pavlos_kountouriotis = {
+				remove_country_leader_role = {
+					ideology = authoritarian_democracy
+				}
+				set_nationality = GRE
+			}
+			GRE_mark_kerr = {
+				set_nationality = GRE
+			}
+			every_unit_leader = {
+				set_nationality = GRE
+			}
+			transfer_units_fraction = {
+				target = GRE
+				size = 1.0
+				keep_unit_leaders_trigger = {
+					always = no
+				}
+			}
+			every_state = {
+				limit = {
+					OR = {
+						is_core_of = PREV
+						is_claimed_by = PREV
+					}
+				}
+				remove_core_of = PREV
+				remove_claim_by = PREV
+			}
+		}
+		GRE_eleftherios_venizelos = {
+			promote_character = yes
+		}
+		annex_country = {
+			target = THE
+			transfer_troops = yes
+		}
+		clr_country_flag = national_schism
+		remove_ideas = GRE_idea_national_schism
+		remove_ideas = GRE_idea_dual_power
+		GRE_alexander = {
+			promote_character = yes
+		}
+		add_ideas = GRE_idea_alexander
+		GRE_eleftherios_venizelos = {
+			promote_character = yes
+		}
+		set_politics = {
+			ruling_party = democratic
+			elections_allowed = no
+		}
+		if = {
+			limit = {
+				democratic < 0.5
+			}
+			add_popularity = {
+				ideology = democratic
+				popularity = 0.25
 			}
 		}
 	}

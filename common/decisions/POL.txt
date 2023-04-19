@@ -1,47 +1,64 @@
 peace_deals = {
-	POL_sue_for_peace_SOV = {	
+	POL_sue_for_peace_SOV = {
+		icon = GFX_decision_eng_trade_unions_support
 		allowed = {
-			original_tag = POL
+			tag = POL
+		}
+		target_trigger = {
+			FROM = {
+				tag = SOV
+				is_subject = no
+				has_war_with = ROOT
+			}
 		}
 		available = {
-			POL = {
-			        is_subject = no
-				has_war_with = SOV			
-				OR = {
-					surrender_progress > 0.5
-					casualties > 50000
-					NOT = {
-						controls_state = 10
-					}
-				}
-			}
-			SOV = { is_subject = no } 
+			surrender_progress > 0.15
 		}
 		visible = {
-			has_war_with = SOV
+			is_subject = no
 			NOT = { has_global_flag = soviet_polish_war_truce }
 		}
 		cost = 0
 		fire_only_once = yes
 		ai_will_do = {
-			factor = 100
+			base = 0
+			modifier = {
+				add = 100
+				casualties_inflicted_by = {
+					opponent = FROM
+					thousands > 55
+				}
+			}
+			modifier = {
+				add = 100
+				surrender_progress > 0.5
+			}
 		}
 		complete_effect = {
-			SOV = {
-				country_event = { id = ww1_soviet.18 } #Белый мир.
-			}
 			set_global_flag = soviet_polish_war_truce
+			FROM = {
+				country_event = { id = ww1_soviet.18 }
+			}
 		}
 	}
 }
 form_redania_category = {
 	POL_form_redania = {
+		icon = GFX_decision_generic_monarchy
 		allowed = {
 			original_tag = POL
 		}
 		available = {
 			has_war = no
 			has_government = neutrality
+		}
+		visible = {
+			is_historical_focus_on = no
+			is_subject = no
+			NOT = {
+				has_cosmetic_tag = POL_RED
+				has_country_flag = redania
+			}
 		}
 		ai_will_do = {
 			factor = 0
@@ -56,7 +73,7 @@ form_redania_category = {
 }
 special_projects = {
 	POL_consctruct_gdynia = {
-		icon = GFX_decision_generic_special_project
+		icon = GFX_decision_generic_construction
 		allowed = {
 			original_tag = POL
 		}
@@ -67,29 +84,30 @@ special_projects = {
 		visible = {
 			NOT = { has_global_flag = gdynia_constructed }
 		}
+		cancel_trigger = {
+			NOT = { controls_state = 85 }
+		}
 		fire_only_once = no
-		days_remove = 730
+		days_remove = 365
 		cost = 200
 		modifier = {
 			civilian_factory_use = 3
 		}
+		cancel_effect = {
+			add_political_power = 100
+		}
 		remove_effect = {
-			if = {
-				limit = {
-					has_full_control_of_state = 85
-				}
-				set_global_flag = gdynia_constructed
-				add_victory_points = {
-					province = 9263
-					value = 1
-				}
-				85 = {
-					set_building_level = {
-						type = naval_base
-						level = 3
-						province = {
-							id = 9263
-						}
+			set_global_flag = gdynia_constructed
+			add_victory_points = {
+				province = 9263
+				value = 1
+			}
+			85 = {
+				set_building_level = {
+					type = naval_base
+					level = 3
+					province = {
+						id = 9263
 					}
 				}
 			}
@@ -100,8 +118,58 @@ special_projects = {
 	}
 }
 foreign_politics = {
+	POL_occupy_chelm = {
+		icon = GFX_decision_infiltrate_state
+		allowed = {
+			original_tag = POL
+		}
+		available = {
+			controls_state = 92
+			OR = {
+				has_subject = UKR
+				AND = {
+					UKR = { has_war_with = SOV }
+					NOT = {
+						has_war_with = SOV
+						is_in_faction_with = UKR
+					}
+				}
+			}
+		}
+		visible = {
+			is_subject = no
+			has_capitulated = no
+			owns_state = 92
+			UKR = {
+				owns_state = 766
+				is_subject = no
+				NOT = {
+					has_war_with = PREV
+				}
+			}
+		}
+		highlight_states = {
+			highlight_state_targets = {
+				state = 766
+			}
+		}
+		fire_only_once = yes
+		cost = 0
+		days_remove = 10
+		target_trigger = {
+			FROM = {
+				tag = UKR
+			}
+		}
+		ai_will_do = {
+			base = 1000
+		}
+		remove_effect = {
+			transfer_state = 766
+		}
+	}
 	POL_occupy_bialystok = {
-		icon = GFX_decision_generic_ignite_civil_war
+		icon = GFX_decision_infiltrate_state
 		allowed = {
 			original_tag = POL
 		}
@@ -193,7 +261,7 @@ foreign_politics = {
 		}
 	}
 	POL_occupy_grodno = {
-		icon = GFX_decision_generic_ignite_civil_war
+		icon = GFX_decision_infiltrate_state
 		allowed = {
 			original_tag = POL
 		}
@@ -285,7 +353,7 @@ foreign_politics = {
 		}
 	}
 	POL_occupy_wilno = {
-		icon = GFX_decision_generic_ignite_civil_war
+		icon = GFX_decision_infiltrate_state
 		allowed = {
 			tag = POL
 		}
