@@ -5,15 +5,6 @@ country_event = {
 	title = ww1_fiume.1.t
 	desc = ww1_fiume.1.d	
 	picture = GFX_report_event_election_vote
-	
-	trigger = {
-		tag = ITA
-		has_country_flag = great_war_winner
-		owns_state = 736
-		NOT = {
-			owns_state = 513
-		}
-	}
 	is_triggered_only = yes
 	
 	immediate = {
@@ -37,6 +28,7 @@ country_event = {
 					remove_country_leader_trait = italian_dandy
 					add_country_leader_trait = ita_comandante
 					add_country_leader_trait = italian_dandy
+					add_country_leader_trait = standing_alone
 					set_portraits = {
 						civilian = {
 							large="gfx/leaders/ITA/ITA_Gabriele_D_Annunzio_general.png"
@@ -68,8 +60,43 @@ country_event = {
 					popularity = 0.4
 				}
 				set_cosmetic_tag = FIU_republic
+				division_template = {
+					name = "Legionari"
+					division_names_group = ITA_INF_01
+					regiments = {
+						irregular_infantry = { x = 0 y = 0 }
+						irregular_infantry = { x = 1 y = 0 }
+						irregular_infantry = { x = 0 y = 1 }
+						irregular_infantry = { x = 1 y = 1 }
+					}
+					support = {
+						engineer = {
+							x = 0
+							y = 0
+						}
+					}
+				}
+				513 = {
+					create_unit = {
+						division = "name = \"Legionari di D'Annunzio\" division_template = \"Legionari\" start_experience_factor = 1.0 start_equipment_factor = 1.0"
+						owner = PREV
+					}
+				}
+				every_other_country = {
+					limit = {
+						is_neighbor_of = PREV
+					}
+					set_truce = {
+						target = PREV
+						days = 200
+					}
+				}
 			}
-		}		
+		}
+		news_event = {
+			id = ww1_fiume.2
+			hours = 3
+		}
 	}	
 	
 	option = {
@@ -89,10 +116,16 @@ news_event = {
 	id = ww1_fiume.2
 	title = ww1_fiume.2.t
 	desc = ww1_fiume.2.desc
-	picture = GFX_report_event_election_vote
+	picture = GFX_news_event_italian_republic
 	
 	is_triggered_only = yes
+	major = yes
 	
+	immediate = {
+		hidden_effect = {
+			set_global_flag = impresa_di_fiume
+		}
+	}
 	
 	option = {
 		name = ww1_fiume.2.a
@@ -107,7 +140,7 @@ news_event = {
 		}
 	}
 	option = {
-		name = ww1_fiume.3.c
+		name = ww1_fiume.2.c
 		trigger = {
 			OR = {
 				tag = SER
@@ -116,7 +149,7 @@ news_event = {
 		}
 	}
 	option = {
-		name = ww1_fiume.3.d
+		name = ww1_fiume.2.d
 		trigger = {
 			NOT = {
 				tag = FIU
@@ -124,6 +157,450 @@ news_event = {
 				tag = SER
 				tag = CRO
 			}	
+		}
+	}
+}
+
+# Italy negotiate with Serbia to solve Fiume problem
+country_event = {
+	id = ww1_fiume.3
+	title = ww1_fiume.3.t
+	desc = ww1_fiume.3.desc
+	picture = GFX_report_event_generic_conference
+	is_triggered_only = yes
+	option = {
+		# Neutralize Fiume and demand city of Zara
+		name = ww1_fiume.3.a
+		custom_effect_tooltip = event_historical_option_tt
+		set_country_flag = fiume_histoirical
+		add_political_power = -25
+		custom_effect_tooltip = ww1_fiume.3.tt
+		effect_tooltip = {
+			every_owned_state = {
+				limit = {
+					OR = {
+						state = 103
+						state = 163
+					}
+				}
+				208 = {
+					owner = {
+						transfer_state = PREV.PREV
+					}
+				}
+			}
+			FIU = {
+				set_politics = {
+					ruling_party = democratic
+					elections_allowed = no
+				}
+				every_other_country = {
+					limit = {
+						is_neighbor_of = PREV
+						NOT = { has_war_with = PREV }
+					}
+					diplomatic_relation = {
+						country = PREV
+						relation = non_aggression_pact
+					}
+					give_guarantee = PREV
+				}
+			}
+		}
+		hidden_effect = {
+			208 = {
+				owner = {
+					country_event = {
+						id = ww1_fiume.4
+						hours = 3
+					}
+				}
+			}
+		}
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 1000
+				is_historical_focus_on = yes
+			}
+		}
+	}
+	option = {
+		# Withdraw from everywhere
+		name = ww1_fiume.3.b
+		set_country_flag = fiume_withdraw
+		add_popularity = {
+			ideology = fascism
+			popularity = 0.10
+		}
+		add_stability = -0.10
+		add_political_power = 25
+		custom_effect_tooltip = ww1_fiume.3.tt
+		effect_tooltip = {
+			every_owned_state = {
+				limit = {
+					OR = {
+						state = 103
+						state = 163
+						state = 513
+						state = 736
+					}
+				}
+				208 = {
+					owner = {
+						transfer_state = PREV.PREV
+						create_wargoal = {
+							target = FIU
+							type = annex_everything
+						}
+					}
+				}
+			}
+		}
+		hidden_effect = {
+			208 = {
+				owner = {
+					country_event = {
+						id = ww1_fiume.4
+						hours = 3
+					}
+				}
+			}
+		}
+		ai_chance = {
+			base = 0
+			# No war support
+			modifier = {
+				add = 200
+				has_war_support < 0.10
+			}
+			# Serbian army is bigger than us
+			modifier = {
+				add = 200
+				208 = {
+					owner = {
+						strength_ratio = {
+							tag = ROOT
+							ratio > 1.5
+						}
+					}
+				}
+			}
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+			}
+		}
+	}
+	option = {
+		# Annex Fiume and Zara
+		name = ww1_fiume.3.c
+		set_country_flag = fiume_annex
+		add_political_power = -100
+		custom_effect_tooltip = ww1_fiume.3.tt
+		effect_tooltip = {
+			transfer_state = 103
+			transfer_state = 163
+			create_wargoal = {
+				target = FIU
+				type = annex_everything
+			}
+		}
+		hidden_effect = {
+			208 = {
+				owner = {
+					country_event = {
+						id = ww1_fiume.4
+						hours = 3
+					}
+				}
+			}
+		}
+		ai_chance = {
+			base = 0
+			# Has some war support
+			modifier = {
+				add = 100
+				has_war_support > 0.70
+			}
+			# Serbian army is weaker than us
+			modifier = {
+				add = 100
+				208 = {
+					owner = {
+						strength_ratio = {
+							tag = ROOT
+							ratio < 0.5
+						}
+					}
+				}
+			}
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+			}
+		}
+	}
+	option = {
+		# Demand every Italian territories
+		name = ww1_fiume.3.d
+		set_country_flag = fiume_demand
+		add_political_power = -250
+		custom_effect_tooltip = ww1_fiume.3.tt
+		effect_tooltip = {
+			transfer_state = 103
+			transfer_state = 163
+			transfer_state = 208
+			create_wargoal = {
+				target = FIU
+				type = annex_everything
+			}
+		}
+		hidden_effect = {
+			208 = {
+				owner = {
+					country_event = {
+						id = ww1_fiume.4
+						hours = 3
+					}
+				}
+			}
+		}
+		ai_chance = {
+			base = 0
+			# Ready to go war
+			modifier = {
+				add = 200
+				has_war_support > 0.90
+			}
+			# Serbian army is nothing
+			modifier = {
+				add = 200
+				208 = {
+					owner = {
+						strength_ratio = {
+							tag = ROOT
+							ratio < 0.1
+						}
+					}
+				}
+			}
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+			}
+		}
+	}
+}
+
+# Italy negotiate with Serbia to solve Fiume problem
+country_event = {
+	id = ww1_fiume.4
+	title = ww1_fiume.4.t
+	desc = ww1_fiume.4.d
+	picture = GFX_report_event_generic_conference
+	is_triggered_only = yes
+	option = {
+		# Agree
+		name = ww1_fiume.4.a
+		trigger = {
+			FROM = {
+				NOT = { has_country_flag = fiume_withdraw }
+			}
+		}
+		if = {
+			limit = {
+				FROM = { has_country_flag = fiume_demand }
+			}
+			every_state = {
+				limit = {
+					owns_or_subject_of = yes
+					OR = {
+						state = 103
+						state = 163
+						state = 208
+					}
+				}
+				transfer_state_to = FROM
+			}
+			FROM = {
+				create_wargoal = {
+					target = FIU
+					type = annex_everything
+				}
+			}
+			add_political_power = -200
+			add_stability = -0.15
+		}
+		else_if = {
+			limit = {
+				FROM = { has_country_flag = fiume_annex }
+			}
+			every_state = {
+				limit = {
+					owns_or_subject_of = yes
+					OR = {
+						state = 103
+						state = 163
+					}
+				}
+				transfer_state_to = FROM
+			}
+			FROM = {
+				create_wargoal = {
+					target = FIU
+					type = annex_everything
+				}
+			}
+			add_political_power = -100
+			add_stability = -0.10
+		}
+		else = {
+			every_state = {
+				limit = {
+					is_owned_by = FROM
+					OR = {
+						state = 103
+						state = 163
+					}
+				}
+				transfer_state_to = ROOT
+			}
+			FIU = {
+				set_politics = {
+					ruling_party = neutrality
+					elections_allowed = no
+				}
+				add_popularity = {
+					ideology = neutrality
+					popularity = 0.45
+				}
+				every_other_country = {
+					limit = {
+						is_neighbor_of = PREV
+						NOT = { has_war_with = PREV }
+					}
+					diplomatic_relation = {
+						country = PREV
+						relation = non_aggression_pact
+					}
+					give_guarantee = PREV
+				}
+				drop_cosmetic_tag = yes
+				hidden_effect = {
+					ITA_gabriele_d_annunzio = {
+						set_nationality = ITA
+					}
+					ITA_alceste_de_ambris = {
+						set_nationality = ITA
+					}
+					ITA_filippo_tommaso_marinetti = {
+						set_nationality = ITA
+					}
+					ITA_maffeo_pantaleoni = {
+						set_nationality = ITA
+					}
+					ITA_gabriele_d_annunzio = {
+						remove_any_country_role_from_character = yes
+						set_nationality = ITA
+					}
+				}
+			}
+			add_political_power = 25
+		}
+		ai_chance = {
+			base = 100
+			modifier = {
+				factor = 0
+				FROM = { has_country_flag = fiume_demand }
+			}
+			modifier = {
+				add = -80
+				FROM = { has_country_flag = fiume_annex }
+			}
+		}
+	}
+	option = {
+		# Disagree
+		name = ww1_fiume.4.b
+		trigger = {
+			FROM = {
+				NOT = { has_country_flag = fiume_withdraw }
+			}
+		}
+		FROM = {
+			create_wargoal = {
+				target = ROOT
+				type = take_claimed_state
+			}
+			create_wargoal = {
+				target = FIU
+				type = take_claimed_state
+			}
+		}
+		create_wargoal = {
+			target = FIU
+			type = take_claimed_state
+		}
+		ai_chance = {
+			base = 80
+			modifier = {
+				factor = 0
+				FROM = { has_country_flag = fiume_histoirical }
+			}
+		}
+	}
+	option = {
+		# They gave up
+		name = ww1_fiume.4.c
+		trigger = {
+			FROM = { has_country_flag = fiume_withdraw }
+		}
+		FROM = {
+			every_owned_state = {
+				limit = {
+					OR = {
+						state = 103
+						state = 163
+						state = 208
+						state = 513
+					}
+				}
+				transfer_state_to = ROOT
+			}
+		}
+		create_wargoal = {
+			target = FIU
+			type = annex_everything
+		}
+		add_political_power = 100
+		add_stability = 0.10
+	}
+}
+
+# Treaty of Rome
+country_event = {
+	id = ww1_fiume.5
+	title = ww1_fiume.5.t
+	desc = ww1_fiume.5.d
+	picture = GFX_report_event_generic_conference
+	trigger = {
+		tag = ITA
+		is_subject = no
+		has_war = no
+		has_government = fascism
+		has_global_flag = impresa_di_fiume
+		has_guaranteed = FIU
+		FIU = { exists = yes has_war = no is_neighbor_of = ROOT }
+	}
+	fire_only_once = yes
+	mean_time_to_happen = {
+		days = 650
+	}
+	option = {
+		name = ww1_fiume.5.a
+		annex_country = {
+			target = FIU
 		}
 	}
 }
