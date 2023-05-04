@@ -1307,8 +1307,15 @@ country_event = {
 		name = ww1_england.31.a
 		ai_chance = {
 			factor = 35
+			modifier = {
+				factor = 0
+				has_opinion = {
+					target = ROOT
+					value < 0
+				}
+			}
 		}
-		ENG = {
+		FROM = {
 			annex_country = {
 				target = ROOT
 				transfer_troops = yes
@@ -1322,6 +1329,18 @@ country_event = {
 		}
 		add_political_power = -150
 		add_stability = -0.1
+		hidden_effect = {
+			add_opinion_modifier = {
+				target = FROM
+				modifier = ENG_veto_imperial_federation
+			}
+			FROM = {
+				add_opinion_modifier = {
+					target = ROOT
+					modifier = ENG_veto_imperial_federation
+				}
+			}
+		}
 	}
 }
 
@@ -1623,23 +1642,6 @@ country_event = {
 		hidden_effect = {
 			load_focus_tree = uk_3
 			set_country_flag = ENG_socialist_britain_flag
-			remove_unit_leader = 899
-			remove_unit_leader = 801
-			remove_unit_leader = 802
-			remove_unit_leader = 804
-			remove_unit_leader = 805
-			remove_unit_leader = 806
-			remove_unit_leader = 807
-			remove_unit_leader = 809
-			remove_unit_leader = 811
-			remove_unit_leader = 813
-			remove_unit_leader = 814
-			remove_unit_leader = 816
-			remove_unit_leader = 817
-			remove_unit_leader = 818
-			remove_unit_leader = 823
-			remove_unit_leader = 826
-			remove_unit_leader = 827
 			ENG_clement_attlee = {
 				add_field_marshal_role = {
 					traits = {
@@ -1679,17 +1681,22 @@ country_event = {
 					logistics_skill = 4
 				}
 			}
-			# retire_ideology_leader = fascism
-			# create_country_leader = {
-			# 	name = "Sir Edmund Allenby"
-			# 	picture = "gfx/leaders/ENG/ENG_edmund_allenby.png"
-			# 	expire = "1965.1.1"
-			# 	ideology = stratocracy
-			# 	traits = {
-					
-			# 	}
-			# }
-			promote_character = ENG_edmund_allenby
+			ENG_edmund_allenby = {
+				if = {
+					limit = {
+						has_ideology = stratocracy
+					}
+					promote_character = stratocracy
+					else = {
+						add_country_leader_role = {
+							promote_leader = yes
+							country_leader = {
+								ideology = stratocracy
+							}
+						}
+					}
+				}
+			}
 			set_party_name = {
 				ideology = democratic
 				long_name = ENG_labour_party
@@ -2420,7 +2427,7 @@ country_event = {
 	id = ww1_england.42
 	title = ww1_england.42.t
 	desc = ww1_england.42.d
-	picture = GFX_report_event_royal_parade
+	picture = GFX_report_event_soldiers_marching
 	fire_only_once = yes
 	trigger = {
 		original_tag = ENG
@@ -2444,11 +2451,19 @@ country_event = {
 	option = {
 		name = ww1_england.42.a
 		ENG_clement_attlee = {
-			add_country_leader_role = {
-				promote_leader = yes
-				country_leader = {
-					ideology = syndicalism
-					traits = { eng_militant_syndicalist }
+			if = {
+				limit = {
+					has_ideology = syndicalism
+				}
+				promote_character = syndicalism
+				else = {
+					add_country_leader_role = {
+						promote_leader = yes
+						country_leader = {
+							ideology = syndicalism
+							traits = { eng_militant_syndicalist }
+						}
+					}
 				}
 			}
 		}
@@ -2522,11 +2537,19 @@ country_event = {
 			name = ENG_stupid_complicated_name
 		}
 		ENG_rotha_lintornorman = {
-			add_country_leader_role = {
-				promote_leader = yes
-				country_leader = {
-					ideology = fascism_ideology
-					traits = { dictator hedonist princess_of_terror }
+			if = {
+				limit = {
+					has_ideology = fascism_ideology
+				}
+				promote_character = fascism_ideology
+				else = {
+					add_country_leader_role = {
+						promote_leader = yes
+						country_leader = {
+							ideology = fascism_ideology
+							traits = { dictator hedonist princess_of_terror }
+						}
+					}
 				}
 			}
 		}
@@ -2595,7 +2618,7 @@ country_event = {
 			}
 		}
 		hidden_effect = {
-			ENG_ali_kemal = {		
+			ENG_ali_kemal = {
 				add_country_leader_role = {
 					promote_leader = yes
 					country_leader = {
@@ -2923,6 +2946,7 @@ country_event = {
 				}
 				OR = {
 					state = 449
+					state = 902
 					state = 549
 					state = 827
 					state = 550
@@ -2995,6 +3019,7 @@ country_event = {
 				owns_state = 547
 				owns_state = 548
 				owns_state = 792
+				owns_state = 902
 			}
 			has_country_flag = great_war_loser
 		}
@@ -3012,6 +3037,7 @@ country_event = {
 					state = 547
 					state = 548
 					state = 792
+					state = 902
 				}
 			}
 			transfer_state_to = ROOT
@@ -3343,7 +3369,15 @@ country_event = {
 				limit = {
 					region = 62
 				}
-				transfer_state_to = GER
+				if = {
+				     limit = {
+					     NOT = { country_exists = GER }
+				        }
+				     transfer_state_to = AUH
+				}
+				else = {
+					transfer_state_to = GER
+				}
 			}
 			if = {
 				limit = {
@@ -3362,6 +3396,12 @@ country_event = {
 						}
 						transfer_state = PREV
 					}
+				}
+				else_if = {
+				     limit = {
+					     NOT = { country_exists = GER }
+				        }
+				     transfer_state_to = AUH
 				}
 				else = {
 					transfer_state_to = GER
@@ -3393,7 +3433,15 @@ country_event = {
 				limit = {
 					is_owned_by = ROOT
 				}
-				transfer_state_to = GER
+				if = {
+				     limit = {
+					     NOT = { country_exists = GER }
+				        }
+				     transfer_state_to = AUH
+				}
+				else = {
+					transfer_state_to = GER
+				}
 			}
 		}
 	}
@@ -5409,11 +5457,12 @@ country_event = {
 }
 
 #Kitchener dies
-country_event = {
+unit_leader_event = {
 	id = ww1_england.113
 	title = ww1_england.113.t
 	desc = ww1_england.113.d
 	is_triggered_only = yes
+	fire_only_once = yes
 	option = {
 		name = ww1_england.113.a
 		effect_tooltip = {
@@ -6137,6 +6186,12 @@ country_event = {
 		original_tag = POR
 		ENG = {
 			has_country_flag = eng_mozambique_bush_war
+		}
+		any_country = {
+			OR = {
+				original_tag = ENG
+				is_subject_of = ENG
+			}
 			controls_state = 544
 			controls_state = 540
 		}
@@ -7227,6 +7282,7 @@ country_event = {
 			is_subject_of = ENG
 			has_war_with = BAY
 			has_war_with = GER
+			has_war_with = AUH
 		}	
 	}
 	mean_time_to_happen = {
@@ -7241,6 +7297,16 @@ country_event = {
 			BAY = {
 				country_event = {
 					id = ww1_england.153
+				}
+			}
+			else_if = {
+			    limit = {
+				    NOT = { country_exists = GER }
+			    }
+				AUH = {
+					country_event = {
+						id = ww1_england.153
+					}
 				}
 			}
 			else = {
@@ -7760,6 +7826,26 @@ country_event = {
 		NOT = {
 			country_exists = MLT
 		}
+		owns_state = 116
+	}
+	immediate = {
+		hidden_effect = {
+			every_possible_country = {
+				limit = {
+					has_character = ENG_herbert_plumer
+				}
+				ENG_herbert_plumer = {
+					promote_leader = yes
+					add_country_leader_role = {
+						country_leader = {
+							ideology = oligarchism
+							traits = { great_war_hero british_agent }
+						}
+					}
+					set_nationality = MLT
+				}		
+			}
+		}
 	}
 	mean_time_to_happen = { days = 50 }
 	option = {
@@ -7768,12 +7854,8 @@ country_event = {
 			factor = 100
 		}
 		release = MLT
-		every_unit_leader = {
-			limit = {
-				has_id = 807
-			}
-			promote_leader = yes
-			set_nationality = MLT
+		MLT = {
+			promote_character = ENG_herbert_plumer
 		}
 		if = {
 			limit = {
@@ -8988,7 +9070,6 @@ country_event = {
 		hidden_effect = {
 			add_stability = -0.20
 			add_war_support = -0.10
-			remove_unit_leader = 899
 			set_country_flag = kitchener_dead
 		}
 	}
@@ -9674,6 +9755,7 @@ country_event = {
 	id = ww1_england.209
 	title = ww1_england.209.t
 	desc = ww1_england.209.d
+	picture = GFX_report_event_military_planning
 	is_triggered_only = yes
 	fire_only_once = yes
 	#We will accept his help
@@ -9682,13 +9764,14 @@ country_event = {
 		ai_chance = {
 			factor = 100
 		}
-		ENG = {
+		FROM = {
 			country_event = {
 				id = ww1_england.210
+				hours = 3
 			}
 			effect_tooltip = {
 				ENG_alfred_knox = {
-					set_nationality = RUS
+					set_nationality = ROOT
 				}
 			}
 		}
@@ -9707,17 +9790,15 @@ country_event = {
 	id = ww1_england.210
 	title = ww1_england.210.t
 	desc = ww1_england.210.d
+	picture = GFX_report_event_military_planning
 	is_triggered_only = yes
 	fire_only_once = yes
 	#Very ggood
 	option = {
 		name = ww1_england.210.a
-		ai_chance = {
-			factor = 100
-		}
 		add_political_power = 5
 		ENG_alfred_knox = {
-			set_nationality = RUS
+			set_nationality = FROM
 		}
 	}
 }
@@ -9726,14 +9807,12 @@ country_event = {
 	id = ww1_england.211
 	title = ww1_england.211.t
 	desc = ww1_england.211.d
+	picture = GFX_report_event_military_planning
 	is_triggered_only = yes
 	fire_only_once = yes
 	#sad!
 	option = {
 		name = ww1_england.211.a
-		ai_chance = {
-			factor = 100
-		}
 		add_political_power = 10
 	}
 }
@@ -10841,8 +10920,8 @@ country_event = {
 							ideology = agrarianism
 							traits = { war_industrialist }
 						}
+						promote_leader = yes
 					}
-					promote_character = agrarianism
 				}
 				set_party_name = {
 					ideology = democratic
@@ -10871,8 +10950,8 @@ country_event = {
 							german_agent
 						}
 					}
+					promote_leader = yes
 				}
-				promote_character = autocracy
 			}
 			set_party_name = {
 				ideology = neutrality
@@ -11213,7 +11292,15 @@ country_event = {
 						is_claimed_by = GER
 					}
 				}
-				transfer_state_to = GER
+				if = {
+				     limit = {
+					     NOT = { country_exists = GER }
+				        }
+				     transfer_state_to = AUH
+				}
+				else = {
+					transfer_state_to = GER
+				}
 			}
 			every_other_country = {
 				limit = {
@@ -11292,7 +11379,19 @@ country_event = {
 					limit = {
 						region = 226
 					}
+					random_country = {
+						limit = {
+							NOT = { original_tag = ROOT }
+							owns_state = 556
+						}
+					}
 					transfer_state_to = FRA
+				}
+				else_if = {
+					limit = {
+						NOT = { country_exists = GER }
+					}
+					transfer_state_to = AUH
 				}
 				else = {
 					transfer_state_to = GER
@@ -11351,6 +11450,12 @@ country_event = {
 						limit = { owns_state = 279 }
 						transfer_state = 270
 					}
+				}
+				else_if = {
+				     limit = {
+					     NOT = { country_exists = GER }
+				        }
+				     transfer_state_to = AUH
 				}
 				else = {
 					transfer_state_to = GER
@@ -11487,6 +11592,12 @@ country_event = {
 					is_on_continent = south_america
 				}
 				if = {
+				     limit = {
+					     NOT = { country_exists = GER }
+				        }
+				     transfer_state_to = AUH
+				}
+				else_if = {
 					limit = {
 						region = 64
 					}
@@ -11626,6 +11737,12 @@ country_event = {
 			factor = 100
 		}
 		add_stability = 0.10
+		set_autonomy = {
+			target = ENG
+			autonomy_state = autonomy_dominion
+			end_wars = no
+			end_civil_wars = no
+		}
 		ENG = {
 			add_popularity = {
 				popularity = 0.20
@@ -11643,12 +11760,38 @@ country_event = {
 				ruling_party = democratic
 				elections_allowed = yes
 			}
-		}
-		set_autonomy = {
-			target = ENG
-			autonomy_state = autonomy_dominion
-			end_wars = no
-			end_civil_wars = no
+			hidden_effect = {
+				if = {
+					limit = {
+						OR = {
+							ENG_herbert_henry_asquith = { is_country_leader = yes }
+							ENG_david_lloyd_george = { is_country_leader = yes }
+						}
+						NOT = { ENG_walter_long = { is_country_leader = yes } }
+						has_character = ENG_walter_long
+					}
+					ENG_walter_long = {
+						add_country_leader_role = {
+							country_leader = {
+								ideology = agrarianism
+								traits = { staunch_constitutionalist anti_communist }
+							}
+							promote_leader = yes
+						}
+					}
+					set_party_name = {
+						ideology = democratic
+						long_name = ENG_democratic_party_conservative
+						name = ENG_democratic_party_conservative
+					}
+				}
+				if = {
+					limit = {
+						GER = { has_government = fascism }
+					}
+					add_country_leader_trait = fascist_sympathies
+				}
+			}
 		}
 	}
 	#King Charles III's authority shall be maintained!
@@ -11693,6 +11836,7 @@ country_event = {
 			}
 		}
 		add_ideas = ENG_hmmlr
+		add_country_leader_trait = unpopular_monarch
 		hidden_effect = {
 			#generals
 			ENG_herbert_kitchener = {
@@ -11831,11 +11975,11 @@ country_event = {
 }
 
 #trying something out here
-country_event = {
+unit_leader_event = {
 	id = ww1_england.243
 	title = ww1_england.223.t
 	desc = ww1_england.223.d
-	picture = GFX_report_event_german_advisors_remain
+	#picture = GFX_report_event_german_advisors_remain
  	is_triggered_only = yes
 	fire_only_once = yes
 	option = {
@@ -11850,11 +11994,11 @@ country_event = {
 	}
 }
 #Republicans exile Kitchener to Egypt (in uk focus tree)
-country_event = {
+unit_leader_event = {
 	id = ww1_england.244
 	title = ww1_england.244.t
 	desc = ww1_england.244.d
-	picture = GFX_report_event_albanian_partisans
+	#picture = GFX_report_event_albanian_partisans
  	is_triggered_only = yes
 	fire_only_once = yes
 	#yes
