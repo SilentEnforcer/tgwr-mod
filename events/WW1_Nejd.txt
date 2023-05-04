@@ -1,0 +1,160 @@
+﻿add_namespace = ww1_nejd
+
+# Demands southern Kuwait
+country_event = {
+	id = ww1_nejd.1
+	title = ww1_nejd.1.t
+	desc = ww1_nejd.1.d
+	picture = GFX_report_event_generic_defensive_preparations
+	is_triggered_only = yes
+	option = {
+		name = ww1_nejd.1.a
+		if = {
+			limit = {
+				OR = {
+					is_subject = yes
+					is_in_faction = yes
+				}
+			}
+			set_country_flag = kuwait_najd_war
+			start_border_war = {
+				change_state_after_war = no
+				attacker = {
+					state = 292
+					num_provinces = 2
+					on_win = ww1_nejd.2
+					on_lose = ww1_nejd.3
+					on_cancel = ww1_nejd.4
+				}
+				defender = {
+					state = 905
+					num_provinces = 1
+					on_win = ww1_nejd.3
+					on_lose = ww1_nejd.2
+					on_cancel = ww1_nejd.4
+				}
+			}
+		}
+		else = {
+			FROM = {
+				create_wargoal = {
+					target = ROOT
+					type = take_claimed_state
+				}
+			}
+		}
+	}
+	option = {
+		name = ww1_nejd.1.b
+		every_owned_state = {
+			limit = {
+				OR = {
+					state = 904
+					state = 905
+				}
+			}
+			remove_claim_by = FROM
+			transfer_state_to = FROM
+		}
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = 10
+				is_in_faction_with = FROM
+			}
+			modifier = {
+				factor = 0
+				is_subject = yes
+				NOT = { is_subject_of = FROM }
+			}
+			modifier = {
+				factor = 0
+				strength_ratio = {
+					tag = FROM
+					ratio > 0.5
+				}
+			}
+		}
+	}
+}
+
+# Nejd won the war
+country_event = {
+	id = ww1_nejd.2
+	title = ww1_nejd.2.t
+	desc = ww1_nejd.2.d
+	picture = GFX_report_event_generic_sign_treaty1
+	is_triggered_only = yes
+	option = {
+		name = ww1_nejd.2.a
+		trigger = { original_tag = SAU }
+		every_state = {
+			limit = {
+				OWNER = {
+					has_country_flag = kuwait_najd_war
+				}
+				OR = {
+					state = 904
+					state = 905
+				}
+			}
+			transfer_state_to = ROOT
+		}
+	}
+	option = {
+		name = ww1_nejd.2.b
+		trigger = { NOT = { original_tag = SAU } }
+		effect_tooltip = {
+			every_owned_state = {
+				limit = {
+					OR = {
+						state = 904
+						state = 905
+					}
+				}
+				transfer_state_to = SAU
+			}
+		}
+		add_political_power = -50
+	}
+}
+
+# Nejd lost the war
+country_event = {
+	id = ww1_nejd.3
+	title = ww1_nejd.2.t
+	desc = ww1_nejd.3.d
+	picture = GFX_report_event_generic_sign_treaty1
+	is_triggered_only = yes
+	option = {
+		name = ww1_nejd.2.b
+		trigger = { original_tag = SAU }
+		add_war_support = -0.10
+	}
+	option = {
+		name = ww1_nejd.2.a
+		trigger = { NOT = { original_tag = SAU } }
+		if = {
+			limit = {
+				904 = { is_core_of = ROOT }
+			}
+			add_war_support = 0.10
+			add_political_power = 200
+			else = {
+				add_political_power = 50
+			}
+		}
+	}
+}
+
+# No more kuwaiti war
+country_event = {
+	id = ww1_nejd.4
+	title = ww1_nejd.2.t
+	desc = ww1_nejd.4.d
+	picture = GFX_report_event_generic_army
+	is_triggered_only = yes
+	option = {
+		name = ww1_nejd.4.a
+	}
+}
