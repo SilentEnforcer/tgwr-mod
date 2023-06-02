@@ -384,6 +384,10 @@ country_event = {
 	option = {
 		name = event_generic_ok
 		set_country_flag = FRA_communist_uprising
+		if = {
+			limit = { has_stability > 0.10 }
+			add_stability = -0.10
+		}
 	}
 }
 
@@ -399,6 +403,10 @@ country_event = {
 			type = infantry_equipment
 			amount = -1000
 		}
+		if = {
+			limit = { has_stability > 0.10 }
+			add_stability = -0.10
+		}
 	}
 }
 
@@ -413,6 +421,10 @@ country_event = {
 		add_popularity = {
 			ideology = communism
 			popularity = 0.05
+		}
+		if = {
+			limit = { has_stability > 0.10 }
+			add_stability = -0.10
 		}
 	}
 }
@@ -4722,6 +4734,7 @@ news_event = {
 		tag = FRA
 		date > 1911.9.1
 		NOT = {
+			has_global_flag = FRA_battleship_liberte
 			has_country_flag = FRA_battleship_liberte_exploded
 			has_country_flag = FRA_battleship_liberte_has_avoided_explosion
 		}	
@@ -4763,6 +4776,7 @@ country_event = {
 			count = 1
 		}
 		add_manpower = -286
+		set_global_flag = FRA_battleship_liberte
 		set_country_flag = FRA_battleship_liberte_exploded
 	}
 }
@@ -4775,6 +4789,7 @@ country_event = {
 	picture = GFX_battleship_liberte_class
 	is_triggered_only = yes
 	option = {
+		set_global_flag = FRA_battleship_liberte
 		set_country_flag = FRA_battleship_liberte_has_avoided_explosion
 		name = ww1_france.227.a
 	}
@@ -5382,16 +5397,9 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_france.240.a
-		effect_tooltip = {
-			create_corps_commander = {
-				name = "Maurice Janin"
-				portrait_path = "gfx/leaders/FRA/FRA_Maurice_Janin.png"
-				traits={ politically_connected winter_specialist }
-				skill=2
-				attack_skill=2
-				defense_skill=2
-				planning_skill=2
-				logistics_skill=2
+		FROM = {
+			FRA_maurice_janin = {
+				set_nationality = ROOT
 			}
 		}
 		add_command_power = 25
@@ -6042,14 +6050,34 @@ country_event = {
 					}
 					add_claim_by = NFA
 				}
-				set_politics = {
-					ruling_party = fascism
-					elections_allowed = no
+				if = {
+					limit = {
+						PREV = { has_country_flag = FRA_fight_the_communists_title }
+					}
+					set_politics = {
+						ruling_party = democratic
+						elections_allowed = no
+					}
+					set_popularities = {
+						democratic = 41
+						neutrality = 36
+						fascism = 23
+					}
+					load_focus_tree = {
+						tree = french_focus
+						keep_completed = yes
+					}
 				}
-				set_popularities = {
-					democratic = 36
-					neutrality = 23
-					fascism = 41
+				else = {
+					set_politics = {
+						ruling_party = fascism
+						elections_allowed = no
+					}
+					set_popularities = {
+						democratic = 36
+						neutrality = 23
+						fascism = 41
+					}
 				}
 				set_capital = { state = 26 }
 				set_country_flag = FRA_nationalist_france_flag
@@ -6379,26 +6407,6 @@ country_event = {
 					}
 				}
 			}
-			division_template = {
-				name = "Avant-garde socialiste"
-				priority = 0
-				regiments = {
-					militia = { x = 0 y = 0 }
-					militia = { x = 0 y = 1 }
-					militia = { x = 1 y = 0 }
-					militia = { x = 1 y = 1 }
-				}
-			}
-			every_owned_state = {
-				create_unit = {
-					division = "division_template = \"Avant-garde socialiste\" start_experience_factor = 0.1 start_equipment_factor = 0.5"
-					owner = PREV
-				}
-				create_unit = {
-					division = "division_template = \"Avant-garde socialiste\" start_experience_factor = 0.1 start_equipment_factor = 0.5"
-					owner = PREV
-				}
-			}
 			remove_ideas = {
 				FRA_disjointed_government
 				FRA_memories_of_1870
@@ -6443,24 +6451,123 @@ country_event = {
 			}
 			set_country_flag = FRA_socialist_france_flag
 			set_cosmetic_tag = FRA_socialism
-			transfer_units_fraction = {
-				target = NFA
-				size = 0.45
-				stockpile_ratio = 0.4
-				army_ratio = 0.45
-				navy_ratio = 0.75
-				air_ratio = 0.5
-				keep_unit_leaders_trigger = {
-					OR = {
-						has_id = 32005
-						has_id = 32008
-						NOT = {
-							has_trait = old_guard
-							has_trait = old_guard_navy
-							has_trait = politically_connected
-							has_trait = harsh_leader
-							has_trait = trait_royalist
+			if = {
+				limit = {
+					has_country_flag = FRA_fight_the_communists_title
+				}
+				set_country_flag = FRA_communist_civil_war_begun
+				FRC = {
+					add_ideas = FRA_land_army_restrictions
+					add_ideas = FRA_naval_army_restrictions
+					add_ideas = FRA_disorganised_partisans
+					add_ideas = interwar_recovery
+					transfer_units_fraction = {
+						target = NFA
+						size = 0.9
+						keep_unit_leaders_trigger = {
+							NOT = {
+								has_id = 32005
+								has_id = 32008
+								has_trait = old_guard
+								has_trait = old_guard_navy
+								has_trait = politically_connected
+								has_trait = harsh_leader
+								has_trait = trait_royalist
+							}
 						}
+					}
+				}
+				every_state = {
+					limit = {
+						is_owned_by = FRC
+						NOT = { has_state_flag = communard_presence }
+					}
+					transfer_state_to = NFA
+				}
+				every_state = {
+					limit = {
+						is_controlled_by = NFA
+						has_state_flag = communard_presence
+					}
+					FRC = {
+						set_state_owner = PREV
+						set_state_controller = PREV
+						division_template = {
+							name = "Troupe de communards"
+							priority = 0
+							regiments = { 
+								militia = {
+									x = 0
+									y = 0
+								}
+								militia = {
+									x = 0
+									y = 1
+								}
+								militia = {
+									x = 0
+									y = 2
+								}
+							}
+						}
+						every_state = {
+							limit = { has_state_flag = communard_presence }
+							create_unit = {
+								division = "division_template = \"Troupe de communards\" start_experience_factor = 0.1 start_equipment_factor = 0.5"
+								owner = PREV
+							}
+							create_unit = {
+								division = "division_template = \"Troupe de communards\" start_experience_factor = 0.1 start_equipment_factor = 0.5"
+								owner = PREV
+							}
+							create_unit = {
+								division = "division_template = \"Troupe de communards\" start_experience_factor = 0.1 start_equipment_factor = 0.5"
+								owner = PREV
+							}
+						}
+					}
+				}
+			}
+			else = {
+				transfer_units_fraction = {
+					target = NFA
+					size = 0.45
+					stockpile_ratio = 0.4
+					army_ratio = 0.45
+					navy_ratio = 0.75
+					air_ratio = 0.5
+					keep_unit_leaders_trigger = {
+						OR = {
+							has_id = 32005
+							has_id = 32008
+							NOT = {
+								has_trait = old_guard
+								has_trait = old_guard_navy
+								has_trait = politically_connected
+								has_trait = harsh_leader
+								has_trait = trait_royalist
+							}
+						}
+					}
+				}
+				division_template = {
+					name = "Avant-garde socialiste"
+					priority = 0
+					regiments = {
+						militia = { x = 0 y = 0 }
+						militia = { x = 0 y = 1 }
+						militia = { x = 1 y = 0 }
+						militia = { x = 1 y = 1 }
+					}
+				}
+				every_owned_state = {
+					create_unit = {
+						division = "division_template = \"Avant-garde socialiste\" start_experience_factor = 0.1 start_equipment_factor = 0.5"
+						owner = PREV
+					}
+					create_unit = {
+						division = "division_template = \"Avant-garde socialiste\" start_experience_factor = 0.1 start_equipment_factor = 0.5"
+						owner = PREV
 					}
 				}
 			}
@@ -6489,6 +6596,9 @@ country_event = {
 	}
 	option = {
 		name = ww1_france.5.a
+		trigger = {
+			is_ai = no
+		}
 		set_global_flag = french_civil_war
 		declare_war_on = {
 			target = NFA
@@ -6499,27 +6609,27 @@ country_event = {
 		NFA = {
 			load_focus_tree = france_nationalist_focus
 			hidden_effect = { add_ideas = FRA_idea_french_civil_war }
-			change_tag_from = FRA
-		}
-		ai_chance = {
-			factor = 0
+			change_tag_from = ROOT
 		}
 	}
 	option = {
 		name = ww1_france.5.b
+		trigger = {
+			OR = {
+				is_ai = yes
+				NOT = { has_country_flag = FRA_fight_the_communists_title }
+			}
+		}
 		set_global_flag = french_civil_war
 		declare_war_on = {
 			target = NFA
-			 type = civil_war
+			type = civil_war
 		}
 		load_focus_tree = france_socialist_focus
 		hidden_effect = { add_ideas = FRA_idea_french_civil_war }
 		NFA = {
 			load_focus_tree = france_nationalist_focus
 			hidden_effect = { add_ideas = FRA_idea_french_civil_war }
-		}
-		ai_chance = {
-			factor = 100
 		}
 	}
 }
@@ -7184,6 +7294,7 @@ news_event = {
 	}
 }
 
+# Postwar Entente invitation
 country_event = {
 	id = ww1_france.28
 	title = ww1_france.28.t
@@ -7197,6 +7308,20 @@ country_event = {
 		}
 		FROM = {
 			add_to_faction = ROOT
+			hidden_effect = {
+				add_ai_strategy = {
+					type = alliance
+					id = ROOT
+					value = 100
+				}
+				ROOT = {
+					add_ai_strategy = {
+						type = alliance
+						id = PREV
+						value = 100
+					}
+				}
+			}
 		}
 		if = {
 			limit = {
@@ -7602,5 +7727,174 @@ country_event = {
 			}
 		}
 		GRE = { country_event = ww1_greece.5 }
+	}
+}
+
+#Czechoslovak Legion
+country_event = {
+	id = ww1_france.246
+	title = ww1_france.246.t
+	desc = ww1_france.246.d
+	picture = GFX_report_event_czech_soldiers_02
+	fire_only_once = yes
+	trigger = {
+		original_tag = FRA
+		has_character = FRA_milan_ratislav_stefanik
+		is_subject = no
+		# War is not over yet
+		has_global_flag = kis_war
+		NOT = {
+			has_global_flag = GER_capitulation
+			has_global_flag = FRA_capitulation
+			has_country_flag = FRA_czechoslovak_legion_flag
+		}
+		# Czechoslovakia is being oppressed
+		any_other_country = {
+			is_major = yes
+			has_war_with = ROOT
+			OR = {
+				any_owned_state = {
+					OR = {
+						is_core_of = CZE
+						is_core_of = SLO
+					}
+				}
+				has_subject = CZE
+				has_subject = SLO
+			}
+		}
+		# Not in war with Czechoslovakia
+		if = {
+			limit = {
+				country_exists = CZE
+			}
+			CZE = {
+				has_war_with = ROOT
+				is_subject = yes
+			}
+		}
+		if = {
+			limit = {
+				country_exists = SLO
+			}
+			SLO = {
+				has_war_with = ROOT
+				is_subject = yes
+			}
+		}
+		date > 1916.1.1
+	}
+	mean_time_to_happen = { days = 365 }
+	option = {
+		name = ww1_france.246.a
+		add_manpower = 9600
+		effect_tooltip = {
+			FRA_milan_ratislav_stefanik = {
+				add_corps_commander_role = {
+					skill = 3
+					attack_skill = 2
+					defense_skill = 3
+					planning_skill = 2
+					logistics_skill = 3
+					traits = { politically_connected trickster guerilla_fighter }
+				}
+			}
+		}
+		set_country_flag = FRA_czechoslovak_legion_flag
+		hidden_effect = {
+			CZE = {
+				add_opinion_modifier = {
+					target = ROOT
+					modifier = czechoslovak_legion_opinion
+				}
+			}
+			SLO = {
+				add_opinion_modifier = {
+					target = ROOT
+					modifier = czechoslovak_legion_opinion
+				}
+			}
+		}
+	}
+}
+
+#Czechoslovak Legion goes home
+country_event = {
+	id = ww1_france.247
+	title = ww1_france.247.t
+	desc = ww1_france.247.d
+	picture = GFX_report_event_czech_soldiers_01
+	fire_only_once = yes
+	trigger = {
+		original_tag = FRA
+		has_character = FRA_milan_ratislav_stefanik
+		has_country_flag = FRA_czechoslovak_legion_flag
+		has_war = no
+		OR = {
+			CZE = {
+				exists = yes
+				is_subject = no
+			}
+			SLO = {
+				exists = yes
+				is_subject = no
+				NOT = { has_government = communism }
+			}
+		}
+	}
+	option = {
+		name = ww1_france.247.a
+		add_manpower = -9600
+		FRA_milan_ratislav_stefanik = {
+			promote_leader = yes
+			add_unit_leader_trait = war_hero
+			if = {
+				limit = {
+					country_exists = SLO
+					SLO = { is_subject = no NOT = { has_government = communism } }
+				}
+				set_nationality = SLO
+				hidden_effect = {
+					SLO = {
+						add_manpower = 9600
+						country_event = {
+							id = ww1_france.248
+							hours = 4
+						}
+					}
+				}
+				else_if = {
+					limit = {
+						country_exists = CZE
+					}
+					set_nationality = CZE
+					hidden_effect = {
+						CZE = {
+							add_manpower = 9600
+							country_event = {
+								id = ww1_france.248
+								hours = 4
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+# Aircraft crash and Milian died
+country_event = {
+	id = ww1_france.248
+	title = ww1_france.248.t
+	desc = ww1_france.248.d
+	picture = GFX_report_event_ITA_air_crash
+	is_triggered_only = yes
+	option = {
+		name = ww1_france.248.a
+		retire_character = FRA_milan_ratislav_stefanik
+		hidden_effect = {
+			SLO = { retire_character = SLO_milan_rastislav_stefanik }
+		}
 	}
 }

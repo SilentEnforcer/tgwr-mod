@@ -54,10 +54,11 @@ country_event = {
 				division_template = "Tsingtao Garnison"
 				disband = yes
 			}
-			GER = {
-				annex_country = {
-					target = GER
-					transfer_troops = no
+			every_state = {
+				GER = {
+					delete_unit = {
+						state = PREV
+					}
 				}
 			}
 			add_ideas = interwar_recovery
@@ -80,12 +81,6 @@ country_event = {
 			elections_allowed = yes
 		}
 		hidden_effect = {
-			every_unit_leader = {
-				limit = {
-					has_trait = trait_royal
-				}
-				remove_unit_leader_role = yes
-			}
 			set_popularities = {
 				democratic = 42
 				neutrality = 26
@@ -95,7 +90,7 @@ country_event = {
 			remove_ideas = GER_idea_wilhelm_ii
 			GER_wilhelm_ii = {
 				remove_country_leader_role = {
-					ideology = autocracy
+					ideology = semi_constitutional_monarchy
 				}
 			}
 			set_party_name = {
@@ -570,6 +565,29 @@ country_event = {
 		set_global_flag = spartacist_uprising
 		ai_chance = {
 			factor = 100
+			modifier = {
+				factor = 0
+				has_game_rule = {
+						rule = GER_postwar_path
+						option = COMMUNIST_SPARTAKIST
+						}
+						NOT = { 
+							RUS = {
+								has_country_flag = great_war_winner
+								has_country_leader = {
+								character = RUS_nikolai_ii
+								ruling_only = no
+							}
+					OR = {
+						has_cosmetic_tag = RUS_absolutism
+						NOT = {
+							has_government = communism
+							}
+						}
+				
+					}
+				}
+			}
 		}
 	}
 	option = {
@@ -586,8 +604,14 @@ country_event = {
 			factor = 30
 			modifier = {
 				is_historical_focus_on = yes
+				NOT = {
+					has_game_rule = {
+						rule = GER_postwar_path
+						option = COMMUNIST_SPARTAKIST
+						}
+					}	
 				factor = 0
-			}
+			}	
 			modifier = {
 				RUS = {
 					has_country_flag = great_war_winner
@@ -604,10 +628,16 @@ country_event = {
 				}
 				factor = 0
 			}
+			modifier = {
+				factor = 0
+				has_game_rule = {
+					rule = GER_postwar_path
+					option = FASCIST_HITLER
+				}
+			}		
 		}
 	}
 }
-
 # SPARTAKISTS REVOLUTION
 ###########################
 country_event = {
@@ -1474,12 +1504,19 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		tag = GER
+		is_subject = no
 		has_global_flag = brothers_war
+		OR = {
+			AND = {
+				has_government = neutrality
+				NOT = { has_country_flag = great_war_loser }
+			}
+			has_idea = GER_idea_wilhelm_ii
+		}
 		NOT = {
 			country_exists = AUH
-			HUN = {
-				has_country_flag = hungarian_revanchism
-			}
+			country_exists = AUS
+			HUN = { has_country_flag = hungarian_revanchism }
 		}
 		owns_state = 4
 		owns_state = 152
@@ -1564,7 +1601,7 @@ country_event = {
 					add_country_leader_role = {
 						promote_leader = yes
 						country_leader = {
-							ideology = autocracy
+							ideology = semi_constitutional_monarchy
 							traits = {
 								oldschool_kaiser
 							}
@@ -1578,19 +1615,19 @@ country_event = {
 					AUS_karl_i = {
 						add_country_leader_role = {
 							country_leader = {
-								ideology = autocracy
+								ideology = semi_constitutional_monarchy
 							}
 						}
-						promote_character = autocracy
+						promote_character = semi_constitutional_monarchy
 					}
 					else = {
 						AUS_franz_ferdinand_i = {
 							add_country_leader_role = {
 								country_leader = {
-									ideology = autocracy
+									ideology = semi_constitutional_monarchy
 								}
 							}
-							promote_character = autocracy
+							promote_character = semi_constitutional_monarchy
 						}
 					}
 				}
@@ -1699,6 +1736,7 @@ country_event = {
 						state = 789
 						state = 548
 						state = 768
+						state = 902
 					}
 				}
 				MAF = {
@@ -1924,7 +1962,14 @@ country_event = {
 	}
 	option = {
 		name = ww1_germany.26.a
-		GER_paul_von_lettowvorbeck = { set_nationality = MAF }
+		if = {
+			limit = {
+				has_character = GER_paul_von_lettowvorbeck
+			}
+			GER_paul_von_lettowvorbeck = {
+				set_nationality = TZN
+			}
+		}	
 		hidden_effect = {
 			news_event = { id = interwar_news.21 hours = 3 }
 		}
@@ -2340,6 +2385,7 @@ country_event = {
 	}
 }
 
+# Offer for Sweden
 country_event = {
 	id = ww1_germany.40
 	title = ww1_germany.40.t
@@ -2387,38 +2433,72 @@ country_event = {
 	}
 }
 
+# Central Powers Conference answer
 country_event = {
 	id = ww1_germany.41
 	title = ww1_germany.41.t
 	desc = ww1_germany.41.d
+	desc = {
+		text = ww1_germany.41.d
+		trigger = {
+			has_country_flag = get_german_factories
+		}
+	}
+	desc = {
+		text = ww1_germany.41.e
+		trigger = {
+			has_country_flag = get_german_techs
+		}
+	}
+	desc = {
+		text = ww1_germany.41.f
+		trigger = {
+			has_country_flag = get_german_nothing
+		}
+	}
 	picture = GFX_report_event_generic_read_write
 	is_triggered_only = yes
 	option = {
 		name = ww1_germany.41.a
-		GER = {
+		FROM = {
 			country_event = {
 				id = ww1_germany.38
 				days = 2
 			}
 		}
 		ai_chance = {
-			factor = 70
+			base = 50
 			modifier = {
-				SWE = {
-					has_country_flag = get_german_nothing
+				add = 20
+				has_country_flag = get_german_factories
+			}
+			modifier = {
+				add = 10
+				has_country_flag = get_german_techs
+			}
+			modifier = {
+				OR = {
+					is_major = yes
+					tag = SWE
 				}
+				has_country_flag = get_german_nothing
 				factor = 0.1
+			}
+			modifier = {
+				has_opinion = {
+					target = FROM
+					value < 0
+				}
+				factor = 0
 			}
 		}
 	}
 	option = {
 		name = ww1_germany.41.b
-		ROOT = {
-			clr_country_flag = get_german_factories
-			clr_country_flag = get_german_techs
-			clr_country_flag = get_german_nothing
-		}
-		GER = {
+		clr_country_flag = get_german_factories
+		clr_country_flag = get_german_techs
+		clr_country_flag = get_german_nothing
+		FROM = {
 			country_event = {
 				id = ww1_germany.39
 				days = 2
@@ -3482,7 +3562,7 @@ country_event = {
 	id = ww1_germany.59
 	title = ww1_germany.59.t
 	desc = ww1_germany.59.d
-	picture = rusrevolt_6
+	picture = GFX_report_event_lenin_assassination
 	is_triggered_only = yes
 	fire_only_once = yes
 	option = {
@@ -4180,7 +4260,7 @@ country_event = {
 		}
 		ROM = {
 			give_resource_rights = {
-				receiver = GER
+				receiver = ROOT
 				state = 46
 			}
 			add_ideas = ROM_idea_german_control
@@ -4454,7 +4534,18 @@ news_event = {
 	desc = ww1_germany.81.d
 	picture = GFX_news_event_ger_civil_war
 	major = yes
-	is_triggered_only = yes
+	trigger = {
+		NOT = { has_global_flag = occupation_of_rhineland }
+		has_global_flag = versallies_treaty
+		FRA = {
+			owns_state = 42
+			has_country_flag = great_war_winner
+		}
+		GER = {
+			has_country_flag = great_war_loser
+		}
+	}
+	fire_only_once = yes
 	immediate = {
 		hidden_effect = {
 			set_global_flag = occupation_of_rhineland
@@ -5151,38 +5242,10 @@ country_event = {
 	desc = ww1_germany.91.d
 	picture = GFX_report_event_worker_protests
 	is_triggered_only = yes
-	immediate = {
-		hidden_effect = {
-			if = {
-				limit = {
-					has_idea = ger_famine_early
-				}
-				swap_ideas = {
-					remove_idea = ger_famine_early
-					add_idea = ger_famine
-				}
-				else = {
-					add_ideas = ger_famine_early
-				}
-			}
-		}
-	}
 	option = {
 		name = ww1_germany.91.a
-		effect_tooltip = {
-			if = {
-				limit = {
-					has_idea = ger_famine_early
-				}
-				swap_ideas = {
-					remove_idea = ger_famine_early
-					add_idea = ger_famine
-				}
-				else = {
-					add_ideas = ger_famine_early
-				}
-			}
-		}
+		add_stability = -0.10
+		add_war_support = -0.10
 	}
 }
 
@@ -6256,14 +6319,14 @@ country_event = {
 					add_country_leader_role = {
 						country_leader = {
 							desc = "GER_wilhelm_ii_desc"
-							ideology = autocracy
+							ideology = semi_constitutional_monarchy
 							traits = {
 								anti_democrat
 								ww_one_trauma
 							}
 						}
 					}
-					promote_character = autocracy
+					promote_character = semi_constitutional_monarchy
 				}
 				else = {
 					HOL = {
