@@ -108,7 +108,7 @@ country_event = {
 			has_idea = TUR_sultan_mehmed_v
 			has_country_leader = {
 				character = TUR_mehmed_v
-				ruling_only = yes
+				ruling_only = no
 			}
 		}
 		NOT = {
@@ -122,10 +122,6 @@ country_event = {
 			}
 			has_country_leader = {
 				character = TUR_yusuf_izzeddin
-				ruling_only = yes
-			}
-			has_country_leader = {
-				character = TUR_abdulhamid_ii
 				ruling_only = yes
 			}
 		}
@@ -161,55 +157,6 @@ country_event = {
 	}
 	option = {
 		name = ww1_ottoman.8.a
-	}
-}
-
-country_event = {
-	id = ww1_ottoman.188
-	title = ww1_ottoman.188.t
-	desc = ww1_ottoman.188.d
-	picture = GFX_report_event_europe_funeral
-	hidden = yes
-	trigger = {
-		tag = TUR
-		date > 1918.7.2
-		has_country_flag = yusuf_izzettin_suicide
-		has_country_leader = {
-			character = TUR_mehmed_v
-			ruling_only = no
-		}
-	}
-	mean_time_to_happen = {
-		days = 1
-	}
-	fire_only_once = yes
-	immediate = {
-		hidden_effect = {
-			set_global_flag = interwar_mehmed_vi_succeeded_mehmed_v
-			set_country_flag = TUR_mehmed_v_dies
-			retire_character = TUR_mehmed_v
-			TUR_mehmed_vi = {
-				set_character_name = "TUR_mehmed_vi"
-			}
-			if = {
-				limit = {
-					has_country_leader = {
-						character = TUR_mehmed_v
-					}
-				}
-				promote_character = TUR_mehmed_vi
-			}
-			if = {
-				limit = {
-					has_idea = TUR_sultan_mehmed_v
-				}
-				remove_ideas = TUR_sultan_mehmed_v
-				add_ideas = TUR_sultan_mehmed_vi
-			}
-		}
-	}
-	option = {
-		name = ww1_ottoman.188.a
 	}
 }
 
@@ -335,16 +282,8 @@ country_event = {
 	picture = GFX_report_event_tur_turkish_soldiers
 	trigger = {
 		tag = TUR
-		446 = {
-			owns_or_subject_of = no
-			controls_or_subject_of = yes
-		}
-		447 = {
-			owns_or_subject_of = no
-			controls_or_subject_of = yes
-		}
-		has_war = yes
-		has_capitulated = no
+		controls_state = 446
+		controls_state = 447
 		has_global_flag = kis_war
 		NOT = {
 			has_global_flag = great_war_ends
@@ -353,8 +292,6 @@ country_event = {
 	fire_only_once = yes
 	option = {
 		name = ww1_ottoman.15.a
-		add_war_support = 0.10
-		add_political_power = 125
 		set_country_flag = ottomans_hold_cairo_and_alexandria
 	}
 }
@@ -382,121 +319,111 @@ country_event = {
 		hidden_effect = {
 			every_state = {
 				limit = {
-					OWNER = {
-						has_country_flag = great_war_loser
+					OR = {
+						is_owned_by = ENG
+						is_owned_by = EGY
 					}
 					OR = {
-						is_core_of = EGY
-						is_core_of = SUD
-						is_core_of = DAR
+						state = 447
+						state = 453
 					}
 				}
-				# Take Suez and Ottoman core states
-				if = {
-					limit = {
-						OR = {
-							state = 447
-							state = 453
-							is_core_of = ROOT
-						}
-					}
-					transfer_state_to = ROOT
-					else = {
-						# The others belongs to the Khedivate
-						transfer_state_to = EGY
-					}
-				}
-				# Annex it if Egypt is no longer has any Egyptian core state
-				EGY = {
-					if = {
-						limit = {
-							NOT = {
-								any_owned_state = {
-									is_core_of = PREV
-								}
-							}
-						}
-						ROOT = {
-							annex_country = {
-								target = PREV
-							}
-						}
-					}
+				TUR = {
+					transfer_state = PREV
 				}
 			}
-			# No longer puppet of the defeated one
-			every_other_country = {
-				limit = {
-					has_subject = EGY
-					has_country_flag = great_war_loser
+			ENG = {
+				if = {
+					limit = {
+						has_subject = EGY
+					}
+					end_puppet = EGY
 				}
-				end_puppet = EGY
 			}
 			EGY = {
 				country_lock_all_division_template = no
-				# Pro Ottoman Khedive
-				promote_character = EGY_abbas_ii_helmy
+				promote_character = EGY_abbas_ii_helmy			
 				drop_cosmetic_tag = yes
-				# Fix Senussian border
-				if = {
+				every_state = {
 					limit = {
-						country_exists = LBA
-					}
-					every_owned_state = {
-						limit = {
-							OR = {
-								state = 552
-								state = 767
-							}
+						is_owned_by = ENG
+						OR = {
+							is_core_of = EGY
+							is_core_of = SUD
+							is_core_of = DAR
 						}
-						transfer_state_to = LBA
+					}
+					EGY = {
+						transfer_state = PREV
 					}
 				}
 			}
-			# Puppet Khedivate
 			if = {
 				limit = {
-					NOT = { has_subject = EGY }
+					country_exists = LBA
 				}
-				if = {
+				every_state = {
 					limit = {
-						has_dlc = "Together for Victory"
+						is_owned_by = EGY
+						OR = {
+							state = 552
+							state = 767
+						}
 					}
+					LBA = {
+						transfer_state = PREV
+					}
+				}
+			}
+		}
+		if = {
+			limit = {
+				NOT = { EGY = { is_subject_of = TUR } }
+			}
+			if = {
+				limit = {
+					has_dlc = "Together for Victory"
+				}
+				TUR = {
 					set_autonomy = {
 						target = EGY
 						autonomous_state = autonomy_dominion
 						freedom_level = 0.8
 					}
-					else = {
-						puppet = EGY
+				}
+				else = {
+					puppet = EGY
+				}
+				EGY = {
+					set_politics = {
+						ruling_party = neutrality
+						elections_allowed = no
+					}
+					set_popularities = {
+						democratic = 34
+						neutrality = 65
 					}
 				}
-				# For the Ottoman socialist path
-				if = {
-					limit = {
-						has_government = communism
+			}
+		}
+		EGY = {
+			every_owned_state = {
+				limit = {
+					is_core_of = TUR
+				}
+				transfer_state_to = TUR
+			}
+			if = {
+				limit = {
+					NOT = {
+						any_owned_state = {
+							is_core_of = EGY
+						}
 					}
-					EGY = {
-						set_politics = {
-							ruling_party = communism
-							elections_allowed = no
-						}
-						set_popularities = {
-							communism = 100
-						}
-					}
-					# For the other paths
-					else = {
-						EGY = {
-							set_politics = {
-								ruling_party = neutrality
-								elections_allowed = no
-							}
-							set_popularities = {
-								democratic = 34
-								neutrality = 65
-							}
-						}
+				}
+				TUR = {
+					annex_country = {
+						target = EGY
 					}
 				}
 			}
@@ -713,10 +640,10 @@ country_event = {
 				}
 				keep_political_leader = yes
 				PREV = {
-					TUR_ismail_enver = {
-						set_nationality = PREV.PREV
-					}
-				}
+       				TUR_ismail_enver = {
+        			    set_nationality = PREV.PREV
+        			}
+    			}
 				TUR_ismail_enver = {
 					promote_character = despotism
 					set_character_name = TUR_ismail_enver_pasha
@@ -912,7 +839,7 @@ country_event = {
 			}
 			OTT = {	
 				TUR_ismail_enver = {
-					promote_character = ittihadism
+					promote_character = fascism_ideology
 					set_character_name = TUR_ismail_enver_pasha
 					if = {
 						limit = {
@@ -962,37 +889,6 @@ country_event = {
 	option = {
 		name = ww1_ottoman.27.a
 		news_event = ww1_ottoman.14
-		remove_unit_leader = 90161
-		add_stability = -0.1
-		add_popularity = {
-			ideology = fascism
-			popularity = 0.15
-		}
-		add_popularity = {
-			ideology = neutrality
-			popularity = 0.2
-		}
-		if = {
-			limit = {
-				has_active_mission = london_conference
-			}
-			declare_war_on = {
-				target = BUL
-				type = annex_everything
-			}
-			declare_war_on = {
-				target = SER
-				type = annex_everything
-			}
-			declare_war_on = {
-				target = GRE
-				type = annex_everything
-			}
-			declare_war_on = {
-				target = MNT
-				type = annex_everything
-			}
-		}
 		add_ideas = TUR_idea_liberal_revenge
 		set_country_flag = TUR_raid_on_sublime_porte_successful
 		hidden_effect = {
@@ -1247,16 +1143,16 @@ country_event = {
 					keep_completed = no
 				}
 				hidden_effect = {
-					# mark_focus_tree_layout_dirty = yes
-					# unlock_national_focus = TUR_legacy_of_31_march
-					# unlock_national_focus = TUR_choose_side
-					# unlock_national_focus = TUR_harbiyeli
-					# unlock_national_focus = TUR_reshape_the_army
-					# unlock_national_focus = TUR_hurriyet_musavat_uhuvvet
-					# unlock_national_focus = TUR_weaken_the_sultans_power
-					# unlock_national_focus = TUR_coup_of_savior_officers
-					# unlock_national_focus = TUR_raid_on_sublime_porte
-					# unlock_national_focus = TUR_empower_nazir_i_harbiye
+					mark_focus_tree_layout_dirty = yes
+					unlock_national_focus = TUR_legacy_of_31_march
+					unlock_national_focus = TUR_choose_side
+					unlock_national_focus = TUR_harbiyeli
+					unlock_national_focus = TUR_reshape_the_army
+					unlock_national_focus = TUR_hurriyet_musavat_uhuvvet
+					unlock_national_focus = TUR_weaken_the_sultans_power
+					unlock_national_focus = TUR_coup_of_savior_officers
+					unlock_national_focus = TUR_raid_on_sublime_porte
+					unlock_national_focus = TUR_empower_nazir_i_harbiye
 				}
 				add_ideas = TUR_sultan_mehmed_v
 				set_country_flag = TUR_revolter_flag
@@ -1276,7 +1172,7 @@ country_event = {
 			}
 			OTT = {	
 				TUR_ismail_enver = {
-					promote_character = ittihadism
+					promote_character = fascism_ideology
 					set_character_name = TUR_ismail_enver_pasha
 					if = {
 						limit = {
@@ -1383,7 +1279,7 @@ country_event = {
 			}
 			OTT = {	
 				TUR_ismail_enver = {
-					promote_character = ittihadism
+					promote_character = fascism_ideology
 					set_character_name = TUR_ismail_enver_pasha
 					if = {
 						limit = {
@@ -1612,7 +1508,7 @@ country_event = {
 			amount = 8
 			state = 656
 		}
-		874 = {
+		291 = {
 			add_extra_state_shared_building_slots = 1
 			add_building_construction = {
 				type = infrastructure
@@ -1623,7 +1519,7 @@ country_event = {
 		add_resource = {
 			type = oil
 			amount = 6
-			state = 874
+			state = 291
 		}
 		413 = {
 			add_extra_state_shared_building_slots = 1
@@ -1711,7 +1607,7 @@ country_event = {
 			amount = 8
 			state = 656
 		}
-		874 = {
+		291 = {
 			add_extra_state_shared_building_slots = 1
 			add_building_construction = {
 				type = infrastructure
@@ -1722,7 +1618,7 @@ country_event = {
 		add_resource = {
 			type = oil
 			amount = 6
-			state = 874
+			state = 291
 		}
 		413 = {
 			add_extra_state_shared_building_slots = 1
@@ -2188,7 +2084,7 @@ country_event = {
 		
 		TUR_ahmed_nihad = {
 			set_character_name = TUR_ahmed_iv
-			promote_character = semi_constitutional_monarchy		
+			promote_character = autocracy		
 		}
 		set_party_name = {
 			ideology = neutrality
@@ -2228,12 +2124,6 @@ country_event = {
 			GER_otto_liman_von_sanders = {
 				promote_leader = yes				
 				set_nationality = TUR
-				set_portraits = {
-					army = {
-						large="gfx/leaders/TUR/TUR_liman_von_sanders.png"
-						small="gfx/interface/ideas/TUR/idea_TUR_liman_von_sanders.png"
-					}
-				}
 			}
 		}
 		if = {
@@ -2285,9 +2175,9 @@ country_event = {
 		name = ww1_ottoman.50.a
 		effect_tooltip = {
 			add_equipment_to_stockpile = {
-				type = convoy
-				amount = -15
-			}
+    			type = convoy
+    			amount = -15
+		    }
 			add_manpower = -150
 			destroy_ships = {
 				type = destroyer
@@ -2318,32 +2208,32 @@ country_event = {
 			}
 			custom_effect_tooltip = RUS_naval_vessels_receive_damage
 			damage_units = {
-				province = 3686
-				str_damage = 0.3
-				ratio = yes
-				army = no
-				navy = yes
+   			    province = 3686
+    			str_damage = 0.3
+    			ratio = yes
+    			army = no
+    			navy = yes
 			}
 			damage_units = {
-				province = 11670
-				str_damage = 0.3
-				ratio = yes
-				army = no
-				navy = yes
+   			    province = 11670
+    			str_damage = 0.3
+    			ratio = yes
+    			army = no
+    			navy = yes
 			}
 			damage_units = {
-				province = 6704
-				str_damage = 0.3
-				ratio = yes
-				army = no
-				navy = yes
+   			    province = 6704
+    			str_damage = 0.3
+    			ratio = yes
+    			army = no
+    			navy = yes
 			}
 			damage_units = {
-				province = 9680
-				str_damage = 0.3
-				ratio = yes
-				army = no
-				navy = yes
+   			    province = 9680
+    			str_damage = 0.3
+    			ratio = yes
+    			army = no
+    			navy = yes
 			}
 		}
 		ai_chance = {
@@ -3189,9 +3079,11 @@ country_event = {
 	picture = GFX_report_event_generic_read_write
 	fire_only_once = yes
 	trigger = {
-		original_tag = TUR
-		has_subject = JBS
-		has_capitulated = no
+		TAG = TUR
+		JBS = {
+			exists = yes
+			is_subject_of = TUR
+		}
 		TUR = {
 			owns_state = 292
 			owns_state = 678
@@ -3202,15 +3094,11 @@ country_event = {
 		ai_chance = {
 			factor = 100
 		}
-		every_owned_state = {
-			limit = {
-				OR = {
-					state = 292
-					state = 678
-				}
-			}
-			add_core_of = JBS
-			transfer_state_to = JBS
+		JBS = {
+			transfer_state = 292
+			add_state_core = 292
+			transfer_state = 678
+			add_state_core = 678
 		}
 	}
 	option = {
@@ -3218,23 +3106,19 @@ country_event = {
 		ai_chance = {
 			factor = 0
 		}
-		hidden_effect = {
-			end_puppet = JBS
-			if = {
-				limit = { is_in_faction_with = JBS }
-				JBS = { leave_faction = yes }
+		end_puppet = JBS
+		every_country = {
+			limit = {
+				has_war_with = JBS
+				has_war_with = TUR
 			}
-			every_other_country = {
-				limit = {
-					has_war_with = JBS
-					has_war_with = ROOT
-				}
-				white_peace = JBS
-			}
+			white_peace = JBS
 		}
-		declare_war_on = {
-			target = JBS
-			type = annex_everything
+		TUR = {
+			declare_war_on = {
+				target = JBS
+				type = annex_everything
+			}
 		}
 	}
 }
@@ -4205,7 +4089,7 @@ country_event = {
 				activate_mission = TUR_secularize_the_army
 			}
 			30 = { # İttihadists ban Islamist newspapers
-				modifier = {
+			    modifier = {
 					factor = 0
 					NOT = {
 						has_country_flag = TUR_volcan_enabled
@@ -4271,13 +4155,14 @@ country_event = {
 		}
 		else = {
 			add_country_leader_role = {
-				character = TUR_said_halim
-				promote_leader = yes
-				country_leader = {
-					ideology = theocracy_ideology
-				 	traits = { TUR_conservative_politician grand_vizier }
-				}
-			}
+   		        character = TUR_said_halim
+    		    promote_leader = yes
+    		    country_leader = {
+        	    	ideology = theocracy_ideology
+        	    	expire = "1965.1.1.1"
+        	     	traits = { TUR_conservative_politician grand_vizier }
+    		    }
+		    }
 		}
 		TUR_remove_party_factionalism = yes
 		ai_chance = {
@@ -4295,8 +4180,9 @@ country_event = {
 	is_triggered_only = yes
 	immediate = {
 		hidden_effect = {
-			set_division_force_allow_recruiting = {
-    			division_template = "Hamidiye Alayı"
+			set_division_template_lock = {
+				division_template = "Hamidiye Alayı"
+				is_locked = no
 			}
 			start_civil_war = {
 				ideology = fascism
@@ -4319,10 +4205,10 @@ country_event = {
 				}
 				keep_political_leader = yes
 				PREV = {
-					TUR_ismail_enver = {
-						set_nationality = PREV.PREV
-					}
-				}
+       				TUR_ismail_enver = {
+        			    set_nationality = PREV.PREV
+        			}
+    			}
 				TUR_ismail_enver = {
 					promote_character = despotism
 					set_character_name = TUR_ismail_enver_pasha
@@ -4429,13 +4315,14 @@ country_event = {
 		}
 		else = {
 			add_country_leader_role = {
-				character = TUR_said_halim
-				promote_leader = yes
-				country_leader = {
-					ideology = theocracy_ideology
-					traits = { TUR_conservative_politician grand_vizier }
-				}
-			}
+   		        character = TUR_said_halim
+    		    promote_leader = yes
+    		    country_leader = {
+        	    	ideology = theocracy_ideology
+        	    	expire = "1965.1.1.1"
+        	    	traits = { TUR_conservative_politician grand_vizier }
+    		    }
+		    }
 		}
 		TUR_remove_harbiyeli_officers = yes
 		TUR_remove_party_factionalism = yes
@@ -4483,12 +4370,12 @@ country_event = {
 			long_name = TUR_ottoman_dynasty_party
 		}
 		add_country_leader_role = {
-			character = TUR_abdulhamid_ii
-			promote_leader = yes
-			country_leader = {
-				ideology = autocracy
-				traits = { illegitimate_monarch }
-			}
+    		character = TUR_abdulhamid_ii
+    		promote_leader = yes
+    		country_leader = {
+    		    ideology = autocracy
+    		    traits = { illegitimate_monarch }
+    		}
 		}
 		add_stability = -0.3
 		set_country_flag = TUR_abdulhamid_ii_is_new_sultan
@@ -5326,13 +5213,13 @@ country_event = {
 	option = {
 		name = ottoman.24.a
 		declare_war_on = {
-			target = TUR
-			type = puppet_wargoal_focus
-		}
+            target = TUR
+            type = puppet_wargoal_focus
+        }
 		declare_war_on = {
-			target = MOR
-			type = annex_everything
-		}
+            target = MOR
+            type = annex_everything
+        }
 		hidden_effect = {
 			TUR = {
 				country_event = ottoman.25
@@ -5561,7 +5448,6 @@ country_event = {
 				}
 			}
 		}
-		add_to_faction = FROM
 		ai_chance = {
 			base = 5
 		}
@@ -5657,10 +5543,7 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ottoman.33.a
-		create_wargoal = {
-			target = FROM
-			type = annex_everything
-		}
+		add_to_faction = FROM
 		ai_chance = {
 			base = 5
 		}
@@ -5676,6 +5559,10 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ottoman.34.a
+		create_wargoal = {
+			target = FROM
+			type = annex_everything
+		}
 		ai_chance = {
 			base = 5
 		}
@@ -5727,13 +5614,14 @@ country_event = {
 		}
 		else = {
 			add_country_leader_role = {
-				character = TUR_said_halim
-				promote_leader = yes
-				country_leader = {
-					ideology = theocracy_ideology
-					traits = { TUR_conservative_politician grand_vizier }
-				}
-			}
+   		        character = TUR_said_halim
+    		    promote_leader = yes
+    		    country_leader = {
+        	    	ideology = theocracy_ideology
+        	    	expire = "1965.1.1.1"
+        	    	traits = { TUR_conservative_politician grand_vizier }
+    		    }
+		    }
 		}
 		TUR_remove_party_factionalism = yes
 		ai_chance = {
@@ -5772,13 +5660,14 @@ country_event = {
 		}
 		else = {
 			add_country_leader_role = {
-				character = TUR_said_halim
-				promote_leader = yes
-				country_leader = {
-					ideology = theocracy_ideology
-					traits = { TUR_conservative_politician grand_vizier }
-				}
-			}
+   		        character = TUR_said_halim
+    		    promote_leader = yes
+    		    country_leader = {
+        	    	ideology = theocracy_ideology
+        	    	expire = "1965.1.1.1"
+        	    	traits = { TUR_conservative_politician grand_vizier }
+    		    }
+		    }
 		}
 		if = {
 			limit = {
@@ -5852,13 +5741,14 @@ country_event = {
 		}
 		else = {
 			add_country_leader_role = {
-				character = TUR_said_halim
-				promote_leader = yes
-				country_leader = {
-					ideology = theocracy_ideology
-					traits = { TUR_conservative_politician grand_vizier }
-				}
-			}
+   		        character = TUR_said_halim
+    		    promote_leader = yes
+    		    country_leader = {
+        	       	ideology = theocracy_ideology
+        	       	expire = "1965.1.1.1"
+        	    	traits = { TUR_conservative_politician grand_vizier }
+    		    }
+		    }
 		}
 		if = {
 			limit = {
@@ -5963,19 +5853,19 @@ country_event = {
 country_event = {
 	id = ottoman.42
 	title = {
-		text = ottoman.42.t1
-		trigger = {
-			NOT = {
+        text = ottoman.42.t1
+        trigger = {
+            NOT = {
 				has_completed_focus = TUR_elections_of_1912
 			}
-		}
-	}
+        }
+    }
 	title = {
-		text = ottoman.42.t2
-		trigger = {
-			has_completed_focus = TUR_elections_of_1912
-		}
-	}
+        text = ottoman.42.t2
+        trigger = {
+            has_completed_focus = TUR_elections_of_1912
+        }
+    }
 	immediate = {
 		hidden_effect = {
 			unlock_national_focus = TUR_elections_of_1912
@@ -6002,9 +5892,9 @@ country_event = {
 			popularity = 0.2
 		}
 		set_politics = {
-			ruling_party = neutrality
-			election_frequency = 48
-			elections_allowed = yes
+		    ruling_party = neutrality
+    	    election_frequency = 48
+		    elections_allowed = yes
 		}
 		set_country_flag = TUR_elections_1912
 		add_ideas = TUR_idea_liberal_revenge
@@ -6120,9 +6010,9 @@ country_event = {
 			popularity = 0.3
 		}
 		set_politics = {
-			ruling_party = democratic
-			election_frequency = 48
-			elections_allowed = yes
+		    ruling_party = democratic
+    	    election_frequency = 48
+		    elections_allowed = yes
 		}
 		add_ideas = TUR_ittihadist_plot
 		TUR_remove_minority_focuses = yes
@@ -6171,9 +6061,9 @@ country_event = {
 			popularity = 0.2
 		}
 		set_politics = {
-			ruling_party = neutrality
-			election_frequency = 48
-			elections_allowed = yes
+		    ruling_party = neutrality
+    	    election_frequency = 48
+		    elections_allowed = yes
 		}
 		set_party_name = {
 			ideology = neutrality
@@ -6644,10 +6534,10 @@ country_event = {
 		name = ottoman.56.a
 		effect_tooltip = {
 			set_autonomy = {
-				target = TUR
-				autonomy_state = autonomy_dominion
-				end_wars = yes
-				end_civil_wars = no
+    			target = TUR
+    			autonomy_state = autonomy_dominion
+    			end_wars = yes
+    			end_civil_wars = no
 			}
 		}
 		ai_chance = {
@@ -7040,9 +6930,9 @@ country_event = {
 		name = ottoman.68.a
 		TUR = {
 			diplomatic_relation = {
-				country = RUS
-				relation = docking_rights
-				active = yes
+   				country = RUS
+    			relation = docking_rights
+    			active = yes
 			}
 		}
 		end_puppet = TUR
@@ -7094,13 +6984,13 @@ country_event = {
 		name = ottoman.69.a
 		effect_tooltip = {
 			diplomatic_relation = {
-				country = RUS
-				relation = docking_rights
-				active = yes
+   			    country = RUS
+    			relation = docking_rights
+    			active = yes
 			}
 			RUS = {
 				end_puppet = TUR
-				add_stability = 0.1
+		        add_stability = 0.1
 			}
 		}
 		custom_effect_tooltip = TUR_russian_passage_through_the_straits
@@ -7328,16 +7218,13 @@ country_event = {
 						state = 656
 						state = 765
 						state = 658
-						state = 885
-						state = 904
-						state = 905
 					}
 					OR = {
-						is_owned_by = ENG
-						owner = {
-						 	is_subject_of = ENG
-						}
-					}
+					    is_owned_by = ENG
+					    owner = {
+					     	is_subject_of = ENG
+					    }
+				    }
 					NOT = {
 						state = 447
 					}
@@ -7536,9 +7423,6 @@ country_event = {
 					state = 656
 					state = 765
 					state = 658
-					state = 885
-					state = 904
-					state = 905
 				}
 				OR = {
 					is_owned_by = ENG
@@ -7641,7 +7525,7 @@ country_event = {
 	hidden = yes
 	immediate = {
 		TUR = {
-			TUR_remove_debt_0885 = yes
+        	TUR_remove_debt_0885 = yes
 		}
 	}
 	option = {
@@ -7664,14 +7548,6 @@ country_event = {
 		effect_tooltip = {
 			TUR = {
 				transfer_state = 104
-			}
-		}
-		hidden_effect = {
-			TUR = {
-				country_event = {
-					id = ottoman.79
-					hours = 8
-				}
 			}
 		}
 		ai_chance = {
@@ -8134,61 +8010,52 @@ country_event = {
 	id = ottoman.93
 	title = ottoman.93.t
 	desc = ottoman.93.d
-	picture = GFX_report_event_bul_military_parade_vidin
 	is_triggered_only = yes
 	option = {
 		name = ottoman.93.a
 		effect_tooltip = {
-			FROM = {
-				remove_opinion_modifier = {
-					target = ROOT
-					modifier = HOI4TGW_Opinion_hostile_diplomatic_relations
+			TUR = {
+			    diplomatic_relation = {
+   				    country = BUL
+    				relation = non_aggression_pact
+    				active = yes
 				}
 				diplomatic_relation = {
-					country = ROOT
-					relation = non_aggression_pact
-					active = yes
-				}
-				diplomatic_relation = {
-					country = ROOT
-					relation = guarantee
-					active = yes
+   				    country = BUL
+    				relation = guarantee
+    				active = yes
 				}
 			}
-			remove_opinion_modifier = {
-				target = FROM
-				modifier = HOI4TGW_Opinion_hostile_diplomatic_relations
+			diplomatic_relation = {
+   				country = TUR
+    			relation = guarantee
+    			active = yes
 			}
 			diplomatic_relation = {
-				country = FROM
-				relation = guarantee
-				active = yes
-			}
-			diplomatic_relation = {
-				country = FROM
-				relation = military_access
-				active = yes
+   				country = TUR
+    			relation = military_access
+    			active = yes
 			}
 			custom_effect_tooltip = TUR_ottoman_bulgarian_alliance_tt
-			FROM = {
+			TUR = {
 				every_state = {
 					limit = {
-						is_owned_by = ROOT
-						is_claimed_by = FROM
+						is_owned_by = BUL
+						is_claimed_by = TUR
 					}
-					remove_claim_by = FROM
+					remove_claim_by = TUR
 				}
 			}
 			every_state = {
 				limit = {
-					is_owned_by = FROM
-					is_claimed_by = ROOT
+					is_owned_by = TUR
+					is_claimed_by = BUL
 				}
-				remove_claim_by = ROOT
+				remove_claim_by = BUL
 			}
 		}
 		hidden_effect = {
-			FROM = {
+			TUR = {
 				country_event = { id = ottoman.94 hours = 8 }
 			}
 		}
@@ -8241,15 +8108,15 @@ country_event = {
 	option = {
 		name = ottoman.90.b
 		effect_tooltip = {
-			FROM = {
+			TUR = {
 				add_opinion_modifier = {
-					target = ROOT
+					target = BUL
 					modifier = small_decrease
 				}
 			}
 		}
 		hidden_effect = {
-			FROM = {
+			TUR = {
 				country_event = { id = ottoman.95 hours = 8 }
 			}
 		}
@@ -8268,56 +8135,52 @@ country_event = {
 	id = ottoman.94
 	title = ottoman.94.t
 	desc = ottoman.94.d
-	picture = GFX_report_event_generic_sign_treaty1
 	is_triggered_only = yes
 	option = {
 		name = ottoman.94.a
 		diplomatic_relation = {
-			country = FROM
-			relation = non_aggression_pact
-			active = yes
+   		    country = BUL
+    		relation = non_aggression_pact
+    		active = yes
 		}
 		diplomatic_relation = {
-			country = FROM
-			relation = guarantee
-			active = yes
+   		    country = BUL
+    		relation = guarantee
+    		active = yes
 		}
-		remove_opinion_modifier = {
-			target = FROM
-			modifier = HOI4TGW_Opinion_hostile_diplomatic_relations
-		}
-		FROM = {
+		BUL = {
 			diplomatic_relation = {
-				country = ROOT
-				relation = guarantee
-				active = yes
+   		    	country = TUR
+    			relation = guarantee
+    			active = yes
 			}
 			diplomatic_relation = {
-				country = ROOT
-				relation = military_access
-				active = yes
-			}
-			remove_opinion_modifier = {
-				target = ROOT
-				modifier = HOI4TGW_Opinion_hostile_diplomatic_relations
+   			   	country = TUR
+    			relation = military_access
+    			active = yes
 			}
 		}
 		custom_effect_tooltip = TUR_ottoman_bulgarian_alliance_tt
 		every_state = {
 			limit = {
-				is_owned_by = FROM
-				is_claimed_by = ROOT
+				is_owned_by = BUL
+				is_claimed_by = TUR
 			}
-			remove_claim_by = ROOT
+			remove_claim_by = TUR
 		}
-		FROM = {
+		BUL = {
 			every_state = {
 				limit = {
-					is_owned_by = ROOT
-					is_claimed_by = FROM
+					is_owned_by = TUR
+					is_claimed_by = BUL
 				}
-				remove_claim_by = FROM
+				remove_claim_by = BUL
 			}
+		}
+		unlock_decision_tooltip = TUR_bulgarian_ottoman_convention
+		set_country_flag = TUR_bulgarian_ottoman_convention_unlocked_flag
+		ai_chance = {
+			factor = 100
 		}
 	}
 }
@@ -8327,13 +8190,17 @@ country_event = {
 	id = ottoman.95
 	title = ottoman.95.t
 	desc = ottoman.95.d
-	picture = GFX_report_event_bul_artillery
 	is_triggered_only = yes
 	option = {
 		name = ottoman.95.a
-		add_opinion_modifier = {
-			target = FROM
-			modifier = small_decrease
+		TUR = {
+			add_opinion_modifier = {
+				target = BUL
+				modifier = small_decrease
+			}
+		}
+		ai_chance = {
+			factor = 100
 		}
 	}
 }
@@ -8347,36 +8214,22 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ottoman.96.a
-		804 = {
-			add_claim_by = ROOT
-			transfer_state_to = FROM
-		}
-		QAT = {
+		add_state_claim = 804
+		SAU = {
+			transfer_state = 804
 			if = {
 				limit = {
-					is_subject_of = ROOT
-				}
-				ROOT = {
-					set_autonomy = {
-						target = PREV
-						autonomy_state = autonomy_free
+					NOT = {
+						has_cosmetic_tag = SAU_nejd_and_hejaz
+						has_cosmetic_tag = SAU_saudi_arabia
+						has_cosmetic_tag = SAU_sultanate
 					}
 				}
+				set_cosmetic_tag = SAU_nejd_and_hasa
 			}
-			if = {
-				limit = {
-					is_in_faction_with = PREV
-				}
-				leave_faction = yes
-			}
-			give_military_access = ROOT
-			clr_country_flag = protectorate
-			every_other_country = {
-				limit = {
-					has_war_with = PREV
-				}
-				white_peace = PREV
-			}
+		}
+		ai_chance = {
+			base = 5
 		}
 	}
 }
@@ -8463,12 +8316,12 @@ country_event = { #liberal party elections
 		if = {
 			limit = {
 				has_power_balance = {
-					id = TUR_conservative_liberal
+    			    id = TUR_conservative_liberal
 				}
 			}
 			is_power_balance_in_range = {
-				id = TUR_conservative_liberal
-				range > TUR_conservative_liberal_conservative_balanced
+    			id = TUR_conservative_liberal
+    			range > TUR_conservative_liberal_conservative_balanced
 			}
 		}
 		NOT = {
@@ -8580,8 +8433,8 @@ country_event = { #socialist party elections
 			modifier = {
 				factor = 0
 				is_power_balance_side_active = {
-					id = TUR_leftist_coalition
-					side = TUR_leftist_coalition_internationalist
+    				id = TUR_leftist_coalition
+    				side = TUR_leftist_coalition_internationalist
 				}
 			}
 		}
@@ -8609,15 +8462,15 @@ country_event = { #socialist party elections
 			modifier = {
 				factor = 0
 				is_power_balance_side_active = {
-					id = TUR_leftist_coalition
-					side = TUR_leftist_coalition_ittihadist
+    				id = TUR_leftist_coalition
+    				side = TUR_leftist_coalition_ittihadist
 				}
 			}
 		}
 	}
 	option = {
 		name = ottoman.99.c
-		promote_character = TUR_ethem_nejat
+		promote_character = TUR_mustafa_suphi
 		if = {
 			limit = {
 				has_completed_focus = TUR_end_of_the_monarchy
@@ -8627,7 +8480,7 @@ country_event = { #socialist party elections
 		else = {
 			add_country_leader_trait = grand_vizier
 		}
-		add_country_leader_trait = TUR_ittihadist_socialist
+		add_country_leader_trait = TUR_just_socialist
 		set_party_name = {
 			ideology = communism
 			long_name = TUR_socialist_party_long
@@ -8638,8 +8491,8 @@ country_event = { #socialist party elections
 			modifier = {
 				factor = 0
 				is_power_balance_side_active = {
-					id = TUR_leftist_coalition
-					side = TUR_leftist_coalition_ittihadist
+    				id = TUR_leftist_coalition
+    				side = TUR_leftist_coalition_ittihadist
 				}
 			}
 		}
@@ -8673,8 +8526,8 @@ country_event = { #socialist party elections
 			modifier = {
 				factor = 0
 				is_power_balance_side_active = {
-					id = TUR_leftist_coalition
-					side = TUR_leftist_coalition_ittihadist
+    				id = TUR_leftist_coalition
+    				side = TUR_leftist_coalition_ittihadist
 				}
 			}
 		}
@@ -9461,8 +9314,8 @@ country_event = { #islamist victory in elections
 	trigger = {
 		has_completed_focus = TUR_pardon_conservatives
 		is_power_balance_in_range = {
-			id = TUR_conservative_liberal
-			range < TUR_conservative_liberal_conservative_balanced
+    		id = TUR_conservative_liberal
+    		range < TUR_conservative_liberal_conservative_balanced
 		}
 		NOT = {
 			has_country_flag = TUR_conservatives_in_charge
@@ -9488,13 +9341,14 @@ country_event = { #islamist victory in elections
 				}
 			}
 			add_country_leader_role = {
-				character = TUR_said_i_nursi
-				promote_leader = yes
-				country_leader = {
-					ideology = conservatism
-					traits = { islamist_modern_leader grand_vizier }
-				}
-			}
+   		        character = TUR_said_i_nursi
+    		    promote_leader = yes
+    		    country_leader = {
+        	    	ideology = conservatism
+        	    	expire = "1965.1.1.1"
+        	    	traits = { islamist_modern_leader grand_vizier }
+    		    }
+		    }
 		}
 		if = {
 			limit = {
@@ -9593,8 +9447,8 @@ country_event = { #liberal victory in elections
 	trigger = {
 		has_completed_focus = TUR_pardon_conservatives
 		is_power_balance_in_range = {
-			id = TUR_conservative_liberal
-			range > TUR_conservative_liberal_conservative_balanced
+    		id = TUR_conservative_liberal
+    		range > TUR_conservative_liberal_conservative_balanced
 		}
 		has_country_flag = TUR_said_i_nursi_path
 		NOT = {
@@ -9740,8 +9594,8 @@ country_event = { #sects mobilize
 	trigger = {
 		has_completed_focus = TUR_pardon_conservatives
 		is_power_balance_in_range = {
-			id = TUR_conservative_liberal
-			range > TUR_conservative_liberal_conservative_balanced
+    		id = TUR_conservative_liberal
+    		range > TUR_conservative_liberal_conservative_balanced
 		}
 		has_country_flag = TUR_said_i_nursi_path
 	}
@@ -9766,8 +9620,8 @@ country_event = { #sects mobilize
 	trigger = {
 		has_completed_focus = TUR_pardon_conservatives
 		is_power_balance_in_range = {
-			id = TUR_conservative_liberal
-			range > TUR_conservative_liberal_conservative_balanced
+    		id = TUR_conservative_liberal
+    		range > TUR_conservative_liberal_conservative_balanced
 		}
 		has_country_flag = TUR_said_i_nursi_path
 	}
@@ -9867,7 +9721,7 @@ country_event = { #poverty in former christian states
 	}
 }
 
-country_event = { #dissolution of itf
+country_event = { #dissolution ot itf
 	id = ottoman.123
 	title = ottoman.123.t
 	desc = ottoman.123.d
@@ -9895,20 +9749,22 @@ country_event = { #dissolution of itf
 		}
 		hidden_effect = {
 			add_country_leader_role = {
-		 	   character = TUR_fethi_okyar
-				promote_leader = yes
-				country_leader = {
-					ideology = authoritarian_democracy
-					traits = { grand_vizier }
-				}
+   		 	   character = TUR_fethi_okyar
+    			promote_leader = yes
+    			country_leader = {
+        			ideology = authoritarian_democracy
+        			expire = "1965.1.1.1"
+        			traits = { grand_vizier }
+    			}
 			}
 			add_country_leader_role = {
-		 	   character = TUR_huseyin_husnu_pasha
-				promote_leader = yes
-				country_leader = {
-					ideology = fascism_ideology
-					traits = { grand_vizier }
-				}
+   		 	   character = TUR_huseyin_husnu_pasha
+    			promote_leader = yes
+    			country_leader = {
+        			ideology = fascism_ideology
+        			expire = "1965.1.1.1"
+        			traits = { grand_vizier }
+    			}
 			}
 		}
 		ai_chance = {
@@ -9925,18 +9781,18 @@ country_event = { #population exchange between the ottomans
 	option = {
 		name = ottoman.124.a
 		effect_tooltip = {
-			FROM = {
+			TUR = {
 				if = {
 					limit = {
 						any_owned_state = {
 							has_dynamic_modifier = { modifier = TUR_greek_minority }
-							is_controlled_by = PREV
+							is_controlled_by = TUR
 						}
 					}
 					random_owned_state = {
 						limit = {
 							has_dynamic_modifier = { modifier = TUR_greek_minority }
-							is_controlled_by = PREV
+							is_controlled_by = TUR
 						}
 						set_temp_variable = {
 							TUR_target_state_manpower = state_population
@@ -9951,9 +9807,9 @@ country_event = { #population exchange between the ottomans
 					}
 					random_state = {
 						limit = {
-							is_owned_by = ROOT
-							is_controlled_by = ROOT
-							is_core_of = ROOT
+							is_owned_by = GRE
+							is_controlled_by = GRE
+							is_core_of = GRE
 						}
 						hidden_effect = {
 							multiply_temp_variable = {
@@ -9968,7 +9824,7 @@ country_event = { #population exchange between the ottomans
 					limit = {
 						any_owned_state = {
 							has_dynamic_modifier = { modifier = TUR_greek_minority }
-							is_controlled_by = PREV
+							is_controlled_by = TUR
 							NOT = {
 								has_state_flag = TUR_previous_state_1
 							}
@@ -9977,7 +9833,7 @@ country_event = { #population exchange between the ottomans
 					random_owned_state = {
 						limit = {
 							has_dynamic_modifier = { modifier = TUR_greek_minority }
-							is_controlled_by = PREV
+							is_controlled_by = TUR
 						}
 						set_temp_variable = {
 							TUR_target_state_manpower = state_population
@@ -9992,9 +9848,9 @@ country_event = { #population exchange between the ottomans
 					}
 					random_state = {
 						limit = {
-							is_owned_by = ROOT
-							is_controlled_by = ROOT
-							is_core_of = ROOT
+							is_owned_by = GRE
+							is_controlled_by = GRE
+							is_core_of = GRE
 						}
 						hidden_effect = {
 							multiply_temp_variable = {
@@ -10009,7 +9865,7 @@ country_event = { #population exchange between the ottomans
 					limit = {
 						any_owned_state = {
 							has_dynamic_modifier = { modifier = TUR_greek_minority }
-							is_controlled_by = PREV
+							is_controlled_by = TUR
 							NOT = {
 								has_state_flag = TUR_previous_state_2
 							}
@@ -10018,7 +9874,7 @@ country_event = { #population exchange between the ottomans
 					random_owned_state = {
 						limit = {
 							has_dynamic_modifier = { modifier = TUR_greek_minority }
-							is_controlled_by = PREV
+							is_controlled_by = TUR
 						}
 						set_temp_variable = {
 							TUR_target_state_manpower = state_population
@@ -10032,9 +9888,9 @@ country_event = { #population exchange between the ottomans
 					}
 					random_state = {
 						limit = {
-							is_owned_by = ROOT
-							is_controlled_by = ROOT
-							is_core_of = ROOT
+							is_owned_by = GRE
+							is_controlled_by = GRE
+							is_core_of = GRE
 						}
 						hidden_effect = {
 							multiply_temp_variable = {
@@ -10047,7 +9903,7 @@ country_event = { #population exchange between the ottomans
 				}
 				unlock_decision_tooltip = TUR_send_greeks_to_greece
 				add_opinion_modifier = {
-					target = ROOT
+					target = GRE
 					modifier = TUR_agreed_to_population_exchange
 				}
 			}
@@ -10087,9 +9943,9 @@ country_event = { #population exchange between the ottomans
 	option = {
 		name = ottoman.124.b
 		effect_tooltip = {
-			FROM = {
+			TUR = {
 				add_opinion_modifier = {
-					target = ROOT
+					target = GRE
 					modifier = TUR_refused_to_population_exchange
 				}
 			}
@@ -10125,13 +9981,13 @@ country_event = { #population exchange between the ottomans agreed
 			limit = {
 				any_owned_state = {
 					has_dynamic_modifier = { modifier = TUR_greek_minority }
-					is_controlled_by = ROOT
+					is_controlled_by = TUR
 				}
 			}
 			random_owned_state = {
 				limit = {
 					has_dynamic_modifier = { modifier = TUR_greek_minority }
-					is_controlled_by = ROOT
+					is_controlled_by = TUR
 				}
 				set_temp_variable = {
 					TUR_target_state_manpower = state_population
@@ -10147,9 +10003,9 @@ country_event = { #population exchange between the ottomans agreed
 			}
 			random_state = {
 				limit = {
-					is_owned_by = FROM
-					is_controlled_by = FROM
-					is_core_of = FROM
+					is_owned_by = GRE
+					is_controlled_by = GRE
+					is_core_of = GRE
 				}
 				hidden_effect = {
 					multiply_temp_variable = {
@@ -10164,7 +10020,7 @@ country_event = { #population exchange between the ottomans agreed
 			limit = {
 				any_owned_state = {
 					has_dynamic_modifier = { modifier = TUR_greek_minority }
-					is_controlled_by = ROOT
+					is_controlled_by = TUR
 					NOT = {
 						has_state_flag = TUR_previous_state_1
 					}
@@ -10173,7 +10029,7 @@ country_event = { #population exchange between the ottomans agreed
 			random_owned_state = {
 				limit = {
 					has_dynamic_modifier = { modifier = TUR_greek_minority }
-					is_controlled_by = ROOT
+					is_controlled_by = TUR
 				}
 				set_temp_variable = {
 					TUR_target_state_manpower = state_population
@@ -10189,10 +10045,10 @@ country_event = { #population exchange between the ottomans agreed
 			}
 			random_state = {
 				limit = {
-					is_owned_by = FROM
-					is_controlled_by = FROM
-					is_core_of = FROM
-				}
+				    is_owned_by = GRE
+				    is_controlled_by = GRE
+				    is_core_of = GRE
+			    }
 				hidden_effect = {
 					multiply_temp_variable = {
 						TUR_target_state_manpower = -1
@@ -10206,7 +10062,7 @@ country_event = { #population exchange between the ottomans agreed
 			limit = {
 				any_owned_state = {
 					has_dynamic_modifier = { modifier = TUR_greek_minority }
-					is_controlled_by = ROOT
+					is_controlled_by = TUR
 					NOT = {
 						has_state_flag = TUR_previous_state_2
 					}
@@ -10215,7 +10071,7 @@ country_event = { #population exchange between the ottomans agreed
 			random_owned_state = {
 				limit = {
 					has_dynamic_modifier = { modifier = TUR_greek_minority }
-					is_controlled_by = ROOT
+					is_controlled_by = TUR
 				}
 				set_temp_variable = {
 					TUR_target_state_manpower = state_population
@@ -10230,9 +10086,9 @@ country_event = { #population exchange between the ottomans agreed
 			}
 			random_state = {
 				limit = {
-					is_owned_by = FROM
-					is_controlled_by = FROM
-					is_core_of = FROM
+					is_owned_by = GRE
+					is_controlled_by = GRE
+					is_core_of = GRE
 				}
 				hidden_effect = {
 					multiply_temp_variable = {
@@ -10245,7 +10101,7 @@ country_event = { #population exchange between the ottomans agreed
 		}
 		unlock_decision_tooltip = TUR_send_greeks_to_greece
 		add_opinion_modifier = {
-			target = FROM
+			target = GRE
 			modifier = TUR_agreed_to_population_exchange
 		}
 		set_country_flag = TUR_can_population_exchange_greeks
@@ -10275,7 +10131,7 @@ country_event = { #population exchange between the ottomans disagreed
 		}
 		else = {
 			add_opinion_modifier = {
-				target = FROM
+				target = GRE
 				modifier = TUR_refused_to_population_exchange
 			}
 			set_country_flag = TUR_population_exchange_with_greece_not
@@ -10338,18 +10194,18 @@ country_event = { #exchange christians with bulgaria
 	option = {
 		name = ottoman.128.a
 		effect_tooltip = {
-			FROM = {
+			TUR = {
 				if = {
 					limit = {
 						any_owned_state = {
 							has_dynamic_modifier = { modifier = TUR_southslav_minority }
-							is_controlled_by = PREV
+							is_controlled_by = TUR
 						}
 					}
 					random_owned_state = {
 						limit = {
 							has_dynamic_modifier = { modifier = TUR_southslav_minority }
-							is_controlled_by = PREV
+							is_controlled_by = TUR
 							OR = {
 								state = 756
 								state = 849
@@ -10383,9 +10239,9 @@ country_event = { #exchange christians with bulgaria
 					}
 					random_state = {
 						limit = {
-							is_owned_by = ROOT
-							is_controlled_by = ROOT
-							is_core_of = ROOT
+							is_owned_by = BUL
+							is_controlled_by = BUL
+							is_core_of = BUL
 						}
 						hidden_effect = {
 							multiply_temp_variable = {
@@ -10400,7 +10256,7 @@ country_event = { #exchange christians with bulgaria
 					limit = {
 						any_owned_state = {
 							has_dynamic_modifier = { modifier = TUR_southslav_minority }
-							is_controlled_by = PREV
+							is_controlled_by = TUR
 							NOT = {
 								has_state_flag = TUR_previous_state_3
 							}
@@ -10409,7 +10265,7 @@ country_event = { #exchange christians with bulgaria
 					random_owned_state = {
 						limit = {
 							has_dynamic_modifier = { modifier = TUR_southslav_minority }
-							is_controlled_by = PREV
+							is_controlled_by = TUR
 							OR = {
 								state = 756
 								state = 849
@@ -10443,9 +10299,9 @@ country_event = { #exchange christians with bulgaria
 					}
 					random_state = {
 						limit = {
-							is_owned_by = ROOT
-							is_controlled_by = ROOT
-							is_core_of = ROOT
+							is_owned_by = BUL
+							is_controlled_by = BUL
+							is_core_of = BUL
 						}
 						hidden_effect = {
 							multiply_temp_variable = {
@@ -10460,7 +10316,7 @@ country_event = { #exchange christians with bulgaria
 					limit = {
 						any_owned_state = {
 							has_dynamic_modifier = { modifier = TUR_southslav_minority }
-							is_controlled_by = PREV
+							is_controlled_by = TUR
 							NOT = {
 								has_state_flag = TUR_previous_state_4
 							}
@@ -10469,7 +10325,7 @@ country_event = { #exchange christians with bulgaria
 					random_owned_state = {
 						limit = {
 							has_dynamic_modifier = { modifier = TUR_southslav_minority }
-							is_controlled_by = PREV
+							is_controlled_by = TUR
 							OR = {
 								state = 756
 								state = 849
@@ -10502,9 +10358,9 @@ country_event = { #exchange christians with bulgaria
 					}
 					random_state = {
 						limit = {
-							is_owned_by = ROOT
-							is_controlled_by = ROOT
-							is_core_of = ROOT
+							is_owned_by = BUL
+							is_controlled_by = BUL
+							is_core_of = BUL
 						}
 						hidden_effect = {
 							multiply_temp_variable = {
@@ -10517,7 +10373,7 @@ country_event = { #exchange christians with bulgaria
 				}
 				unlock_decision_tooltip = TUR_send_slavs_to_bulgaria
 				add_opinion_modifier = {
-					target = ROOT
+					target = BUL
 					modifier = TUR_agreed_to_population_exchange
 				}
 			}
@@ -10557,9 +10413,9 @@ country_event = { #exchange christians with bulgaria
 	option = {
 		name = ottoman.128.b
 		effect_tooltip = {
-			FROM = {
+			TUR = {
 				add_opinion_modifier = {
-					target = ROOT
+					target = BUL
 					modifier = TUR_refused_to_population_exchange
 				}
 			}
@@ -10595,13 +10451,13 @@ country_event = { #exchange christians with bulgaria agreed
 			limit = {
 				any_owned_state = {
 					has_dynamic_modifier = { modifier = TUR_southslav_minority }
-					is_controlled_by = ROOT
+					is_controlled_by = TUR
 				}
 			}
 			random_owned_state = {
 				limit = {
 					has_dynamic_modifier = { modifier = TUR_southslav_minority }
-					is_controlled_by = ROOT
+					is_controlled_by = TUR
 					OR = {
 						state = 756
 						state = 849
@@ -10634,9 +10490,9 @@ country_event = { #exchange christians with bulgaria agreed
 			}
 			random_state = {
 				limit = {
-					is_owned_by = FROM
-					is_controlled_by = FROM
-					is_core_of = FROM
+					is_owned_by = BUL
+					is_controlled_by = BUL
+					is_core_of = BUL
 				}
 				hidden_effect = {
 					multiply_temp_variable = {
@@ -10651,7 +10507,7 @@ country_event = { #exchange christians with bulgaria agreed
 			limit = {
 				any_owned_state = {
 					has_dynamic_modifier = { modifier = TUR_southslav_minority }
-					is_controlled_by = ROOT
+					is_controlled_by = TUR
 					NOT = {
 						has_state_flag = TUR_previous_state_3
 					}
@@ -10660,7 +10516,7 @@ country_event = { #exchange christians with bulgaria agreed
 			random_owned_state = {
 				limit = {
 					has_dynamic_modifier = { modifier = TUR_southslav_minority }
-					is_controlled_by = ROOT
+					is_controlled_by = TUR
 					OR = {
 						state = 756
 						state = 849
@@ -10693,10 +10549,10 @@ country_event = { #exchange christians with bulgaria agreed
 			}
 			random_state = {
 				limit = {
-					is_owned_by = FROM
-					is_controlled_by = FROM
-					is_core_of = FROM
-				}
+				    is_owned_by = BUL
+				    is_controlled_by = BUL
+				    is_core_of = BUL
+			    }
 				hidden_effect = {
 					multiply_temp_variable = {
 						TUR_target_state_manpower = -1
@@ -10710,7 +10566,7 @@ country_event = { #exchange christians with bulgaria agreed
 			limit = {
 				any_owned_state = {
 					has_dynamic_modifier = { modifier = TUR_southslav_minority }
-					is_controlled_by = ROOT
+					is_controlled_by = TUR
 					NOT = {
 						has_state_flag = TUR_previous_state_4
 					}
@@ -10719,7 +10575,7 @@ country_event = { #exchange christians with bulgaria agreed
 			random_owned_state = {
 				limit = {
 					has_dynamic_modifier = { modifier = TUR_southslav_minority }
-					is_controlled_by = ROOT
+					is_controlled_by = TUR
 					OR = {
 						state = 756
 						state = 849
@@ -10751,9 +10607,9 @@ country_event = { #exchange christians with bulgaria agreed
 			}
 			random_state = {
 				limit = {
-					is_owned_by = FROM
-					is_controlled_by = FROM
-					is_core_of = FROM
+					is_owned_by = BUL
+					is_controlled_by = BUL
+					is_core_of = BUL
 				}
 				hidden_effect = {
 					multiply_temp_variable = {
@@ -10766,7 +10622,7 @@ country_event = { #exchange christians with bulgaria agreed
 		}
 		unlock_decision_tooltip = TUR_send_slavs_to_bulgaria
 		add_opinion_modifier = {
-			target = FROM
+			target = BUL
 			modifier = TUR_agreed_to_population_exchange
 		}
 		set_country_flag = TUR_can_population_exchange_bulgarians
@@ -10796,7 +10652,7 @@ country_event = { #exchange christians with bulgaria disagreed
 		}
 		else = {
 			add_opinion_modifier = {
-				target = FROM
+				target = BUL
 				modifier = TUR_refused_to_population_exchange
 			}
 			set_country_flag = TUR_exchange_christians_with_bulgaria_not
@@ -10830,8 +10686,8 @@ country_event = { #population exchange devestated ottomans
 				}
 				FROM = {
 					damage_building = {
-						type = infrastructure
-						damage = 0.5
+    					type = infrastructure
+    					damage = 0.5
 					}
 				}
 			}
@@ -10851,8 +10707,8 @@ country_event = { #population exchange devestated ottomans
 				}
 				FROM = {
 					damage_building = {
-						type = infrastructure
-						damage = 0.5
+    					type = infrastructure
+    					damage = 0.5
 					}
 				}
 			}
@@ -10871,18 +10727,18 @@ country_event = { #expel serbians
 	option = {
 		name = ottoman.132.a
 		effect_tooltip = {
-			FROM = {
+			TUR = {
 				if = {
 					limit = {
 						any_owned_state = {
 							has_dynamic_modifier = { modifier = TUR_southslav_minority }
-							is_controlled_by = PREV
+							is_controlled_by = TUR
 						}
 					}
 					random_owned_state = {
 						limit = {
 							has_dynamic_modifier = { modifier = TUR_southslav_minority }
-							is_controlled_by = PREV
+							is_controlled_by = TUR
 							OR = {
 								state = 105
 								state = 761
@@ -10910,9 +10766,9 @@ country_event = { #expel serbians
 						limit = {
 							OR = {
 								AND = {
-									is_owned_by = ROOT
-									is_controlled_by = ROOT
-									is_core_of = ROOT
+									is_owned_by = SER
+									is_controlled_by = SER
+									is_core_of = SER
 								}
 								AND = {
 									is_owned_by = MNT
@@ -10934,7 +10790,7 @@ country_event = { #expel serbians
 					limit = {
 						any_owned_state = {
 							has_dynamic_modifier = { modifier = TUR_southslav_minority }
-							is_controlled_by = PREV
+							is_controlled_by = TUR
 							NOT = {
 								has_state_flag = TUR_previous_state_5
 							}
@@ -10943,7 +10799,7 @@ country_event = { #expel serbians
 					random_owned_state = {
 						limit = {
 							has_dynamic_modifier = { modifier = TUR_southslav_minority }
-							is_controlled_by = PREV
+							is_controlled_by = TUR
 							OR = {
 								state = 105
 								state = 761
@@ -10971,9 +10827,9 @@ country_event = { #expel serbians
 						limit = {
 							OR = {
 								AND = {
-									is_owned_by = ROOT
-									is_controlled_by = ROOT
-									is_core_of = ROOT
+									is_owned_by = SER
+									is_controlled_by = SER
+									is_core_of = SER
 								}
 								AND = {
 									is_owned_by = MNT
@@ -10995,7 +10851,7 @@ country_event = { #expel serbians
 					limit = {
 						any_owned_state = {
 							has_dynamic_modifier = { modifier = TUR_southslav_minority }
-							is_controlled_by = PREV
+							is_controlled_by = TUR
 							NOT = {
 								has_state_flag = TUR_previous_state_6
 							}
@@ -11004,7 +10860,7 @@ country_event = { #expel serbians
 					random_owned_state = {
 						limit = {
 							has_dynamic_modifier = { modifier = TUR_southslav_minority }
-							is_controlled_by = PREV
+							is_controlled_by = TUR
 							OR = {
 								state = 105
 								state = 761
@@ -11031,9 +10887,9 @@ country_event = { #expel serbians
 						limit = {
 							OR = {
 								AND = {
-									is_owned_by = ROOT
-									is_controlled_by = ROOT
-									is_core_of = ROOT
+									is_owned_by = SER
+									is_controlled_by = SER
+									is_core_of = SER
 								}
 								AND = {
 									is_owned_by = MNT
@@ -11053,13 +10909,13 @@ country_event = { #expel serbians
 				}
 				unlock_decision_tooltip = TUR_send_slavs_to_serbia
 				add_opinion_modifier = {
-					target = ROOT
+					target = SER
 					modifier = TUR_agreed_to_population_exchange
 				}
 			}
 		}
 		hidden_effect = {
-			country_event = { id = ottoman.133 hours = 8 }
+			country_event = { id = ottoman.129 hours = 8 }
 		}
 		ai_chance = {
 			base = 15
@@ -11093,15 +10949,15 @@ country_event = { #expel serbians
 	option = {
 		name = ottoman.132.b
 		effect_tooltip = {
-			FROM = {
+			TUR = {
 				add_opinion_modifier = {
-					target = ROOT
+					target = SER
 					modifier = TUR_refused_to_population_exchange
 				}
 			}
 		}
 		hidden_effect = {
-			country_event = { id = ottoman.134 hours = 8 }
+			country_event = { id = ottoman.130 hours = 8 }
 		}
 		ai_chance = {
 			base = 5
@@ -11131,13 +10987,13 @@ country_event = { #expel serbians agreed
 			limit = {
 				any_owned_state = {
 					has_dynamic_modifier = { modifier = TUR_southslav_minority }
-					is_controlled_by = ROOT
+					is_controlled_by = TUR
 				}
 			}
 			random_owned_state = {
 				limit = {
 					has_dynamic_modifier = { modifier = TUR_southslav_minority }
-					is_controlled_by = ROOT
+					is_controlled_by = TUR
 					OR = {
 						state = 105
 						state = 761
@@ -11164,9 +11020,9 @@ country_event = { #expel serbians agreed
 				limit = {
 					OR = {
 						AND = {
-							is_owned_by = FROM
-							is_controlled_by = FROM
-							is_core_of = FROM
+							is_owned_by = SER
+							is_controlled_by = SER
+							is_core_of = SER
 						}
 						AND = {
 							is_owned_by = MNT
@@ -11188,7 +11044,7 @@ country_event = { #expel serbians agreed
 			limit = {
 				any_owned_state = {
 					has_dynamic_modifier = { modifier = TUR_southslav_minority }
-					is_controlled_by = ROOT
+					is_controlled_by = TUR
 					NOT = {
 						has_state_flag = TUR_previous_state_5
 					}
@@ -11197,7 +11053,7 @@ country_event = { #expel serbians agreed
 			random_owned_state = {
 				limit = {
 					has_dynamic_modifier = { modifier = TUR_southslav_minority }
-					is_controlled_by = ROOT
+					is_controlled_by = TUR
 					OR = {
 						state = 105
 						state = 761
@@ -11224,9 +11080,9 @@ country_event = { #expel serbians agreed
 				limit = {
 					OR = {
 						AND = {
-							is_owned_by = FROM
-							is_controlled_by = FROM
-							is_core_of = FROM
+							is_owned_by = SER
+							is_controlled_by = SER
+							is_core_of = SER
 						}
 						AND = {
 							is_owned_by = MNT
@@ -11248,7 +11104,7 @@ country_event = { #expel serbians agreed
 			limit = {
 				any_owned_state = {
 					has_dynamic_modifier = { modifier = TUR_southslav_minority }
-					is_controlled_by = ROOT
+					is_controlled_by = TUR
 					NOT = {
 						has_state_flag = TUR_previous_state_6
 					}
@@ -11257,7 +11113,7 @@ country_event = { #expel serbians agreed
 			random_owned_state = {
 				limit = {
 					has_dynamic_modifier = { modifier = TUR_southslav_minority }
-					is_controlled_by = ROOT
+					is_controlled_by = TUR
 					OR = {
 						state = 105
 						state = 761
@@ -11283,9 +11139,9 @@ country_event = { #expel serbians agreed
 				limit = {
 					OR = {
 						AND = {
-							is_owned_by = FROM
-							is_controlled_by = FROM
-							is_core_of = FROM
+							is_owned_by = SER
+							is_controlled_by = SER
+							is_core_of = SER
 						}
 						AND = {
 							is_owned_by = MNT
@@ -11305,7 +11161,7 @@ country_event = { #expel serbians agreed
 		}
 		unlock_decision_tooltip = TUR_send_slavs_to_serbia
 		add_opinion_modifier = {
-			target = FROM
+			target = SER
 			modifier = TUR_agreed_to_population_exchange
 		}
 		set_country_flag = TUR_can_expel_serbs_to_serbia
@@ -11327,7 +11183,7 @@ country_event = { #expel serbians disagreed
 	option = {
 		name = ottoman.134.a
 		add_opinion_modifier = {
-			target = FROM
+			target = SER
 			modifier = TUR_refused_to_population_exchange
 		}
 		set_country_flag = TUR_expel_serbians_from_our_empire_not
@@ -11654,10 +11510,10 @@ country_event = { #deport romanians agreed
 			}
 			random_state = {
 				limit = {
-					is_owned_by = ROM
-					is_controlled_by = ROM
-					is_core_of = ROM
-				}
+				    is_owned_by = ROM
+				    is_controlled_by = ROM
+				    is_core_of = ROM
+			    }
 				hidden_effect = {
 					multiply_temp_variable = {
 						TUR_target_state_manpower = -1
@@ -11917,7 +11773,7 @@ country_event = { #relocate armenians
 					}
 				}
 				unlock_decision_tooltip = TUR_send_armenians_to_armenia
-				unlock_decision_tooltip = TUR_send_assyrians_to_armenia
+		        unlock_decision_tooltip = TUR_send_assyrians_to_armenia
 				add_opinion_modifier = {
 					target = ARM
 					modifier = TUR_agreed_to_population_exchange
@@ -12059,10 +11915,10 @@ country_event = { #relocate armenians agreed
 			}
 			random_state = {
 				limit = {
-					is_owned_by = ARM
-					is_controlled_by = ARM
-					is_core_of = ARM
-				}
+				    is_owned_by = ARM
+				    is_controlled_by = ARM
+				    is_core_of = ARM
+			    }
 				hidden_effect = {
 					multiply_temp_variable = {
 						TUR_target_state_manpower = -1
@@ -12473,10 +12329,10 @@ country_event = { #georgians to georgia agreed
 			}
 			random_state = {
 				limit = {
-					is_owned_by = GEO
-					is_controlled_by = GEO
-					is_core_of = GEO
-				}
+				    is_owned_by = GEO
+				    is_controlled_by = GEO
+				    is_core_of = GEO
+			    }
 				hidden_effect = {
 					multiply_temp_variable = {
 						TUR_target_state_manpower = -1
@@ -12669,15 +12525,12 @@ country_event = { #kurds get mad
 					has_state_flag = TUR_kurd_state
 					OR = {
 						state = 350
-						state = 352
-						state = 828
 						state = 829
 						state = 680
 						state = 676
 						state = 853
 						state = 419
 						state = 421
-						state = 884
 					}
 				}
 				add_to_variable = {
@@ -12709,11 +12562,10 @@ country_event = { #kurds get mad
 						state = 853
 						state = 419
 						state = 421
-						state = 884
 					}
 				}
 				custom_effect_tooltip = TUR_ottoman_kurdish_minority_modify_resistance_target_negative_10_resistance_growth_negative_15
-				if = {
+			    if = {
 					limit = {
 						is_core_of = TUR
 					}
@@ -12816,12 +12668,12 @@ country_event = { #elections non-partisan
 		has_completed_focus = TUR_handling_inner_party_factionalism
 		NOT = {
 			is_power_balance_in_range = {
-				id = TUR_inner_party_factionalism
-				range > TUR_inner_party_factionalism_hizb_i_cedid_absolute_control
+    			id = TUR_inner_party_factionalism
+    			range > TUR_inner_party_factionalism_hizb_i_cedid_absolute_control
 			}
 			is_power_balance_in_range = {
-				id = TUR_inner_party_factionalism
-				range < TUR_inner_party_factionalism_hizb_i_terakki_absolute_control
+    			id = TUR_inner_party_factionalism
+    			range < TUR_inner_party_factionalism_hizb_i_terakki_absolute_control
 			}
 		}
 	}
@@ -12896,8 +12748,8 @@ country_event = { #elections hizb-i cedid
 	trigger = {
 		has_completed_focus = TUR_handling_inner_party_factionalism
 		is_power_balance_in_range = {
-			id = TUR_inner_party_factionalism
-			range = TUR_inner_party_factionalism_hizb_i_cedid_absolute_control
+    		id = TUR_inner_party_factionalism
+    		range = TUR_inner_party_factionalism_hizb_i_cedid_absolute_control
 		}
 	}
 	option = {
@@ -12925,8 +12777,8 @@ country_event = { #elections hizb-i terakki
 	trigger = {
 		has_completed_focus = TUR_handling_inner_party_factionalism
 		is_power_balance_in_range = {
-			id = TUR_inner_party_factionalism
-			range = TUR_inner_party_factionalism_hizb_i_terakki_absolute_control
+    		id = TUR_inner_party_factionalism
+    		range = TUR_inner_party_factionalism_hizb_i_terakki_absolute_control
 		}
 	}
 	option = {
@@ -13131,8 +12983,8 @@ country_event = { #kurdish revolt 1
 	fire_only_once = yes
 	trigger = {
 		focus_progress = {
-			focus = TUR_forceful_assimilation_of_the_kurds
-			progress > 0.07
+   		    focus = TUR_forceful_assimilation_of_the_kurds
+   		    progress > 0.07
 		}
 	}
 	picture = GFX_report_event_tur_kurdish_guerillas
@@ -13176,7 +13028,7 @@ country_event = { #kurdish revolt 1
 					}
 				}
 				custom_effect_tooltip = TUR_ottoman_kurdish_minority_modify_resistance_target_negative_10_resistance_growth_negative_15
-				remove_core_of = TUR
+			    remove_core_of = TUR
 				if = {
 					limit = {
 						is_controlled_by = TUR
@@ -13199,8 +13051,8 @@ country_event = { #kurdish revolt 2
 	trigger = {
 		has_completed_focus = TUR_forceful_assimilation_of_the_kurds
 		focus_progress = {
-			focus = TUR_expanding_the_kurdish_policy
-			progress > 0.07
+   		    focus = TUR_expanding_the_kurdish_policy
+   		    progress > 0.07
 		}
 	}
 	picture = GFX_report_event_tur_kurdish_guerillas
@@ -13210,8 +13062,8 @@ country_event = { #kurdish revolt 2
 				limit = {
 					has_state_flag = TUR_kurd_state
 					OR = {
-						state = 879
-						state = 883
+						state = 676
+						state = 853
 						state = 419
 						state = 421
 					}
@@ -13239,14 +13091,14 @@ country_event = { #kurdish revolt 2
 				limit = {
 					has_state_flag = TUR_kurd_state
 					OR = {
-						state = 879
-						state = 883
+						state = 676
+						state = 853
 						state = 419
 						state = 421
 					}
 				}
 				custom_effect_tooltip = TUR_ottoman_kurdish_minority_modify_resistance_target_negative_10_resistance_growth_negative_15
-				remove_core_of = TUR
+			    remove_core_of = TUR
 				if = {
 					limit = {
 						is_controlled_by = TUR
@@ -13268,8 +13120,8 @@ country_event = { #armenian revolt 1
 	fire_only_once = yes
 	trigger = {
 		focus_progress = {
-			focus = TUR_temporary_law_of_deportation
-			progress > 0.07
+   		    focus = TUR_temporary_law_of_deportation
+   		    progress > 0.07
 		}
 	}
 	picture = GFX_report_event_armenian_resistance
@@ -13328,7 +13180,7 @@ country_event = { #armenian revolt 1
 					}
 				}
 				custom_effect_tooltip = TUR_ottoman_armenian_minority_modify_attrition_10_resistance_target_negative_35_resistance_growth_negative_15
-				remove_core_of = TUR
+			    remove_core_of = TUR
 				if = {
 					limit = {
 						is_controlled_by = TUR
@@ -13351,8 +13203,8 @@ country_event = { #armenian revolt 2
 	trigger = {
 		has_completed_focus = TUR_temporary_law_of_deportation
 		focus_progress = {
-			focus = TUR_cleanse_caucasus
-			progress > 0.07
+   		    focus = TUR_cleanse_caucasus
+   		    progress > 0.07
 		}
 	}
 	picture = GFX_report_event_armenian_resistance
@@ -13401,7 +13253,7 @@ country_event = { #armenian revolt 2
 					}
 				}
 				custom_effect_tooltip = TUR_ottoman_armenian_minority_modify_attrition_10_resistance_target_negative_35_resistance_growth_negative_15
-				remove_core_of = TUR
+			    remove_core_of = TUR
 				if = {
 					limit = {
 						is_controlled_by = TUR
@@ -13423,8 +13275,8 @@ country_event = { #arab demonstrations in levant
 	fire_only_once = yes
 	trigger = {
 		focus_progress = {
-			focus = TUR_expand_control_over_levant
-			progress > 0.07
+   		    focus = TUR_expand_control_over_levant
+   		    progress > 0.07
 		}
 	}
 	picture = GFX_report_event_arab_protests
@@ -13512,8 +13364,8 @@ country_event = { #arab demonstrations in mesapotamia
 	fire_only_once = yes
 	trigger = {
 		focus_progress = {
-			focus = TUR_expand_control_over_levant
-			progress > 0.07
+   		    focus = TUR_expand_control_over_levant
+   		    progress > 0.07
 		}
 	}
 	picture = GFX_report_event_arab_protests
@@ -13527,9 +13379,6 @@ country_event = { #arab demonstrations in mesapotamia
 						state = 874
 						state = 656
 						state = 413
-						state = 885
-						state = 904
-						state = 905
 					}
 				}
 				add_to_variable = {
@@ -13562,9 +13411,6 @@ country_event = { #arab demonstrations in mesapotamia
 						state = 874
 						state = 656
 						state = 413
-						state = 885
-						state = 904
-						state = 905
 					}
 				}
 				custom_effect_tooltip = TUR_ottoman_arab_minority_modify_attrition_5_recruitable_population_5
@@ -13597,7 +13443,6 @@ country_event = { #asir rebellion
 			is_core_of = ASR
 		}
 		date > 1910.10.1
-		has_start_date < 1914.01.01
 		OR = {
 			747 = { has_dynamic_modifier = { modifier = TUR_arab_minority } }
 			662 = { has_dynamic_modifier = { modifier = TUR_arab_minority } }
@@ -13661,8 +13506,8 @@ country_event = { #conservative party elections
 	picture = GFX_report_event_conservative_party_elections
 	trigger = {
 		is_power_balance_in_range = {
-			id = TUR_conservative_liberal
-			range < TUR_conservative_liberal_conservative_balanced
+    		id = TUR_conservative_liberal
+    		range < TUR_conservative_liberal_conservative_balanced
 		}
 		has_country_flag = TUR_conservatives_in_charge
 		NOT = {
@@ -13680,12 +13525,13 @@ country_event = { #conservative party elections
 	option = {
 		name = ottoman.164.b
 		add_country_leader_role = {
-			character = TUR_mustafa_sabri
-			promote_leader = yes
-			country_leader = {
-				ideology = conservatism
-				traits = { TUR_seyhulislam_leader grand_vizier }
-			}
+   		    character = TUR_mustafa_sabri
+    	    promote_leader = yes
+    	    country_leader = {
+            	ideology = conservatism
+        	   	expire = "1965.1.1.1"
+    	    	traits = { TUR_seyhulislam_leader grand_vizier }
+    	    }
 		}
 		set_country_flag = TUR_mustafa_sabri_leader
 		ai_chance = {
@@ -13791,13 +13637,13 @@ country_event = { #grand arab revolt
 				}
 				HJZ = {
 					if = {
-						limit = {
-							NOT = {
-								has_template = "Furqat al Mushat"
-							}
+					limit = {
+						NOT = {
+							has_template = "Furqat al Mushat"
 						}
-						division_template = {
-							name = "Furqat al Mushat"
+					}
+					division_template = {
+						name = "Furqat al Mushat"
 							regiments = {
 								infantry = {
 									x = 0
@@ -13811,11 +13657,11 @@ country_event = { #grand arab revolt
 									x = 1
 									y = 0
 								}
-								infantry = {
-									x = 1
-									y = 1
-								}
-							}
+				    			infantry = {
+				    				x = 1
+				    				y = 1
+				    			}
+				    		}
 						}
 					}
 					if = {
@@ -13839,15 +13685,15 @@ country_event = { #grand arab revolt
 									x = 0
 									y = 2
 								}
-								cavalry = {
-									x = 1
-									y = 0
-								}
-								cavalry = {
-									x = 1
+				    			cavalry = {
+				    				x = 1
+				    				y = 0
+				    			}
+				    			cavalry = {
+				    				x = 1
 					 	  			y = 1
-								}
-							}
+				    			}
+				    		}
 						}
 					}
 					if = {
@@ -13857,7 +13703,7 @@ country_event = { #grand arab revolt
 							}
 						}
 						division_template = {
-							name = "Furqat al Fursanal Astikshafiat al 'Iinkiltira"
+							name = "Furqat Fursan"
 							is_locked = yes
 							regiments = {
 								infantry = {
@@ -13872,19 +13718,19 @@ country_event = { #grand arab revolt
 									x = 0
 									y = 2
 								}
-								infantry = {
-									x = 1
-									y = 0
-								}
-								infantry = {
-									x = 1
+				    			infantry = {
+				    				x = 1
+				    				y = 0
+				    			}
+				    			infantry = {
+				    				x = 1
 					 	  			y = 1
-								}
-								infantry = {
-									x = 1
-						 			y = 2
-								}
-							}
+				    			}
+				    			infantry = {
+				    				x = 1
+				   		 			y = 2
+				    			}
+				    		}
 						}
 					}
 					if = {
@@ -13894,7 +13740,7 @@ country_event = { #grand arab revolt
 							}
 						}
 						division_template = {
-							name = "al-Mushatial Astikshafiat al 'Iinkiltira"
+							name = "Furqat Fursan"
 							is_locked = yes
 							regiments = {
 								motorized = {
@@ -13909,36 +13755,36 @@ country_event = { #grand arab revolt
 									x = 0
 									y = 2
 								}
-								motorized = {
-									x = 1
-									y = 0
-								}
-								motorized = {
-									x = 1
+				    			motorized = {
+				    				x = 1
+				    				y = 0
+				    			}
+				    			motorized = {
+				    				x = 1
 					 	  			y = 1
-								}
-								motorized = {
-									x = 1
-						 			y = 2
-								}
-							}
+				    			}
+				    			motorized = {
+				    				x = 1
+				   		 			y = 2
+				    			}
+				    		}
 						}
 					}
 					random_owned_controlled_state = {
 						create_unit = {
-							division = "name = \"Furqat al Mushat Hejaz\" division_template = \"Furqat al Mushat\" start_experience_factor = 0.3"
+							division = "name = \" Furqat al Mushat Hejaz\" division_template = \" Furqat al Mushat\" start_experience_factor = 0.3"
 							owner = HJZ
 						}
 					}
 					random_owned_controlled_state = {
 						create_unit = {
-							division = "name = \"Furqat al Mushat Hejaz\" division_template = \"Furqat al Mushat\" start_experience_factor = 0.3"
+							division = "name = \" Furqat al Mushat Hejaz\" division_template = \" Furqat al Mushat\" start_experience_factor = 0.3"
 							owner = HJZ
 						}
 					}
 					random_owned_controlled_state = {
 						create_unit = {
-							division = "name = \"Furqat al Mushat Hejaz\" division_template = \"Furqat al Mushat\" start_experience_factor = 0.3"
+							division = "name = \" Furqat al Mushat Hejaz\" division_template = \" Furqat al Mushat\" start_experience_factor = 0.3"
 							owner = HJZ
 						}
 					}
@@ -14016,9 +13862,9 @@ country_event = { #grand arab revolt
 					}
 				}
 				declare_war_on = {
-					target = HJZ
-					type = annex_everything
-				}
+                    target = HJZ
+                    type = annex_everything
+                }
 			}
 			if = {
 				limit = {
@@ -14058,13 +13904,13 @@ country_event = { #grand arab revolt
 				}
 				ASR = {
 					if = {
-						limit = {
-							NOT = {
-								has_template = "Furqat al Mushat"
-							}
+					limit = {
+						NOT = {
+							has_template = "Furqat al Mushat"
 						}
-						division_template = {
-							name = "Furqat al Mushat"
+					}
+					division_template = {
+						name = "Furqat al Mushat"
 							regiments = {
 								infantry = {
 									x = 0
@@ -14078,24 +13924,24 @@ country_event = { #grand arab revolt
 									x = 1
 									y = 0
 								}
-								infantry = {
-									x = 1
-									y = 1
-								}
-							}
+				    			infantry = {
+				    				x = 1
+				    				y = 1
+				    			}
+				    		}
 						}
 					}
 					if = {
 						limit = {
 							NOT = {
-								has_template = "Quwat al Qabaeel"
+								has_template = " Quwat al Qabaeel"
 							}
 						}
 						division_template = {
-							name = "Quwat al Qabaeel"
+							name = " Quwat al Qabaeel"
 							is_locked = yes
 							force_allow_recruiting = yes
-							division_cap = 5
+	                        division_cap = 5
 							regiments = {
 								irregular_infantry = {
 									x = 0
@@ -14109,19 +13955,19 @@ country_event = { #grand arab revolt
 									x = 0
 									y = 2
 								}
-								irregular_infantry = {
-									x = 1
-									y = 0
-								}
-								irregular_infantry = {
-									x = 1
+				    			irregular_infantry = {
+				    				x = 1
+				    				y = 0
+				    			}
+				    			irregular_infantry = {
+				    				x = 1
 					 	  			y = 1
-								}
-								irregular_infantry = {
-									x = 1
-					 				y = 2
-								}
-							}
+				    			}
+				    			irregular_infantry = {
+				    				x = 1
+				   	 				y = 2
+				    			}
+				    		}
 						}
 					}
 					if = {
@@ -14142,32 +13988,32 @@ country_event = { #grand arab revolt
 									x = 0
 									y = 1
 								}
-								camelry = {
-									x = 1
-									y = 0
-								}
-								camelry = {
-									x = 1
+				    			camelry = {
+				    				x = 1
+				    				y = 0
+				    			}
+				    			camelry = {
+				    				x = 1
 					 	  			y = 1
-								}
-							}
+				    			}
+				    		}
 						}
 					}
 					random_owned_controlled_state = {
 						create_unit = {
-							division = "name = \"Quwat al Qabaeel Asir\" division_template = \"Quwat al Qabaeel\" start_experience_factor = 0.5"
+							division = "name = \" Quwat al Qabaeel Asir\" division_template = \" Quwat al Qabaeel\" start_experience_factor = 0.5"
 							owner = ASR
 						}
 					}
 					random_owned_controlled_state = {
 						create_unit = {
-							division = "name = \"Quwat al Qabaeel Asir\" division_template = \"Quwat al Qabaeel\" start_experience_factor = 0.5"
+							division = "name = \" Quwat al Qabaeel Asir\" division_template = \" Quwat al Qabaeel\" start_experience_factor = 0.5"
 							owner = ASR
 						}
 					}
 					random_owned_controlled_state = {
 						create_unit = {
-							division = "name = \"Quwat al Qabaeel Asir\" division_template = \"Quwat al Qabaeel\" start_experience_factor = 0.5"
+							division = "name = \" Quwat al Qabaeel Asir\" division_template = \" Quwat al Qabaeel\" start_experience_factor = 0.5"
 							owner = ASR
 						}
 					}
@@ -14185,9 +14031,9 @@ country_event = { #grand arab revolt
 					}
 				}
 				declare_war_on = {
-					target = ASR
-					type = annex_everything
-				}
+                    target = ASR
+                    type = annex_everything
+                }
 			}
 			if = {
 				limit = {
@@ -14251,107 +14097,68 @@ country_event = { #grand arab revolt
 									x = 0
 									y = 2
 								}
-								infantry = {
-									x = 1
-									y = 0
-								}
-								infantry = {
-									x = 1
+				    			infantry = {
+				    				x = 1
+				    				y = 0
+				    			}
+				    			infantry = {
+				    				x = 1
 					 	  			y = 1
-								}
-								infantry = {
-									x = 1
-					 				y = 2
-								}
-							}
-						}
-					}
-					if = {
-						limit = {
-							NOT = {
-								has_template = "Quwat al Qabaeel"
-							}
-						}
-						division_template = {
-							name = "Quwat al Qabaeel"
-							is_locked = yes
-							force_allow_recruiting = yes
-							division_cap = 5
-							regiments = {
-								irregular_infantry = {
-									x = 0
-									y = 0
-								}
-								irregular_infantry = {
-									x = 0
-									y = 1
-								}
-								irregular_infantry = {
-									x = 0
-									y = 2
-								}
-								irregular_infantry = {
-									x = 1
-									y = 0
-								}
-								irregular_infantry = {
-									x = 1
-					 	  			y = 1
-								}
-								irregular_infantry = {
-									x = 1
-					 				y = 2
-								}
-							}
+				    			}
+				    			infantry = {
+				    				x = 1
+				   	 				y = 2
+					    		}
+					    	}
 						}
 					}
 					random_owned_controlled_state = {
 						create_unit = {
-							division = "name = \"Quwat al Qabaeel Yemen\" division_template = \"Quwat al Qabaeel\" start_experience_factor = 0.5"
+							division = "name = \" Quwat al Qabaeel Yemen\" division_template = \" Quwat al Qabaeel\" start_experience_factor = 0.5"
 							owner = YEM
 						}
 					}
 					random_owned_controlled_state = {
 						create_unit = {
-							division = "name = \"Quwat al Qabaeel Yemen\" division_template = \"Quwat al Qabaeel\" start_experience_factor = 0.5"
+							division = "name = \" Quwat al Qabaeel Yemen\" division_template = \" Quwat al Qabaeel\" start_experience_factor = 0.5"
 							owner = YEM
 						}
 					}
 					random_owned_controlled_state = {
 						create_unit = {
-							division = "name = \"Quwat al Qabaeel Yemen\" division_template = \"Quwat al Qabaeel\" start_experience_factor = 0.5"
+							division = "name = \" Quwat al Qabaeel Yemen\" division_template = \" Quwat al Qabaeel\" start_experience_factor = 0.5"
 							owner = YEM
 						}
 					}
 					random_owned_controlled_state = {
 						create_unit = {
-							division = "name = \"Quwat al Qabaeel Yemen\" division_template = \"Quwat al Qabaeel\" start_experience_factor = 0.5"
+							division = "name = \" Quwat al Qabaeel Yemen\" division_template = \" Quwat al Qabaeel\" start_experience_factor = 0.5"
 							owner = YEM
 						}
 					}
 					random_owned_controlled_state = {
 						create_unit = {
-							division = "name = \"Quwat al Qabaeel Yemen\" division_template = \"Quwat al Qabaeel\" start_experience_factor = 0.5"
+							division = "name = \" Quwat al Qabaeel Yemen\" division_template = \" Quwat al Qabaeel\" start_experience_factor = 0.5"
 							owner = YEM
 						}
 					}
 					random_owned_controlled_state = {
 						create_unit = {
-							division = "name = \"Quwat al Qabaeel Yemen\" division_template = \"Quwat al Qabaeel\" start_experience_factor = 0.5"
+							division = "name = \" Quwat al Qabaeel Yemen\" division_template = \" Quwat al Qabaeel\" start_experience_factor = 0.5"
 							owner = YEM
 						}
 					}
 					random_owned_controlled_state = {
 						create_unit = {
-							division = "name = \"Quwat al Qabaeel Yemen\" division_template = \"Quwat al Qabaeel\" start_experience_factor = 0.5"
+							division = "name = \" Quwat al Qabaeel Yemen\" division_template = \" Quwat al Qabaeel\" start_experience_factor = 0.5"
 							owner = YEM
 						}
 					}
 				}
 				declare_war_on = {
-					target = YEM
-					type = annex_everything
-				}
+                    target = YEM
+                    type = annex_everything
+                }
 			}
 		}
 	}
@@ -14395,9 +14202,9 @@ country_event = { #grand arab revolt
 					}
 				}
 				declare_war_on = {
-					target = HJZ
-					type = annex_everything
-				}
+                    target = HJZ
+                    type = annex_everything
+                }
 			}
 			if = {
 				limit = {
@@ -14436,9 +14243,9 @@ country_event = { #grand arab revolt
 					}
 				}
 				declare_war_on = {
-					target = ASR
-					type = annex_everything
-				}
+                    target = ASR
+                    type = annex_everything
+                }
 			}
 			if = {
 				limit = {
@@ -14480,9 +14287,9 @@ country_event = { #grand arab revolt
 					}
 				}
 				declare_war_on = {
-					target = YEM
-					type = annex_everything
-				}
+                    target = YEM
+                    type = annex_everything
+                }
 			}
 		}
 		hidden_effect = { country_event = { id = ottoman.167 days = 5 } }
@@ -14530,9 +14337,9 @@ country_event = { #grand arab revolt
 					}
 				}
 				declare_war_on = {
-					target = HJZ
-					type = annex_everything
-				}
+                    target = HJZ
+                    type = annex_everything
+                }
 			}
 			if = {
 				limit = {
@@ -14571,9 +14378,9 @@ country_event = { #grand arab revolt
 					}
 				}
 				declare_war_on = {
-					target = ASR
-					type = annex_everything
-				}
+                    target = ASR
+                    type = annex_everything
+                }
 			}
 			if = {
 				limit = {
@@ -14615,9 +14422,9 @@ country_event = { #grand arab revolt
 					}
 				}
 				declare_war_on = {
-					target = YEM
-					type = annex_everything
-				}
+                    target = YEM
+                    type = annex_everything
+                }
 			}
 		}
 		HJZ = {
@@ -14668,9 +14475,9 @@ country_event = { #grand arab revolt
 					}
 				}
 				declare_war_on = {
-					target = HJZ
-					type = annex_everything
-				}
+                    target = HJZ
+                    type = annex_everything
+                }
 			}
 			if = {
 				limit = {
@@ -14709,9 +14516,9 @@ country_event = { #grand arab revolt
 					}
 				}
 				declare_war_on = {
-					target = ASR
-					type = annex_everything
-				}
+                    target = ASR
+                    type = annex_everything
+                }
 			}
 			if = {
 				limit = {
@@ -14753,9 +14560,9 @@ country_event = { #grand arab revolt
 					}
 				}
 				declare_war_on = {
-					target = YEM
-					type = annex_everything
-				}
+                    target = YEM
+                    type = annex_everything
+                }
 			}
 		}
 		ASR = {
@@ -14817,10 +14624,10 @@ country_event = { #yemen declares autonomy
 			}
 		}
 		set_autonomy = {
-			target = YEM
-			autonomy_state = autonomy_dominion
-			end_wars = yes
-			end_civil_wars = yes
+   		    target = YEM
+    		autonomy_state = autonomy_dominion
+    		end_wars = yes
+    		end_civil_wars = yes
 		}
 		custom_effect_tooltip = TUR_treaty_of_daan_autonomy_tt
 		hidden_effect = {
@@ -14857,9 +14664,9 @@ country_event = { #yemen declares autonomy
 			}
 		}
 		declare_war_on = {
-			target = YEM
-			type = annex_everything
-		}
+            target = YEM
+            type = annex_everything
+        }
 		hidden_effect = {
 			YEM = {
 				set_politics = {
@@ -15037,12 +14844,13 @@ country_event = { #al-qahtaniya influences elections
 		clr_country_flag = TUR_liberals_in_charge
 		clr_country_flag = TUR_conservatives_in_charge
 		add_country_leader_role = {
-			character = TUR_rafiq_bey_bin_mahmud_al_azm
-			promote_leader = yes
-			country_leader = {
-				ideology = social_liberalism
-				traits = { TUR_first_arab_vezir TUR_arab_parliament_opposition grand_vizier }
-			}
+   		    character = TUR_rafiq_bey_bin_mahmud_al_azm
+    	    promote_leader = yes
+    	    country_leader = {
+            	ideology = social_liberalism
+        	   	expire = "1965.1.1.1"
+    	    	traits = { TUR_first_arab_vezir TUR_arab_parliament_opposition grand_vizier }
+    	    }
 		}
 		set_party_name = {
 			ideology = democratic
@@ -15209,14 +15017,14 @@ country_event = { #formation of anti arab party
 		hidden_effect = {
 			random_list = {
 				50 = { # meclis violence
-					modifier = {
+				    modifier = {
 						factor = 0
 						has_country_flag = TUR_violence_in_the_meclis_against_arabs
 					}
 					country_event = { id = ottoman.174 days = 100 random_days = 25 }
 				}
 				50 = { # garrison on arab vilayets
-					modifier = {
+				    modifier = {
 						factor = 0
 						has_country_flag = TUR_increased_garrison_in_arab_vilayets
 					}
@@ -15251,14 +15059,14 @@ country_event = { #violence in meclis
 		hidden_effect = {
 			random_list = {
 				80 = { # anti arab party
-					modifier = {
+				    modifier = {
 						factor = 0
 						has_country_flag = TUR_anti_arab_party_formed
 					}
 					country_event = { id = ottoman.173 days = 100 random_days = 25 }
 				}
 				50 = { # garrison on arab vilayets
-					modifier = {
+				    modifier = {
 						factor = 0
 						has_country_flag = TUR_increased_garrison_in_arab_vilayets
 					}
@@ -15317,10 +15125,10 @@ country_event = { #increase of anti-arabic sentiment
 					TUR_ottoman_resistance_decay = 0.05
 				}
 			}
-			set_country_flag = TUR_increased_garrison_in_arab_vilayets
+		    set_country_flag = TUR_increased_garrison_in_arab_vilayets
 			random_list = {
 				80 = { # anti arab party
-					modifier = {
+				    modifier = {
 						factor = 0
 						has_country_flag = TUR_anti_arab_party_formed
 					}
@@ -15534,13 +15342,14 @@ country_event = { #death of Mehmed said
 				}
 			}
 			add_country_leader_role = {
-				character = TUR_said_halim
-				promote_leader = yes
-				country_leader = {
-					ideology = theocracy_ideology
-					traits = { TUR_conservative_politician2 grand_vizier }
-				}
-			}
+   		        character = TUR_said_halim
+    		    promote_leader = yes
+    		    country_leader = {
+        	    	ideology = theocracy_ideology
+        	    	expire = "1965.1.1.1"
+        	    	traits = { TUR_conservative_politician2 grand_vizier }
+    		    }
+		    }
 		}
 		if = {
 			limit = {
@@ -15552,7 +15361,7 @@ country_event = { #death of Mehmed said
 		if = {
 			limit = {
 				has_power_balance = {
-					id = TUR_parliament_sultan
+    			    id = TUR_parliament_sultan
 				}
 			}
 			set_power_balance = {
@@ -15576,15 +15385,21 @@ country_event = { #said halim retires
 	is_triggered_only = yes
 	trigger = {
 		has_country_leader = {
-			character = TUR_mehmed_talat
-			ruling_only = yes 
+			character = TUR_said_halim
 		}
 	}
 	option = {
 		name = ottoman.179.a
-		add_political_power = 120
-		remove_country_leader_trait = TUR_limited_authority
-		add_country_leader_trait = TUR_civilian_front
+		TUR_said_halim = {
+			remove_country_leader_role = {
+				ideology = fascism_ideology
+			}
+		}
+		hidden_effect = {
+			TUR_talat_advisor_now_removable = yes
+		}
+		promote_character = TUR_mehmed_talat
+		remove_ideas = TUR_mehmed_talat
 		add_country_leader_trait = grand_vizier
 		ai_chance = {
 			base = 5
@@ -15615,11 +15430,13 @@ country_event = { #choosing the caliph
 					add_country_leader_trait = HJZ_hussein_bin_ali_ottoman_trait
 				}
 				add_country_leader_role = {
-			 	 	character = HJZ_ali_bin_hussein
-				 	promote_leader = yes
-				 	country_leader = {
-				 		ideology = autocracy
-				 	}
+   		   	 	 	character = HJZ_ali_bin_hussein
+    			 	promote_leader = yes
+    			 	country_leader = {
+        		 		ideology = autocracy
+        		 		expire = "1965.1.1.1"
+        		 		traits = { }
+    			 	}
 			 	}
 			}
 		}
@@ -15698,12 +15515,13 @@ country_event = { #head of the arab party
 	option = {
 		name = ottoman.182.b
 		add_country_leader_role = {
-			character = TUR_aziz_ali_al_masry
-			promote_leader = yes
-			country_leader = {
-				ideology = despotism
-				traits = { TUR_officer_of_the_arabs TUR_al_qahtaniya_militarist_wing grand_vizier }
-			}
+   		    character = TUR_aziz_ali_al_masry
+    	    promote_leader = yes
+    	    country_leader = {
+            	ideology = despotism
+        	   	expire = "1965.1.1.1"
+    	    	traits = { TUR_officer_of_the_arabs TUR_al_qahtaniya_militarist_wing grand_vizier }
+    	    }
 		}
 		hidden_effect = {
 			TUR_nuri_al_said = {
@@ -15717,12 +15535,13 @@ country_event = { #head of the arab party
 	option = {
 		name = ottoman.182.c
 		add_country_leader_role = {
-			character = TUR_jafar_al_askari
-			promote_leader = yes
-			country_leader = {
-				ideology = oligarchism
-				traits = { TUR_conservative_liberal_arab grand_vizier }
-			}
+   		    character = TUR_jafar_al_askari
+    	    promote_leader = yes
+    	    country_leader = {
+            	ideology = oligarchism
+        	   	expire = "1965.1.1.1"
+    	    	traits = { TUR_conservative_liberal_arab grand_vizier }
+    	    }
 		}
 		hidden_effect = {
 			TUR_nuri_al_said = {
@@ -15736,12 +15555,13 @@ country_event = { #head of the arab party
 	option = {
 		name = ottoman.182.e
 		add_country_leader_role = {
-			character = TUR_ali_jawdat_al_ayyubi
-			promote_leader = yes
-			country_leader = {
-				ideology = oligarchism
-				traits = { TUR_liberal_reformer grand_vizier }
-			}
+   		    character = TUR_ali_jawdat_al_ayyubi
+    	    promote_leader = yes
+    	    country_leader = {
+            	ideology = oligarchism
+        	   	expire = "1965.1.1.1"
+    	    	traits = { TUR_liberal_reformer grand_vizier }
+    	    }
 		}
 		hidden_effect = {
 			TUR_nuri_al_said = {
@@ -15798,14 +15618,6 @@ country_event = { #caliph hussein bin ali assumes throne
 		name = ottoman.184.a
 		remove_ideas = HJZ_hussein_bin_ali_caliph
 		promote_character = HJZ_hussein_bin_ali
-		add_country_leader_role = {
-			character = HJZ_hussein_bin_ali
-			promote_leader = yes
-			country_leader = {
-				ideology = theocracy_ideology
-				traits = { HJZ_hussein_bin_ali_ottoman_trait }
-			}
-		}
 		set_cosmetic_tag = TUR_hashemite
 		ai_chance = {
 			base = 5
@@ -15840,41 +15652,41 @@ country_event = { #question of the capital
 	option = {
 		name = ottoman.185.a
 		set_capital = {
-  			state = 554
-  			remember_old_capital = no
+  		    state = 554
+  		    remember_old_capital = no
 		}
 		ai_chance = {
 			base = 5
 		}
 	}
 	option = {
-		name = ottoman.185.b
+		name = ottoman.184.b
 		set_capital = {
-  			state = 291
-  			remember_old_capital = no
+  		    state = 291
+  		    remember_old_capital = no
 		}
 		ai_chance = {
 			base = 5
 		}
 	}
 	option = {
-		name = ottoman.185.c
+		name = ottoman.184.c
 		set_province_name = {
-			id = 9833
-			name = Asatana
+    		id = 9833
+    		name = Asatana
 		}
 		ai_chance = {
 			base = 5
 		}
 	}
 	option = {
-		name = ottoman.185.e
+		name = ottoman.184.e
 		trigger = {
 			has_idea = HJZ_hussein_bin_ali_caliph
 		}
 		set_capital = {
-  			state = 679
-  			remember_old_capital = no
+  		    state = 679
+  		    remember_old_capital = no
 		}
 		ai_chance = {
 			base = 5
@@ -15890,8 +15702,9 @@ country_event = { #turks revolt
 	picture = GFX_report_event_turkish_protests
 	immediate = {
 		hidden_effect = {
-			set_division_force_allow_recruiting = {
-    			division_template = "Hamidiye Alayı"
+			set_division_template_lock = {
+				division_template = "Hamidiye Alayı"
+				is_locked = no
 			}
 			start_civil_war = {
 				ideology = democratic
@@ -15930,28 +15743,28 @@ country_event = { #turks revolt
 					long_name = TUR_anti_arab_party_long
 				}
 				PREV = {
-					TUR_riza_nur = {
-						set_nationality = PREV.PREV
-					}
+       				TUR_riza_nur = {
+        			    set_nationality = PREV.PREV
+        			}
 					TUR_mehmed_kamil = {
-						set_nationality = PREV.PREV
-					}
+        			    set_nationality = PREV.PREV
+        			}
 					TUR_prens_sabahattin = {
-						set_nationality = PREV.PREV
-					}
+        			    set_nationality = PREV.PREV
+        			}
 					TUR_ismail_kemal = {
-						set_nationality = PREV.PREV
-					}
+        			    set_nationality = PREV.PREV
+        			}
 					TUR_damad_ferid = {
-						set_nationality = PREV.PREV
-					}
+        			    set_nationality = PREV.PREV
+        			}
 					TUR_said_i_nursi = {
-						set_nationality = PREV.PREV
-					}
+        			    set_nationality = PREV.PREV
+        			}
 					TUR_mustafa_sabri = {
-						set_nationality = PREV.PREV
-					}
-				}
+        			    set_nationality = PREV.PREV
+        			}
+    			}
 				promote_character = TUR_riza_nur
 				set_variable = { var = opda_lira value = TUR.opda_lira }
 				set_variable = { var = opda_consumer_goods value = TUR.opda_consumer_goods }
@@ -16836,7 +16649,7 @@ country_event = { #integration_of_economies
 		name = ottoman.200.b
 		set_country_flag = {
 			flag = TUR_refused_economic_integration
-			days = 70
+            days = 70
 			value = 1
 		}
 		set_country_flag = TUR_refused_economic_integration_ai
@@ -16918,21 +16731,19 @@ country_event = { #they refuse
 	}
 }
 
-# Bulgarian-Ottoman Convention
-country_event = { 
+country_event = { #integration_of_economies
 	id = ottoman.203
 	title = ottoman.203.t
 	desc = ottoman.203.d
-	picture = GFX_report_event_bul_boris_military
 	is_triggered_only = yes
 	option = {
 		name = ottoman.203.a
 		transfer_state = 200
-		FROM = {
-			add_to_faction = ROOT
+		TUR = {
+			add_to_faction = BUL
 		}
 		hidden_effect = {
-			FROM = {
+			TUR = {
 				country_event = { id = ottoman.204 hours = 8 }
 			}
 		}
@@ -16985,7 +16796,7 @@ country_event = {
 	option = {
 		name = ottoman.203.b
 		hidden_effect = {
-			FROM = {
+			TUR = {
 				country_event = { id = ottoman.205 hours = 8 }
 			}
 		}
@@ -17031,15 +16842,16 @@ country_event = { #they accept
 	id = ottoman.204
 	title = ottoman.204.t
 	desc = ottoman.204.d
-	picture = GFX_report_event_generic_sign_treaty2
 	is_triggered_only = yes
 	option = {
 		name = ottoman.204.a
-		FROM = {
-			add_state_core = 200
+		BUL = {
 			transfer_state = 200
 		}
-		add_to_faction = FROM
+		add_to_faction = BUL
+		ai_chance = {
+			factor = 5
+		}
 	}
 }
 
@@ -17047,10 +16859,12 @@ country_event = { #they refuse
 	id = ottoman.205
 	title = ottoman.205.t
 	desc = ottoman.205.d
-	picture = GFX_report_event_bul_artillery
 	is_triggered_only = yes
 	option = {
 		name = ottoman.205.a
+		ai_chance = {
+			factor = 5
+		}
 	}
 }
 
@@ -17087,13 +16901,13 @@ country_event = { #government collapses
 		has_completed_focus = TUR_undermine_democracy
 		OR = {
 			has_equipment = {
-				infantry_equipment_1 < 1
+    			infantry_equipment_1 < 1
 			}
 			has_equipment = {
-				artillery_equipment < 1
+    			artillery_equipment < 1
 			}
 			has_equipment = {
-				howitzer_equipment < 1
+    			howitzer_equipment < 1
 			}
 		}
 		any_other_country = {
@@ -17541,7 +17355,6 @@ country_event = {
 	id = ww1_ottoman.112
 	title = ww1_ottoman.112.t
 	desc = ww1_ottoman.112.d
-	picture = GFX_report_event_tur_upheaval_celebration
 	is_triggered_only = yes
 	option = {
 		name = ww1_ottoman.112.a
@@ -17574,16 +17387,6 @@ country_event = {
 					transfer_state_to = PER
 				}
 			}
-		}
-		every_state = {
-			limit = {
-				is_owned_by = GEO
-				OR = {
-					state = 230
-					state = 818
-				}
-			}
-			transfer_state_to = ARM
 		}
 		AZR = {
 			every_state = {
@@ -17651,6 +17454,16 @@ country_event = {
 			}
 			TUR = {
 				transfer_state = PREV
+			}
+		}
+		if = {
+			limit = {
+				GEO = {
+					owns_state = 230
+				}
+			}
+			ARM = {
+				transfer_state = 230
 			}
 		}
 		GEO = {
@@ -17742,7 +17555,7 @@ country_event = {
 					start_civil_war = {
 						ideology = communism
 						size = 0.2
-						capital = 229
+						capital = 64
 						states = { 229 }
 						keep_unit_leaders_trigger = {
 							OR = {
@@ -17881,8 +17694,8 @@ country_event = {
 		}
 		hidden_effect = {
 			set_capital = {
- 				state = 347
-  				remember_old_capital = no
+ 			    state = 347
+  			    remember_old_capital = no
 			}
 		}
 		ai_chance = {
@@ -18015,27 +17828,28 @@ country_event = {
 				limit = {
 					date < 1914.1.10
 				}
-				promote_character = TUR_mehmed_said
+			    promote_character = TUR_mehmed_said
 				TUR_remove_party_factionalism = yes
 			}
 			else = {
 				add_country_leader_role = {
-					character = TUR_said_halim
-					promote_leader = yes
-					country_leader = {
-						ideology = theocracy_ideology
-						traits = { TUR_conservative_politician grand_vizier }
-					}
-				}
+   		            character = TUR_said_halim
+    		        promote_leader = yes
+    		        country_leader = {
+        	        	ideology = theocracy_ideology
+        	        	expire = "1965.1.1.1"
+        	        	traits = { TUR_conservative_politician grand_vizier }
+    		        }
+		        }
 			}
 			effect_tooltip = {
-				TUR_remove_party_factionalism = yes
-			}
-			hidden_effect = {
-			 	every_character = {
-					TUR_remove_party_factionalism = yes
-				}
-			}
+			    TUR_remove_party_factionalism = yes
+		    }
+		    hidden_effect = {
+		     	every_character = {
+		    		TUR_remove_party_factionalism = yes
+			    }
+		    }
 		}
 		if = {
 			limit = {
@@ -18060,7 +17874,7 @@ country_event = {
 			hidden_effect = {
 				TUR_mahmud_sevket = {
 					promote_character = authoritarian_democracy
-				}
+			    }
 			}
 			add_popularity = {
 				ideology = democratic
