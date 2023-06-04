@@ -6050,14 +6050,34 @@ country_event = {
 					}
 					add_claim_by = NFA
 				}
-				set_politics = {
-					ruling_party = fascism
-					elections_allowed = no
+				if = {
+					limit = {
+						PREV = { has_country_flag = FRA_fight_the_communists_title }
+					}
+					set_politics = {
+						ruling_party = democratic
+						elections_allowed = no
+					}
+					set_popularities = {
+						democratic = 41
+						neutrality = 36
+						fascism = 23
+					}
+					load_focus_tree = {
+						tree = french_focus
+						keep_completed = yes
+					}
 				}
-				set_popularities = {
-					democratic = 36
-					neutrality = 23
-					fascism = 41
+				else = {
+					set_politics = {
+						ruling_party = fascism
+						elections_allowed = no
+					}
+					set_popularities = {
+						democratic = 36
+						neutrality = 23
+						fascism = 41
+					}
 				}
 				set_capital = { state = 26 }
 				set_country_flag = FRA_nationalist_france_flag
@@ -7715,31 +7735,86 @@ country_event = {
 	id = ww1_france.246
 	title = ww1_france.246.t
 	desc = ww1_france.246.d
-	#picture =
+	picture = GFX_report_event_czech_soldiers_02
 	fire_only_once = yes
 	trigger = {
 		original_tag = FRA
-		has_war_with = AUH
 		has_character = FRA_milan_ratislav_stefanik
+		is_subject = no
+		# War is not over yet
+		has_global_flag = kis_war
+		NOT = {
+			has_global_flag = GER_capitulation
+			has_global_flag = FRA_capitulation
+			has_country_flag = FRA_czechoslovak_legion_flag
+		}
+		# Czechoslovakia is being oppressed
+		any_other_country = {
+			is_major = yes
+			has_war_with = ROOT
+			OR = {
+				any_owned_state = {
+					OR = {
+						is_core_of = CZE
+						is_core_of = SLO
+					}
+				}
+				has_subject = CZE
+				has_subject = SLO
+			}
+		}
+		# Not in war with Czechoslovakia
+		if = {
+			limit = {
+				country_exists = CZE
+			}
+			CZE = {
+				has_war_with = ROOT
+				is_subject = yes
+			}
+		}
+		if = {
+			limit = {
+				country_exists = SLO
+			}
+			SLO = {
+				has_war_with = ROOT
+				is_subject = yes
+			}
+		}
+		date > 1916.1.1
 	}
-	mean_time_to_happen = { days = 731 }
+	mean_time_to_happen = { days = 365 }
 	option = {
 		name = ww1_france.246.a
 		add_manpower = 9600
 		effect_tooltip = {
-			create_corps_commander = {
-				name = "FRA_milan_ratislav_stefanik"
-				skill = 3
-				attack_skill=2
-				defense_skill=3
-				planning_skill=2
-				logistics_skill=3
-				traits = {
-					###
+			FRA_milan_ratislav_stefanik = {
+				add_corps_commander_role = {
+					skill = 3
+					attack_skill = 2
+					defense_skill = 3
+					planning_skill = 2
+					logistics_skill = 3
+					traits = { politically_connected trickster guerilla_fighter }
 				}
 			}
 		}
 		set_country_flag = FRA_czechoslovak_legion_flag
+		hidden_effect = {
+			CZE = {
+				add_opinion_modifier = {
+					target = ROOT
+					modifier = czechoslovak_legion_opinion
+				}
+			}
+			SLO = {
+				add_opinion_modifier = {
+					target = ROOT
+					modifier = czechoslovak_legion_opinion
+				}
+			}
+		}
 	}
 }
 
@@ -7748,44 +7823,78 @@ country_event = {
 	id = ww1_france.247
 	title = ww1_france.247.t
 	desc = ww1_france.247.d
-	#picture =
+	picture = GFX_report_event_czech_soldiers_01
 	fire_only_once = yes
 	trigger = {
 		original_tag = FRA
 		has_character = FRA_milan_ratislav_stefanik
+		has_country_flag = FRA_czechoslovak_legion_flag
+		has_war = no
 		OR = {
-			AND = {
-				country_exists = CZE
-				CZE = { is_subject = no }
+			CZE = {
+				exists = yes
+				is_subject = no
 			}
-			AND = {
-				country_exists = SLO
-				OR = {
-					SLO = { is_subject = no }
-					SLO = { has_government = neutrality }
-				}
+			SLO = {
+				exists = yes
+				is_subject = no
+				NOT = { has_government = communism }
 			}
 		}
 	}
 	option = {
 		name = ww1_france.247.a
+		add_manpower = -9600
 		FRA_milan_ratislav_stefanik = {
+			promote_leader = yes
+			add_unit_leader_trait = war_hero
 			if = {
 				limit = {
 					country_exists = SLO
+					SLO = { is_subject = no NOT = { has_government = communism } }
 				}
 				set_nationality = SLO
-				promote_leader = yes
-				add_unit_leader_trait = war_hero
+				hidden_effect = {
+					SLO = {
+						add_manpower = 9600
+						country_event = {
+							id = ww1_france.248
+							hours = 4
+						}
+					}
+				}
 				else_if = {
 					limit = {
 						country_exists = CZE
 					}
 					set_nationality = CZE
-					promote_leader = yes
-					add_unit_leader_trait = war_hero
+					hidden_effect = {
+						CZE = {
+							add_manpower = 9600
+							country_event = {
+								id = ww1_france.248
+								hours = 4
+							}
+						}
+					}
 				}
 			}
+		}
+	}
+}
+
+# Aircraft crash and Milian died
+country_event = {
+	id = ww1_france.248
+	title = ww1_france.248.t
+	desc = ww1_france.248.d
+	picture = GFX_report_event_ITA_air_crash
+	is_triggered_only = yes
+	option = {
+		name = ww1_france.248.a
+		retire_character = FRA_milan_ratislav_stefanik
+		hidden_effect = {
+			SLO = { retire_character = SLO_milan_rastislav_stefanik }
 		}
 	}
 }
