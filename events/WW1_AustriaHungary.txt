@@ -610,14 +610,6 @@ country_event = {
 				}
 				end_puppet = CRO
 			}
-			if = {
-				limit = {
-					has_character = AUH_anton_liposcak
-				}
-				AUH_anton_liposcak = {
-					set_nationality = CRO
-				}	
-			}
 			CRO = {
 				load_oob = CRO_1918
 				ROOT = {
@@ -643,6 +635,7 @@ country_event = {
 			BOS = {
 				drop_cosmetic_tag = yes
 				retire_character = BOS_marijan_varesanin
+				retire_character = BOS_stjepan_sarkotic
 				inherit_technology = ROOT
 			}
 			if = {
@@ -8283,8 +8276,17 @@ country_event = {
 	trigger = {
 		tag = AUH
 		any_other_country = {
-			NOT = { original_tag = ALB }
-			owns_state = 44
+			NOT = {
+				original_tag = ALB
+				is_in_faction_with = ROOT
+				is_subject_of = ROOT
+			}
+			OR = {
+				owns_state = 44
+				owns_state = 803
+				owns_state = 870
+				owns_state = 871
+			}
 		}
 		OR = {
 			SER = {
@@ -8307,6 +8309,7 @@ country_event = {
 		ai_chance = {
 			factor = 70
 		}
+		give_guarantee = ALB
 		every_other_country = {
 			limit = {
 				OR = {
@@ -8314,6 +8317,11 @@ country_event = {
 					owns_state = 803
 					owns_state = 870
 					owns_state = 871
+				}
+				NOT = {
+					original_tag = ALB
+					is_in_faction_with = ROOT
+					is_subject_of = ROOT
 				}
 			}
 			country_event = {
@@ -8375,7 +8383,18 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		ai_chance = {
-			factor = 70
+			base = 70
+			modifier = {
+				add = 50
+				strength_ratio = {
+					tag = FROM
+					ratio < 0.5
+				}
+			}
+			modifier = {
+				add = 50
+				has_war_support < 0.5
+			}
 			modifier = {
 				factor = 0
 				has_game_rule = {
@@ -8415,7 +8434,18 @@ country_event = {
 	}
 	option = {
 		ai_chance = {
-			factor = 30
+			base = 30
+			modifier = {
+				add = 50
+				strength_ratio = {
+					tag = FROM
+					ratio > 0.7
+				}
+			}
+			modifier = {
+				add = 50
+				has_war_support > 0.6
+			}
 			modifier = {
 				is_historical_focus_on = yes
 				NOT = {
@@ -8500,7 +8530,7 @@ country_event = {
 	picture = GFX_report_event_karl_i_wedding
 	trigger = {
 		has_government = neutrality
-		tag=AUH
+		tag = AUH
 		date > 1911.10.11
 		NOT = {
 			has_country_flag = karl_i_wedding
@@ -8513,9 +8543,7 @@ country_event = {
 	option = {
 		name = ww1_auh.127.a #good!
 		trigger = {
-			AUH_franz_ferdinand_i = {
-				is_country_leader = yes
-			}
+			has_character = AUH_franz_ferdinand_i
 		}
 		AUH_franz_ferdinand_i = {
 			custom_effect_tooltip = AUH_ferdinand_is_very_happy
@@ -8524,12 +8552,7 @@ country_event = {
 	option = {
 		name = ww1_auh.127.b
 		trigger = {
-			AUH_franz_ferdinand_i = {
-				is_country_leader = no
-			}
-		}
-		AUH_franz_ferdinand_i = {
-			custom_effect_tooltip = AUH_ferdinand_is_very_happy
+			NOT = { has_character = AUH_franz_ferdinand_i }
 		}
 	}
 }
@@ -9029,7 +9052,20 @@ country_event = {
 	fire_only_once = yes
 	trigger= {
 		original_tag = AUH
-		owns_state = 104
+		OR = {
+			AND = {
+				owns_state = 104
+				has_character = AUH_marijan_varesanin			
+			}
+			AND = {
+				has_subject =  BOS
+				BOS = {
+					has_country_leader = {
+						character = BOS_marijan_varesanin
+					}
+				}
+			}
+		}
 		date > 1910.5.20
 		NOT = {
 			has_country_flag = Bogdan_zerajic_try_to_kill_general_marijan_varesanin
@@ -9040,8 +9076,18 @@ country_event = {
 	}
 	option = {
 		name = ww1_auh.153.a
-		104 = {
-			add_resistance = 5
+		if = {
+			limit = {
+				owns_state = 104
+			}	
+			104 = {
+				add_resistance = 5
+			}
+			else = {
+				BOS = {
+					add_stability = -0.1
+				}
+			}
 		}
 		add_stability = -0.02
 	}
@@ -9056,7 +9102,20 @@ country_event = {
 	fire_only_once = yes
 	trigger= {
 		original_tag = AUH
-		owns_state = 104
+		OR = {
+			AND = {
+				owns_state = 104
+				has_character = AUH_marijan_varesanin			
+			}
+			AND = {
+				has_subject =  BOS
+				BOS = {
+					has_country_leader = {
+						character = BOS_marijan_varesanin
+					}
+				}
+			}
+		}
 		date > 1911.4.10
 		NOT = {
 			has_country_flag = Marijan_retire
@@ -9068,9 +9127,31 @@ country_event = {
 	}
 	option = {
 		name = ww1_auh.154.a
-		BOS = {
-			retire_character = BOS_marijan_varesanin
+		if = {
+			limit = {
+				has_subject =  BOS
+				BOS = {
+					has_country_leader = {
+						character = BOS_marijan_varesanin
+					}
+				}			
+			}	
+			BOS = {
+				retire_character = BOS_marijan_varesanin
+			}
+			hidden_effect = {
+				retire_character = AUH_marijan_varesanin	
+			}
+			else = {
+				retire_character = AUH_marijan_varesanin
+				hidden_effect = {
+					BOS = {
+						retire_character = BOS_marijan_varesanin	
+					}	
+				}
+			}	
 		}	
+		
 	}
 }
 
