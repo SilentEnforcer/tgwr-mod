@@ -147,35 +147,37 @@ country_event = {
 	fire_only_once = yes
 	picture = GFX_report_event_gre_parade
 	# since greek tree is not finished yet, it should be triggered manually
-	#is_triggered_only = yes
-	trigger = {
-		tag = ALB
-		803 = { is_owned_and_controlled_by = PREV }
-		has_global_flag = albanian_peasant_revolt
-		has_global_flag = kis_war
-		NOT = { has_global_flag = great_war_ends }
-		has_capitulated = no
-		GRE = {
-			NOT = {
-				has_idea = GRE_idea_national_schism
-				has_war_with = PREV
-			}
-			is_subject = no
-			has_capitulated = no
-			758 = { is_owned_and_controlled_by = PREV }
-		}
-	}
+	# moved to decision, you can remove that after implementing the focus tree
+	is_triggered_only = yes
+	
 	option = {
 		name = ww1_albania.5.a
+		hidden_effect = {
+			if = {
+				limit = {
+					country_exists = EPR
+				}
+				FROM = {
+					annex_country = {
+						target = EPR
+						transfer_troops = yes
+					}
+				}
+				every_state = {
+					limit = { is_core_of = EPR }
+					remove_core_of = EPR
+				}
+			}
+		}
 		803 = {
-			transfer_state_to = GRE
+			transfer_state_to = FROM
 			set_demilitarized_zone = no
 			remove_dynamic_modifier = {
 				modifier = ALB_greek_minority
 			}
 		}
 		add_opinion_modifier = {
-			target = GRE
+			target = FROM
 			modifier = HOI4TGW_Opinion_diplomats_malus
 		}
 		hidden_effect = {
@@ -184,7 +186,9 @@ country_event = {
 					owns_state = 871
 					ITA = {
 						exists = yes
-						has_guaranteed = ALB
+						has_guaranteed = ROOT
+						has_capitulated = no
+						is_subject = no
 						NOT = { has_war_with = PREV }
 					}
 				}
@@ -1308,12 +1312,26 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_albania.19.a
-		871 = {
-			transfer_state_to = ITA
-		}
+		trigger = { original_tag = ALB }
 		add_opinion_modifier = {
-			target = ITA
+			target = FROM
 			modifier = HOI4TGW_Opinion_diplomats_malus
+		}
+	}
+	option = {
+		name = ww1_albania.19.b
+		trigger = { original_tag = ITA }
+		transfer_state = 871
+		add_named_threat = {
+			threat = 3
+			name = ww1_albania.19.t
+		}
+		hidden_effect = {
+			ALB = {
+				country_event = {
+					id = ww1_albania.19
+				}
+			}
 		}
 	}
 }
@@ -1455,6 +1473,55 @@ country_event = {
 		ALB_umberto_ii = {
 			remove_trait = {
 				trait = underage_monarch
+			}
+		}
+	}
+}
+
+# Autonomous Republic of Northern Epirus
+country_event = {
+	id = ww1_albania.23
+	title = ww1_albania.23.t
+	desc = ww1_albania.23.d
+	picture = GFX_report_event_generic_peaceful_annexation
+	trigger = {
+		tag = ALB
+		is_subject = no
+		has_war = no
+		803 = {
+			is_owned_and_controlled_by = ROOT
+			has_dynamic_modifier = {
+				modifier = ALB_greek_minority
+			}
+		}
+		NOT = {
+			has_global_flag = kis_war
+			has_government = communism
+			has_government = fascism
+		}
+	}
+	mean_time_to_happen = { days = 70 }
+	fire_only_once = yes
+	option = {
+		name = ww1_albania.23.a
+		803 = {
+			set_demilitarized_zone = no
+			add_core_of = EPR
+			transfer_state_to = EPR
+		}
+		puppet = EPR
+		hidden_effect = {
+			EPR = {
+				set_politics = {
+					ruling_party = democratic
+					elections_allowed = no
+				}
+				set_popularities = {
+					fascism = 10
+					communism = 3
+					democratic = 60
+					neutrality = 27
+				}
 			}
 		}
 	}
