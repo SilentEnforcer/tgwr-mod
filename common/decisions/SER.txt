@@ -70,13 +70,15 @@ SER_black_hand_category = {
 		ai_will_do = {
 			factor = 500
 		}
+		allowed = {
+			tag = SER
+		}
 		visible = {
 			NOT = {
 				has_country_flag = SER_yugoslavia_formed
 			}
 		}
 		available = {
-			tag = SER
 			has_country_flag = SER_unification_of_yugoslavs
 			custom_trigger_tooltip = {
 				tooltip = SER_at_least_3_integrated_nations
@@ -87,8 +89,6 @@ SER_black_hand_category = {
 		}
 		days_remove = 3
 		remove_effect = {
-		}
-		complete_effect = {
 			custom_effect_tooltip = SER_integrated_count
 			set_country_flag = SER_yugoslavia_formed
 			set_cosmetic_tag = YUG
@@ -96,6 +96,9 @@ SER_black_hand_category = {
 	}
 	SER_integrate_balkan_nations = {
 		name = integrate_country
+		allowed = {
+			tag = SER
+		}
 		target_trigger = {
 			FROM = {
 				OR = {
@@ -119,18 +122,27 @@ SER_black_hand_category = {
 			}
 		}
 		available = {
-			FROM = {
-				exists = yes
+			NOT = {
+				# war participants must get affected
+				has_active_mission = versallies_conference
+				has_active_mission = frankfrut_conference
+				# you lost the war
+				has_country_flag = great_war_loser
 			}
-			tag = SER
 			has_country_flag = SER_unification_of_yugoslavs
 			FROM = {
-				is_neighbor_of = SER
-				is_puppet = no
+				is_neighbor_of = ROOT
+				OR = {
+					is_subject = no
+					is_subject_of = ROOT
+				}
+				has_war = no
+				# you shouldn't able to merge albania
+				any_other_country = {
+					is_major = yes
+					NOT = { has_guaranteed = PREV }
+				}
 			}
-		}
-		days_remove = 3
-		remove_effect = {
 		}
 		complete_effect = {
 			FROM = {
@@ -381,6 +393,7 @@ balkan_league_category = {
 	# 	}
 	# }
 	SER_GRE_invitation = {
+		icon = GFX_decision_hol_exchange_intelligence_data
 		allowed = {
 			OR = {
 				original_tag = SER
@@ -490,26 +503,39 @@ crisis = {
 			original_tag = SER
 		}
 		available = {
-			NOT = {
+			OR = {
+				has_civil_war = yes
 				has_government = democratic
+				democratic < 10
 			}
 		}
 		days_mission_timeout = 60
 		activation = {
-			always = no
+			has_country_flag = crisis_in_progress
+			NOT = { has_country_flag = SER_democratic_civil_war }
+			democratic > 9
 		}
-		fire_only_once = yes
+		fire_only_once = no
 		is_good = no
-		complete_effect = {
-			country_event = {
-				id = ww1_serbia.136
-			}
-		}
+		# complete_effect = {
+		# 	country_event = {
+		# 		id = ww1_serbia.136
+		# 	}
+		# }
 		timeout_effect = {
+			hidden_effect = {
+				set_country_flag = SER_democratic_civil_war
+				check_democratic_civil_war_popularity = yes
+			}
 			start_civil_war = {
 				ideology = democratic
-				ruling_party = neutrality
-				size = 0.8
+				size = civil_war_size_var
+				keep_unit_leaders_trigger = {
+					NOT = {
+						has_trait = trait_royal
+						has_trait = trait_royalist
+					}
+				}
 			}
 		}
 	}
@@ -517,17 +543,37 @@ crisis = {
 		allowed = {
 			original_tag = SER
 		}
+		available = {
+			OR = {
+				has_civil_war = yes
+				has_government = neutrality
+				neutrality < 10
+			}
+		}
 		days_mission_timeout = 140
 		activation = {
-			always = no
+			has_country_flag = SER_monarchist_attack_flag
+			NOT = {
+				has_country_flag = SER_monarchist_civil_war
+			}
+			neutrality > 9
 		}
-		fire_only_once = yes
+		fire_only_once = no
 		is_good = no
 		timeout_effect = {
+			hidden_effect = {
+				set_country_flag = SER_monarchist_civil_war
+				check_neutrality_civil_war_popularity = yes
+			}
 			start_civil_war = {
 				ideology = neutrality
-				ruling_party = democratic
-				size = 0.8
+				size = civil_war_size_var
+				keep_unit_leaders_trigger = {
+					NOT = {
+						has_trait = trait_royal
+						has_trait = trait_royalist
+					}
+				}
 			}
 		}
 	}
