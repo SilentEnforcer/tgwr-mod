@@ -61,12 +61,16 @@ country_event = {
 	title = ww1_firstbalkan.3.t
 	desc = ww1_firstbalkan.3.d
 	picture = GFX_report_event_albanian_uprising
-	is_triggered_only = yes
+	fire_only_once = yes
 	trigger = {
 		NOT = {
 			country_exists = ALB
 		}
-		has_war_with = SER
+		OR = {
+			has_war_with = SER
+			has_war_with = BUL
+			has_war_with = GRE
+		}
 		owns_state = 871
 	}
 	immediate = {
@@ -304,6 +308,13 @@ country_event = {
 			value = ROOT
 		}
 		add_ideas = anti_ottoman_balkan_coalition
+		hidden_effect = {
+			# enough time to get members
+			news_event = {
+				id = ww1_firstbalkan.42
+				days = 10
+			}
+		}
 		ai_chance = {
 			factor = 100
 		}
@@ -1793,7 +1804,7 @@ country_event = {
 	id = ww1_firstbalkan.29
 	title = ww1_firstbalkan.29.t
 	desc = ww1_firstbalkan.29.d
-	picture = GFX_report_event_generic_conference
+	picture = GFX_report_event_tur_machine_gunners
 	fire_only_once = yes
 	trigger = {
 		tag = GRE
@@ -1815,6 +1826,7 @@ country_event = {
 			}
 		}
 		NOT = {
+			has_global_flag = kis_war
 			has_country_flag = GRE_solo_against_TUR
 		}
 	}
@@ -1834,12 +1846,13 @@ country_event = {
 	id = ww1_firstbalkan.30
 	title = ww1_firstbalkan.30.t
 	desc = ww1_firstbalkan.30.d
-	picture = GFX_report_event_generic_conference
+	picture = GFX_report_event_tur_machine_gunners
 	trigger = {
 		tag = TUR
 		has_war_with = GRE
 		has_global_flag = TUR_invasion_of_GRE_mission
 		NOT = {
+			has_global_flag = kis_war
 			has_country_flag = TUR_informed_of_the_invasion_mission
 		}
 	}
@@ -1849,6 +1862,7 @@ country_event = {
 	immediate = {
 		set_country_flag = TUR_informed_of_the_invasion_mission
 	}
+	fire_only_once = yes
 	##
 	option = {
 		name = ww1_firstbalkan.30.a	## We must conquer them all!
@@ -1856,32 +1870,114 @@ country_event = {
 		add_stability = -0.20
 		add_war_support = -0.20
 		ai_chance = {
-			factor = 5
+			base = 100
+			modifier = {
+				add = 50
+				has_government = fascism
+			}
+			modifier = {
+				add = 50
+				has_war_support > 0.60
+			}
+			modifier = {
+				add = 75
+				has_war_support > 0.70
+			}
+			modifier = {
+				add = 100
+				has_war_support > 0.80
+			}
+			modifier = {
+				factor = 0
+				has_war_support < 0.25
+			}
+			modifier = {
+				factor = 0
+				surrender_progress > 0.50
+			}
 		}
 	}
-	##heu lets go peace deal
 	option = {
-		name = ww1_firstbalkan.30.b	## We must conquer them all!
+		name = ww1_firstbalkan.30.b	##heu lets go peace deal
 		ai_chance = {
-			factor = 80
+			base = 70
+			modifier = {
+				add = 50
+				has_government = democratic
+			}
+			modifier = {
+				add = 50
+				has_war_support < 0.40
+			}
+			modifier = {
+				add = 100
+				surrender_progress > 0.15
+			}
+			modifier = {
+				add = 200
+				surrender_progress > 0.30
+			}
 		}
-		GRE = {
-			dismantle_faction = yes
+		# territory transfer
+		every_owned_state = {
+			limit = {
+				is_claimed_by = GRE
+				is_controlled_by = GRE
+			}
+			transfer_state_to = GRE
 		}
+		if = {
+			limit = {
+				country_exists = CRE
+			}
+			if = {
+				limit = {
+					CRE = {
+						is_subject_of = GRE
+						has_capitulated = yes
+					}
+					182 = { is_controlled_by_ROOT_or_ally = yes }
+				}
+				annex_country = {
+					target = CRE
+				}
+				else = {
+					GRE = {
+						annex_country = {
+							target = CRE
+							transfer_troops = yes
+						}
+					}
+				}
+			}
+		}
+		# peace
 		every_country = {
 			limit = {
-				has_war_together_with = TUR
+				OR = {
+					tag = ROOT
+					has_war_together_with = ROOT
+				}
 				has_war_with = GRE
+			}
+			set_truce = {
+				target = GRE
+				days = 180
 			}
 			white_peace = GRE
 		}
-		TUR = {
-			white_peace = GRE
-		}
-		TUR = {
-			diplomatic_relation = {
-				country = GRE
-				relation = non_aggression_pact
+		hidden_effect = {
+			GRE = {
+				if = {
+					limit = {
+						is_faction_leader = yes
+					}
+					dismantle_faction = yes
+					else_if = {
+						limit = { has_war = no }
+						leave_faction = yes
+					}
+				}
 			}
 		}
 	}
@@ -2462,7 +2558,7 @@ country_event = {
 	}
 }
 
-# Foreign support for the Balkan League
+# Foreign support for the Balkan War participants
 country_event = {
 	id = ww1_firstbalkan.41
 	title = ww1_firstbalkan.41.t
@@ -2477,5 +2573,23 @@ country_event = {
 				amount = 2000
 			}
 		}
+	}
+}
+
+# The Great Powers Intervene the Balkan War
+news_event = {
+	id = ww1_firstbalkan.42
+	title = ww1_firstbalkan.42.t
+	desc = ww1_firstbalkan.42.d
+	picture = GFX_news_event_generic_parliament
+	major = yes
+	is_triggered_only = yes
+	option = {
+		name = ww1_firstbalkan.42.a
+		trigger = { tag = TUR }
+	}
+	option = {
+		name = ww1_firstbalkan.42.a
+		trigger = { NOT = { tag = TUR } }
 	}
 }
