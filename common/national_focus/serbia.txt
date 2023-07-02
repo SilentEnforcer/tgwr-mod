@@ -4160,17 +4160,9 @@ focus_tree = {
 		allow_branch = {
 			has_country_flag = unlocked_war_tree
 		}
+		available_if_capitulated = yes
 		available = {
-			OR = {
-				has_global_flag = kis_franzferdinand_murdered
-				has_defensive_war_with = AUH
-			}
-		}
-		bypass = {
-			OR = {
-				has_global_flag = kis_franzferdinand_murdered
-				has_defensive_war_with = AUH
-			}
+			always = no
 		}
 	}
 	focus = {
@@ -4181,6 +4173,12 @@ focus_tree = {
 		prerequisite = {
 			focus = SER_the_long_expected_war
 		}
+		available = {
+			NOT = {
+				has_country_flag = great_war_loser
+			}
+		}
+		available_if_capitulated = yes
 		x = 0
 		y = 1
 		completion_reward = {
@@ -4200,9 +4198,45 @@ focus_tree = {
 		prerequisite = {
 			focus = SER_war_preparations
 		}
+		available = {
+			NOT = {
+				has_country_flag = great_war_loser
+			}
+		}
+		available_if_capitulated = yes
+		bypass = {
+			OR = {
+				has_idea = service_by_requirement
+				has_idea = all_adults_serve
+				has_idea = scraping_the_barrel
+			}
+			OR = {
+				has_idea = war_economy
+				has_idea = tot_economic_mobilisation
+			}
+		}
 		completion_reward = {
-			add_ideas = service_by_requirement
-			add_ideas = war_economy
+			if = {
+				limit = {
+					OR = {
+						has_idea = disarmed_nation
+						has_idea = volunteer_only
+						has_idea = limited_conscription
+						has_idea = extensive_conscription
+					}
+				}
+				add_ideas = service_by_requirement
+			}
+			if = {
+				limit = {
+					OR = {
+						has_idea = civilian_economy
+						has_idea = low_economic_mobilisation
+						has_idea = partial_economic_mobilisation
+					}
+				}
+				add_ideas = war_economy
+			}
 		}
 	}
 	focus = {
@@ -4215,6 +4249,12 @@ focus_tree = {
 		prerequisite = {
 			focus = SER_war_preparations
 		}
+		available = {
+			NOT = {
+				has_country_flag = great_war_loser
+			}
+		}
+		available_if_capitulated = yes
 		completion_reward = {
 			add_timed_idea = {
 				idea = SER_idea_loan
@@ -4235,6 +4275,12 @@ focus_tree = {
 		prerequisite = {
 			focus = SER_war_loan
 		}
+		available = {
+			NOT = {
+				has_country_flag = great_war_loser
+			}
+		}
+		available_if_capitulated = yes
 		completion_reward = {
 			add_timed_idea = {
 				idea = SER_idea_subsidize_war_industry
@@ -4258,6 +4304,11 @@ focus_tree = {
 		prerequisite = {
 			focus = SER_war_loan
 		}
+		available = {
+			NOT = {
+				has_country_flag = great_war_loser
+			}
+		}
 		available_if_capitulated = yes
 	}
 	focus = {
@@ -4271,8 +4322,52 @@ focus_tree = {
 			focus = SER_weapon_purchases
 		}
 		completion_reward = {
-			ALB = {
-				country_event = ww1_serbia.33
+			custom_effect_tooltip = agree_effect_tooltip
+			effect_tooltip = {
+				ALB = {
+					give_military_access = ROOT
+					diplomatic_relation = {
+						country = ROOT
+						relation = non_aggression_pact
+					}
+					add_offsite_building = {
+						type = industrial_complex
+						level = 1
+					}
+					every_state = {
+						limit = {
+							is_claimed_by = ROOT
+							is_owned_by = PREV
+						}
+						remove_claim_by = ROOT
+					}
+					every_state = {
+						limit = {
+							OR = {
+								is_claimed_by = PREV
+								is_core_of = PREV
+							}
+							is_owned_by = ROOT
+						}
+						remove_claim_by = PREV
+					}
+				}
+			}
+			hidden_effect = {
+				ALB = {
+					country_event = ww1_serbia.33
+				}
+			}
+		}
+		available = {
+			country_exists = ALB
+		}
+		bypass = {
+			OR = {
+				has_war_with = ALB
+				NOT = { country_exists = ALB }
+				has_subject = ALB
+				is_in_faction_with = ALB
 			}
 		}
 		prerequisite = {
@@ -4289,6 +4384,12 @@ focus_tree = {
 		prerequisite = {
 			focus = SER_treaty_with_Albania
 		}
+		available = {
+			NOT = {
+				has_country_flag = great_war_loser
+			}
+		}
+		available_if_capitulated = yes
 		completion_reward = {
 			country_event = ww1_serbia.32
 			add_war_support = 0.15
@@ -4297,7 +4398,7 @@ focus_tree = {
 	focus = {
 		id = SER_the_exodus
 		icon = GFX_focus_ETH_boarding_the_train
-		cost = 5
+		cost = 1
 		x = -3
 		y = 1
 		relative_position_id = SER_Nis_declaration
@@ -4306,17 +4407,28 @@ focus_tree = {
 		}
 		available_if_capitulated = yes
 		available = {
-			NOT = {
-				controls_state = 107
+			has_war_with = AUH
+			OR = {
+				surrender_progress > 0.5
+				AND = {
+					has_war_with = BUL
+					surrender_progress > 0.2
+				}
+				has_capitulated = yes
 			}
 		}
 		completion_reward = {
 			add_ideas = SER_idea_exodus
-			ALB = {
-				add_to_war = {
-					targeted_alliance = SER
-					enemy = AUH
+			if = {
+				limit = {
+					ALB = {
+						is_neighbor_of = ROOT
+						has_war = no
+						is_subject = no
+						has_global_flag = albanian_peasant_revolt
+					}
 				}
+				country_event = ww1_albania.8
 			}
 		}
 	}
@@ -4330,9 +4442,27 @@ focus_tree = {
 		prerequisite = {
 			focus = SER_the_exodus
 		}
-		completion_reward = {
+		available_if_capitulated = yes
+		available = {
+			has_war = yes
 			GRE = {
-				country_event = ww1_serbia.43
+				owns_state = 187
+				is_subject = no
+				NOT = {
+					has_war_with = ROOT
+					is_in_faction_with = AUH
+				}
+			}
+		}
+		completion_reward = {
+			custom_effect_tooltip = agree_effect_tooltip
+			effect_tooltip = {
+				transfer_state = 187
+			}
+			hidden_effect = {
+				GRE = {
+					country_event = ww1_serbia.43
+				}
 			}
 		}
 	}
@@ -4347,6 +4477,7 @@ focus_tree = {
 				is_owned_by = AUH
 			}
 		}
+		available_if_capitulated = yes
 		completion_reward = {
 			add_war_support = 0.15
 			add_manpower = 200000
@@ -4372,6 +4503,7 @@ focus_tree = {
 				is_controlled_by = SER
 			}
 		}
+		available_if_capitulated = yes
 		completion_reward = {
 			unlock_decision_category_tooltip = SER_spark_the_uprisings
 		}

@@ -26,15 +26,15 @@ country_event = {
 	option = {
 		trigger = {
 			NOT = {
-				tag = SER
+				tag = BLL
 			}
 		}
 		name = ww1_firstbalkan.1.b
 		leave_faction = yes
 		add_war_support = -0.15
-		SER = {
+		BLL = {
 			add_opinion_modifier = {
-				target = PREV
+				target = ROOT
 				modifier = faction_traitor
 			}
 		}
@@ -75,9 +75,6 @@ country_event = {
 	}
 	immediate = {
 		hidden_effect = {
-			871 = {
-				transfer_state_to = ALB
-			}
 			ALB = {
 				add_country_leader_trait = standing_alone
 				# what if balkan league is failing? the leader would be changed
@@ -86,6 +83,35 @@ country_event = {
 				# 	id = BUL
 				# 	value = -500
 				# }
+				division_template = {
+					name = "Milicitë Shqiptare"
+					regiments = {
+						infantry = {
+							x = 0
+							y = 0
+						}
+						infantry = {
+							x = 0
+							y = 1
+						}
+						infantry = {
+							x = 1
+							y = 0
+						}
+						infantry = {
+							x = 1
+							y = 1
+						}
+					}
+				}
+			}
+			871 = {
+				transfer_state_to = ALB
+				create_unit = {
+					division = "division_template = \"Milicitë Shqiptare\" start_experience_factor = 0.1"
+					owner = ALB
+					allow_spawning_on_enemy_provs = yes
+				}
 			}
 		}
 	}
@@ -139,6 +165,7 @@ country_event = {
 						FROM = { has_war_with = ALB }
 					}
 					FROM = { white_peace = ALB }
+					ALB = { remove_country_leader_trait = standing_alone }
 				}
 			}
 		}
@@ -279,6 +306,405 @@ news_event = {
 	}
 	option = {
 		name = ww1_firstbalkan.5.a
+	}
+}
+# BALKAN LEAGUE LEADER READY FOR PEACE
+#############################
+country_event = {
+	id = ww1_firstbalkan.7
+	title = ww1_firstbalkan.7.t
+	desc = ww1_firstbalkan.7.d
+	picture = GFX_report_event_generic_read_write
+	is_triggered_only = yes
+	option = {
+		name = ww1_firstbalkan.6.a		
+		FROM = {
+			if = {
+				limit = {
+					is_faction_leader = yes
+				}
+				every_other_country = {
+					limit = {
+						is_in_faction_with = PREV
+						OR = {
+							original_tag = BUL
+							original_tag = SER
+							original_tag = GRE
+							original_tag = CRE
+							original_tag = MNT
+							original_tag = MAC
+							original_tag = ROM
+							original_tag = RUS
+						}	
+					}	
+					country_event = { id = ww1_firstbalkan.8 hours = 1}
+				}
+				if = {
+					limit = {
+						is_in_faction_with = BUL
+						BUL = {
+							is_subject = no
+						}	
+					}	
+					BUL = {
+						set_faction_leader = yes
+					}
+					else_if = {
+						limit = {
+							is_in_faction_with = SER
+							SER = {
+								is_subject = no
+							}	
+						}	
+						SER = {
+							set_faction_leader = yes
+						}
+						else_if = {
+							limit = {
+								is_in_faction_with = GRE
+								GRE = {
+									is_subject = no
+								}	
+							}	
+							GRE = {
+								set_faction_leader = yes
+							}
+						}
+					}	
+				}	
+				leave_faction = yes
+			}
+		}	
+		every_country = {
+			limit = {
+				has_war = yes
+				OR = {
+					is_in_faction_with = TUR
+					is_subject_of = TUR
+					tag = TUR
+				}
+			}
+			FROM = {
+				white_peace = PREV
+				set_truce = {
+					target = PREV
+					days = 365
+				}
+				add_opinion_modifier = {
+					target = TUR
+					modifier = HOI4TGW_Opinion_hostile_relations_post_balkan_war
+				}
+			}
+		}
+		FROM = {
+			if = {
+				limit = {
+					original_tag = BUL
+				}
+				add_ideas = BUL_idea_first_national_catastrophe
+				add_timed_idea = {
+					idea = BUL_idea_refugee_crisis
+					days = 200
+				}
+				set_global_flag = BUL_surrender_in_balkan_war
+			}
+			if = {
+				limit = {
+					original_tag = SER
+				}
+				remove_state_core = 106
+				remove_state_core = 203
+				set_global_flag = SER_surrender_in_balkan_war
+			}
+			if = {
+				limit = {
+					original_tag = GRE
+				}
+				set_global_flag = GRE_surrender_in_balkan_war
+			}
+			if = {
+				limit = {
+					original_tag = ROM
+				}
+				set_global_flag = ROM_surrender_in_balkan_war
+			}
+			if = {
+				limit = {
+					OR = {
+						original_tag = CRE
+						has_subject = CRE
+					}
+				}
+				ROOT = {
+					annex_country = {
+						target = CRE
+					}
+				}
+				CRE = {
+					drop_cosmetic_tag = yes
+				}	
+			}	
+			if = {
+				limit = {
+					original_tag = MNT
+				}
+				set_global_flag = MNT_surrender_in_balkan_war
+				ROOT = {
+					if = {
+						limit = {
+							has_subject_autonomy_feature = yes
+						}			
+						set_autonomy = {
+							target = FROM
+							autonomous_state = autonomy_tgwr_informal_protectorate
+							freedom_level = 0.9
+						}
+						FROM = { set_country_flag = protectorate }
+						else = {
+							puppet = FROM
+							FROM = { add_ideas = protectorate }
+						}	
+					}
+				}
+				hidden_effect = {
+					set_cosmetic_tag = MNT_TUR
+					set_politics = {
+						ruling_party = neutrality
+						elections_allowed = no
+					}
+					set_popularities = {
+						neutrality = 60
+						fascism = 16
+						democratic = 12
+						communism = 12
+					}
+				}
+			}			
+			every_owned_state = {
+				limit = {
+					OR = {
+						is_claimed_by = TUR
+						is_core_of = TUR
+						state = 185
+						state = 876
+						state = 821
+					}
+				}
+				TUR = {
+					transfer_state = PREV
+				}
+			}
+		}
+		set_global_flag = kis_firstbalkanwar_lose
+	}
+	option = {
+		name = ww1_firstbalkan.7.b
+		trigger = {
+			is_ai = no
+		}
+		add_threat = 5
+		set_global_flag = TUR_is_winning_balkan_war
+	}
+}
+# BALKAN LEAGUE MEMBERS ACCEPT THE PEACE?
+#############################
+country_event = {
+	id = ww1_firstbalkan.8
+	title = ww1_firstbalkan.8.t
+	desc = ww1_firstbalkan.8.d
+	picture = GFX_report_event_generic_read_write
+	is_triggered_only = yes
+	option = {
+		name = ww1_firstbalkan.6.a
+		if = {
+			limit = {
+				is_faction_leader = yes
+			}
+			if = {
+				limit = {
+					is_in_faction_with = BUL
+					BUL = {
+						is_subject = no
+					}	
+				}	
+				BUL = {
+					set_faction_leader = yes
+				}
+				else_if = {
+					limit = {
+						is_in_faction_with = SER
+						SER = {
+							is_subject = no
+						}	
+					}	
+					SER = {
+						set_faction_leader = yes
+					}
+					else_if = {
+						limit = {
+							is_in_faction_with = GRE
+							GRE = {
+								is_subject = no
+							}	
+						}	
+						GRE = {
+							set_faction_leader = yes
+						}
+					}
+				}	
+			}			
+		}
+		if = {
+			limit = {
+				is_in_faction = yes
+			}
+			leave_faction = yes
+		}
+		every_country = {
+			limit = {
+				has_war = yes
+				OR = {
+					is_in_faction_with = TUR
+					is_subject_of = TUR
+					tag = TUR
+				}
+			}
+			ROOT = {
+				white_peace = PREV
+				set_truce = {
+					target = PREV
+					days = 365
+				}
+				add_opinion_modifier = {
+					target = TUR
+					modifier = HOI4TGW_Opinion_hostile_relations_post_balkan_war
+				}
+			}
+		}
+		hidden_effect = {
+			if = {
+				limit = {
+					original_tag = BUL
+				}
+				add_ideas = BUL_idea_first_national_catastrophe
+				add_timed_idea = {
+					idea = BUL_idea_refugee_crisis
+					days = 200
+				}
+				set_global_flag = BUL_surrender_in_balkan_war
+			}
+			if = {
+				limit = {
+					original_tag = SER
+				}
+				remove_state_core = 106
+				remove_state_core = 203
+				set_global_flag = SER_surrender_in_balkan_war
+			}
+			if = {
+				limit = {
+					original_tag = GRE
+				}
+				set_global_flag = GRE_surrender_in_balkan_war
+			}
+			if = {
+				limit = {
+					original_tag = ROM
+				}
+				set_global_flag = ROM_surrender_in_balkan_war
+			}
+			if = {
+				limit = {
+					OR = {
+						has_subject = CRE
+						original_tag = CRE
+					}	
+				}
+				ROOT = {
+					annex_country = {
+						target = CRE
+					}
+				}	
+				CRE = {
+					drop_cosmetic_tag = yes
+				}	
+			}
+			if = {
+				limit = {
+					original_tag = MNT
+				}
+				set_global_flag = MNT_surrender_in_balkan_war
+				TUR = {
+					if = {
+						limit = {
+							has_subject_autonomy_feature = yes
+						}			
+						set_autonomy = {
+							target = ROOT
+							autonomous_state = autonomy_tgwr_informal_protectorate
+							freedom_level = 0.9
+						}
+						ROOT = { set_country_flag = protectorate }
+						else = {
+							puppet = ROOT
+							ROOT = { add_ideas = protectorate }
+						}	
+					}
+				}
+				hidden_effect = {
+					set_cosmetic_tag = MNT_TUR
+					set_politics = {
+						ruling_party = neutrality
+						elections_allowed = no
+					}
+					set_popularities = {
+						neutrality = 60
+						fascism = 16
+						democratic = 12
+						communism = 12
+					}
+				}
+			}
+			every_owned_state = {
+				limit = {
+					OR = {
+						is_claimed_by = TUR
+						is_core_of = TUR
+						state = 185
+						state = 876
+						state = 821
+					}
+				}
+				TUR = {
+					transfer_state = PREV
+				}
+			}
+		}
+		ai_chance = {
+			base = 100
+			modifier = {
+				factor = 0
+				OR = {
+					surrender_progress > 0.2
+					original_tag = ROM
+					original_tag = CRE
+				}
+			}
+		}	
+	}
+	option = {
+		name = ww1_firstbalkan.8.b
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 100
+				OR = {
+					surrender_progress > 0.2
+					original_tag = ROM
+					original_tag = CRE
+				}
+			}
+		}		
 	}
 }
 
@@ -2613,5 +3039,50 @@ news_event = {
 	option = {
 		name = ww1_firstbalkan.42.a
 		trigger = { NOT = { tag = TUR } }
+	}
+}
+
+# Preventing League members from collapsing just because Bulgaria has
+country_event = {
+	id = ww1_firstbalkan.100
+
+	hidden = yes
+	is_triggered_only = yes
+
+	trigger = {
+		is_in_faction_with = BLL
+		OR = {
+			tag = SER
+			tag = BUL
+			tag = GRE
+			tag = ROM
+		}	
+		NOT = { has_country_flag = balkan_league_major }
+	}
+
+	option = {
+		set_country_flag = balkan_league_major
+		set_major = yes
+	}
+}
+# Re-setting their major status
+country_event = {
+	id = ww1_firstbalkan.101
+
+	hidden = yes
+	is_triggered_only = yes
+
+	trigger = {
+		has_country_flag = belgrade_pact_major
+		OR = {
+			has_war = no
+			is_in_faction = no
+			NOT = { faction_leader = { tag = BLL } }
+		}
+	}
+
+	option = {
+		clr_country_flag = balkan_league_major
+		set_major = no
 	}
 }

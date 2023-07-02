@@ -982,11 +982,25 @@ country_event = {
 		set_country_flag = yugoslavia_chosen
 		add_war_support = 0.1
 		add_political_power = 200
+		ai_chance = {
+			factor = 100
+		}
 	}
 	option = {
 		name = ww1_serbia.32.b
 		set_country_flag = greater_serbia_chosen
 		add_war_support = 0.2
+		ai_chance = {
+			factor = 50
+			modifier = {
+				factor = 2
+				has_government = fascism
+			}
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+			}
+		}
 	}
 }
 
@@ -997,17 +1011,11 @@ country_event = {
 	desc = ww1_serbia.33.d
 	picture = GFX_report_event_generic_conference
 	is_triggered_only = yes
-	trigger = {
-		original_tag = ALB
-	}
 	option = {
 		name = ww1_serbia.33.a
-		add_stability = 0.1
-		add_war_support = -0.2
-		add_political_power = -100
-		give_military_access = SER
+		give_military_access = FROM
 		diplomatic_relation = {
-			country = SER
+			country = FROM
 			relation = non_aggression_pact
 		}
 		add_offsite_building = {
@@ -1016,38 +1024,42 @@ country_event = {
 		}
 		every_state = {
 			limit = {
-				is_claimed_by = SER
-				is_owned_by = ALB
+				is_claimed_by = FROM
+				is_owned_by = ROOT
 			}
-			remove_claim_by = SER
+			remove_claim_by = FROM
 		}
 		every_state = {
 			limit = {
 				OR = {
-					is_claimed_by = ALB
-					is_core_of = ALB
+					is_claimed_by = ROOT
+					is_core_of = ROOT
 				}
-				is_owned_by = SER
+				is_owned_by = FROM
 			}
-			remove_claim_by = ALB
+			remove_claim_by = ROOT
 		}
 		ai_chance = {
 			base = 100
 			modifier = {
 				factor = 0
-				NOT = {
-					has_country_leader = {
-						character = ALB_essad_pasha_toptani
-						ruling_only = yes
-					}
-				}
+				has_country_leader_with_trait = german_agent
 			}
 		}
 	}
 	option = {
 		name = ww1_serbia.33.b
-		add_stability = -0.1
-		add_war_support = 0.25
+		ai_chance = {
+			base = 30
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+				has_country_leader = {
+					character = ALB_essad_pasha_toptani
+					ruling_only = yes
+				}
+			}
+		}
 	}
 }
 
@@ -1251,7 +1263,7 @@ country_event = {
 	}
 }
 
-###Serbia requests lease of Corfu
+###Serbia and Allied troops take Corfu
 country_event = {
 	id = ww1_serbia.43
 	title = ww1_serbia.43.t
@@ -1260,19 +1272,21 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_serbia.43.a
-		SER = {
+		set_global_flag = corfu_lease
+		FROM = {
 			transfer_state = 187
-			set_capital = {
-				state = 187
+			swap_ideas = {
+				remove_idea = SER_idea_exodus
+				add_idea = SER_idea_exile
 			}
+			add_opinion_modifier = {
+				target = ROOT
+				modifier = large_increase
+			}
+		}
+		187 = {
 			add_dynamic_modifier = {
 				modifier = SER_serbian_exile
-			}
-			remove_ideas = SER_idea_exodus
-			add_ideas = SER_idea_exile
-			add_opinion_modifier = {
-				target = GRE
-				modifier = large_increase
 			}
 		}
 	}
@@ -2733,3 +2747,30 @@ country_event = {
 # 		set_country_flag = democrats_beaten
 # 	}
 # }
+
+# The Long Expected War
+country_event = {
+	id = ww1_serbia.137
+	picture = GFX_report_event_generic_army
+	trigger = {
+		tag = SER
+		OR = {
+			has_war_with = AUH
+			has_wargoal_against = AUH
+			AUH = {
+				has_wargoal_against = ROOT
+			}
+			has_global_flag = kis_franzferdinand_murdered
+		}
+	}
+	fire_only_once = yes
+	mean_time_to_happen = { days = 0 }
+	hidden = yes
+	immediate = {
+		hidden_effect = {
+			set_country_flag = unlocked_war_tree
+			mark_focus_tree_layout_dirty = yes
+		}
+		unlock_national_focus = SER_the_long_expected_wawr
+	}
+}
