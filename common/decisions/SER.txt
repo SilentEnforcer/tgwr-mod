@@ -91,7 +91,15 @@ SER_black_hand_category = {
 		remove_effect = {
 			custom_effect_tooltip = SER_integrated_count
 			set_country_flag = SER_yugoslavia_formed
-			set_cosmetic_tag = YUG
+			if = {
+				limit = {
+					has_country_flag = greater_serbia_chosen
+				}
+				set_cosmetic_tag = SER_empire
+				else = {
+					set_cosmetic_tag = YUG
+				}
+			}
 		}
 	}
 	SER_integrate_balkan_nations = {
@@ -117,8 +125,11 @@ SER_black_hand_category = {
 			factor = 500
 		}
 		visible = {
-			NOT = {
-				has_country_flag = SER_asked_us_to_merge
+			has_country_flag = SER_unification_of_yugoslavs
+			FROM = {
+				NOT = {
+					has_country_flag = SER_asked_us_to_merge
+				}
 			}
 		}
 		available = {
@@ -129,7 +140,6 @@ SER_black_hand_category = {
 				# you lost the war
 				has_country_flag = great_war_loser
 			}
-			has_country_flag = SER_unification_of_yugoslavs
 			FROM = {
 				is_neighbor_of = ROOT
 				OR = {
@@ -1152,11 +1162,13 @@ political_actions = {
 
 SER_war_preparations = {
 	SER_move_capital = {
+		icon = GFX_decision_eng_install_government
 		allowed = {
 			original_tag = SER
 		}
 		fire_only_once = yes
 		visible = {
+			has_war_with = AUH
 			107 = {
 				is_capital = yes
 			}
@@ -1168,7 +1180,9 @@ SER_war_preparations = {
 			}
 		}
 		cost = 20
+		days_remove = 10
 		remove_effect = {
+			set_global_flag = SER_move_capital
 			set_capital = {
 				state = 876
 			}
@@ -1181,13 +1195,22 @@ SER_war_preparations = {
 				value = -15
 			}
 		}
+		ai_will_do = {
+			factor = 100
+			modifier = {
+				factor = 0
+				surrender_progress < 0.05
+			}
+		}
 	}
 	SER_suspend_elections = {
+		icon = GFX_decision_SWI_no_elected_president
 		allowed = {
 			original_tag = SER
 		}
 		fire_only_once = yes
 		visible = {
+			has_war_with = AUH
 			has_elections = yes
 			# NOT = {
 			# 	has_government = neutrality
@@ -1206,7 +1229,7 @@ SER_war_preparations = {
 			factor = 500
 		}
 		cost = 20
-		remove_effect = {
+		complete_effect = {
 			set_country_flag = SER_suspend_elections
 			add_popularity = {
 				ideology = democratic
@@ -1215,18 +1238,21 @@ SER_war_preparations = {
 			add_stability = 0.05
 			add_war_support = -0.05
 			remove_ideas = SER_idea_interim_government
+			check_current_ruling_party = yes
 			set_politics = {
-				ruling_party = democratic
+				ruling_party = var:ruling_party_var
 				elections_allowed = no
 			}
 		}
 	}
 	SER_war_propaganda = {
+		icon = GFX_decision_eng_propaganda_campaigns
 		allowed = {
 			original_tag = SER
 		}
 		fire_only_once = yes
 		visible = {
+			has_war_with = AUH
 			has_war_support < 0.9
 		}
 		available = {
@@ -1240,15 +1266,72 @@ SER_war_preparations = {
 		cancel_trigger = {
 			has_war_support > 0.9
 		}
+		ai_will_do = {
+			factor = 10
+			modifier = {
+				factor = 0
+				has_war_support > 0.5
+			}
+			modifier = {
+				factor = 0
+				has_political_power < 100
+			}
+		}
+	}
+	SER_exodus_now = {
+		icon = GFX_decision_eng_propaganda_campaigns
+		allowed = {
+			original_tag = SER
+		}
+		visible = {
+			is_ai = yes
+		}
+		available = {
+			is_ai = yes
+			has_war_with = AUH
+			OR = {
+				surrender_progress > 0.9
+				AND = {
+					has_war_with = BUL
+					surrender_progress > 0.5
+				}
+				has_capitulated = yes
+			}
+			NOT = { has_completed_focus = SER_the_exodus }
+		}
+		fire_only_once = yes
+		cost = 0
+		complete_effect = {
+			complete_national_focus = SER_the_exodus
+		}
+		ai_will_do = {
+			factor = 1000
+		}
 	}
 }
 
 SER_weapon_purchases = {
 	SER_purchase_infantry_equipment = {
+		icon = GFX_decision_generic_industry
 		allowed = {
 			original_tag = SER
 		}
-		fire_only_once = yes
+		target_trigger = {
+			FROM = {
+				tag = FRA
+			}
+		}
+		visible = {
+			has_war = yes
+			has_global_flag = kis_war
+			NOT = { has_global_flag = great_war_ends }
+			NOT = { has_war_with = FROM }
+		}
+		available = {
+			FROM = { has_tech = infantry_weapons1 }
+		}
+		fire_only_once = no
+		days_re_enable = 70
 		cost = 20
 		days_remove = 60
 		modifier = {
@@ -1261,12 +1344,38 @@ SER_weapon_purchases = {
 				producer = FRA
 			}
 		}
+		ai_will_do = {
+			factor = 10
+			modifier = {
+				factor = 0
+				stockpile_ratio = {
+					archetype = infantry_equipment
+					ratio > 0.5
+				}
+			}
+		}
 	}
 	SER_purchase_artillery_equipment = {
+		icon = GFX_decision_ger_military_buildup
 		allowed = {
 			original_tag = SER
 		}
-		fire_only_once = yes
+		target_trigger = {
+			FROM = {
+				tag = RUS
+			}
+		}
+		visible = {
+			has_war = yes
+			has_global_flag = kis_war
+			NOT = { has_global_flag = great_war_ends }
+			NOT = { has_war_with = FROM }
+		}
+		available = {
+			FROM = { has_tech = artillery1 }
+		}
+		fire_only_once = no
+		days_re_enable = 70
 		cost = 20
 		days_remove = 60
 		modifier = {
@@ -1279,12 +1388,38 @@ SER_weapon_purchases = {
 				producer = RUS
 			}
 		}
+		ai_will_do = {
+			factor = 10
+			modifier = {
+				factor = 0
+				stockpile_ratio = {
+					archetype = artillery_equipment
+					ratio > 0.5
+				}
+			}
+		}
 	}
 	SER_purchase_airplanes = {
+		icon = GFX_decision_generic_air
 		allowed = {
 			original_tag = SER
 		}
-		fire_only_once = yes
+		target_trigger = {
+			FROM = {
+				tag = ENG
+			}
+		}
+		visible = {
+			has_war = yes
+			has_global_flag = kis_war
+			NOT = { has_global_flag = great_war_ends }
+			NOT = { has_war_with = FROM }
+		}
+		available = {
+			FROM = { has_tech = fighter1 }
+		}
+		fire_only_once = no
+		days_re_enable = 70
 		cost = 20
 		days_remove = 60
 		modifier = {
@@ -1297,12 +1432,36 @@ SER_weapon_purchases = {
 				producer = ENG
 			}
 		}
+		ai_will_do = {
+			factor = 0
+		}
 	}
 	SER_purchase_convoys = {
+		icon = GFX_decision_generic_merge_plant_ship
 		allowed = {
 			original_tag = SER
 		}
-		fire_only_once = yes
+		target_trigger = {
+			FROM = {
+				tag = ITA
+			}
+		}
+		visible = {
+			has_war = yes
+			has_global_flag = kis_war
+			NOT = { has_global_flag = great_war_ends }
+			NOT = { has_war_with = FROM }
+		}
+		available = {
+			FROM = {
+				OR = {
+					has_tech = transport
+					has_tech = mtg_transport
+				}
+			}
+		}
+		fire_only_once = no
+		days_re_enable = 70
 		cost = 20
 		days_remove = 60
 		modifier = {
@@ -1313,6 +1472,16 @@ SER_weapon_purchases = {
 				type = convoy
 				amount = 10
 				producer = ITA
+			}
+		}
+		ai_will_do = {
+			factor = 10
+			modifier = {
+				factor = 0
+				stockpile_ratio = {
+					archetype = convoy
+					ratio > 30
+				}
 			}
 		}
 	}
@@ -1606,34 +1775,63 @@ peace_deals = {
 			original_tag = SER
 		}
 		available = {
-			casualties_inflicted_by = {
-				opponent = BUL
-				thousands > 50
+			OR = {
+				AND = {
+					casualties_inflicted_by = {
+						opponent = FROM
+						thousands > 50
+					}
+					surrender_progress > 0
+				}
+				AND = {
+					OR = {
+						surrender_progress > 0.8
+						has_capitulated = yes
+					}
+					if = {
+						limit = {
+							is_in_faction_with = ROM
+						}
+						ROM = {
+							OR = {
+								surrender_progress > 0.5
+								has_capitulated = yes
+							}
+						}
+					}
+					if = {
+						limit = {
+							is_in_faction_with = GRE
+						}
+						FROM = { controls_state = 345 }
+					}
+				}
+			}
+		}
+		target_trigger = {
+			FROM = {
+				tag = BUL
 			}
 		}
 		visible = {
-			has_war_with = BUL
+			has_war_with = FROM
 			has_global_flag = kis_secondbalkan_war
-			BUL = {
+			FROM = {
 				NOT = {
 					is_in_faction_with = AUH
 					is_in_faction_with = RUS
-				}
-			}
-			SER = {
-				NOT = {
-					is_in_faction_with = RUS
-					is_in_faction_with = AUH
 				}
 			}
 			NOT = {
+				is_in_faction_with = RUS
+				is_in_faction_with = AUH
 				has_global_flag = kis_war
 				has_global_flag = kis_franzferdinand_murdered
 				has_global_flag = kis_franzJoseph_murdered
 			}
 		}
 		complete_effect = {
-			BUL = {
+			FROM = {
 				country_event = ww1_secondbalkan.8
 			}
 		}
