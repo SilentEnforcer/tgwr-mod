@@ -63,12 +63,13 @@ CHI_xinhai_revolution = {
 		#	command_power > 9
 		#}
 		#custom_cost_text = decision_cost_CP_10
-		days_remove = 10
+		days_remove = 30
 		fire_only_once = yes
 		#complete_effect = {
 		#	add_command_power = -10
 		#}	
 		remove_effect = {
+			retire_character = QIN_yinchang
 			add_war_support = 0.1
 			add_popularity = {
 				ideology = fascism
@@ -190,10 +191,10 @@ CHI_warlord_era = {
 				has_global_flag = national_protection_war
 				has_country_flag = CHI_national_protection_flag
 			}
-			OR = {
-				has_completed_focus = CHI_second_empire
-				has_completed_focus = CHI_suppress_monarchists
-			}
+			# OR = {
+			# 	has_completed_focus = CHI_second_empire
+			# 	has_completed_focus = CHI_suppress_monarchists
+			# }
 		}
 		allowed = {
 			original_tag = CHI
@@ -211,10 +212,10 @@ CHI_warlord_era = {
 				has_global_flag = national_protection_war
 				has_country_flag = CHI_national_protection_flag
 			}
-			OR = {
-				has_completed_focus = CHI_second_empire
-				has_completed_focus = CHI_suppress_monarchists
-			}
+			# OR = {
+			# 	has_completed_focus = CHI_second_empire
+			# 	has_completed_focus = CHI_suppress_monarchists
+			# }
 		}
 		fire_only_once = yes
 		is_good = no
@@ -1158,7 +1159,7 @@ CHI_warlord_era = {
 			}
 		}
 		fire_only_once = no
-		war_with_on_remove = FROM
+		war_with_on_remove = ANC
 		days_remove = 140
 		remove_effect = {
 			country_event = ww1_china.49
@@ -1223,7 +1224,7 @@ CHI_warlord_era = {
 			}
 		}
 		fire_only_once = no
-		war_with_on_remove = FROM
+		war_with_on_remove = ZHC
 		days_remove = 10
 		remove_effect = {
 			set_global_flag = CHI_FNG_invade_ZHC
@@ -5258,6 +5259,7 @@ GER_great_war = {
 		days_remove = 120
 		fire_only_once = no
 		complete_effect = {
+			set_global_flag = CHI_join_great_war
 			set_country_flag = CHI_join_great_war
 			add_stability = -0.1
 		}
@@ -5889,17 +5891,23 @@ CHI_national_revolution = {
 		allowed = {
 			original_tag = GDC
 		}
+		target_trigger = {
+			FROM = {
+				OR = {
+					tag = ZHC
+					tag = ANC
+					tag = JXC
+				}
+			}
+		}
 		visible = {
 			is_subject = no
 			has_country_flag = CHI_kuomintang_flag
-			OR = {
-				is_neighbor_of = ZHC
-				is_neighbor_of = ANC
-				is_neighbor_of = JXC
-			}
+			is_neighbor_of = FROM
 			NOT = {
 				has_global_flag = northern_expedition
 				has_country_flag = reunited_china
+				has_war_with = FROM
 			}
 		}
 		available = {
@@ -5908,12 +5916,14 @@ CHI_national_revolution = {
 			}
 			NOT = {
 				# Gongchandang was against this
-				has_government = communism
+				# has_government = communism
 				# Never should be in a faction with the warlords
 				is_in_faction_with = ANC
 				is_in_faction_with = ZHC
 				is_in_faction_with = FNG
 				is_in_faction_with = JXC
+				# Must end Zhigongdang before
+				country_exists = ZGP
 			}
 			OR = {
 				# Ready to crush them
@@ -5940,19 +5950,9 @@ CHI_national_revolution = {
 				is_in_faction = no
 				is_faction_leader = yes
 			}
-			OR = {
-				ZHC = {
-					is_neighbor_of = ROOT
-					is_subject = no
-				}
-				ANC = {
-					is_neighbor_of = ROOT
-					is_subject = no
-				}
-				JXC = {
-					is_neighbor_of = ROOT
-					is_subject = no
-				}
+			FROM = {
+				is_neighbor_of = ROOT
+				is_subject = no
 			}
 		}
 		fire_only_once = no
@@ -5962,15 +5962,6 @@ CHI_national_revolution = {
 				is_subject = yes
 				has_war = yes
 				has_global_flag = northern_expedition
-			}
-		}
-		target_trigger = {
-			FROM = {
-				OR = {
-					tag = ZHC
-					tag = ANC
-					tag = JXC
-				}
 			}
 		}
 		war_with_target_on_remove = yes
@@ -6003,36 +5994,32 @@ CHI_national_revolution = {
 				}
 				add_core_of = ROOT
 			}
-			every_other_country = {
-				limit = {
-					OR = {
-						original_tag = ANC
-						original_tag = ZHC
-						original_tag = JXC
+			declare_war_on = {
+				target = FROM
+				type = annex_everything
+			}
+			hidden_effect = {
+				# other beiyang cliques join the coalition
+				every_other_country = {
+					limit = {
+						is_china_or_warlord_no_tt = yes
+						is_in_faction_with = FROM
 					}
-					NOT = {
-						is_in_faction_with = ROOT
-					}
-					is_subject = no
-					is_neighbor_of = ROOT
-				}
-				ROOT = {
-					declare_war_on = {
-						target = PREV
-						type = annex_everything
+					add_to_war = {
+						targeted_alliance = FROM
+						enemy = ROOT
 					}
 				}
-				hidden_effect = {
-					every_other_country = {
-						limit = {
-							is_subject_of = ROOT
-						}
-						add_to_war = {
-							targeted_alliance = ROOT
-							enemy = PREV
-						}
-						add_ideas = CHI_idea_nationalist_revolution
+				# other kuomintang alligences join the struggle
+				every_other_country = {
+					limit = {
+						is_subject_of = ROOT
 					}
+					add_to_war = {
+						targeted_alliance = ROOT
+						enemy = FROM
+					}
+					add_ideas = CHI_idea_nationalist_revolution
 				}
 			}
 			add_ideas = CHI_idea_nationalist_revolution
@@ -6041,11 +6028,21 @@ CHI_national_revolution = {
 			factor = 1000
 			modifier = {
 				factor = 0
-				NOT = {
-					has_country_leader = {
-						character = GDC_chiang_kaishek
-						ruling_only = yes
-					}
+				has_government = communism
+			}
+			modifier = {
+				factor = 0
+				has_war_support < 0.30
+			}
+			modifier = {
+				factor = 0
+				has_stability < 0.30
+			}
+			modifier = {
+				factor = 0
+				strength_ratio = {
+					tag = FROM
+					ratio < 0.5
 				}
 			}
 		}
@@ -6154,6 +6151,48 @@ CHI_national_revolution = {
 			country_event = {
 				id = ww1_china.70
 				hours = 3
+			}
+		}
+	}
+	CHI_KMT_finish_ZGP = {
+		icon = GFX_decision_eng_trade_unions_support
+		allowed = {
+			original_tag = GDC
+		}
+		visible = {
+			has_country_flag = CHI_kuomintang_flag
+		}
+		activation = {
+			has_country_flag = CHI_kuomintang_flag
+			any_other_country = {
+				has_country_flag = CHI_zhigongdang_flag
+				NOT = {
+					has_war_with = ROOT
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
+				}
+				is_neighbor_of = ROOT
+			}
+			is_subject = no
+		}
+		available = {
+			OR = {
+				NOT = { country_exists = ZGP }
+				has_war_with = ZGP
+				is_subject = no
+				has_subject = ZGP
+				is_in_faction_with = ZGP
+			}
+		}
+		timeout_effect = {
+			declare_war_on = {
+				target = ZGP
+				type = civil_war
+			}
+		}
+		target_trigger = {
+			FROM = {
+				tag = ZGP
 			}
 		}
 	}

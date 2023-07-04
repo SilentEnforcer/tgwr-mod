@@ -54,10 +54,11 @@ country_event = {
 				division_template = "Tsingtao Garnison"
 				disband = yes
 			}
-			GER = {
-				annex_country = {
-					target = GER
-					transfer_troops = no
+			every_state = {
+				GER = {
+					delete_unit = {
+						state = PREV
+					}
 				}
 			}
 			add_ideas = interwar_recovery
@@ -486,8 +487,8 @@ country_event = {
 						has_idea = ger_famine
 					}
 				}
-				has_stability < 0.5
-				has_war_support < 0.5
+				has_stability < 0.3
+				has_war_support < 0.3
 			}
 		}
 		NOT = {
@@ -4152,8 +4153,10 @@ country_event = {
 			}
 			random_country = {
 				limit = {
-					has_war_with = ROM
+					# has_war_with = ROM
 					NOT = {
+						is_in_faction_with = ROM
+						is_subject_of = ROM
 						has_war_with = ROOT
 					}
 					owns_state = 80
@@ -4164,8 +4167,10 @@ country_event = {
 		if = {
 			limit = {
 				any_other_country = {
-					has_war_with = ROM
+					# has_war_with = ROM
 					NOT = {
+						is_in_faction_with = ROM
+						is_subject_of = ROM
 						has_war_with = ROOT
 					}
 					owns_state = 211
@@ -4173,8 +4178,10 @@ country_event = {
 			}
 			random_other_country = {
 				limit = {
-					has_war_with = ROM
+					# has_war_with = ROM
 					NOT = {
+						is_in_faction_with = ROM
+						is_subject_of = ROM
 						has_war_with = ROOT
 					}
 					owns_state = 211
@@ -4918,9 +4925,6 @@ country_event = {
 		has_war_with = FRA
 		NOT = {
 			has_global_flag = great_war_ends
-		}
-		NOT = {
-			has_cosmetic_tag = GER_norddeutscher_bund
 		}
 		is_puppet = no
 		fascism > 0.25
@@ -6719,6 +6723,7 @@ country_event = {
 	id = ww1_germany.121
 	title = ww1_germany.121.t
 	desc = ww1_germany.121.d
+	picture = GFX_report_event_hungary_parliament
 	fire_only_once = yes
 	mean_time_to_happen = {
 		days = 3
@@ -6727,13 +6732,14 @@ country_event = {
 		original_tag = GER
 		has_war = no
 		has_completed_focus = GER_HRE_focus
+		capital_scope = { state = 54 }
 		owns_state = 55		# Frankfurt
 		owns_state = 53		# Regensburg
 		owns_state = 54		# Berlin
 	}
 	option = {
 		ai_chance = {
-			factor = 1
+			factor = 0
 		}		#move capital to Frankfurt
 		name = ww1_germany.121.a
 		set_capital = {
@@ -6747,7 +6753,7 @@ country_event = {
 	}
 	option = {
 		ai_chance = {
-			factor = 2
+			factor = 0
 		}		#move capital to Regensburg
 		name = ww1_germany.121.b
 		set_capital = {
@@ -8283,7 +8289,7 @@ country_event = {
 		name = ww1_germany.147.a
 		add_timed_idea = {
 			idea = race_to_the_sea
-			days = 140
+			days = 30
 		}
 	}
 }
@@ -8798,5 +8804,634 @@ country_event = {
 				}
 			}
 		}
+	}
+}
+
+#Baster Conscription in S-W Afrika
+country_event = {
+	id = ww1_germany.157
+	title = ww1_germany.157.t
+	desc = ww1_germany.157.d
+	picture = GFX_report_event_german_troops
+	fire_only_once = yes
+	trigger = {
+		has_global_flag = kis_war
+		NOT = { has_country_flag = great_war_loser }
+		if = {
+			limit = {
+				country_exists = NMB
+			}
+			original_tag = NMB
+			is_subject_of = GER
+			else_if = {
+				limit = {
+					NOT = { country_exists = NMB }
+				}
+				original_tag = GER
+				owns_state = 541
+			}
+			else_if = {
+				limit = {
+					NOT = { 
+						country_exists = NMB 
+						GER = { owns_state = 541 }
+					}
+				}
+				always = no
+			}
+		}
+	}
+	#we need the men
+	option = {
+		name = ww1_germany.157.a
+		ai_chance = {
+			base = 75
+			modifier = {
+				factor = 1000
+				is_historical_focus_on = yes
+			}
+		}
+		add_manpower = 3000
+		country_event = { id = ww1_germany.158 days = 6 }
+	}
+	#their neutrality is preferable
+	option = {
+		name = ww1_germany.157.b
+		ai_chance = {
+			base = 25
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+			}
+		}
+		if = {
+			limit = {
+				original_tag = GER
+			}
+			add_political_power = 7
+			else = {
+				add_stability = 0.05
+			}
+		}
+	}
+}
+#Basters protest conscription
+country_event = {
+	id = ww1_germany.158
+	title = ww1_germany.158.t
+	desc = ww1_germany.158.d
+	picture = GFX_report_event_ast_army
+	is_triggered_only = yes
+	fire_only_once = yes
+	#we don't care, fuck outta here hippies
+	option = {
+		name = ww1_germany.158.a
+		ai_chance = {
+			base = 15
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+			}
+		}
+		if = {
+			limit = {
+				original_tag = GER
+			}
+			add_political_power = 2
+			else = {
+				add_war_support = 0.05
+			}
+		}
+		hidden_effect = { country_event = { id = ww1_germany.159 days = 3 } }
+	}
+	#compromise- only serve in non-frontline roles, but you will still have German uniforms!
+	option = {
+		name = ww1_germany.158.b
+		add_manpower = -750
+		ai_chance = {
+			base = 65
+			modifier = {
+				factor = 100
+				is_historical_focus_on = yes
+			}
+		}
+		if = {
+			limit = {
+				original_tag = GER
+			}
+			add_political_power = -4
+			else = {
+				add_stability = -0.075
+			}
+		}
+		hidden_effect = { country_event = { id = ww1_germany.161 days = 4 } }
+	}
+	#accept the Baster Council's demands
+	option = {
+		name = ww1_germany.158.c
+		ai_chance = {
+			base = 20
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+			}
+		}
+		add_manpower = -3000
+		if = {
+			limit = {
+				original_tag = GER
+			}
+			add_political_power = -5
+			else = {
+				add_stability = 0.02
+				add_war_support = -0.10
+			}
+		}
+	}
+}
+#Basters revolt: full conscription
+country_event = {
+	id = ww1_germany.159
+	title = ww1_germany.159.t
+	desc = ww1_germany.159.d
+	picture = GFX_report_event_saf_soldiers_3
+	is_triggered_only = yes
+	fire_only_once = yes
+	immediate = {
+		hidden_effect = {
+			SAF = {
+				SAF_cornelius_van_wyk = {
+					unit_leader_event = { id = ww1_germany.160 }
+				}
+				set_country_flag = saf_ger_basters_have_rebelled_bigly 
+				division_template = {
+					name = "Baster Volunteers"
+					regiments = {
+						irregular_infantry = {
+							x = 0
+							y = 0
+						}
+						irregular_infantry = {
+							x = 0
+							y = 1
+						}
+						irregular_infantry = {
+							x = 0
+							y = 2
+						}
+						irregular_infantry = {
+							x = 0
+							y = 3
+						}
+						irregular_infantry = {
+							x = 0
+							y = 4
+						}
+						irregular_infantry = {
+							x = 0
+							y = 5
+						}
+						cavalry = {
+							x = 1
+							y = 0
+						}
+					}
+				}
+			}
+			541 = {
+				create_unit = {
+					division = "name = \"Baster Volunteer Brigade\" division_template = \"Baster Volunteers\" start_experience_factor = 0.1"
+					owner = SAF
+				}
+			}
+		}
+	}
+	option = {
+		name = ww1_germany.159.a
+		add_manpower = -3100
+		if = {
+			limit = {
+				original_tag = GER
+			}
+			add_political_power = -25
+			else = {
+				add_stability = -0.20
+			}
+		}
+		effect_tooltip = {
+			SAF = {
+				division_template = {
+					name = "Baster Volunteers"
+					regiments = {
+						infantry = {
+							x = 0
+							y = 0
+						}
+						infantry = {
+							x = 0
+							y = 1
+						}
+						infantry = {
+							x = 0
+							y = 2
+						}
+						infantry = {
+							x = 0
+							y = 3
+						}
+						infantry = {
+							x = 0
+							y = 4
+						}
+						infantry = {
+							x = 0
+							y = 5
+						}
+						cavalry = {
+							x = 1
+							y = 0
+						}
+					}
+				}
+			}
+			541 = {
+				create_unit = {
+					division = "name = \"Baster Volunteer Brigade\" division_template = \"Baster Volunteers\" start_experience_factor = 0.1"
+					owner = SAF
+				}
+			}
+		}
+	}
+}
+#SAF is notified of the big baster revolt
+unit_leader_event = {
+	id = ww1_germany.160
+	title = ww1_germany.160.t
+	desc = ww1_germany.160.d
+	#picture =
+	is_triggered_only = yes
+	fire_only_once = yes
+	#their help is unnecessary
+	option = {
+		name = ww1_germany.160.a
+		add_war_support = 0.05
+		add_political_power = 50
+	}
+	#they will come in handy
+	option = {
+		name = ww1_germany.160.b
+		add_manpower = 1200
+		add_political_power = -5
+	}
+}
+#still not enough for the Basters
+country_event = {
+	id = ww1_germany.161
+	title = ww1_germany.161.t
+	desc = ww1_germany.161.d
+	picture = GFX_report_event_saf_soldiers_3
+	is_triggered_only = yes
+	fire_only_once = yes
+	#fine, we give in
+	option = {
+		name = ww1_germany.161.a
+		ai_chance = {
+			base = 10
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+			}
+		}
+		if = {
+			limit = {
+				original_tag = GER
+			}
+			add_political_power = -35
+			else = {
+				add_war_support = -0.20
+				add_stability = -0.05
+			}
+		}
+	}
+	#they won't do anything about it.
+	option = {
+		name = ww1_germany.161.b
+		ai_chance = {
+			base = 90
+			modifier = {
+				factor = 100
+				is_historical_focus_on = yes
+			}
+		}
+		if = {
+			limit = {
+				original_tag = GER
+			}
+			add_political_power = 2
+			else = {
+				add_war_support = 0.05
+				add_stability = 0.05
+			}
+		}
+		hidden_effect = {
+			country_event = { id = ww1_germany.162 days = 4 }
+		}
+	}
+}
+#300 men set up in Laagers!
+country_event = {
+	id = ww1_germany.162
+	title = ww1_germany.162.t
+	desc = ww1_germany.162.d
+	picture = GFX_report_event_saf_soldiers_2
+	is_triggered_only = yes
+	fire_only_once = yes
+	#disarm the Basters, now!
+	option = {
+		name = ww1_germany.162.a
+		add_manpower = -300
+		add_equipment_to_stockpile = {
+   			type = infantry_equipment
+   			amount = -450
+		}
+		country_event = { id = ww1_germany.163 hours = 17 }
+	}
+}
+#Battle of Sam Khubis
+country_event = {
+	id = ww1_germany.163
+	title = ww1_germany.163.t
+	desc = ww1_germany.163.d
+	picture = GFX_report_event_soldiers_marching
+	is_triggered_only = yes
+	fire_only_once = yes
+	option = {
+		if = {
+			limit = {
+				is_historical_focus_on = yes
+			}
+			effect_tooltip = {
+				random_list = {
+					60 = {
+						country_event = {
+							id = ww1_germany.164
+							hours = 2
+						}
+					}
+					40 = {
+						country_event = {
+							id = ww1_germany.165
+							hours = 2
+						}
+					}
+				}
+			}
+			hidden_effect = { country_event = { id = ww1_germany.164 hours = 2 } }
+			else = {
+				random_list = {
+					60 = {
+						country_event = {
+							id = ww1_germany.164
+							hours = 2
+						}
+					}
+					40 = {
+						country_event = {
+							id = ww1_germany.165
+							hours = 2
+						}
+					}
+				}				
+			}
+		}
+	}
+}
+#Aftermath: defeat (END OF EVENT CHAIN)
+country_event = {
+	id = ww1_germany.164
+	title = ww1_germany.164.t
+	desc = ww1_germany.164.d
+	picture = GFX_report_event_german_troops
+	is_triggered_only = yes
+	fire_only_once = yes
+	option = {
+		name = ww1_germany.164.a
+		add_manpower = -817
+		if = {
+			limit = {
+				original_tag = GER
+			}
+			add_political_power = -20
+			else = {
+				add_stability = -0.10
+				add_war_support = -0.10
+			}
+		}
+	}
+}
+#Aftermath: Victory! (END OF EVENT CHAIN)
+country_event = {
+	id = ww1_germany.165
+	title = ww1_germany.165.t
+	desc = ww1_germany.165.d
+	picture = GFX_report_event_german_troops
+	is_triggered_only = yes
+	fire_only_once = yes
+	option = {
+		name = ww1_germany.165.a
+		add_manpower = -573
+		add_equipment_to_stockpile = {
+   			type = infantry_equipment
+   			amount = 1000
+		}
+		if = {
+			limit = {
+				original_tag = GER
+			}
+			add_political_power = 10
+			else = {
+				add_war_support = 0.20
+			}
+		}
+	}
+}
+
+# Fate of Dobruja
+country_event = {
+	id = ww1_germany.166
+	title = ww1_germany.166.t
+	desc = ww1_germany.166.desc
+	picture = GFX_report_event_generic_peaceful_annexation
+	fire_only_once = yes
+	trigger = {
+		original_tag = GER
+		has_global_flag = frankfurt_treaty
+		has_country_flag = great_war_winner
+		OR = {
+			77 = { is_owned_and_controlled_by = ROOT }
+			805 = { is_owned_and_controlled_by = ROOT }
+			846 = { is_owned_and_controlled_by = ROOT }
+		}
+	}
+	mean_time_to_happen = { days = 45 }
+	# transfer to bulgaria
+	option = {
+		name = ww1_germany.166.a
+		trigger = {
+			BUL = {
+				owns_state = 211
+				NOT = { has_war_with = ROOT }
+			}
+		}
+		every_owned_state = {
+			limit = {
+				OR = {
+					state = 77
+					state = 805
+					state = 846
+				}
+			}
+			transfer_state_to = BUL
+		}
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = -5
+				has_opinion = {
+					target = BUL
+					value < 0
+				}
+			}
+			modifier = {
+				add = -5
+				BUL = { has_country_flag = great_war_loser }
+			}
+			modifier = {
+				add = 5
+				has_subject = BUL
+			}
+			modifier = {
+				add = 5
+				is_in_faction_with = BUL
+			}
+			modifier = {
+				add = 5
+				has_opinion = {
+					target = BUL
+					value > 20
+				}
+			}
+		}
+	}
+	# transfer to romania
+	option = {
+		name = ww1_germany.166.b
+		trigger = {
+			ROM = {
+				owns_state = 46
+				NOT = { has_war_with = ROOT }
+			}
+		}
+		every_owned_state = {
+			limit = {
+				OR = {
+					state = 77
+					state = 805
+					state = 846
+				}
+			}
+			transfer_state_to = ROM
+		}
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = -5
+				has_opinion = {
+					target = ROM
+					value < 0
+				}
+			}
+			modifier = {
+				add = -5
+				ROM = { has_country_flag = great_war_loser }
+			}
+			modifier = {
+				add = 5
+				has_subject = ROM
+			}
+			modifier = {
+				add = 5
+				is_in_faction_with = ROM
+			}
+			modifier = {
+				add = 5
+				has_opinion = {
+					target = ROM
+					value > 20
+				}
+			}
+		}
+	}
+	# transfer to ottoman
+	option = {
+		name = ww1_germany.166.c
+		trigger = {
+			TUR = {
+				owns_state = 211
+				NOT = { has_war_with = ROOT }
+			}
+		}
+		every_owned_state = {
+			limit = {
+				OR = {
+					state = 77
+					state = 805
+					state = 846
+				}
+			}
+			transfer_state_to = TUR
+		}
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = -20
+				NOT = {
+					77 = { is_claimed_by = TUR }
+					805 = { is_claimed_by = TUR }
+					846 = { is_claimed_by = TUR }
+				}
+			}
+			modifier = {
+				add = -5
+				has_opinion = {
+					target = TUR
+					value < 0
+				}
+			}
+			modifier = {
+				add = -5
+				TUR = { has_country_flag = great_war_loser }
+			}
+			modifier = {
+				add = 5
+				has_subject = TUR
+			}
+			modifier = {
+				add = 5
+				is_in_faction_with = TUR
+			}
+			modifier = {
+				add = 5
+				has_opinion = {
+					target = TUR
+					value > 20
+				}
+			}
+		}
+	}
+	# keep there
+	option = {
+		name = ww1_germany.166.d
+		ai_chance = { factor = 0 }
 	}
 }
