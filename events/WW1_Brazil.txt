@@ -335,15 +335,11 @@ country_event = {
 						Promote_leader = yes
 						Country_leader = {
 							ideology = vanguardism
-							
-							traits = {
-								
-							}
 						}
 					}
 				}
 				RGS = {
-					retire_ideology_leader = communism
+					retire_character = RGS_abilio_de_nequete
 				}
 				else = {
 					set_party_name = {
@@ -356,10 +352,6 @@ country_event = {
 							Promote_leader = yes
 							Country_leader = {
 								ideology = syndicalism
-								
-								traits = {
-									
-								}
 							}
 						}
 					}
@@ -599,6 +591,9 @@ country_event = {
 	trigger = {
 		tag = BRA
 		date > 1910.11.24
+		NOT = {
+			has_country_flag = ww1_brazil.9.t
+		}	
 	}
 	immediate = {
 		set_country_flag = ww1_brazil.9.t
@@ -679,7 +674,7 @@ country_event = {
 	}
 }
 
-# Rovolt in Curitiba
+# Revolt in Curitiba
 country_event = {
 	id = ww1_brazil.13
 	title = ww1_brazil.13.t
@@ -687,9 +682,17 @@ country_event = {
 	picture = ww1_brazil_1
 	fire_only_once = yes
 	trigger = {
+		original_tag = BRA
 		has_completed_focus = BRA_expand_the_railways
 		date > 1912.1.1
-		original_tag = BRA
+		NOT = {
+			has_country_flag = BRA_contestado_war
+			has_country_flag = BRA_contestado_war_end
+			has_country_flag = BRA_revolt_in_curitiba
+		}
+	}
+	immediate = {
+		set_country_flag = BRA_revolt_in_curitiba
 	}
 	mean_time_to_happen = {
 		days = 50
@@ -828,92 +831,87 @@ country_event = {
 	desc = ww1_brazil.17.d
 	picture = GFX_report_event_generic_rifles
 	is_triggered_only = yes
-	option = {
-		name = ww1_brazil.17.a
-		drop_cosmetic_tag = yes
-		create_country_leader = {
-			name = "Manuel II"
-			picture = "gfx/leaders/POR/POR_manuel_ii.png"
-			
-			ideology = autocracy
-			traits = {
-				patriota 
-			}
-		}
-		set_country_flag = portuguese_kingdom
-		start_civil_war = {
-			ruling_party = neutrality
-			ideology = democratic
-			size = 0.7
-			states = {
-				180
-				181
-			}
-		}
+	immediate = {
 		hidden_effect = {
-			random_country = {
+			if = {
 				limit = {
-					original_tag = POR
-					has_government = democratic
-				}
-				set_cosmetic_tag = POR_REP
-				BRA = {
-					add_to_war = {
-						targeted_alliance = POR
-						enemy = PREV
-						hostility_reason = asked_to_join
+					any_other_country = {
+						original_tag = POR
+						has_country_flag = monarchy_of_the_north
 					}
-					give_military_access = POR
+				}
+				transfer_units_fraction = {
+					target = PRM
+					size = 0.35
+					keep_unit_leaders_trigger = {
+						NOT = {
+							has_trait = trait_por_monarchist
+						}
+					}
+				}
+				PRM = {
+					declare_war_on = {
+						target = ROOT
+						type = civil_war
+					}
+					add_civil_war_target = ROOT
 				}
 			}
-		}
-		POR = {
-			give_military_access = BRA
-			add_opinion_modifier = {
-				target = BRA
-				modifier = POR_helped_in_civil_war
+			else = {
+				POR_henrique_paiva_couceiro = {
+					add_country_leader_role = {
+						country_leader = {
+							ideology = oligarchism
+							traits = { standing_alone }
+						}
+					}
+				}
+				check_neutrality_civil_war_popularity = yes
+				start_civil_war = {
+					ideology = neutrality
+					states = all
+					states_filter = {
+						OR = {
+							state = 180
+							state = 181
+						}
+					}
+					size = civil_war_size_var
+					keep_political_leader = yes
+					keep_political_party_members = yes
+					keep_unit_leaders_trigger = {
+						NOT = {
+							has_trait = trait_por_monarchist
+						}
+					}
+					PREV = {
+						POR_manuel_ii = {
+							set_nationality = PREV
+						}
+						POR_henrique_paiva_couceiro = {
+							set_nationality = PREV
+						}
+					}
+					promote_character = POR_manuel_ii
+					promote_character = POR_henrique_paiva_couceiro
+					clr_country_flag = portuguese_republic
+					set_country_flag = portuguese_kingdom
+					set_country_flag = monarchy_of_the_north
+					set_cosmetic_tag = POR_monarchy_color
+					add_ideas = POR_unstable_monarchy
+					set_party_name = { 
+						ideology = neutrality 
+						long_name = POR_neutrality_party
+						name = POR_neutrality_party
+					}
+				}
 			}
-		}
-		custom_effect_tooltip = ww1_brazil.17.a_tt
-		ai_chance = {
-			factor = 100
 		}
 	}
 	option = {
-		name = ww1_brazil.17.b
-		start_civil_war = {
-			ideology = neutrality
-			states = {
-				180
-				181
-			}
-		}
+		name = ww1_brazil.17.a
 		hidden_effect = {
-			random_country = {
-				limit = {
-					original_tag = POR
-					has_government = neutrality
-				}
-				create_country_leader = {
-					name = "Manuel II"
-					picture = "gfx/leaders/POR/POR_manuel_ii.png"
-					
-					ideology = autocracy
-					traits = {
-					    patriota
-						disgraced_monarch
-						
-					}
-				}
-				drop_cosmetic_tag = yes
-				BRA = {
-					add_to_war = {
-						targeted_alliance = PREV
-						enemy = POR
-						hostility_reason = asked_to_join
-					}
-					give_military_access = PREV
-				}
+			PRM = {
 				give_military_access = BRA
 				add_opinion_modifier = {
 					target = BRA
@@ -931,12 +929,69 @@ country_event = {
 						value = 100
 					}
 				}
+				add_to_war = {
+					targeted_alliance = BRA
+					enemy = ROOT
+					hostility_reason = asked_to_join
+				}
+			}
+		}
+		PRM = { change_tag_from = ROOT }
+		effect_tooltip = {
+			start_civil_war = {
+				ideology = neutrality
+				size = civil_war_size_var
+			}
+			add_to_war = {
+				targeted_alliance = BRA
+				enemy = ROOT
+				hostility_reason = asked_to_join
+			}
+		}
+		custom_effect_tooltip = ww1_brazil.17.a_tt
+		trigger = { is_ai = no }
+	}
+	option = {
+		name = ww1_brazil.17.b
+		hidden_effect = {
+			PRM = {
+				give_military_access = BRA
+				add_opinion_modifier = {
+					target = BRA
+					modifier = POR_helped_in_civil_war
+				}
+				add_ai_strategy = {
+					type = befriend
+					id = BRA
+					value = 100
+				}
+				BRA = {
+					add_ai_strategy = {
+						type = befriend
+						id = PREV
+						value = 100
+					}
+				}
+				add_to_war = {
+					targeted_alliance = BRA
+					enemy = ROOT
+					hostility_reason = asked_to_join
+				}
+			}
+		}
+		effect_tooltip = {
+			start_civil_war = {
+				ideology = neutrality
+				size = civil_war_size_var
+			}
+			BRA = {
+				declare_war_on = {
+					target = ROOT
+					type = puppet_wargoal_focus
+				}
 			}
 		}
 		custom_effect_tooltip = ww1_brazil.17.b_tt
-		ai_chance = {
-			factor = 0
-		}
 	}
 }
 
@@ -951,12 +1006,29 @@ country_event = {
 		# Accept
 		name = ww1_brazil.18.a
 		ai_chance = {
-			factor = 80
+			base = 80
+			modifier = {
+				add = 100
+				is_subject_of = FROM
+			}
+			modifier = {
+				add = 50
+				has_opinion = {
+					target = FROM
+					value > 50
+				}
+			}
 			modifier = {
 				#Not non-aligned Portugal will never accept
 				factor = 0
-				NOT = {
-					has_government = neutrality
+				NOT = { has_government = neutrality }
+			}
+			modifier = {
+				#They hate them!
+				factor = 0
+				has_opinion = {
+					target = FROM
+					value < 0
 				}
 			}
 		}
@@ -966,23 +1038,9 @@ country_event = {
 				days = 1
 				random = 5
 			}
-			every_state = {
-				limit = {
-					is_core_of = POR
-				}
-				add_core_of = BRA
-			}
 		}
 		BRA = {
 			country_event = ww1_brazil.19
-			annex_country = {
-				target = ROOT
-				transfer_troops = yes
-			}
-			hidden_effect = {
-				set_cosmetic_tag = KPB_luso_brazilian_empire
-			}
-			change_tag_from = POR
 		}
 		custom_effect_tooltip = BRA_empires_united_tooltip_tt
 	}
@@ -991,10 +1049,10 @@ country_event = {
 		name = ww1_brazil.18.b
 		ai_chance = {
 			factor = 20
+			# If POR helped during the CW, Monarchist BRA will be willing to accept
 			modifier = {
-				# If POR helped during the CW, Monarchist BRA will be willing to accept
 				factor = 0
-				has_government = neutrality
+				is_subject_of = FROM
 			}
 		}
 		BRA = {
@@ -1018,6 +1076,28 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_brazil.19.a
+		annex_country = {
+			target = FROM
+			transfer_troops = yes
+		}
+		hidden_effect = {
+			every_state = {
+				limit = {
+					is_core_of = POR
+					NOT = { is_core_of = ROOT }
+				}
+				add_core_of = ROOT
+			}
+			set_cosmetic_tag = KPB_luso_brazilian_empire
+			news_event = { id = lar_news.26 hours = 6 }
+		}
+		if = {
+			limit = {
+				is_ai = yes
+				FROM = { is_ai = no }
+			}
+			change_tag_from = FROM
+		}
 	}
 }
 
@@ -1072,11 +1152,13 @@ country_event = {
 		}
 	}
 	immediate = {
-		set_country_flag = bra_jose_paranhos_dies
-		remove_ideas = BRA_jose_maria_da_silva_paranhos_junior
+		hidden_effect = {
+			set_country_flag = bra_jose_paranhos_dies
+		}
 	}
 	option = {
 		name = ww1_brazil.22.a
+		retire_character = BRA_jose_maria_da_silva_paranhos_junior
 	}
 }
 
@@ -1533,6 +1615,7 @@ country_event = {
 		set_politics = {
 			ruling_party = communism
 		}
+		check_fascism_civil_war_popularity = yes
 		start_civil_war = {
 			set_party_name = {
 				ideology = fascism
@@ -1540,7 +1623,7 @@ country_event = {
 				name = BRA_junta_party
 			}
 			ideology = fascism
-			size = 0.35
+			size = civil_war_size_var
 			capital = 505
 			states = {
 				280
@@ -1983,12 +2066,9 @@ news_event = {
 	picture = ww1_brazil_7
 	major = yes
 	is_triggered_only = yes
-	trigger = {
-		BRA = {
-			has_country_leader = {
-				character = BRA_dom_luis_i
-				ruling_only = yes
-			}
+	immediate = {
+		hidden_effect = {
+			set_global_flag = brazil_monarchy_restored
 		}
 	}
 	option = {

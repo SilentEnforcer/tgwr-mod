@@ -58,6 +58,17 @@ country_event = {
 	is_triggered_only = yes
 	fire_only_once = yes
 	option = {
+		name = ww1_russia.4.b
+		set_global_flag = russia_ask_for_brest_litovsk
+		news_event = {
+			id = ww1_russia.6
+			days = 1
+		}
+		ai_chance = {
+			factor = 100
+		}
+	}
+	option = {
 		name = ww1_russia.4.a
 		declare_war_on = {
 			target = SOV
@@ -72,17 +83,6 @@ country_event = {
 		}
 		ai_chance = {
 			factor = 0
-		}
-	}
-	option = {
-		name = ww1_russia.4.b
-		set_global_flag = russia_ask_for_brest_litovsk
-		news_event = {
-			id = ww1_russia.6
-			days = 1
-		}
-		ai_chance = {
-			factor = 100
 		}
 	}
 }
@@ -258,7 +258,7 @@ country_event = {
 				OR = {
 					exists = no
 					is_subject_of = RUS
-				}				
+				}
 			}
 		}
 		ai_chance = {
@@ -269,33 +269,26 @@ country_event = {
 		name = ww1_russia.7.c
 		effect_tooltip = {
 			add_political_power = 150
-			if = {
+			every_state = {
 				limit = {
-					POL = {
-						exists = no
+					OR = {
+						is_owned_by = RUS
+						is_owned_by = SOV
+					}
+					OR = {
+						state = 10
+						state = 87
+						state = 90
+						state = 92
+						state = 98
+						state = 766
+						# Bruderkrieg
+						state = 72
+						state = 88
+						state = 237
 					}
 				}
-				every_state = {
-					limit = {
-						OR = {
-							is_owned_by = RUS
-							is_owned_by = SOV
-						}
-						OR = {
-							state = 10
-							state = 87
-							state = 90
-							state = 92
-							state = 98
-							state = 766
-							# Bruderkrieg
-							state = 72
-							state = 88
-							state = 237
-						}
-					}
-					transfer_state_to = POL
-				}
+				transfer_state_to = POL
 			}
 			if = {
 				limit = {
@@ -504,9 +497,7 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		has_global_flag = brest_litovsk
-		UKR = {
-		    exists = yes
-		}
+		country_exists = UKR
 		SOV = {
 			NOT = {
 				has_completed_focus = SOV_decree_on_peace
@@ -521,8 +512,7 @@ country_event = {
 		days = 1
 	}
 	hidden = yes
-	option = {
-		name = ww1_russia.9.a
+	immediate = {
 		every_state = {
 			limit = {
 				OR = {
@@ -545,49 +535,39 @@ country_event = {
 			load_oob = "BLR_1918"
 			inherit_technology = RUS
 		}
-		hidden_effect = {
-			if = {
-				limit = {
-					GER = {
-						has_war_with = RUS
-					}
-				}
+		if = {
+			limit = {
 				GER = {
-					diplomatic_relation = {
-						country = BLR
-						relation = military_access
-						active = yes
-					}
-				}
-				RUS = {
-					diplomatic_relation = {
-						country = BLR
-						relation = military_access
-						active = yes
-					}
+					has_war_with = RUS
 				}
 			}
+			GER = {
+				diplomatic_relation = {
+					country = BLR
+					relation = military_access
+					active = yes
+				}
+			}
+			RUS = {
+				diplomatic_relation = {
+					country = BLR
+					relation = military_access
+					active = yes
+				}
+			}
 		}
-		GER = {
+		every_country = {
+			limit = {
+				OR = {
+					tag = GER
+					tag = RUS
+					tag = SOV
+				}
+			}
 			country_event = {
 				id = ww1_russia.11
 				days = 1
 			}
-		}
-		RUS = {
-			country_event = {
-				id = ww1_russia.11
-				days = 1
-			}
-		}
-		SOV = {
-			country_event = {
-				id = ww1_russia.11
-				days = 1
-			}
-		}
-		ai_chance = {
-			factor = 100
 		}
 	}
 }
@@ -651,42 +631,119 @@ country_event = {
 	}
 	option = {
 		name = ww1_russia.12.a
-		every_state = {
-			limit = {
-				is_claimed_by = UKR
-				OR = {
-					is_owned_by = RUS
-					is_owned_by = SOV
-					is_owned_by = POL
-					is_owned_by = GER
-					is_owned_by = BLR
+		UKR = {
+			hidden_effect = {
+				if = {
+					limit = {
+						has_civil_war = yes
+					}
+					random_other_country = {
+						limit = {
+							original_tag = UKR
+							has_government = communism
+						}
+						add_country_leader_trait = standing_alone
+						set_rule = {
+							can_join_factions = no
+						}
+						leave_faction = yes
+						give_military_access = SOV
+						every_other_country = {
+							limit = {
+								has_war_with = PREV
+								NOT = { original_tag = UKR }
+							}
+							white_peace = PREV
+						}
+						# PREV = {
+						# 	annex_country = {
+						# 		target = PREV
+						# 	}
+						# }
+					}
+				}
+				if = {
+					limit = {
+						OR = {
+							exists = no
+							is_subject_of = SOV
+							is_subject_of = RUS
+							has_government = communism
+						}
+					}
+					if = {
+						limit = {
+							is_subject = yes
+						}
+						OVERLORD = { end_puppet = PREV }
+					}
+					if = {
+						limit = {
+							is_in_faction = yes
+						}
+						leave_faction = yes
+					}
+					set_politics = {
+						ruling_party = democratic
+						elections_allowed = yes
+					}
+					set_popularities = {
+						democratic = 38
+						fascism = 0
+						communism = 24
+						neutrality = 38
+					}
+					load_oob = "UKR_army"
 				}
 			}
-			UKR = {
-				transfer_state = PREV
+			every_other_country = {
+				limit = {
+					OR = {
+						original_tag = SOV
+						original_tag = RUS
+						original_tag = GER
+						is_in_faction_with = SOV
+						is_in_faction_with = RUS
+						is_in_faction_with = GER
+						is_subject_of = SOV
+						is_subject_of = RUS
+						is_subject_of = GER
+					}
+					has_war_with = PREV
+				}
+				white_peace = PREV
 			}
 			GER = {
 				diplomatic_relation = {
-					country = UKR
+					country = PREV
 					relation = military_access
 					active = yes
 				}
 			}
-			hidden_effect = {
-				every_state = {
-					limit = {
-						OR = {
-							state = 94
-							state = 194
-							state = 222
-							state = 240
-							state = 241
-						}
-					}
-					UKR = {
-						add_state_claim = PREV
+			every_state = {
+				limit = {
+					is_claimed_by = UKR
+					OR = {
+						is_owned_by = RUS
+						is_owned_by = SOV
+						is_owned_by = POL
+						is_owned_by = GER
+						is_owned_by = BLR
 					}
 				}
+				transfer_state_to = PREV
+			}
+			every_state = {
+				limit = {
+					OR = {
+						state = 94
+						state = 194
+						state = 222
+						state = 240
+						state = 241
+					}
+				}
+				add_claim_by = PREV
 			}
 		}
 		hidden_effect = {
@@ -719,6 +776,13 @@ country_event = {
 	fire_only_once = yes
 	is_triggered_only = yes
 	option = {
+		name = ww1_russia.13.b
+		add_political_power = -50
+		ai_chance = {
+			factor = 100
+		}
+	}
+	option = {
 		name = ww1_russia.13.a
 		GER = {
 			country_event = {
@@ -728,13 +792,6 @@ country_event = {
 		}
 		ai_chance = {
 			factor = 0
-		}
-	}
-	option = {
-		name = ww1_russia.13.b
-		add_political_power = -50
-		ai_chance = {
-			factor = 100
 		}
 	}
 }
@@ -751,8 +808,18 @@ country_event = {
 	option = {
 		name = ww1_russia.14.a
 		UKR = {
-			country_event = {
-				id = rusrevolt.12
+			if = {
+				limit = {
+					NOT = { has_government = communism }
+				}
+				every_state = {
+					limit = {
+						is_core_of = PREV
+						is_owned_by = SOV
+					}
+					transfer_state_to = PREV
+				}
+				country_event = rusrevolt.12
 			}
 		}
 		set_global_flag = brest_treaty_denounced
@@ -765,20 +832,32 @@ country_event = {
 	}
 	option = {
 		name = ww1_russia.14.b
-		end_puppet = UKR
 		UKR = {
-			leave_faction = yes
-		}
-		every_country = {
-			limit = {
-				AND = {
-					has_war_with = UKR
+			if = {
+				limit = {
+					is_subject = yes
+					NOT = { is_subject_of = SOV }
+				}
+				OVERLORD = { end_puppet = PREV }
+			}
+			if = {
+				limit = {
+					is_in_faction = yes
+					NOT = { is_in_faction_with = SOV }
+				}
+				leave_faction = yes
+			}
+			every_country = {
+				limit = {
+					has_war_with = PREV
 					NOT = {
 						tag = SOV
+						is_subject_of = SOV
+						is_in_faction_with = SOV
 					}
 				}
+				white_peace = PREV
 			}
-			white_peace = UKR
 		}
 		news_event = {
 			id = ww1_russia.10
@@ -1233,6 +1312,7 @@ country_event = {
 				remove_unit_leader_role = yes
 			}
 		}
+		set_capital = { state = 571 }
 		ai_chance = {
 			factor = 100
 		}
@@ -1253,15 +1333,15 @@ country_event = {
 			create_country_leader = {
 				name = "Tessa Violetovna I"
 				picture = "gfx/leaders/RUS/RUS_tessa_violet.png"
-				
 				ideology = fundamentalism
-				traits = {
-					
-				}
 			}
 		}
 		ai_chance = {
-			factor = 0
+			factor = 1
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+			}
 		}
 	}
 }
@@ -1346,7 +1426,6 @@ news_event = {
 	immediate = {
 		set_global_flag = stolypin_is_dead
 		hidden_effect = {
-			remove_ideas = RUS_pyotr_stolypin
 			retire_character = RUS_pyotr_stolypin
 		}
 	}
@@ -1769,15 +1848,7 @@ country_event = {
 			every_owned_state = {
 				limit = {
 					is_core_of = PER
-					NOT = {
-						state = 229
-						state = 823
-						state = 816
-						state = 230
-						state = 787
-						state = 806
-						state = 818
-					}
+					region = 116
 				}
 				set_state_owner_to = PER
 			}
@@ -1984,44 +2055,24 @@ country_event = {
 						state = 766
 					}
 				}
-				UKR = {
-					transfer_state = PREV
-				}
+				transfer_state_to = UKR
 			}
 			set_global_flag = ukraine_released
-			if = {
-				limit = {
-					AUH = {
-						has_war_with = RUS
+			UKR = {
+				every_other_country = {
+					limit = {
+						OR = {
+							AND = {
+								OR = {
+									tag = GER
+									tag = AUH
+								}
+								has_war_with = RUS
+							}
+							tag = RUS
+						}
 					}
-				}
-				AUH = {
-					diplomatic_relation = {
-						country = UKR
-						relation = military_access
-						active = yes
-					}
-				}
-			}
-			if = {
-				limit = {
-					GER = {
-						has_war_with = RUS
-					}
-				}
-				GER = {
-					diplomatic_relation = {
-						country = UKR
-						relation = military_access
-						active = yes
-					}
-				}
-				RUS = {
-					diplomatic_relation = {
-						country = UKR
-						relation = military_access
-						active = yes
-					}
+					PREV = { give_military_access = PREV }
 				}
 			}
 			every_state = {
@@ -2031,15 +2082,53 @@ country_event = {
 						state = 766
 					}
 				}
-				UKR = {
-					add_state_claim = PREV
-				}
+				add_claim_by = UKR
 			}
 			RUS = {
-				diplomatic_relation = {
-					country = UKR
-					relation = military_access
-					active = yes
+				transfer_ship = {
+					prefer_name = "Svetlana"
+					type = light_cruiser
+					target = UKR
+				}
+				transfer_ship = {
+					prefer_name = "Ukraina"
+					type = destroyer
+					target = UKR
+				}
+				transfer_ship = {
+					prefer_name = "Haidamak"
+					type = destroyer
+					target = UKR
+				}
+				transfer_ship = {
+					prefer_name = "Georgii Pobedonosets"
+					type = battleship
+					target = UKR
+				}
+				transfer_ship = {
+					prefer_name = "Merkuria"
+					type = light_cruiser
+					target = UKR
+				}
+				transfer_ship = {
+					prefer_name = "Zorkiy"
+					type = destroyer
+					target = UKR
+				}
+				transfer_ship = {
+					prefer_name = "Zvonkiy"
+					type = destroyer
+					target = UKR
+				}
+				transfer_ship = {
+					prefer_name = "Imperator Aleksandr III"
+					type = battleship
+					target = UKR
+				}
+				transfer_ship = {
+					prefer_name = "Imperatritsa Ekaterina Velikaya"
+					type = battleship
+					target = UKR
 				}
 			}
 			every_state = {
@@ -2053,6 +2142,72 @@ country_event = {
 				load_oob = "UKR_army"
 				inherit_technology = RUS
 			}
+			SOV = {
+				if = {
+					limit = { has_war_with = RUS }
+					UKR = {
+						add_country_leader_trait = standing_alone
+						PREV = {
+							declare_war_on = {
+								target = PREV
+								type = annex_everything
+							}
+						}
+						#Ukrainian People's Republic of Soviets
+						start_civil_war = {
+							ideology = communism
+							size = 0
+							states = {
+								221 227 228 
+							}
+							keep_political_leader = yes
+							keep_unit_leaders_trigger = {
+								always = yes
+							}
+							set_cosmetic_tag = SOV_puppet
+							PREV = {
+								UKR_yevgenia_bosch = {
+									set_nationality = PREV.PREV
+								}
+							}
+							UKR_yevgenia_bosch = {
+								promote_character = vanguardism							
+							}
+							set_party_name = {
+								ideology = communism
+								long_name = UKR_socialist_party_long
+								name = UKR_socialist_party
+							}
+							division_template = {
+								name = "Brigada Milіtsiy"
+								is_locked = yes
+								division_names_group = SOV_INF_01
+								template_counter = 69
+								regiments = {
+									militia = { x = 0 y = 0 }
+									militia = { x = 0 y = 1 }
+								}
+							}
+							every_owned_state = {
+								create_unit = {
+									division = "division_template = \"Brigada Milіtsiy\" start_experience_factor = 0.1	start_equipment_factor = 0.6"
+									owner = PREV
+									allow_spawning_on_enemy_provs = yes
+								}
+								create_unit = {
+									division = "division_template = \"Brigada Milіtsiy\" start_experience_factor = 0.1	start_equipment_factor = 0.6"
+									owner = PREV
+									allow_spawning_on_enemy_provs = yes
+								}
+							}
+							SOV = {
+								add_to_faction = PREV
+							}
+						}					
+					}
+				}
+			}
+
 		}
 	}
 	option = {
@@ -2112,7 +2267,7 @@ country_event = {
 			KAZ = {
 				set_cosmetic_tag = KAZ_alash
 				set_province_name = {
-					id = 12594
+					id = 4661
 					name = ALASH_PROV
 				}
 				hidden_effect = {
@@ -2202,7 +2357,10 @@ country_event = {
 						state = 587
 					}
 					is_core_of = TRK
-					is_owned_by = RUS
+					OR = {
+						is_owned_by = RUS
+						is_owned_by = SOV
+					}
 				}
 				TRK = {
 					transfer_state = PREV
@@ -2382,24 +2540,18 @@ country_event = {
 						205
 					}
 					create_country_leader = {
-						name = "Boris Savinkov"
+						name = "RUS_boris_savinkov"
 						picture = "gfx/leaders/RUS/RUS_boris_savinkov.png"
-						
 						ideology = agrarian_socialism
 						traits = {
 							rider_named_death
 							standing_alone
-							
 						}
 					}
 					create_country_leader = {
-						name = "Aleksandr Kerensky"
+						name = "RUS_alexander_kerensky"
 						picture = "gfx/leaders/RUS/RUS_alexander_kerensky.png"
-						
 						ideology = socialism
-						traits = {
-							
-						}
 					}
 					set_party_name = { 
 					    ideology = communism 
@@ -2465,24 +2617,18 @@ country_event = {
 						258
 					}
 					create_country_leader = {
-						name = "Boris Savinkov"
+						name = "RUS_boris_savinkov"
 						picture = "gfx/leaders/RUS/RUS_boris_savinkov.png"
-						
 						ideology = agrarian_socialism
 						traits = {
 							rider_named_death
 							standing_alone
-							
 						}
 					}
 					create_country_leader = {
-						name = "Aleksandr Kerensky"
+						name = "RUS_alexander_kerensky"
 						picture = "gfx/leaders/RUS/RUS_alexander_kerensky.png"
-						
 						ideology = socialism
-						traits = {
-							
-						}
 					}
 					set_party_name = { 
 					    ideology = communism 
@@ -2548,24 +2694,18 @@ country_event = {
 						258
 					}
 					create_country_leader = {
-						name = "Boris Savinkov"
+						name = "RUS_boris_savinkov"
 						picture = "gfx/leaders/RUS/RUS_boris_savinkov.png"
-						
 						ideology = agrarian_socialism
 						traits = {
 							rider_named_death
 							standing_alone
-							
 						}
 					}
 					create_country_leader = {
-						name = "Aleksandr Kerensky"
+						name = "RUS_alexander_kerensky"
 						picture = "gfx/leaders/RUS/RUS_alexander_kerensky.png"
-						
 						ideology = socialism
-						traits = {
-							
-						}
 					}
 					set_party_name = { 
 					    ideology = communism 
@@ -2625,36 +2765,35 @@ country_event = {
 	}
 }
 
-# LENIN IS BACK
-####################
-country_event = {
-	id = ww1_russia.40
-	title = ww1_russia.40.t
-	desc = ww1_russia.40.d
-	picture = GFX_report_event_ger_civil_war
-	fire_only_once = yes
-	is_triggered_only = yes
-	option = {
-		name = ww1_russia.40.a
-		set_party_name = {
-			ideology = communism
-			long_name = SOV_communism_party_long
-			name = SOV_communism_party
-		}
-		add_country_leader_role = {
-			Character = RUS_vladimir_lenin
-			Promote_leader = yes
-			Country_leader = {
-				ideology = vanguardism
-				traits = { socialite_connections  }
-				expire = "1935.1.1.1"
-			}
-		}
-		ai_chance = {
-			factor = 100
-		}
-	}
-}
+# # LENIN IS BACK
+# ####################
+# country_event = {
+# 	id = ww1_russia.40
+# 	title = ww1_russia.40.t
+# 	desc = ww1_russia.40.d
+# 	picture = GFX_report_event_ger_civil_war
+# 	fire_only_once = yes
+# 	is_triggered_only = yes
+# 	option = {
+# 		name = ww1_russia.40.a
+# 		set_party_name = {
+# 			ideology = communism
+# 			long_name = SOV_communism_party_long
+# 			name = SOV_communism_party
+# 		}
+# 		add_country_leader_role = {
+# 			Character = RUS_vladimir_lenin
+# 			Promote_leader = yes
+# 			Country_leader = {
+# 				ideology = vanguardism
+# 				traits = { socialite_connections }
+# 			}
+# 		}
+# 		ai_chance = {
+# 			factor = 100
+# 		}
+# 	}
+# }
 
 # RETURN OF THE KING
 ####################
@@ -2883,6 +3022,7 @@ country_event = {
 		trigger = {
 			tag = RUS
 		}
+		set_country_flag = czechoslovak_legion
 		set_state_controller = 652
 		set_state_controller = 651
 		set_state_controller = 582
@@ -2891,6 +3031,7 @@ country_event = {
 		division_template = {
 			name = "Czechoslovak Legion"
 			division_names_group = RUS_INF_01
+			is_locked = yes
 			regiments = {
 				infantry = {
 					x = 0
@@ -2928,70 +3069,85 @@ country_event = {
 			create_unit = {
 				division = "name = \"1./Czechoslovak Division\" division_template = \"Czechoslovak Legion\" start_experience_factor = 0.4"
 				owner = RUS
+				allow_spawning_on_enemy_provs = yes
 			}
 			create_unit = {
 				division = "name = \"2./Czechoslovak Division\" division_template = \"Czechoslovak Legion\" start_experience_factor = 0.4"
 				owner = RUS
+				allow_spawning_on_enemy_provs = yes
 			}
 			create_unit = {
 				division = "name = \"3./Czechoslovak Division\" division_template = \"Czechoslovak Legion\" start_experience_factor = 0.4"
 				owner = RUS
+				allow_spawning_on_enemy_provs = yes
 			}
 		}
 		651 = {
 			create_unit = {
 				division = "name = \"4./Czechoslovak Division\" division_template = \"Czechoslovak Legion\" start_experience_factor = 0.4"
 				owner = RUS
+				allow_spawning_on_enemy_provs = yes
 			}
 			create_unit = {
 				division = "name = \"5./Czechoslovak Division\" division_template = \"Czechoslovak Legion\" start_experience_factor = 0.4"
 				owner = RUS
+				allow_spawning_on_enemy_provs = yes
 			}
 			create_unit = {
 				division = "name = \"6./Czechoslovak Division\" division_template = \"Czechoslovak Legion\" start_experience_factor = 0.4"
 				owner = RUS
+				allow_spawning_on_enemy_provs = yes
 			}
 		}
 		582 = {
 			create_unit = {
 				division = "name = \"7./Czechoslovak Division\" division_template = \"Czechoslovak Legion\" start_experience_factor = 0.4"
 				owner = RUS
+				allow_spawning_on_enemy_provs = yes
 			}
 			create_unit = {
 				division = "name = \"8./Czechoslovak Division\" division_template = \"Czechoslovak Legion\" start_experience_factor = 0.4"
 				owner = RUS
+				allow_spawning_on_enemy_provs = yes
 			}
 			create_unit = {
 				division = "name = \"9./Czechoslovak Division\" division_template = \"Czechoslovak Legion\" start_experience_factor = 0.4"
 				owner = RUS
+				allow_spawning_on_enemy_provs = yes
 			}
 		}
 		572 = {
 			create_unit = {
 				division = "name = \"10./Czechoslovak Division\" division_template = \"Czechoslovak Legion\" start_experience_factor = 0.4"
 				owner = RUS
+				allow_spawning_on_enemy_provs = yes
 			}
 			create_unit = {
 				division = "name = \"11./Czechoslovak Division\" division_template = \"Czechoslovak Legion\" start_experience_factor = 0.4"
 				owner = RUS
+				allow_spawning_on_enemy_provs = yes
 			}
 			create_unit = {
 				division = "name = \"12./Czechoslovak Division\" division_template = \"Czechoslovak Legion\" start_experience_factor = 0.4"
 				owner = RUS
+				allow_spawning_on_enemy_provs = yes
 			}
 		}
 		590 = {
 			create_unit = {
 				division = "name = \"13./Czechoslovak Division\" division_template = \"Czechoslovak Legion\" start_experience_factor = 0.4"
 				owner = RUS
+				allow_spawning_on_enemy_provs = yes
 			}
 			create_unit = {
 				division = "name = \"14./Czechoslovak Division\" division_template = \"Czechoslovak Legion\" start_experience_factor = 0.4"
 				owner = RUS
+				allow_spawning_on_enemy_provs = yes
 			}
 			create_unit = {
 				division = "name = \"15./Czechoslovak Division\" division_template = \"Czechoslovak Legion\" start_experience_factor = 0.4"
 				owner = RUS
+				allow_spawning_on_enemy_provs = yes
 			}
 		}
 		ai_chance = {
@@ -3023,6 +3179,7 @@ country_event = {
 		RUS = {
 			transfer_state = 419
 			transfer_state = 420
+			transfer_state = 877
 		}
 		add_ai_strategy = {
 			type = alliance
@@ -3109,15 +3266,17 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_russia.52.a
-		add_ai_strategy = {
-			type = alliance
-			id = "PER"
-			value = 200
-		}
-		add_ai_strategy = {
-			type = protect
-			id = "PER"
-			value = 200
+		hidden_effect = {
+			add_ai_strategy = {
+				type = alliance
+				id = "PER"
+				value = 200
+			}
+			add_ai_strategy = {
+				type = protect
+				id = "PER"
+				value = 200
+			}
 		}
 		ai_chance = {
 			factor = 30
@@ -3125,10 +3284,12 @@ country_event = {
 	}
 	option = {
 		name = ww1_russia.52.b
-		add_ai_strategy = {
-			type = protect
-			id = "PER"
-			value = 200
+		hidden_effect = {
+			add_ai_strategy = {
+				type = protect
+				id = "PER"
+				value = 200
+			}
 		}
 		ai_chance = {
 			factor = 80
@@ -3292,7 +3453,7 @@ country_event = {
 				}
 			}
 		}
-		195 = {
+		capital_scope = {
 			create_unit = {
 				division = "name = \"1nd Petrograd Women's Battalion\" division_template = \"Battalion of Death\" start_experience_factor = 0.6"
 				owner = RUS
@@ -3428,6 +3589,9 @@ country_event = {
 		tag = RUS
 		NOT = {
 			has_war_with = SER
+			has_global_flag = kis_war
+			has_global_flag = kis_firstbalkanwar_victory
+			has_global_flag = kis_firstbalkanwar_lose
 		}
 		SER = {
 			has_war_with = TUR
@@ -3579,7 +3743,7 @@ country_event = {
 	}
 }
 
-# PERSIAN EXPEDITION 1909-1911
+# PERSIA REJECTS ULTIMATUM
 ##################
 country_event = {
 	id = ww1_russia.62
@@ -3587,64 +3751,9 @@ country_event = {
 	desc = ww1_russia.62.d
 	picture = GFX_report_event_generic_military_parade
 	fire_only_once = yes
-	trigger = {
-		tag = RUS
-		date > 1910.6.1
-		NOT = {
-			has_war_with = PER
-			is_in_faction_with = PER
-			has_global_flag = russia_won_persian_campaign
-		}
-	}
-	mean_time_to_happen = {
-		days = 30
-	}
-	option = {
-		name = ww1_russia.62.a
-		PER = {
-			country_event = {
-				id = ww1_russia.63
-				days = 5
-			}
-		}
-		effect_tooltip = {
-			activate_targeted_decision = {
-				target = PER
-				decision = RUS_escalate_incident_to_border_conflict_PER_1911
-			}
-		}
-		ai_chance = {
-			factor = 100
-		}
-		trigger = {
-			has_war = no
-		}
-	}
-	option = {
-		name = ww1_russia.62.b
-		add_war_support = -0.05
-		419 = {
-			set_border_war = no
-		}
-		420 = {
-			set_border_war = no
-		}
-		ai_chance = {
-			factor = 1
-		}
-	}
-}
-
-# PERSIA BORDER WAR
-##################
-country_event = {
-	id = ww1_russia.63
-	title = ww1_russia.63.t
-	desc = ww1_russia.63.d
-	picture = GFX_report_event_generic_military_parade
 	is_triggered_only = yes
 	option = {
-		name = ww1_russia.63.a
+		name = ww1_russia.62.a
 		PER = {
 			activate_targeted_decision = {
 				target = RUS
@@ -3657,8 +3766,78 @@ country_event = {
 				decision = RUS_escalate_incident_to_border_conflict_PER_1911
 			}			#МИССИЯ АГРЕССОРУ, ЧТО КОНФЛИКТ НАЧИНАЕТСЯ
 		}
+		419 = {
+			set_border_war = yes
+		}
+		420 = {
+			set_border_war = yes
+		}
+		877 = {
+			set_border_war = yes
+		}
 		ai_chance = {
 			factor = 100
+		}
+	}
+	option = {
+		name = ww1_russia.62.b
+		add_war_support = -0.05
+		add_political_power = -100
+		ai_chance = {
+			factor = 0
+		}
+	}
+}
+
+# PERSIA - RUSSIAN ULTIMATUM
+##################
+country_event = {
+	id = ww1_russia.63
+	title = ww1_russia.63.t
+	desc = ww1_russia.63.d
+	picture = GFX_report_event_generic_military_parade
+	is_triggered_only = yes
+	option = {
+		name = ww1_russia.63.a
+		RUS = {
+			country_event = ww1_russia.62
+		}
+		ai_chance = {
+			factor = 100
+		}
+	}
+	option = {
+		name = ww1_russia.63.b
+		add_stability = -0.1
+		RUS = {
+			diplomatic_relation = {
+				country = PER
+				relation = military_access
+				active = yes
+			}
+		}			
+		hidden_effect = {
+			266 = {
+				add_dynamic_modifier = { modifier = per_russian_sphere  }
+			}
+			411 = {
+				add_dynamic_modifier = { modifier = per_russian_sphere  }
+			}
+			416 = {
+				add_dynamic_modifier = { modifier = per_russian_sphere  }
+			}
+			417 = {
+					add_dynamic_modifier = { modifier = per_russian_sphere  }
+			}
+			418 = {
+				add_dynamic_modifier = { modifier = per_russian_sphere  }
+			}
+			420 = {
+				add_dynamic_modifier = { modifier = per_russian_sphere  }
+			}
+			421 = {
+				add_dynamic_modifier = { modifier = per_russian_sphere  }
+			}
 		}
 	}
 }
@@ -3684,31 +3863,31 @@ country_event = {
 		}
 		add_state_claim = 420
 		add_state_claim = 419
+		add_state_claim = 877
+		877 = {
+			add_manpower = -1200
+		}
 		hidden_effect = {
-			420 = {
-				add_dynamic_modifier = {
-					modifier = per_russian_sphere
-				}
-			}
-			419 = {
-				add_dynamic_modifier = {
-					modifier = per_russian_sphere
-				}
-			}
 			266 = {
-				add_dynamic_modifier = {
-					modifier = per_russian_sphere
-				}
+				add_dynamic_modifier = { modifier = per_russian_sphere  }
+			}
+			411 = {
+				add_dynamic_modifier = { modifier = per_russian_sphere  }
 			}
 			416 = {
-				add_dynamic_modifier = {
-					modifier = per_russian_sphere
-				}
+				add_dynamic_modifier = { modifier = per_russian_sphere  }
+			}
+			417 = {
+					add_dynamic_modifier = { modifier = per_russian_sphere  }
 			}
 			418 = {
-				add_dynamic_modifier = {
-					modifier = per_russian_sphere
-				}
+				add_dynamic_modifier = { modifier = per_russian_sphere  }
+			}
+			420 = {
+				add_dynamic_modifier = { modifier = per_russian_sphere  }
+			}
+			421 = {
+				add_dynamic_modifier = { modifier = per_russian_sphere  }
 			}
 		}
 		diplomatic_relation = {
@@ -3727,10 +3906,7 @@ country_event = {
 			tag = PER
 		}
 		add_war_support = -0.05
-		remove_state_claim = 229
-		remove_state_claim = 230
-		remove_state_claim = 823
-		remove_state_claim = 818
+		add_stability = -0.05
 		add_opinion_modifier = {
 			target = RUS
 			modifier = small_decrease
@@ -3740,6 +3916,9 @@ country_event = {
 				set_border_war = no
 			}
 			420 = {
+				set_border_war = no
+			}
+			877 = {
 				set_border_war = no
 			}
 		}
@@ -3781,11 +3960,18 @@ country_event = {
 			category = land_doctrine
 			cost_reduction = 0.5
 		}
+		PER = {
+			transfer_state = 877
+			transfer_state = 419
+		}
 		hidden_effect = {
 			419 = {
 				set_border_war = no
 			}
 			420 = {
+				set_border_war = no
+			}
+			877 = {
 				set_border_war = no
 			}
 		}
@@ -3807,7 +3993,6 @@ country_event = {
 		tag = RUS
 		has_country_leader = {
 			character = RUS_mikhail_rodzyanko
-			ruling_only = yes
 		}
 		has_government = democratic
 	}
@@ -3837,11 +4022,18 @@ news_event = {
 	picture = GFX_news_event_004
 	major = yes
 	trigger = {
+		has_global_flag = kis_war
+		NOT = {
+			has_global_flag = brusilov_offensive
+			has_global_flag = great_war_ends
+		}
 		SOV = {
 			exists = no
 		}
 		RUS = {
+			has_civil_war = no
 			has_war_with = AUH
+			has_capitulated = no
 			casualties > 450000
 			OR = {
 				AND = {
@@ -3858,19 +4050,25 @@ news_event = {
 				}
 			}
 		}
-		has_global_flag = kis_war
-		NOT = {
-			has_global_flag = brusilov_offensive
-		}
 	}
-	fire_only_once = yes
+	mean_time_to_happen = {
+		days = 0
+	}
 	immediate = {
-		set_global_flag = brusilov_offensive
+		hidden_effect = {
+			set_global_flag = brusilov_offensive
+		}
 	}
 	option = {
 		name = ww1_russia.67.a
-		ai_chance = {
-			factor = 100
+		trigger = {
+			NOT = { has_war_with = RUS }
+		}
+	}
+	option = {
+		name = ww1_russia.67.b
+		trigger = {
+			has_war_with = RUS
 		}
 	}
 }
@@ -4006,6 +4204,7 @@ country_event = {
 				owns_state = 418
 				owns_state = 414
 				owns_state = 411
+				owns_state = 877
 			}
 		}
 	}
@@ -4241,7 +4440,7 @@ country_event = {
 		}
 	}
 	option = {
-		name = ww1_russia.76.1
+		name = ww1_russia.76.a
 		trigger = {
 			is_historical_focus_on = no
 		}
@@ -4478,7 +4677,7 @@ country_event = {
 			Character = RUS_grigori_rasputin
 			Promote_leader = yes
 			Country_leader = {
-				ideology=theocracy
+				ideology=theocracy_ideology
 				traits={ mysterious_manipulator  }
 				
 			}
@@ -4722,12 +4921,18 @@ country_event = {
 				set_character_name = {
 					name = mikhail_ii
 				}
-				add_country_leader_role = {
-					country_leader = {
-						ideology=autocracy
+				if = {
+					limit = { has_ideology = semi_constitutional_monarchy }
+					promote_character = semi_constitutional_monarchy
+				}
+				else = {
+					add_country_leader_role = {
+						country_leader = {
+							ideology = semi_constitutional_monarchy			
+						}	
+						promote_leader = yes
 					}
 				}
-				promote_character = yes	
 			}
 		}
 	}
@@ -4820,12 +5025,18 @@ country_event = {
 			set_character_name = {
 				name = mikhail_ii
 			}
-			add_country_leader_role = {
-				country_leader = {
-					ideology=autocracy
+			if = {
+				limit = { has_ideology = semi_constitutional_monarchy }
+				promote_character = semi_constitutional_monarchy
+			}
+			else = {
+				add_country_leader_role = {
+					country_leader = {
+						ideology = semi_constitutional_monarchy			
+					}	
+					promote_leader = yes
 				}
 			}
-			promote_character = yes	
 		}
 		
 		ai_chance = {
@@ -4840,28 +5051,37 @@ country_event = {
 	id = ww1_russia.89
 	title = ww1_russia.89.t
 	desc = ww1_russia.89.d
-	picture = GFX_report_event_generic_military_parade
+	picture = GFX_report_event_communists_in_riga
 	fire_only_once = yes
 	trigger = {
 		tag = RUS
 		has_war_with = GER
-		LAT = {
-			exists = no
+		NOT = {
+			country_exists = LAT
+			country_exists = UBD
 		}
 		has_global_flag = october_revolution
 		any_state = {
 			is_owned_and_controlled_by = RUS
 			is_core_of = LAT
 		}
-		UBD = {
-			exists = no
-		}
 	}
 	mean_time_to_happen = {
 		days = 20
 	}
+	immediate = {
+		hidden_effect = {
+			if = {
+				limit = {
+					NOT = { has_global_flag = iskolat_republic }
+				}
+				set_global_flag = iskolat_republic
+			}
+		}
+	}
 	option = {
 		name = ww1_russia.89.a
+		trigger = { NOT = { has_global_flag = iskolat_republic } }
 		set_global_flag = latvia_released
 		hidden_effect = {
 			LAT = {
@@ -4903,6 +5123,39 @@ country_event = {
 				target = LAT
 				type = annex_everything
 			}
+			hidden_effect = {
+				country_event = ww1_russia.89
+			}
+		}
+		hidden_effect = {
+			if = {
+				limit = {
+					country_exists = SOV
+				}
+				SOV = {
+					country_event = ww1_russia.89
+				}
+			}
+		}
+		ai_chance = {
+			factor = 100
+		}
+	}
+	option = {
+		name = ww1_russia.89.b
+		trigger = {
+			has_global_flag = iskolat_republic
+			NOT = { has_government = communism }
+		}
+		ai_chance = {
+			factor = 100
+		}
+	}
+	option = {
+		name = ww1_russia.89.c
+		trigger = {
+			has_global_flag = iskolat_republic
+			has_government = communism
 		}
 		ai_chance = {
 			factor = 100
@@ -5064,10 +5317,16 @@ country_event = {
 						is_owned_by = RUS
 					}
 				}
-				KUB = {
-					transfer_state = PREV
-					add_state_core = PREV
-				}					
+				add_core_of = KUB
+				if = {
+					limit = {
+						is_controlled_by = RUS
+					}
+					transfer_state_to = KUB
+				}
+				else = {
+					set_state_owner_to = KUB
+				}
 			}
 			KUB = {
 				load_oob = "KUB_1918"
@@ -5139,10 +5398,19 @@ country_event = {
 						is_owned_by = RUS
 					}
 				}
-				DON = {
-					transfer_state = PREV
-					add_state_core = PREV
-				}							
+				add_core_of = DON
+				if = {
+					limit = {
+						OR = {
+							is_controlled_by = RUS
+							is_controlled_by = GER
+						}
+					}
+					transfer_state_to = DON
+				}
+				else = {
+					set_state_owner_to = DON
+				}
 			}
 			DON = {
 				load_oob = "DON_1918"
@@ -5282,6 +5550,16 @@ country_event = {
 		}
 		RUS = {
 			puppet = POL
+			if = {
+				limit = {
+					is_russia_a_monarchy = yes
+					has_dlc = "No Step Back"
+				}
+				set_autonomy = {
+					target = POL
+					autonomy_state = autonomy_personal_union
+				}
+			}
 		}
 		if = {
 			limit = {
@@ -5406,7 +5684,7 @@ news_event = {
 							ROOT = {
 								OR = {
 									has_government = neutrality
-									has_idea = GER_wilhelm_ii
+									has_idea = GER_idea_wilhelm_ii
 								}
 							}
 						}
@@ -5434,22 +5712,29 @@ news_event = {
 							BLR_genrikh = {
 								add_country_leader_role = {
 									country_leader = {
-										ideology = autocracy
-										traits = { german_agent  }
+										ideology = semi_constitutional_monarchy
+										traits = { foreign_leader german_agent }
 									}
 								}
-								promote_character = autocracy
+								promote_character = semi_constitutional_monarchy
+							}
+							ROOT = {
+								GER_albert_wilhelm_heinrich = {
+									set_character_name = BLR_genrikh
+									set_nationality = BLR
+								}
 							}
 							else = {
 								BLR_uladzimir = {
 									add_country_leader_role = {
+										promote_leader = yes
 										country_leader = {
-											ideology = autocracy
-											traits = { german_agent  }
+											ideology = semi_constitutional_monarchy
 										}
 									}
-									promote_character = autocracy
+									promote_character = semi_constitutional_monarchy
 								}
+								ROOT = { retire_character = GER_albert_wilhelm_heinrich }
 							}
 						}
 					}
@@ -5485,6 +5770,12 @@ news_event = {
 				}
 				set_global_flag = ukraine_released_by_germany
 			}
+			else_if = {
+				limit = {
+					RUS = { has_subject = UKR }
+				}
+				set_global_flag = russian_ukraine_autonomy
+			}
 			every_state = {
 				limit = {
 					is_owned_by = RUS
@@ -5518,7 +5809,7 @@ news_event = {
 				transfer_state_to = UKR
 				if = {
 					limit = {
-						is_core_of = URK
+						is_core_of = UKR
 					}
 					remove_core_of = RUS
 					remove_core_of = SOV
@@ -5593,12 +5884,20 @@ news_event = {
 							name = UKR_monarchy_party
 						}
 						UKR_vasyl_i = {
-							add_country_leader_role = {
-								country_leader = {
-									ideology = autocracy
+							set_character_name = UKR_vasyl_i
+							if = {
+								limit = { has_ideology = semi_constitutional_monarchy }
+								promote_character = semi_constitutional_monarchy
+							}
+							else = {
+								add_country_leader_role = {
+									country_leader = {
+										ideology = semi_constitutional_monarchy
+										traits = { knyaz_vasyl }
+									}
+									promote_leader = yes
 								}
 							}
-							promote_character = autocracy
 						}
 						else = {
 							inherit_technology = GER
@@ -5683,7 +5982,7 @@ news_event = {
 							ROOT = {
 								OR = {
 									has_government = neutrality
-									has_idea = GER_wilhelm_ii
+									has_idea = GER_idea_wilhelm_ii
 								}
 							}
 						}
@@ -6012,25 +6311,87 @@ news_event = {
 							}
 							transfer_state_to = TUR
 						}
-					}				
+					}
+					# Fix Khanate of Crimea
+					if = {
+						limit = {
+							OR = {
+								has_global_flag = ukraine_released_by_germany
+								has_global_flag = russian_ukraine_autonomy
+							}
+						}
+						every_state = {
+							limit = {
+								is_owned_by = UKR
+								OR = {
+									is_core_of = TUR
+									is_claimed_by = TUR
+								}
+							}
+							transfer_state_to = TUR
+						}
+					}
 				}
 			}
 			
-			# FIX PERSIA
-			every_country = {
+			# REMOVE CLAIMS
+			every_state = {
 				limit = {
-					original_tag = PER
-					has_war_with = RUS
+					OWNER = {
+						OR = {
+							tag = GER
+							is_in_faction_with = GER
+							is_subject_of = GER
+						}
+					}
+					OR = {
+						is_claimed_by = RUS
+						is_claimed_by = SOV
+					}
+				}
+				remove_claim_by = RUS
+				remove_claim_by = SOV
+			}
+			
+			# FIX PERSIA
+			if = {
+				limit = {
+					any_other_country = {
+						original_tag = PER
+						has_war_with = RUS
+					}
 				}
 				RUS = {
-					every_owned_state = {
+					every_other_country = {
 						limit = {
-							is_core_of = PREV.PREV
-							NOT = { is_core_of = PREV }
+							original_tag = PER
+							has_war_with = RUS
 						}
-						transfer_state_to = PREV.PREV
+						white_peace = PREV
 					}
-					white_peace = PREV
+				}
+			}
+			RUS = {
+				every_owned_state = {
+					limit = {
+						is_core_of = PER
+						NOT = { is_core_of = RUS }
+					}
+					remove_claim_by = RUS
+					transfer_state_to = PER
+				}
+			}
+
+			# TANNU
+			if = {
+				limit = {
+					TAN = {
+						is_subject_of = RUS
+					}
+				}
+				every_country = {
+					limit = { owns_state = 330 }
+					transfer_state = 329
 				}
 			}
 			
@@ -6042,9 +6403,7 @@ news_event = {
 						original_tag = BUK
 						original_tag = KHI
 						original_tag = KAZ
-						original_tag = KYR
-						original_tag = TAJ
-						original_tag = TMS
+						original_tag = TRK
 					}
 				}
 				RUS = { end_puppet = PREV }
