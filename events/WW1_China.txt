@@ -5400,6 +5400,7 @@ country_event = {
 				create_faction = constitutional_protection_government
 				add_to_faction = YUN
 				add_to_faction = GZC
+				add_to_faction = HNC
 			}
 			CHI = {
 				if = {
@@ -9183,35 +9184,65 @@ country_event = {
 	}
 	option = {
 		name = ww1_china.74.a
-		retire_character = HNC_zhang_jingyao
-		HNC_zhao_hengti = {
-			add_country_leader_role = {
-				promote_leader = yes
-				country_leader = {
-					ideology = authoritarian_democracy
-					traits = { chinese_federalist }
-				}
-			}
-			add_country_leader_role = {
-				promote_leader = yes
-				country_leader = {
-					ideology = social_liberalism
-					traits = { chinese_federalist }
-				}
-			}
-		}
-		set_party_name = {
-			ideology = democratic
-			long_name = CHI_zhigong_party_long
-			name = CHI_zhigong_party
-		}
 		if = {
 			limit = {
-				is_in_faction_with = SDC
-				has_war = no
-				is_subject = no
+				is_subject = yes
+				OVERLORD = { is_china_or_warlord = yes }
 			}
-			leave_faction = yes
+			OVERLORD = {
+				end_puppet = PREV
+				every_other_country = {
+					limit = {
+						has_war_with = PREV
+						has_war_with = ROOT
+					}
+					white_peace = ROOT
+				}
+			}
+		}
+		HNC_zhang_jingyao = {
+			remove_country_leader_role = {
+				ideology = despotism
+			}
+			remove_country_leader_role = {
+				ideology = stratocracy
+			}
+		}
+		hidden_effect = {
+			HNC_zhao_hengti = {
+				add_country_leader_role = {
+					promote_leader = yes
+					country_leader = {
+						ideology = authoritarian_democracy
+						traits = { chinese_federalist }
+					}
+				}
+				add_country_leader_role = {
+					promote_leader = yes
+					country_leader = {
+						ideology = social_liberalism
+						traits = { chinese_federalist }
+					}
+				}
+			}
+			CHI_zhao_hengti = {
+				if = {
+					limit = {
+						has_trait = chinese_nationalist
+					}
+					remove_unit_leader_trait = chinese_nationalist
+				}
+			}
+			set_politics = {
+				ruling_party = democratic
+				elections_allowed = no
+			}
+			promote_character = HNC_tan_yankai
+			set_party_name = {
+				ideology = democratic
+				long_name = CHI_zhigong_party_long
+				name = CHI_zhigong_party
+			}
 		}
 	}
 }
@@ -14195,7 +14226,7 @@ country_event = {
 	option = {
 		name = ww1_china.161.a
 		FROM = {
-			create_faction = eight_provinces
+			create_faction = anti_anhui_alliance
 			add_to_faction = ROOT
 			hidden_effect = {
 				if = {
@@ -14663,7 +14694,7 @@ country_event = {
 			factor = 10
 			modifier = {
 				factor = 0
-				major = no
+				is_major = no
 			}
 			modifier = {
 				factor = 0
@@ -14738,7 +14769,7 @@ country_event = {
 				factor = 0
 				strength_ratio = {
 					tag = FROM
-					strength < 1.0
+					ratio < 1.0
 				}
 			}
 		}
@@ -14850,7 +14881,7 @@ country_event = {
 				factor = 0
 				strength_ratio = {
 					tag = FROM
-					strength < 1.0
+					ratio < 1.0
 				}
 			}
 		}
@@ -15115,9 +15146,9 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_china.177.a
-		add_ideas = CHI_song_jiaoren
+		activate_advisor = CHI_song_jiaoren
 		add_popularity = {
-			ideology = democracy
+			ideology = democratic
 			popularity = 0.05
 		}
 	}
@@ -15133,7 +15164,7 @@ country_event = {
 	option = {
 		name = ww1_china.177.a
 		add_popularity = {
-			ideology = democracy
+			ideology = democratic
 			popularity = 0.05
 		}
 	}
@@ -15188,7 +15219,300 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_china.179.a
-		stability_factor = -0.05
+		add_stability = -0.05
 		set_global_flag = CHI_beiyang_plot
+	}
+}
+
+# Send Zhang Jingyao to Hunan
+country_event = {
+	id = ww1_china.180
+	title = ww1_china.180.t
+	desc = ww1_china.180.d
+	picture = GFX_report_event_chinese_soldiers_city_ruin
+	fire_only_once = yes
+	trigger = {
+		tag = CHI
+		has_war_with = GXC
+		HNC = {
+			has_war_with = ROOT
+			surrender_progress > 0.01
+		}
+		has_active_mission = CHI_sue_for_peace_CPG
+	}
+	option = {
+		name = ww1_china.180.a
+		HNC = {
+			leave_faction = yes
+			white_peace = ROOT
+			set_politics = {
+				ruling_party = neutrality
+				elections_allowed = no
+			}
+		}
+		if = {
+			limit = {
+				has_subject_autonomy_feature = yes
+			}
+			set_autonomy = {
+				target = HNC
+				autonomy_state = autonomy_tgwr_regional_government
+			}
+			else = {
+				puppet = HNC
+			}
+		}
+	}
+}
+
+# Tan Yankai Overthrown
+country_event = {
+	id = ww1_china.181
+	title = ww1_china.181.t
+	desc = ww1_china.181.d
+	picture = GFX_report_event_german_detained_china
+	fire_only_once = yes
+	trigger = {
+		tag = HNC
+		is_subject = no
+		has_global_flag = warlord_era
+		OR = {
+			country_exists = ANC
+			country_exists = ZHC
+		}
+		has_country_leader = {
+			character = HNC_tan_yankai
+			ruling_only = yes
+		}
+	}
+	mean_time_to_happen = {
+		days = 180
+	}
+	option = {
+		name = ww1_china.181.a
+		hidden_effect = {
+			HNC_zhao_hengti = {
+				if = {
+					limit = {
+						has_ideology = authoritarian_democracy
+					}
+					promote_character = authoritarian_democracy
+					else = {
+						add_country_leader_role = {
+							promote_leader = yes
+							country_leader = {
+								ideology = authoritarian_democracy
+								traits = { chinese_federalist }
+							}
+						}
+					}
+				}
+				if = {
+					limit = {
+						has_ideology = social_liberalism
+					}
+					promote_character = social_liberalism
+					else = {
+						add_country_leader_role = {
+							promote_leader = yes
+							country_leader = {
+								ideology = social_liberalism
+								traits = { chinese_federalist }
+							}
+						}
+					}
+				}
+			}
+			CHI_zhao_hengti = {
+				if = {
+					limit = {
+						has_trait = chinese_nationalist
+					}
+					remove_unit_leader_trait = chinese_nationalist
+				}
+			}
+			HNC_tan_yankai = {
+				add_country_leader_trait = chinese_nationalist
+			}
+		}
+		set_politics = {
+			ruling_party = neutrality
+			elections_allowed = no
+		}
+	}
+}
+
+# Hunan Civil War
+country_event = {
+	id = ww1_china.182
+	title = ww1_china.182.t
+	desc = ww1_china.182.d
+	picture = GFX_report_event_chinese_soldiers_city_ruin
+	fire_only_once = yes
+	trigger = {
+		tag = HNC
+		is_subject = no
+		has_global_flag = warlord_era
+		has_country_leader = {
+			character = HNC_zhao_hengti
+			ruling_only = yes
+		}
+		HNC_tan_yankai = {
+			has_trait = chinese_nationalist
+		}
+		any_neighbor_country = {
+			is_kuomintang_state = yes
+		}
+	}
+	mean_time_to_happen = {
+		days = 180
+	}
+	option = {
+		name = ww1_china.182.a
+		hidden_effect = {
+			check_democratic_civil_war_popularity = yes
+			set_global_flag = hunan_civil_war
+		}
+		start_civil_war = {
+			ideology = democratic
+			size = civil_war_size_var
+			states = { 893 }
+			keep_unit_leaders_trigger = {
+				has_trait = politically_connected
+			}
+			keep_political_party_members = yes
+			hidden_effect = {
+				PREV = {
+					HNC_tan_yankai = {
+						set_nationality = PREV.PREV
+					}
+				}
+				promote_character = HNC_tan_yankai
+				set_party_name = {
+					ideology = democratic
+					long_name = CHI_kuomintang_party_long
+					name = CHI_kuomintang_party
+				}
+			}
+		}
+	}
+}
+
+# Hunan Civil War - Kuomintang Victory
+country_event = {
+	id = ww1_china.183
+	title = ww1_china.183.t
+	desc = ww1_china.183.d
+	picture = GFX_report_event_chinese_soldiers_city_ruin
+	fire_only_once = yes
+	trigger = {
+		tag = HNC
+		is_subject = no
+		has_global_flag = warlord_era
+		has_global_flag = hunan_civil_war
+		has_country_leader = {
+			character = HNC_tan_yankai
+			ruling_only = yes
+		}
+		any_neighbor_country = {
+			is_kuomintang_state = yes
+		}
+	}
+	mean_time_to_happen = {
+		days = 180
+	}
+	option = {
+		name = ww1_china.183.a
+		random_neighbor_country = {
+			limit = {
+				is_kuomintang_state = yes
+			}
+			if = {
+				limit = {
+					has_subject_autonomy_feature = yes
+				}
+				set_autonomy = {
+					target = ROOT
+					autonomy_state = autonomy_tgwr_regional_government
+				}
+				else = {
+					puppet = ROOT
+				}
+			}
+		}
+	}
+}
+
+# Hunan Civil War - Zhao Hengti request help to Beiyang warlord
+country_event = {
+	id = ww1_china.184
+	title = ww1_china.184.t
+	desc = ww1_china.184.d
+	picture = GFX_report_event_chinese_soldiers_city_ruin
+	fire_only_once = yes
+	trigger = {
+		tag = HNC
+		is_subject = no
+		OR = {
+			has_war = no
+			has_civil_war = yes
+		}
+		has_global_flag = warlord_era
+		has_global_flag = hunan_civil_war
+		has_country_leader = {
+			character = HNC_zhao_hengti
+			ruling_only = yes
+		}
+		any_neighbor_country = {
+			OR = {
+				original_tag = ZHC
+				original_tag = JXC
+			}
+			has_government = neutrality
+			NOT = {
+				has_war_with = ROOT
+			}
+		}
+	}
+	mean_time_to_happen = {
+		days = 10
+	}
+	option = {
+		name = ww1_china.184.a
+		random_other_country = {
+			limit = {
+				original_tag = ROOT
+				has_war_with = ROOT
+			}
+			ROOT = {
+				annex_country = {
+					target = PREV
+				}
+			}
+		}
+		random_neighbor_country = {
+			limit = {
+				OR = {
+					original_tag = ZHC
+					original_tag = JXC
+				}
+				has_government = neutrality
+				NOT = {
+					has_war_with = ROOT
+				}
+			}
+			if = {
+				limit = {
+					has_subject_autonomy_feature = yes
+				}
+				set_autonomy = {
+					target = ROOT
+					autonomy_state = autonomy_tgwr_regional_government
+				}
+				else = {
+					puppet = ROOT
+				}
+			}
+		}
 	}
 }
