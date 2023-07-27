@@ -3242,51 +3242,6 @@ GRE_investment_decisions_category = {
 
 
 GRE_territorial_allegeance = {
-	
-	GRE_init_shit = {
-		complete_effect = {
-			every_state = {
-				limit = {
-					OR = {
-						state = 731
-						state = 345
-						state = 184
-						state = 790
-						state = 182
-						state = 187
-					}
-				}
-				set_variable = { var = GRE_garrison_control value = 4 }
-			}
-			339 = {
-				set_variable = { var = GRE_garrison_control value = 3 }
-			}
-			803 = {
-				set_variable = { var = GRE_garrison_control value = 2 }
-			}
-			every_state = {
-				limit = {
-					OR = {
-						state = 186
-						state = 47
-						state = 900
-						state = 47
-						state = 185
-						state = 758
-						state = 826
-					}
-				}
-				set_variable = { var = GRE_garrison_control value = -2 }
-			}
-			898 = {
-				set_variable = { var = GRE_garrison_control value = -3 }
-			}
-			186 = {
-				set_variable = { var = GRE_garrison_control value = -2 }
-			}
-
-		}
-	}
 
 	GRE_expand_influence_in_FROM = {
 		cost = 10
@@ -3396,7 +3351,7 @@ GRE_territorial_allegeance = {
 
 		fire_only_once = no
 
-		on_map_mode = map_and_decisions_view
+		on_map_mode = map_only
 
 		days_remove = 14
 
@@ -3431,17 +3386,20 @@ GRE_territorial_allegeance = {
 	}
 
 	automatic_add_royalists = {
-		icon = revolt
+		icon = GFX_decision_faction_gre_monarchist
 		allowed = { tag = GRE }
 		activation = { 
 			has_country_flag = battle_of_influence 
 			has_war = no
 		}
 		is_good = no
-		days_re_enable = 11
+		days_re_enable = 1
 		days_mission_timeout = 14
 		available = {
-			has_war = yes
+			OR = {
+				has_country_flag = battle_of_influence 
+				has_war = yes
+			}
 		}
 		timeout_effect = {
 			if = {
@@ -3453,9 +3411,9 @@ GRE_territorial_allegeance = {
 				random_owned_controlled_state = {
 					limit = {
 						has_variable = GRE_garrison_control
-						check_variable = { var = GRE_garrison_control value = 2 compare = greater_than_or_equals }
+						check_variable = { var = GRE_garrison_control value = -2 compare = greater_than_or_equals }
 						any_neighbor_state = {
-							check_variable = { var = GRE_garrison_control value = 2 compare = less_than_or_equals }
+							check_variable = { var = GRE_garrison_control value = -1 compare = less_than_or_equals }
 						}
 					}
 					subtract_from_variable = { var = GRE_garrison_control value = 1 }
@@ -3469,22 +3427,182 @@ GRE_territorial_allegeance = {
 			}
 		}
 	}
-	force_the_issue = {
-		icon = revolt
+	gather_popular_support = {
+		icon = GFX_decision_generic_speech
 		available = {
 			has_country_flag = battle_of_influence 
 		}
 		visible = {
 			has_country_flag = battle_of_influence 
 		}
+		days_re_enable = 40
+		days_remove = 15
+		ai_will_do = {
+			factor = 80
+		}
+		remove_effect = {
+			add_political_power = 50
+		}
+	}
+	form_the_thessaloniki_state = {
+		icon = GFX_decision_faction_gre_venezelist
+		available = {
+			has_country_flag = battle_of_influence
+			NOT = {
+				country_exists = THE
+			}
+		}
+		visible = {
+			has_country_flag = battle_of_influence 
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				is_historical_focus_on = yes
+				date > 1916.8.8
+				factor = 5 # do it pretty quick
+			}
+			
+		}
 		complete_effect = {
-			add_days_mission_timeout = {
-				mission = trigger_civil_war_now
-				days = -200
+			remove_power_balance = {
+				id = GRE_venizelos_constantine
+			}
+			hidden_effect = {
+				create_dynamic_country = {
+					original_tag = GRE
+					every_state = {
+						limit = {
+							OR = {
+								state = 345
+								is_owned_by = GRE
+								CONTROLLER = {
+									NOT = {
+										has_war_with = GRE
+									}
+									OR = {
+										state = 731
+										state = 345
+										state = 184
+										state = 790
+										state = 182
+										state = 187
+									}
+								}
+							}
+							check_variable = { var = GRE_garrison_control value = 0 compare = greater_than_or_equals }
+						}
+						transfer_state_to = PREV
+					}
+					set_capital = {
+						state = 345
+						remember_old_capital = no
+					}
+					GRE = {
+						clr_country_flag = battle_of_influence
+						transfer_units_fraction = {
+							target = PREV
+							size = 0.40
+							keep_unit_leaders_trigger = {
+								OR = {
+									has_trait = trait_royal
+									has_trait = trait_royalist
+								}
+							}
+						}
+					}
+					set_country_flag = GRE_national_defense_flag
+					set_cosmetic_tag = GRE_national_defense
+					set_party_name = {
+						ideology = democratic
+						long_name = GRE_national_defense_party_long
+						name = GRE_national_defense_party
+					}
+					set_party_name = {
+						ideology = fascism
+						long_name = GRE_national_defense_party_long
+						name = GRE_national_defense_party
+					}
+					set_party_name = {
+						ideology = neutrality
+						long_name = GRE_national_defense_party_long
+						name = GRE_national_defense_party
+					}
+					set_politics = {
+						ruling_party = democratic
+					}
+					set_popularities = {
+						democratic = 73
+						neutrality = 7
+						fascism = 10
+						communism = 10
+					}
+					PREV = {
+						set_global_flag = venizelist_government_established
+						GRE_eleftherios_venizelos = {
+							set_nationality = PREV.PREV
+						}
+						GRE_theodoros_pangalos = {
+							set_nationality = PREV.PREV
+						}
+						GRE_panagiotis_danglis = {
+							set_nationality = PREV.PREV
+						}
+						GRE_nikolaos_trikoupis = {
+							set_nationality = PREV.PREV
+						}
+						GRE_emmanouil_zymvrakakis = {
+							set_nationality = PREV.PREV
+						}
+						GRE_konstantinos_mazarakis = {
+							set_nationality = PREV.PREV
+						}
+						GRE_pavlos_kountouriotis = {
+							set_nationality = PREV.PREV
+						}
+						GRE_nikolaos_plastiras = {
+							set_nationality = PREV.PREV
+						}
+						GRE_nikolaos_zorbas = {
+							set_nationality = PREV.PREV
+						}
+						GRE_mark_kerr = {
+							set_nationality = PREV.PREV
+						}
+						GRE_leonidas_paraskevopoulos = {
+							set_nationality = PREV.PREV
+						}
+						GRE_alexandros_zaimis = {
+							add_country_leader_role = {
+								promote_leader = yes
+								country_leader = {
+									ideology = conservatism
+								}
+							}
+						}
+					}
+					promote_character = GRE_eleftherios_venizelos
+					add_ideas = gre_victors_of_the_macedonian_struggle
+					add_ideas = gre_the_megali_idea
+					add_ideas = gre_conscription_plan
+					complete_national_focus = GRE_form_the_provisional_government_of_national_defence
+					every_owned_state = {
+						add_core_of = PREV
+					}
+					FRA = {
+						add_to_faction = PREV
+					}
+					add_to_war = {
+						targeted_alliance = FRA
+						enemy = BUL
+					}
+					change_tag_from = GRE
+				}
 			}
 		}
 	}
 	trigger_civil_war_now = {
+		priority = 500
 		icon = revolt
 		allowed = { tag = GRE }
 		activation = {
@@ -3492,19 +3610,36 @@ GRE_territorial_allegeance = {
 			has_country_flag = battle_of_influence 
 		}
 		available = {
-			has_war = yes
+			OR = {
+				has_war = yes
+				any_other_country = {
+					original_tag = GRE
+				}
+				NOT = {
+					has_country_flag = battle_of_influence
+				}
+			}
 		}
 		is_good = no
 		days_mission_timeout = 280
 		fire_only_once = no
 		timeout_effect = {
-			GRE = {
-				set_politics = {
-					ruling_party = democratic
+			hidden_effect = {
+				GRE = {
+					set_politics = {
+						ruling_party = democratic
+					}
+					promote_character = GRE_eleftherios_venizelos
+					set_cosmetic_tag = GRE_national_defense
+					add_country_leader_trait = standing_alone	
 				}
-				promote_character = GRE_eleftherios_venizelos
-				set_cosmetic_tag = GRE_national_defense
-				add_country_leader_trait = standing_alone	
+				every_state = {
+					limit = {
+						has_variable = GRE_garrison_control
+						check_variable = { var = GRE_garrison_control value = 0 compare = greater_than_or_equals }
+					}
+					set_state_owner_to = ROOT
+				}
 			}
 			GRE = {
 				start_civil_war = {
@@ -3603,37 +3738,6 @@ GRE_territorial_allegeance = {
 					}
 				}
 				
-			}
-		}
-	}
-
-	random_lose_1_point = {
-		icon = revolt
-		allowed = { tag = GRE }
-		cost = 0
-		remove_effect = {
-			if = {
-				limit = { 
-					898 = {
-						check_variable = { var = GRE_garrison_control value = 1 compare = less_than_or_equals }
-					}
-				}
-				random_owned_controlled_state = {
-					limit = {
-						has_variable = GRE_garrison_control
-						check_variable = { var = GRE_garrison_control value = 2 compare = greater_than_or_equals }
-						any_neighbor_state = {
-							check_variable = { var = GRE_garrison_control value = 2 compare = less_than_or_equals }
-						}
-					}
-					subtract_from_variable = { var = GRE_garrison_control value = 1 }
-					custom_effect_tooltip = GRE_will_lose_1
-				}
-				else = {
-					898 = {
-						subtract_from_variable = { var = GRE_garrison_control value = 1 }
-					}
-				}
 			}
 		}
 	}
