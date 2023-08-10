@@ -100,8 +100,15 @@ NDefines.NRailwayGun.RAILWAY_GUN_RANGE = 15							-- The range of railway guns i
 NDefines.NGraphics.VICTORY_POINT_MAP_ICON_TEXT_CUTOFF = {200, 350, 600}  	-- Vanilla is 100, 250, 500
 NDefines.NGraphics.VICTORY_POINTS_DISTANCE_CUTOFF = {300, 500, 1000} 		-- Vanilla is 300, 500, 1500
 
-MAJOR_MIN_FACTORIES = 25	-- Vanilla is 35
-MIN_MAJOR_COUNTRIES = 8	-- Vanilla is 7, Eight countries; ENG, FRA, GER, RUS, AUH, ITA, USA, JAP
+NDefines_Graphics.NGraphics.POLITICAL_GRID_SMALL_BOX_LIMIT = 18              	-- Limit for gridbox in political view before it will be replaced with extended gridbox, Vanilla is 6
 
-MAX_BOMBING_WAR_SUPPORT_IMPACT = -0.1 -- Vanilla is -0.3, it is not ww2
-MAX_CONVOYS_BEING_RAIDED_WAR_SUPPORT_IMPACT = -0.5 -- Vanilla is -0.3, it is not ww2
+NDefines.NSupply.NAVAL_DISTANCE_FACTOR_FOR_REINFORCEMENT_SPEED = 0.12
+NDefines.NSupply.NAVAL_BASE_INITIAL_SUPPLY_FLOW = 5
+NDefines.NSupply.CAPITAL_SUPPLY_DOCKYARDS = 0.6
+ 
+
+NDefines.NCountry.MAJOR_MIN_FACTORIES = 25	-- Vanilla is 35
+NDefines.NCountry.MIN_MAJOR_COUNTRIES = 8	-- Vanilla is 7, Eight countries; ENG, FRA, GER, RUS, AUH, ITA, USA, JAP
+
+NDefines.NCountry.MAX_BOMBING_WAR_SUPPORT_IMPACT = -0.1 -- Vanilla is -0.3, it is not ww2
+NDefines.NCountry.MAX_CONVOYS_BEING_RAIDED_WAR_SUPPORT_IMPACT = -0.3 -- Vanilla is -0.5, it is not ww2
