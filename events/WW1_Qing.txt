@@ -1,6 +1,153 @@
 ﻿add_namespace = ww1_qing
 add_namespace = qing_news
 
+
+#Yunnan Rubber
+country_event = {
+	title = ww1_qing.398.t
+	desc = ww1_qing.398.d
+	id = ww1_qing.398
+
+	fire_only_once = yes
+	
+	trigger = {
+		tag = QIN
+		670 = {
+			OR = {
+				is_controlled_by = QIN
+				owner = {
+					is_subject_of = QIN
+				}
+			}
+		}
+		325 = {
+			is_owned_and_controlled_by = QIN
+		}
+	}
+	
+	option = {
+		name = ww1_qing.398.a
+		ai_chance = { factor = 10 }
+		325 = {
+			add_resource = {
+				type = rubber
+				amount = 5
+			}
+		}
+	}
+}
+#Dali Governor
+country_event = {
+	title = ww1_qing.382.t
+	desc = ww1_qing.382.d
+	id = ww1_qing.382
+
+	fire_only_once = yes
+	
+	trigger = {
+		tag = QIN
+		date > 1915.10.30
+		325 = {
+			is_controlled_by = QIN
+		}
+		NOT = {
+			
+		}
+	}
+	
+	option = {
+		name = ww1_qing.382.a
+		ai_chance = { factor = 10 }
+		QIN_yunnan_rebel_improve = yes
+	}
+	option = {
+		name = ww1_qing.382.b
+		ai_chance = { factor = 10 }
+		add_days_mission_timeout = {
+			mission = QIN_xinhai_timer
+			days = 50
+		}
+	}
+}
+
+#Beiyang Don't Follow Orders
+country_event = {
+	title = ww1_qing.396.t
+	desc = ww1_qing.396.d
+	
+	id = ww1_qing.396
+
+	picture = GFX_report_event_chinese_soldiers
+
+	fire_only_once = yes
+	is_triggered_only = yes
+	
+	trigger = {
+		CHI = {
+			exists = yes
+		}
+	}
+	immediate = {
+		hidden_effect = {
+			set_global_flag = QIN_flag_beiyang_disloyalty
+			custom_effect_tooltip = QIN_effect_beiyang_reserves_2
+			delete_units = {
+				division_template = "Xinjian Lujun (Beiyang Army)"
+				disband = no
+			}
+		}
+	}
+	option = {
+		name = ww1_qing.396.a
+		ai_chance = { factor = 0 }
+		custom_effect_tooltip = QIN_effect_beiyang_return_later
+	}
+}
+#Yuan Shikai
+country_event = {
+	title = ww1_qing.395.t
+	desc = ww1_qing.395.d
+	
+	id = ww1_qing.395
+
+	picture = GFX_report_event_qing_shikai_exile
+
+	fire_only_once = yes
+	
+	trigger = {
+		tag = QIN
+		has_idea = QIN_beiyang_army
+		is_qing_monarchy = yes
+		has_global_flag = xinhai_revolution
+		
+		NOT = {
+			has_global_flag = QIN_flag_accept_shikai
+		}
+		NOT = { has_global_flag = QIN_flag_selecting_regent }
+	}
+
+	option = {
+		name = ww1_qing.395.a
+		ai_chance = { factor = 1000 }
+		custom_effect_tooltip = QIN_influence_shikai_up
+		
+		activate_decision = QIN_influence_shikai_up
+		
+	}
+	option = {
+		name = ww1_qing.395.b
+		ai_chance = { factor = 0 }
+		custom_effect_tooltip = QIN_effect_not_possible
+		custom_effect_tooltip = line_description
+		delete_unit_template_and_units = {
+			division_template = "Xinjian Lujun (Beiyang Army)"
+			disband = no
+		}
+		custom_effect_tooltip = QIN_effect_come_back_after_war
+		custom_effect_tooltip = line_description
+		add_ideas = QIN_idea_only_hope
+	}
+}
 #Navy Defects
 country_event = {
 	title = ww1_qing.394.t
@@ -67,10 +214,15 @@ country_event = {
 		name = ww1_qing.393.a
 		ai_chance = { factor = 10 }
 		add_stability = 0.15
+		set_division_template_lock = {
+			division_template = "Xinjian Lujun Hùnchéngxié (South Provincial Army)"
+			is_locked = no
+		}
 		add_timed_idea = {
 			idea = QIN_idea_united_china
 			days = 365
 		}
+		
 	}
 	option = {
 		name = ww1_qing.393.b
@@ -79,6 +231,10 @@ country_event = {
 		add_timed_idea = {
 			idea = QIN_idea_united_china2
 			days = 365
+		}
+		set_division_template_lock = {
+			division_template = "Xinjian Lujun Hùnchéngxié (South Provincial Army)"
+			is_locked = no
 		}
 	}
 }
@@ -1470,14 +1626,19 @@ country_event = {
 	}
 	trigger = {
 		tag = QIN
-		date > 1914.1.1
-		NOT = {
-			has_idea = QIN_idea_tongmenghui
-			has_idea = QIN_idea_tongmenghui_2
+		OR = {
+			AND = {
+				date > 1914.1.1
+				NOT = {
+					has_idea = QIN_idea_tongmenghui
+					has_idea = QIN_idea_tongmenghui_2
+				}
+				democratic < 0.25
+				NOT = { has_global_flag = QIN_flag_tongmenghui_agreement }
+				NOT = { has_global_flag = xinhai_revolution }
+			}
+			has_global_flag = QIN_flag_tongmenghui_split
 		}
-		democratic < 0.25
-		NOT = { has_global_flag = QIN_flag_tongmenghui_agreement }
-		NOT = { has_global_flag = xinhai_revolution }
 	}
 	option = {
 		name = ww1_qing.359.a
@@ -1908,7 +2069,14 @@ country_event = {
 	option = {
 		name = ww1_qing.351.b
 		ai_chance = { factor = 0 }
+		
 		add_stability = -0.12
+
+		clr_global_flag = QIN_flag_beiyang_army_deployed
+		delete_units = {
+			division_template = "Xinjian Lujun (Beiyang Army)"
+			disband = no
+		}
 		delete_unit_template_and_units = {
 			division_template = "Beiyang New Army"
 			disband = no
@@ -1975,6 +2143,12 @@ country_event = {
 		name = ww1_qing.350.b
 		ai_chance = { factor = 0 }
 		add_stability = -0.1
+
+		clr_global_flag = QIN_flag_beiyang_army_deployed
+		delete_units = {
+			division_template = "Xinjian Lujun (Beiyang Army)"
+			disband = no
+		}
 		delete_unit_template_and_units = {
 			division_template = "Beiyang New Army"
 			disband = no
@@ -8244,6 +8418,18 @@ country_event = {
 		add_war_support = 0.05
 		activate_mission = QIN_xinhai_timer
 		hidden_effect = {
+			if = {
+				limit = {
+					has_global_flag = QIN_flag_beiyang_disloyalty
+				}
+				clr_global_flag = QIN_flag_beiyang_army_deployed
+				clr_global_flag = QIN_flag_beiyang_disloyalty
+				delete_units = {
+					division_template = "Xinjian Lujun (Beiyang Army)"
+					disband = no
+				}
+			}
+			set_global_flag = QIN_flag_tongmenghui_split
 			clr_global_flag = QIN_flag_kick_out_shikai 
 			clr_global_flag = QIN_flag_accept_shikai
 			clr_global_flag = QIN_third_uprising
@@ -8341,10 +8527,9 @@ country_event = {
 		ai_chance = { 
 			factor = 0 
 		}
-		add_equipment_to_stockpile = {
-			type = infantry_equipment
-			amount = -2000
-			producer = QIN
+		set_division_template_lock = {
+			division_template = "Xinjian Lujun Hùnchéngxié (North Provincial Army)"
+			is_locked = no
 		}
 		add_timed_idea = {
 			idea = QIN_idea_provincial_reform
@@ -8356,18 +8541,18 @@ country_event = {
 		ai_chance = { 
 			factor = 1000 
 		}
+		set_division_template_lock = {
+			division_template = "Xinjian Lujun Hùnchéngxié (North Provincial Army)"
+			is_locked = no
+		}
 	}
 	option = {
 		name = ww1_qing.213.c
 		ai_chance = {
 			factor = 0 
 		}
-		add_stability = -0.1
-		add_equipment_to_stockpile = {
-			type = infantry_equipment
-			amount = 5000
-			producer = QIN
-		}
+		add_political_power = 50
+		QIN_lower_opp_150 = yes
 	}
 }
 country_event = {
