@@ -2096,25 +2096,44 @@ country_event = {
 	desc = rusrevolt.20.d
 	picture = GFX_report_event_generic_army
 	trigger = {
-		has_global_flag = kis_war
-		has_global_flag = brest_litovsk
-		NOT = {
-			has_global_flag = great_war_ends
-			has_government = communism
-		}
-		SOV = { has_war_with = RUS }
 		if = {
 			limit = {
 				ENG = {
 					is_in_faction_with = FRA
 					has_war_with = GER
+					is_subject = no
+					has_government = communism
 				}
 			}
 			tag = ENG
-			else = {
-				tag = FRA
+			else_if = {
+				limit = {
+					USA = {
+						is_in_faction_with = FRA
+						has_war_with = GER
+						is_subject = no
+						has_government = communism
+					}
+				}
+				tag = ENG
+				else = {
+					tag = FRA
+					is_subject = no
+					has_government = communism
+				}
 			}
 		}
+		has_global_flag = kis_war
+		has_global_flag = brest_litovsk
+		NOT = {
+			has_global_flag = great_war_ends
+		}
+		SOV = { 
+			is_subject = no
+			has_government = communism
+			has_war_with = RUS
+			owns_state = 214
+		}		
 	}
 	fire_only_once = yes
 	mean_time_to_happen = { days = 60 }
@@ -2133,37 +2152,81 @@ country_event = {
 	}
 }
 
-# Allied Landing at Murmansk
+# Allied Landing at Arkhangelsk
 country_event = {
 	id = rusrevolt.21
 	title = rusrevolt.21.t
 	desc = rusrevolt.21.d
 	picture = GFX_report_event_generic_army
 	is_triggered_only = yes
+	trigger = {
+		SOV = {
+			is_subject = no
+			has_government = communism
+			owns_state = 214
+		}
+	}
 	option = {
 		name = rusrevolt.21.a
-		every_state = {
-			limit = {
-				OR = {
-					state = 213
-					state = 214
-					state = 215
-					state = 216
-					state = 722
+		hidden_effect = {
+			create_dynamic_country = {
+				original_tag = RUS
+				set_cosmetic_tag = RSO
+				set_country_flag = RUS_northern_oblast
+				set_country_flag = dont_trigger_political_eventa
+				set_politics = {
+					ruling_party = democratic
+					long_name = RSO_supreme_administration_party_long
+					name = RSO_supreme_administration_party
+					elections_allowed = no
 				}
-			}
-			add_core_of = KAR
+				set_party_name = {
+					ideology = neutrality
+					long_name = RSO_supreme_administration_party_long
+					name = RSO_supreme_administration_party
+				}
+				set_party_name = {
+					ideology = fascism
+					long_name = RSO_nothern_army_party
+					name = RSO_nothern_army_party
+				}
+				set_party_name = {
+					ideology = communism
+					long_name = RUS_popular_socialists_party_long
+					name = RUS_popular_socialists_party
+				}
+				set_popularities = {
+					democratic = 45
+					neutrality = 25
+					fascism = 20
+					communism = 10
+				}
+				set_war_support = 0.7
+				reserve_dynamic_country = yes
+			}	
 		}
-		KAR = {
-			transfer_state = 213
-			if = {
+		RSO = {
+			transfer_state = 214
+			every_state = {
 				limit = {
-					ROOT = { owns_state = 722 }
+					OR = {
+						is_owned_by = RUS
+						is_owned_by = SOV				
+					}	
+					OR = {
+						is_controlled_by = RUS
+						is_controlled_by = SOV
+					}
+					OR = {
+						state = 213
+						state = 214
+						state = 215
+						state = 722
+						state = 262
+					}
 				}
-				transfer_state = 722
+				transfer_state_to = PREV
 			}
-			FRA = { add_manpower = -2000 }
-			load_oob = KAR_1918
 			declare_war_on = {
 				target = SOV
 				type = take_claimed_state
@@ -2188,46 +2251,114 @@ country_event = {
 						relation = military_access
 					}
 				}
-				set_truce = {
-					target = PREV
-					days = 365
-				}
 			}
 			ROOT = { add_to_faction = PREV }
 			add_ideas = RUS_idea_allied_intervention
 		}
 		hidden_effect = {
 			set_global_flag = north_russian_campaign
-			KAR = {
-				set_country_flag = dont_trigger_political_event
-				set_cosmetic_tag = KAR_north_russia
-				KAR_evgeniy_miller = {
-					add_country_leader_role = {
-						promote_leader = yes
-						country_leader = {
-							ideology = stratocracy
-							traits = { standing_alone }
-						}
-					}
-				}
-			}
 			every_possible_country = {
 				limit = {
 					has_character = RUS_vladimir_marushevsky
 				}
-				RUS_vladimir_marushevsky = { set_nationality = KAR }
+				RUS_vladimir_marushevsky = { 
+					set_nationality = RSO 
+				}
 			}
 			every_possible_country = {
 				limit = {
 					has_character = RUS_evgeniy_miller
 				}
-				RUS_evgeniy_miller = { set_nationality = KAR }
+				RUS_evgeniy_miller = { set_nationality = RSO }
+			}
+			every_possible_country = {
+				limit = {
+					has_character = RUS_nikolai_tchaikovsky
+				}
+				RUS_nikolai_tchaikovsky = { set_nationality = RSO }
+			}
+			RSO = {	
+				if = {
+					limit = {
+						has_character = RUS_vladimir_marushevsky
+					}
+					RUS_vladimir_marushevsky = {
+						add_country_leader_role = {
+							promote_leader = yes
+							country_leader = {
+								ideology = stratocracy
+							}
+						}
+					}
+				}			
+				if = {
+					limit = {
+						has_character = RUS_evgeniy_miller
+					}
+					RUS_evgeniy_miller = {
+						add_country_leader_role = {
+							promote_leader = yes
+							country_leader = {
+								ideology = stratocracy
+							}
+						}
+					}
+				}
+				if = {
+					limit = {
+						has_character = RUS_nikolai_tchaikovsky
+					}
+					RUS_nikolai_tchaikovsky = {
+						add_country_leader_role = {
+							promote_leader = yes
+							country_leader = {
+								ideology = socialism
+								traits = { grandfather_of_the_russian_revolution }
+							}
+						}
+						add_country_leader_role = {
+							promote_leader = yes
+							country_leader = {
+								ideology = agrarian_socialism
+								traits = { grandfather_of_the_russian_revolution }
+							}
+						}
+						add_country_leader_role = {
+							promote_leader = yes
+							country_leader = {
+								ideology = authoritarian_democracy
+								traits = { grandfather_of_the_russian_revolution }
+							}
+						}
+					}
+					else = {
+						create_country_leader = {
+							name = RUS_nikolai_tchaikovsky
+							picture = "gfx/leaders/RUS/RUS_Nikolai_Tchaikovsky.png"
+							ideology = socialism
+							traits = { grandfather_of_the_russian_revolution }
+						}
+						create_country_leader = {
+							name = RUS_nikolai_tchaikovsky
+							picture = "gfx/leaders/RUS/RUS_Nikolai_Tchaikovsky.png"
+							ideology = agrarian_socialism
+							traits = { grandfather_of_the_russian_revolution }
+						}
+						create_country_leader = {
+							name = RUS_nikolai_tchaikovsky
+							picture = "gfx/leaders/RUS/RUS_Nikolai_Tchaikovsky.png"
+							ideology = authoritarian_democracy
+							traits = { grandfather_of_the_russian_revolution }
+						}
+					}
+				}
+				load_oob = RSO_1918
 			}
 		}
 	}
 }
 
-# Allied Landing at Archangelsk
+# Allied Corps 
 country_event = {
 	id = rusrevolt.22
 	title = rusrevolt.22.t
@@ -2235,77 +2366,71 @@ country_event = {
 	picture = GFX_report_event_generic_army
 	fire_only_once = yes
 	trigger = {
-		tag = RUS
+		tag = RSO
+		has_war_with = SOV
 		SOV = {
-			has_war_with = RUS
-			has_war_with = KAR
+			has_war_with = RUS		
 		}
 		NOT = { FRA = { has_country_flag = great_war_loser } }
 	}
 	mean_time_to_happen = { days = 60 }
 	option = {
 		name = rusrevolt.22.a
-		KAR = {
-			set_province_controller = 312
-			set_province_controller = 3338
+		RSO = {
 			hidden_effect = {
-				add_popularity = {
-					ideology = democratic
-					popularity = 0.10
-				}
 				if = {
 					limit = {
 						ENG = { is_in_faction_with = FRA NOT = { has_government = communism } }
 					}
 					ENG = {
 						add_manpower = -13478
-						ENG_edmund_ironside = { set_nationality = KAR }
+						ENG_edmund_ironside = { set_nationality = RSO }
 					}
 					214 = {
 						create_unit = {
-							division = "name = \"236th Infantry Brigade\" division_template = \"Allied Infantry Brigades\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
+							division = "name = \"236th Infantry Brigade\" division_template = \"Allied Expeditionary Force\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
 							owner = PREV
 							prioritize_location = 3338
 							allow_spawning_on_enemy_provs = yes
 						}
 						create_unit = {
-							division = "name = \"6th Battalion Royal Marine Light Infantry\" division_template = \"Allied Infantry Brigades\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
+							division = "name = \"6th Battalion Royal Marine Light Infantry\" division_template = \"Allied Expeditionary Force\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
 							owner = PREV
 							prioritize_location = 3338
 							allow_spawning_on_enemy_provs = yes
 						}
 						create_unit = {
-							division = "name = \"548th (Dundee) Army Troops Company, Royal Engineers\" division_template = \"Allied Infantry Brigades\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
+							division = "name = \"548th (Dundee) Army Troops Company, Royal Engineers\" division_template = \"Allied Expeditionary Force\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
 							owner = PREV
 							prioritize_location = 3338
 							allow_spawning_on_enemy_provs = yes
 						}
 						create_unit = {
-							division = "name = \"2/10th (Cyclist) Battalion, Royal Scots\" division_template = \"Allied Infantry Brigades\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
+							division = "name = \"2/10th (Cyclist) Battalion, Royal Scots\" division_template = \"Allied Expeditionary Force\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
 							owner = PREV
 							prioritize_location = 3338
 							allow_spawning_on_enemy_provs = yes
 						}
 						create_unit = {
-							division = "name = \"52nd Battalion, Manchester Regiment\" division_template = \"Allied Infantry Brigades\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
+							division = "name = \"52nd Battalion, Manchester Regiment\" division_template = \"Allied Expeditionary Force\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
 							owner = PREV
 							prioritize_location = 3338
 							allow_spawning_on_enemy_provs = yes
 						}
 						create_unit = {
-							division = "name = \"Royal Dublin Fusiliers\" division_template = \"Allied Infantry Brigades\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
+							division = "name = \"Royal Dublin Fusiliers\" division_template = \"Allied Expeditionary Force\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
 							owner = PREV
 							prioritize_location = 3338
 							allow_spawning_on_enemy_provs = yes
 						}
 						create_unit = {
-							division = "name = \"Slavo-British Allied Legion\" division_template = \"Allied Infantry Brigades\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
+							division = "name = \"Slavo-British Allied Legion\" division_template = \"Allied Expeditionary Force\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
 							owner = PREV
 							prioritize_location = 3338
 							allow_spawning_on_enemy_provs = yes
 						}
 						create_unit = {
-							division = "name = \"67th and 68th Batteries of the 16th Brigade, Canadian Field Artillery\" division_template = \"Allied Infantry Brigades\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
+							division = "name = \"67th and 68th Batteries of the 16th Brigade, Canadian Field Artillery\" division_template = \"Allied Expeditionary Force\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
 							owner = PREV
 							prioritize_location = 3338
 							allow_spawning_on_enemy_provs = yes
@@ -2319,7 +2444,7 @@ country_event = {
 					USA = { add_manpower = -5000 }
 					214 = {
 						create_unit = {
-							division = "name = \"American Expeditionary Force, North Russia\" division_template = \"Allied Infantry Brigades\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
+							division = "name = \"American Expeditionary Force, North Russia\" division_template = \"Allied Expeditionary Force\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
 							owner = PREV
 							prioritize_location = 3338
 							allow_spawning_on_enemy_provs = yes
@@ -2333,7 +2458,7 @@ country_event = {
 					ITA = { add_manpower = -1350 }
 					214 = {
 						create_unit = {
-							division = "name = \"Corpo di spedizione italiano in Murmania\" division_template = \"Allied Infantry Brigades\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
+							division = "name = \"Corpo di spedizione italiano in Murmania\" division_template = \"Allied Expeditionary Force\" start_experience_factor = 0.7 start_equipment_factor = 1.0"
 							owner = PREV
 							prioritize_location = 3338
 							allow_spawning_on_enemy_provs = yes
@@ -2350,7 +2475,7 @@ country_event = {
 	id = rusrevolt.23
 	hidden = yes
 	trigger = {
-		tag = KAR
+		tag = RSO
 		has_global_flag = north_russian_campaign
 		OR = {
 			surrender_progress > 0.5
@@ -2363,7 +2488,7 @@ country_event = {
 	}
 	fire_only_once = yes
 	immediate = {
-		KAR = {
+		RSO = {
 			remove_ideas = RUS_idea_allied_intervention
 			add_war_support = -0.30
 			add_stability = -0.20
@@ -2375,7 +2500,7 @@ country_event = {
 				ENG_edmund_ironside = { set_nationality = ENG }
 			}
 			delete_unit_template_and_units = {
-				division_template = "Allied Infantry Brigades"
+				division_template = "Allied Expeditionary Force"
 				disband = no
 			}
 			every_other_country = {
@@ -2421,6 +2546,12 @@ country_event = {
 				set_politics = {
 					ruling_party = fascism
 					elections_allowed = no
+				}
+				set_popularities = {
+					democratic = 20
+					neutrality = 25
+					fascism = 45
+					communism = 10
 				}
 			}
 		}
@@ -2832,7 +2963,7 @@ country_event = {
 							}
 						}
 						division_template = {
-							name = "Allied Infantry Brigades"
+							name = "Allied Expeditionary Force"
 							regiments = {
 								infantry = { x = 0 y = 0 }
 								infantry = { x = 0 y = 1 }
