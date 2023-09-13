@@ -69,7 +69,8 @@ GER_great_war = {
 					threat = 10
 					name = GER_schliffenmoltkeplan
 				}
-				add_state_claim = 34
+				add_state_claim = 906
+				add_state_claim = 907
 				add_state_claim = 8
 				add_state_claim = 295
 				add_state_claim = 718
@@ -378,7 +379,7 @@ GER_great_war = {
 		}
 	}
 	GER_fix_belgium_supply = {
-		icon = GFX_decision_generic_operation
+		icon = GFX_decision_generic_railway
 		fire_only_once = yes
 		days_remove = 45
 		allowed = {
@@ -428,6 +429,7 @@ GER_great_war = {
 	}
 	# because ai don't produce them, making germany never do zimmerman
 	GER_add_submarines = {
+		icon = GFX_decision_generic_merge_plant_ship
 		allowed = {
 			original_tag = GER
 		}
@@ -435,6 +437,7 @@ GER_great_war = {
 			OR = {
 				is_ai = yes
 				is_debug = yes
+				difficulty < 1
 			}
 		}
 		available = {
@@ -484,6 +487,130 @@ GER_great_war = {
 					type = submarine
 				}
 			}
+		}
+	}
+	# great war in short timer
+	before_the_leaves_fall = {
+		icon = GFX_decision_eng_blackshirt_march
+		allowed = {
+			always = yes
+		}
+		days_mission_timeout = 75
+		activation = {
+			has_global_flag = kis_war
+			GER = { has_war_with = FRA }
+			OR = {
+				has_war_with = FRA
+				has_war_with = GER
+				has_war_together_with = GER
+				has_war_together_with = FRA
+			}
+			NOT = {
+				has_global_flag = great_war_ends
+				has_global_flag = GER_capitulation
+				has_global_flag = FRA_capitulation
+			}
+		}
+		available = {
+			OR = {
+				GER = {
+					NOT = { has_war_with = FRA }
+				}
+				has_global_flag = great_war_ends
+				has_global_flag = GER_capitulation
+				has_global_flag = FRA_capitulation
+			}
+		}
+		visible = {
+			has_global_flag = kis_war
+			GER = { has_war_with = FRA }
+		}
+		fire_only_once = yes
+		is_good = no
+		timeout_effect = {
+			add_political_power = -100
+			add_war_support = -0.10
+		}
+		complete_effect = {
+			set_global_flag = before_the_leaves_fall_flag
+		}
+	}
+	GER_release_TZN = {
+		allowed = {
+			original_tag = GER
+		}
+		visible = {
+			owns_state = 546
+			has_war_with = FRA
+			has_global_flag = kis_war
+			has_completed_focus = GER_colonial_protectorates
+			NOT = {
+				country_exists = TZN
+				has_global_flag = great_war_ends
+			}
+		}
+		available = {
+			is_subject = no
+			has_capitulated = no
+			controls_state = 546
+		}
+		fire_only_once = yes
+		complete_effect = {
+			hidden_effect = {
+				every_owned_state = {
+					limit = {
+						is_core_of = TZN
+					}
+					transfer_state_to = TZN
+				}
+			}
+			if = {
+				limit = {
+					has_dlc = "Together for Victory"
+				}
+				set_autonomy = {
+					target = TZN
+					autonomy_state = autonomy_colony
+				}
+				else = {
+					puppet = TZN
+				}
+			}
+			GER_paul_von_lettowvorbeck = {
+				set_nationality = TZN
+			}
+			TZN = {
+				division_template = {
+					name = "Ostafrikanische Schutztruppe"
+					division_names_group = GER_GAR_01
+					override_model = GER_infantry_0_entity
+					template_counter = 67
+					regiments = {
+						infantry = {
+							x = 0
+							y = 0
+						}
+						infantry = {
+							x = 0
+							y = 1
+						}
+					}
+					priority = 0
+				}
+				capital_scope = {
+					create_unit = {
+						division = "name = \"Schutztruppe\" division_template = \"Ostafrikanische Schutztruppe\" start_experience_factor = 0.8"
+						owner = TZN
+						count = 10
+						allow_spawning_on_enemy_provs = yes
+					}
+				}
+				add_ideas = GER_idea_schutztruppe_colony
+			}
+		}
+		cost = 25
+		ai_will_do = {
+			factor = 1000
 		}
 	}
 }
@@ -3906,7 +4033,7 @@ GER_prussian_blue_category = {
 
 	GER_prussian_russian_withdrawal = {
 		icon = GFX_decision_eng_blackshirt_march
-		days_mission_timeout = 365
+		days_mission_timeout = 730
 		activation = {
 			NOT = {
 				has_global_flag = prussian_withdrawal
@@ -4718,6 +4845,25 @@ GER_interwar_reichspakt_category = {
 		cost = 25
 		complete_effect = {
 			FROM = {
+				hidden_effect = {
+					if = {
+						limit = {
+							is_ai = yes
+							OR = {
+								tag = LIT
+								tag = UBD
+								tag = BLR
+								tag = UKR
+								tag = POL
+							}
+						}
+						add_ai_strategy = {
+							type = alliance
+							id = ROOT
+							value = 200
+						}
+					}
+				}
 				country_event = generic.5
 			}
 		}
@@ -5835,11 +5981,14 @@ GER_hre_cat = {
 					OR = {
 						state = 6
 						state = 34
+						state = 906
+						state = 907
 						state = 865
 						state = 29
 						state = 785
 						state = 18
 						state = 17
+						state = 863
 						state = 864
 						state = 27
 						state = 20
@@ -6438,7 +6587,7 @@ GER_german_east_asia_cat = {
 
 economy_decisions = {
 	GER_restore_schantung_bahn_control = {
-		icon = infiltrate_state
+		icon = GFX_decision_generic_railway
 
 		allowed = {
 			original_tag = GER
@@ -6446,13 +6595,16 @@ economy_decisions = {
 
 		target_trigger = {
 			FROM = {
-				is_china_or_warlord = yes
+				is_china_or_warlord_no_tt = yes
 				NOT = {
 					gives_military_access_to = ROOT
 					is_in_faction_with = ROOT
 					is_subject_of = ROOT
 				}
-				controls_state = 597
+				OR = {
+					controls_state = 597
+					controls_state = 872
+				}
 			}
 		}
 		visible = {
@@ -6469,9 +6621,17 @@ economy_decisions = {
 					OR = {
 						tag = ROOT
 						is_subject_of = ROOT
-					}				
-					owns_state = 597
-					controls_state = 597
+					}
+					OR = {
+						AND = {
+							owns_state = 597
+							controls_state = 597
+						}
+						AND = {
+							owns_state = 872
+							controls_state = 872
+						}
+					}
 				}
 			}
 		}
