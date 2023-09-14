@@ -1,4 +1,41 @@
 ﻿add_namespace = ww1_persia
+country_event = {
+	title = ww1_persia.1.t
+	desc = ww1_persia.1.d
+	id = ww1_persia.1
+	picture = GFX_report_event_royal_parade
+	
+	fire_only_once = yes
+	mean_time_to_happen = { days = 21 }
+	trigger = {
+		tag = PER
+		date > 1914.6.1
+		has_country_leader = {
+			character = PER_ahmad_shah_qajar
+			ruling_only = no
+		}
+		NOT = {
+			has_country_flag = PER_ahmad_shah_qajar_mature
+		}
+	}
+	
+	immediate = {
+		set_country_flag = PER_ahmad_shah_qajar_mature
+	}
+	
+	option = {
+		name = ww1_persia.1.a
+		PER_ahmad_shah_qajar = {
+			remove_country_leader_trait = underage_monarch
+			set_portraits = {
+				civilian = {
+					large="gfx/leaders/PER/PER_ahmad_shah_qajar.png"
+				}
+			}
+		}
+	}
+}
+
 # Surrender to Allies
 country_event = {
 	id = ww1_persia.5
@@ -8,41 +45,12 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_persia.5.a
-		RUS = {
-			if = {
-				limit = {
-					OR = {
-						has_dlc = "Together for Victory"
-						has_dlc = "Waking the Tiger"
-					}
-				}
-				PER = {
-					set_country_flag = protectorate
-				}
-				set_autonomy = {
-					target = PER
-					autonomous_state = autonomy_tgwr_protectorate
-					freedom_level = 0.9
-				}
-				else = {
-					puppet = PER
-					PER = {
-						add_ideas = protectorate
-					}
-				}
+		trigger = {
+		    NOT = {
+			    has_government = fascism
 			}
 		}
-		hidden_effect = {
-			set_popularities = {
-				democratic = 18
-				neutrality = 75
-				fascism = 0
-				communism = 7
-			}
-			set_politics = {
-				ruling_party = neutrality
-			}
-		}
+		add_country_leader_trait = standing_alone
 		start_civil_war = {
 			ideology = fascism
 			size = 0.6
@@ -56,15 +64,19 @@ country_event = {
 				}
 			}
 			keep_political_leader = yes
+			keep_political_party_members = yes
+			keep_unit_leaders_trigger = { 
+				NOT = {
+					has_id = 189287
+				}
+			}
 			hidden_effect = {
 				create_country_leader = {
-					name = "Persian Central Government"
-					picture = "gfx/leaders/PER/PER_gendarmerie.dds"
-					expire = "1935.1.1"
+					name = PER_persian_central_government
+					picture = "gfx/leaders/PER/PER_gendarmerie.png"					
 					ideology = stratocracy
 					traits = {
-						eng_civil_war_trait
-						trait_stratocracy
+						standing_alone
 					}
 				}
 				set_popularities = {
@@ -94,6 +106,10 @@ country_event = {
 				declare_war_on = {
 					target = RUS
 					type = take_core_state
+				}
+				add_ideas = PER_idea_civil_war
+				ROOT = {
+					add_ideas = PER_idea_civil_war
 				}
 			}
 		}
@@ -133,63 +149,97 @@ country_event = {
 	id = ww1_persia.6
 	title = ww1_persia.6.t
 	desc = ww1_persia.6.d
+	picture = GFX_report_event_generic_defensive_preparations
 	trigger = {
 		tag = PER
 		date > 1921.2.1
+		has_war = no
 		OR = {
 			has_government = neutrality
 			has_government = fascism
 		}
 		OR = {
+			is_subject_of = GER
 			is_subject_of = ENG
-			any_state = {
-				is_core_of = PER
-				is_owned_by = ENG
+			AND = {
+				is_subject = no
+				any_state = {
+					is_core_of = PER
+					is_owned_by = ENG
+				}
 			}
 		}
 	}
 	mean_time_to_happen = {
 		days = 21
 	}
-	option = {
-		name = ww1_persia.6.a
-		if = {
-			limit = {
-				is_subject = yes
-			}
-			OVERLORD = {
-				end_puppet = PREV
-			}
-		}
-		if = {
-			limit = {
-				has_idea = idea_victors_of_wwi
-			}
-			remove_ideas = idea_victors_of_wwi
-		}
-		retire_ideology_leader = neutrality
-		set_politics = {
-			ruling_party = neutrality
-		}
-		create_country_leader = {
-			name = "Reza Khan"
-			picture = "Portrait_Iran_Reza_Shah_Pahlavi.dds"
-			expire = "1965.1.1"
-			ideology = despotism
-			traits = {
-				trait_despotism
-			}
-		}
-		every_state = {
-			limit = {
-				is_core_of = PER
-				OR = {
-					is_owned_by = ENG
-					is_owned_by = RUS
+	immediate = {
+		hidden_effect = {
+			if = {
+				limit = {
+					is_subject = yes
+				}
+				OVERLORD = {
+					end_puppet = PREV
 				}
 			}
-			PER = {
-				transfer_state = PREV
+			every_state = {
+				limit = {
+					is_core_of = PER
+					OR = {
+						is_owned_by = ENG
+						is_owned_by = RUS
+					}
+				}
+				PER = {
+					transfer_state = PREV
+				}
+			}
+		}
+	}
+	option = {
+		name = ww1_persia.6.a
+		hidden_effect = {
+			if = {
+				limit = {
+					has_idea = idea_victors_of_wwi
+				}
+				remove_ideas = idea_victors_of_wwi
+			}
+			if = {
+				limit = {
+					has_idea = idea_armistice
+				}
+				remove_ideas = idea_armistice
+			}
+			if = {
+				limit = {
+					has_idea = idea_army_restrictions
+				}
+				remove_ideas = idea_army_restrictions
+			}
+		}
+		set_politics = {
+			ruling_party = neutrality
+			elections_allowed = no
+		}
+		PER_ahmad_shah_qajar = {
+			remove_country_leader_role = {
+				ideology = semi_constitutional_monarchy
+			}
+		}
+		PER_reza_khan = {
+			add_country_leader_role = {
+				promote_leader = yes
+				country_leader = {
+					ideology = stratocracy
+				}
+			}
+			add_country_leader_role = {
+				promote_leader = yes
+				country_leader = {
+					ideology = despotism
+				}
 			}
 		}
 		add_political_power = -100
@@ -201,38 +251,45 @@ country_event = {
 	}
 	option = {
 		name = ww1_persia.6.b
-		if = {
-			limit = {
-				is_subject_of = ENG
-			}
-			ENG = {
-				end_puppet = PER
-			}
-		}
-		every_state = {
-			limit = {
-				is_core_of = PER
-				OR = {
-					is_owned_by = ENG
-					is_owned_by = RUS
-				}
-			}
-			PER = {
-				transfer_state = PREV
-			}
-		}
 		start_civil_war = {
 			ideology = fascism
-			size = 0.2
+			size = 0.5
 			keep_political_leader = yes
-			hidden_effect = {
-				create_country_leader = {
-					name = "Reza Khan"
-					picture = "Portrait_Iran_Reza_Shah_Pahlavi.dds"
-					expire = "1965.1.1"
-					ideology = stratocracy
-					traits = {
-						trait_stratocracy
+			keep_political_party_members = yes
+			set_country_flag = PER_pahlavi_flag
+			set_cosmetic_tag = PER_gendarmerie
+			PREV = {
+				PER_reza_khan = {
+					set_character_flag = PER_pahlavi_flag
+					set_nationality = PREV.PREV
+				}
+				PER_abdollah_amir_tahmasebi = {
+					set_character_flag = PER_pahlavi_flag
+					set_nationality = PREV.PREV
+				}
+				PER_karim_buzarjomehri = {
+					set_character_flag = PER_pahlavi_flag
+					set_nationality = PREV.PREV
+				}
+			}
+			keep_unit_leaders_trigger = {
+				OR = {
+					has_trait = trait_royal
+					has_trait = trait_royalist
+					has_trait = politically_connected
+				}
+			}
+			PER_reza_khan = {
+				add_country_leader_role = {
+					promote_leader = yes
+					country_leader = {
+						ideology = stratocracy
+					}
+				}
+				add_country_leader_role = {
+					promote_leader = yes
+					country_leader = {
+						ideology = despotism
 					}
 				}
 			}
@@ -252,16 +309,18 @@ country_event = {
 	id = ww1_persia.7
 	title = ww1_persia.7.t
 	desc = ww1_persia.7.d
+	picture = GFX_report_event_royal_parade
 	trigger = {
 		original_tag = PER
+		is_subject = no
 		has_war = no
 		OR = {
 			is_subject = no
 			has_government = neutrality
-		}		
+		}
 		date > 1925.12.1
 		has_country_leader = {
-			name = "Reza Khan"
+			character = PER_reza_khan
 			ruling_only = yes
 		}
 	}
@@ -271,7 +330,6 @@ country_event = {
 	option = {
 		name = ww1_persia.7.a
 		hidden_effect = {
-			retire_country_leader = yes
 			set_popularities = {
 				democratic = 25
 				neutrality = 55
@@ -280,6 +338,7 @@ country_event = {
 			}
 			set_politics = {
 				ruling_party = neutrality
+				elections_allowed = no
 			}
 			set_cosmetic_tag = PER_pahlavi
 		}
@@ -288,14 +347,54 @@ country_event = {
 			long_name = PER_pahlavi_dynasty
 			name = PER_pahlavi_dynasty
 		}
-		create_country_leader = {
-			name = "Reza Shah Pahlavi"
-			picture = "Portrait_Iran_Reza_Shah_Pahlavi.dds"
-			expire = "1965.1.1"
-			ideology = autocracy
-			traits = {
-				trait_autocracy
+		PER_reza_khan = {
+			remove_country_leader_role = {
+				ideology = despotism
+			}
+			set_character_name = PER_reza_shah_pahlavi
+			add_country_leader_role = {
+				promote_leader = yes
+				country_leader = {
+					ideology = autocracy
+				}
 			}
 		}
+	}
+}
+
+# No need to uprise, war is over
+# and if they keep to fight, they break entente neutrality
+country_event = {
+	id = ww1_persia.8
+	picture = GFX_report_event_tur_turkish_soldiers
+	trigger = {
+		tag = PER
+		any_other_country = {
+			original_tag = PER
+			has_country_flag = PER_gendarmerie_flag
+			has_war_with = ROOT
+		}
+		OR = {
+			has_global_flag = GER_capitulation
+			has_global_flag = FRA_capitulation
+		}
+	}
+	mean_time_to_happen = { days = 0 }
+	fire_only_once = yes
+	hidden = yes
+	immediate = {
+		random_other_country = {
+			limit = {
+				original_tag = PER
+				has_country_flag = PER_gendarmerie_flag
+				has_war_with = ROOT
+			}
+			ROOT = {
+				annex_country = {
+					target = PREV
+					transfer_troops = yes
+				}
+			}
+		}	
 	}
 }

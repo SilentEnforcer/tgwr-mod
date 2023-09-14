@@ -1,7 +1,11 @@
 political_actions = {
 	CAN_britain_seize_the_power = {
+		icon = GFX_decision_eng_support_imperialist_coup
 		allowed = {
-			original_tag = CAN
+			OR = {
+				original_tag = CAN
+				original_tag = AST
+			}
 		}
 		available = {
 			neutrality > 0.5
@@ -10,7 +14,9 @@ political_actions = {
 			NOT = {
 				has_government = neutrality
 			}	
-			has_country_flag = canada_is_britain
+			has_country_flag = has_british_monarchy
+			is_subject = no
+			has_capitulated = no
 		}
 		fire_only_once = yes
 		ai_will_do = {
@@ -31,53 +37,74 @@ political_actions = {
 			}
 		}
 	}
-	CAN_return_to_britain = {
+}
+operations = {
+	CAN_bring_king_home = {
+		icon = eng_abdication_crisis
 		allowed = {
-			original_tag = CAN
+			OR = {
+				original_tag = CAN
+				original_tag = AST
+			}
 		}
 		available = {
-			always = no
-			# OR = {
-			# 	ENG = {
-			# 		is_subject_of = CAN
-			# 		owns_state = 120
-			# 		owns_state = 121
-			# 		owns_state = 122
-			# 		owns_state = 123
-			# 		owns_state = 125
-			# 		owns_state = 126
-			# 		owns_state = 127
-			# 		owns_state = 128
-			# 		owns_state = 129
-			# 		owns_state = 130
-			# 		owns_state = 131
-			# 		owns_state = 132
-			# 		owns_state = 133
-			# 		owns_state = 136
-			# 		owns_state = 338
-			# 	}
-			# 	CAN = {
-			# 		owns_state = 120
-			# 		owns_state = 121
-			# 		owns_state = 122
-			# 		owns_state = 123
-			# 		owns_state = 125
-			# 		owns_state = 126
-			# 		owns_state = 127
-			# 		owns_state = 128
-			# 		owns_state = 129
-			# 		owns_state = 130
-			# 		owns_state = 131
-			# 		owns_state = 132
-			# 		owns_state = 133
-			# 		owns_state = 136
-			# 		owns_state = 338
-			# 	}
-			# }
+			is_subject = no
+			has_capitulated = no
+			if = {
+				limit = { has_war = yes }
+				surrender_progress < 0.20
+			}
+			else = {
+				has_war = no
+			}
+			OR = {
+				ENG = {
+					if = {
+						limit = { has_war = yes }
+						surrender_progress < 0.20
+					}
+					else = {
+						has_war = no
+					}
+					is_subject_of = ROOT
+					has_capitulated = no
+					owns_state = 120
+					owns_state = 121
+					owns_state = 122
+					owns_state = 123
+					owns_state = 125
+					owns_state = 126
+					owns_state = 127
+					owns_state = 128
+					owns_state = 129
+					owns_state = 130
+					owns_state = 131
+					owns_state = 132
+					owns_state = 133
+					owns_state = 136
+					owns_state = 338
+				}
+				ROOT = {
+					owns_state = 120
+					owns_state = 121
+					owns_state = 122
+					owns_state = 123
+					owns_state = 125
+					owns_state = 126
+					owns_state = 127
+					owns_state = 128
+					owns_state = 129
+					owns_state = 130
+					owns_state = 131
+					owns_state = 132
+					owns_state = 133
+					owns_state = 136
+					owns_state = 338
+				}
+			}
 		}
 		visible = {
-			always = no
-			# has_country_flag = canada_is_britain
+			has_country_flag = has_british_monarchy
 		}
 		fire_only_once = yes
 		days_remove = 50
@@ -87,7 +114,7 @@ political_actions = {
 		cancel_trigger = {
 			hidden_trigger = {
 				OR = {
-					CAN = {
+					ROOT = {
 						NOT = {
 							owns_state = 120
 							owns_state = 121
@@ -108,10 +135,10 @@ political_actions = {
 					}
 					ENG = {
 						exists = yes
-						NOT = { is_subject_of = CAN }
+						NOT = { is_subject_of = ROOT }
 					}
 					ENG = {
-						is_subject_of = CAN
+						is_subject_of = ROOT
 						NOT = {
 							owns_state = 120
 							owns_state = 121
@@ -134,368 +161,39 @@ political_actions = {
 			}
 		}
 		remove_effect = {
-			if = {
-				limit = {
-					ENG = {
-						exists = yes
-						is_subject_of = CAN
-					}
-				}
-				every_state = {
-					limit = {
-						is_owned_by = CAN
-						is_core_of = ENG
-					}
-					ENG = { transfer_state = PREV }
-				}
-				CAN = {
-					end_puppet = ENG
-				}
-			}
-			else = {
-				every_state = {
-					limit = {
-						is_owned_by = CAN
-						is_core_of = ENG
-					}
-					ENG = { transfer_state = PREV }
-				}
-			}
-			every_state = {
-				limit = {
-					is_core_of = CAN
-					is_core_of = ENG
-				}
-				remove_core_of = CAN
-			}
-			every_state = {
-				limit = {
-					is_claimed_by = CAN
-					is_claimed_by = ENG
-				}
-				remove_claim_by = CAN
-			}
-			ENG = {
-				set_politics = {
-					ruling_party = neutrality
-					elections_allowed = yes
-				}
-				set_popularities = {
-					democratic = 36
-					neutrality = 37
-					communism = 12
-					fascism = 15
-				}
-			}
-			if = {
-				limit = {
-					CAN = {
-						has_country_leader = {
-							name = "George V"
-							ruling_only = no
-						}
-					}
-				}
-				CAN = {
-					retire_ideology_leader = neutrality
-				}
-				ENG = {
-					set_party_name = {
-						ideology = neutrality
-						long_name = ENG_windsor_long
-						name = ENG_windsor
-					}
-					create_country_leader = {
-						name = "George V"
-						picture = "gfx/leaders/ENG/ENG_george_v.dds"
-						expire = "1935.1.1"
-						ideology = autocracy
-						traits = {
-							trait_autocracy
-						}
-					}
-				}
-			}
-			else_if = {
-				limit = {
-					CAN = {
-						has_country_leader = {
-							name = "Edward VIII"
-							ruling_only = no
-						}
-					}
-				}
-				CAN = {
-					retire_ideology_leader = neutrality
-				}
-				ENG = {
-					set_party_name = {
-						ideology = neutrality
-						long_name = ENG_windsor_long
-						name = ENG_windsor
-					}
-					create_country_leader = {
-						name = "Edward VIII"
-						picture = "ENG_edward_viii.dds"
-						expire = "1935.1.1"
-						ideology = autocracy
-						traits = {
-							revolution_trauma
-							trait_autocracy
-						}
-					}
-				}
-			}
-			else_if = {
-				limit = {
-					CAN = {
-						has_country_leader = {
-							name = "William V"
-							ruling_only = no
-						}
-					}
-				}
-				CAN = {
-					retire_ideology_leader = neutrality
-				}
-				ENG = {
-					set_party_name = {
-						ideology = neutrality
-						long_name = GER_neutrality_party
-						name = GER_neutrality_party
-					}
-					create_country_leader = {
-						name = "William V"
-						picture = "ENG_August_Wilhelm.dds"
-						expire = "1935.1.1"
-						ideology = autocracy
-						traits = {
-							auwi
-							trait_autocracy
-						}
-					}
-				}
-			}
-			every_country = {
-				limit = {
-					is_subject_of = CAN
-				}
-				if = {
-					limit = {
-						has_dlc = "Together for Victory"
-					}
-					if = {
-						limit = {
-							has_autonomy_state = autonomy_colony
-						}
-						CAN = { end_puppet = PREV }
-						ENG = {
-							set_autonomy = {
-								target = PREV
-								autonomy_state = autonomy_colony
-							}
-						}
-					}
-					else_if = {
-						limit = {
-							has_autonomy_state = autonomy_dominion
-						}
-						CAN = { end_puppet = PREV }
-						ENG = {
-							set_autonomy = {
-								target = PREV
-								autonomy_state = autonomy_dominion
-							}
-						}
-					}
-					else_if = {
-						limit = {
-							has_autonomy_state = autonomy_integrated_puppet
-						}
-						CAN = { end_puppet = PREV }
-						ENG = {
-							set_autonomy = {
-								target = PREV
-								autonomy_state = autonomy_integrated_puppet
-							}
-						}
-					}
-					else_if = {
-						limit = {
-							has_autonomy_state = autonomy_puppet
-						}
-						CAN = { end_puppet = PREV }
-						ENG = {
-							set_autonomy = {
-								target = PREV
-								autonomy_state = autonomy_puppet
-							}
-						}
-					}
-					else_if = {
-						limit = {
-							has_autonomy_state = autonomy_satellite
-						}
-						CAN = { end_puppet = PREV }
-						ENG = {
-							set_autonomy = {
-								target = PREV
-								autonomy_state = autonomy_satellite
-							}
-						}
-					}
-					else_if = {
-						limit = {
-							has_autonomy_state = autonomy_tgwr_protectorate
-						}
-						CAN = { end_puppet = PREV }
-						ENG = {
-							set_autonomy = {
-								target = PREV
-								autonomy_state = autonomy_tgwr_protectorate
-							}
-						}
-					}
-					else_if = {
-						limit = {
-							has_autonomy_state = autonomy_tgwr_informal_protectorate
-						}
-						CAN = { end_puppet = PREV }
-						ENG = {
-							set_autonomy = {
-								target = PREV
-								autonomy_state = autonomy_tgwr_informal_protectorate
-							}
-						}
-					}
-					else_if = {
-						limit = {
-							has_autonomy_state = autonomy_supervised_state
-						}
-						CAN = { end_puppet = PREV }
-						ENG = {
-							set_autonomy = {
-								target = PREV
-								autonomy_state = autonomy_supervised_state
-							}
-						}
-					}
-					else = {
-						CAN = { end_puppet = PREV }
-						ENG = {
-							set_autonomy = {
-								target = PREV
-								autonomy_state = autonomy_puppet
-							}
-						}
-					}
-				}
-				else = {
-					CAN = { end_puppet = PREV }
-					ENG = { puppet = PREV }
-				}
-			}
-			ENG = {
-				if = {
-					limit = {
-						has_dlc = "Together for Victory"
-					}
-					set_autonomy = {
-						target = CAN
-						autonomy_state = autonomy_dominion
-					}
-				}
-				else = {
-					puppet = CAN
-				}
-				CAN = { set_cosmetic_tag = CAN_UK }
-				drop_cosmetic_tag = yes #No Hong Kong
-			}
-			CAN = {
-				set_politics = {
-					ruling_party = democratic
-					elections_allowed = yes
-				}
-				set_popularities = {
-					democratic = 52
-					neutrality = 35
-					communism = 3
-					fascism = 10
-				}
-				remove_ideas = ENG_imperial_refuge_neutrality
-				clr_country_flag = canada_is_britain
-			}
-			JAM = {
-				if = {
-					limit = {
-						is_subject_of = ENG
-					}
-					set_politics = {
-						ruling_party = neutrality
-						elections_allowed = no
-					}
-					set_popularities = {
-						democratic = 39
-						fascism = 2
-						communism = 1
-						neutrality = 58
-					}
-				}
-			}
-			AST = {
-				if = {
-					limit = {
-						is_subject_of = ENG
-					}
-					set_politics = {
-						ruling_party = democratic
-						elections_allowed = yes
-					}
-					set_popularities = {
-						fascism = 0
-						communism = 0
-						democratic = 83
-						neutrality = 17
-					}
-				}
-			}
-			NZL = {
-				if = {
-					limit = {
-						is_subject_of = ENG
-					}
-					set_politics = {
-						ruling_party = democratic
-						elections_allowed = yes
-					}
-					set_popularities = {
-						democratic = 90
-						fascism = 0
-						communism = 1
-						neutrality = 9
-					}
-				}
-			}
+			country_event = canada.74
 		}
 	}
 }
 
-foreign_politics = {
+ENG_interwar_entente_category = {
 	CAN_entente = {
+		icon = GFX_decision_eng_ally_imperialist_coup
 		allowed = {
-			original_tag = CAN
+			OR = {
+				original_tag = CAN
+				original_tag = AST
+			}
 		}
 		available = {
-			is_subject = no
+			OR = {
+				is_in_faction = no
+				is_in_faction_with = FROM
+			}
 			is_in_faction = no
-			has_war = no			
+			has_war = no
+			FROM = {
+				is_in_faction = no
+				has_war = no
+				has_civil_war = no
+			}
 		}
 		visible = {
+			is_subject = no
 			is_faction_leader = no
-			has_country_flag = canada_is_britain
-			any_country = {
-				exists = yes
-				has_country_flag = FRA_nationalist_france_flag
+			has_country_flag = has_british_monarchy
+			FROM = {
+				is_subject = no
 				NOT = {
 					has_government = communism
 				}
@@ -508,14 +206,43 @@ foreign_politics = {
 		}
 		target_trigger = {
 			FROM = {
-				tag = NFA
+				original_tag = FRA
+				NOT = {
+					has_government = communism
+					has_country_flag = FRA_socialist_france_flag
+				}
 			}
 		}
 		complete_effect = {
-			hidden_effect = { set_country_flag = interwar_factions }
-			create_faction = entente
-			NFA = {
-				country_event = ww1_france.28
+			if = {
+				limit = {
+					FROM = { is_faction_leader = yes }
+				}	
+				if = {
+					limit = {
+						is_in_faction_with = FROM
+						FROM = { is_ai = yes }
+					}
+					set_faction_leader = yes
+				}
+				else = {
+					FROM = {
+						country_event = {
+							id = generic.2
+							hours = 1
+						}
+					}
+				}
+			}
+			else = {
+				set_global_flag = imperial_entente_formed
+				create_faction = entente
+				FROM = {
+					country_event = {
+						id = generic.5
+						hours = 1
+					}
+				}
 			}
 		}
 	}

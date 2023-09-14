@@ -3,6 +3,13 @@ focus_tree = {
 	id = generic_focus	
 	country = {
 		factor = 1
+		modifier = {
+			factor = 0
+			OR = {
+				has_autonomy_state = autonomy_tgwr_concession
+				has_idea = concession_state
+			}	
+		}	
 	}	
 	default = yes
 	reset_on_civilwar = no
@@ -371,9 +378,19 @@ focus_tree = {
 		icon = GFX_goal_generic_propaganda
 		completion_reward = { 
 			add_war_support = 0.05
+			if = {
+				limit = {
+					has_idea = neutrality_idea
+				}
+				remove_ideas = neutrality_idea
+			}	
 		}
 		available = {
 			is_subject = no
+			NOT = {
+				has_country_leader_with_trait = standing_alone
+				has_global_flag = great_war_ends
+			}
 		}
 		ai_will_do = {
 			factor = 1
@@ -408,7 +425,10 @@ focus_tree = {
 		icon = GFX_focus_deal_with_german_empire
 
 		available = {
-		 	NOT = { has_war_with = GER }
+		 	NOT = {
+				has_war_with = GER
+				is_in_faction_with = FRA
+			}
 		}
 		bypass = {
 			GER = { is_faction_leader = no }
@@ -462,7 +482,10 @@ focus_tree = {
 		icon = GFX_focus_chi_reach_out_to_france
 
 		available = {
-			NOT = { has_war_with = FRA }			
+			NOT = {
+				has_war_with = FRA
+				is_in_faction_with = GER
+			}			
 		}
 		bypass = {
 			FRA = { is_faction_leader = no }
@@ -555,6 +578,7 @@ focus_tree = {
 		y = 3
 		cost = 10
 		completion_reward = {
+			send_embargo = GER
 			add_opinion_modifier = { target = GER modifier = minor_sanctions }
 			add_opinion_modifier = { target = GER modifier = minor_sanctions_relations } 
 		}
@@ -584,6 +608,7 @@ focus_tree = {
 		y = 3
 		cost = 10
 		completion_reward = {
+			send_embargo = FRA
 			add_opinion_modifier = { target = FRA modifier = minor_sanctions }
 			add_opinion_modifier = { target = FRA modifier = minor_sanctions_relations } 
 		}
@@ -607,13 +632,22 @@ focus_tree = {
 	 	available = {
 	 		is_subject = no
 			is_in_faction = no
-			GER = { is_faction_leader = yes }			
+			OR = {
+				GER = { is_faction_leader = yes }
+				AND = {
+					AUH = { is_faction_leader = yes }
+					GER = { is_in_faction_with = AUH }
+					}
+				}		
 	 		NOT = { has_war_with = GER }
 	 		NOT = { has_global_flag = great_war_ends }
 		}
 		bypass = {
 			OR = {
-				GER = { is_faction_leader = no }
+				AND = {
+					GER = { is_faction_leader = no }
+					AUH = { is_faction_leader = no }
+				}
 				AND = {
 					hidden_trigger = {
 						is_ai = yes
@@ -621,12 +655,26 @@ focus_tree = {
 					is_major = no
 					has_idea = CHI_idea_warlord_neutrality
 				}
+				AND = {
+					is_in_faction_with = GER
+					NOT = { has_global_flag = great_war_ends }
+				}
 			}
 		}
 		completion_reward = {
-			GER = {
-				country_event = { id = generic.2 days = 2 }
+			if = {
+				limit = {
+					GER = { is_faction_leader = yes }
+				}
+				GER = {
+					country_event = { id = generic.2 days = 2 }
+				}
 			}
+			else = {
+				AUH = {
+					country_event = { id = generic.2 days = 2 }
+				}
+			}			
 		}
 		ai_will_do = { 
 			base = 0 
@@ -656,6 +704,10 @@ focus_tree = {
 					}
 					is_major = no
 					has_idea = CHI_idea_warlord_neutrality
+				}
+				AND = {
+					is_in_faction_with = FRA
+					NOT = { has_global_flag = great_war_ends }
 				}
 			}
 		}
@@ -687,6 +739,10 @@ focus_tree = {
 		icon = GFX_goal_generic_neutrality_focus
 		available = {
 			is_subject = no
+			NOT = {
+				is_in_faction_with = GER
+				is_in_faction_with = FRA
+			}
 		}
 		completion_reward = {
 			if = { 
@@ -724,6 +780,11 @@ focus_tree = {
 		id = interventionism_focus
 		prerequisite = { focus = neutrality_focus }
 		icon = GFX_goal_generic_political_pressure
+		available = {
+			NOT = {
+				has_country_leader_with_trait = standing_alone
+			}
+		}
 		completion_reward = { 
 			if = { 
 				limit = { has_idea = neutrality_idea } 
@@ -859,9 +920,9 @@ focus_tree = {
 			army_experience = 10
 			navy_experience = 10
 			air_experience = 10
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = land_doc_bonus 
-				bonus = 1.0 
+				cost_reduction = 0.5
 				uses = 1
 				category = land_doctrine 
 			}
@@ -955,9 +1016,9 @@ focus_tree = {
 		icon = GFX_goal_generic_allies_build_infantry
 		completion_reward = { 
 			army_experience = 5
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = land_doc_bonus
-				bonus = 0.5
+				cost_reduction = 0.25
 				uses = 1
 				category = land_doctrine
 			}
@@ -1049,9 +1110,9 @@ focus_tree = {
 		icon = GFX_goal_generic_army_doctrines
 		completion_reward = { 
 			army_experience = 5
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = land_doc_bonus
-				bonus = 0.5
+				cost_reduction = 0.25
 				uses = 1
 				category = land_doctrine
 			}
@@ -1131,12 +1192,7 @@ focus_tree = {
 				name = special_forces_bonus
 				bonus = 0.5
 				uses = 1
-				technology = paratroopers
-				technology = paratroopers2
-				technology = marines
-				technology = marines2
-				technology = tech_mountaineers
-				technology = tech_mountaineers2
+				category = cat_special_forces_generic
 			}
 		}
 		cost = 10
@@ -1172,9 +1228,9 @@ focus_tree = {
 		icon = GFX_goal_generic_army_doctrines
 		completion_reward = {
 			army_experience = 5
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = land_doc_bonus
-				bonus = 0.5
+				cost_reduction = 0.25
 				uses = 1
 				category = land_doctrine
 			}
@@ -1211,9 +1267,9 @@ focus_tree = {
 		icon = GFX_goal_generic_army_doctrines
 		completion_reward = {
 			army_experience = 5
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = land_doc_bonus
-				bonus = 0.5
+				cost_reduction = 0.25
 				uses = 1
 				category = land_doctrine
 			}
@@ -1291,7 +1347,7 @@ focus_tree = {
 		prerequisite = { focus = ww1_armor_effort_1 }
 		prerequisite = { focus = ww1_army_motorization_focus }
 		available = { }
-		icon = GFX_goal_generic_army_tanks
+		icon = GFX_focus_generic_mark_IV_tank
 		completion_reward = {
 			army_experience = 10
 			add_tech_bonus = {
@@ -1320,9 +1376,9 @@ focus_tree = {
 					instant_build = yes
 				}
 			}			
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = air_doc_bonus
-				bonus = 0.5
+				cost_reduction = 0.25
 				uses = 1
 				category = air_doctrine
 			}			
@@ -1373,9 +1429,9 @@ focus_tree = {
 					ROOT = { set_country_flag = aviation_effort_AB }
 				}
 			}
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = air_doc_bonus
-				bonus = 0.5
+				cost_reduction = 0.25
 				uses = 1
 				category = air_doctrine
 			}
@@ -1384,7 +1440,7 @@ focus_tree = {
 		x = 22
 		y = 0
 		ai_will_do = {
-		    factor = 10
+			factor = 10
 			modifier = {
 				factor = 0
 				num_of_civilian_factories < 15
@@ -1417,8 +1473,7 @@ focus_tree = {
 				name = ww1_airship_focus
 				bonus = 0.5 
 				uses = 1 
-				technology = airship_bomber
-				technology = airship_bomber2
+				category = airship
 			}
 		}
 		cost = 10
@@ -1473,9 +1528,9 @@ focus_tree = {
 		icon = GFX_goal_generic_air_doctrine
 		completion_reward = {
 			air_experience = 10
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name =  air_doc_bonus
-				bonus = 0.5
+				cost_reduction = 0.25
 				uses = 1
 				category = air_doctrine
 			}
@@ -1513,9 +1568,9 @@ focus_tree = {
 		icon = GFX_goal_generic_build_airforce
 		completion_reward = {
 			air_experience = 10
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name =  air_doc_bonus
-				bonus = 0.5
+				cost_reduction = 0.25
 				uses = 1
 				category = air_doctrine
 			}
@@ -1537,8 +1592,7 @@ focus_tree = {
 				bonus = 0.5
 				uses = 1
 				category = tactical_bomber
-				technology = strategic_bomber1
-				technology = strategic_bomber2
+				category = cat_strategic_bomber
 			}
 		}
 		cost = 10
@@ -1555,9 +1609,9 @@ focus_tree = {
 		icon = GFX_goal_generic_air_doctrine
 		completion_reward = {
 			air_experience = 10
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name =  air_doc_bonus
-				bonus = 0.5
+				cost_reduction = 0.25
 				uses = 1
 				category = air_doctrine
 			}
@@ -1618,8 +1672,7 @@ focus_tree = {
 				bonus = 0.5
 				uses = 1
 				category = tactical_bomber
-				technology = strategic_bomber1
-				technology = strategic_bomber2
+				category = cat_strategic_bomber
 			}
 		}
 		cost = 10
@@ -1635,9 +1688,9 @@ focus_tree = {
 		icon = GFX_goal_generic_air_doctrine
 		completion_reward = {
 			air_experience = 10
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name =  air_doc_bonus
-				bonus = 0.5
+				cost_reduction = 0.25
 				uses = 1
 				category = air_doctrine
 			}
@@ -1653,7 +1706,7 @@ focus_tree = {
 		id = ww1_air_innovation
 		prerequisite = { focus = ww1_aviation_effort_5 }
 		available = { }
-		icon = GFX_goal_generic_air_fighter2
+		icon = GFX_focus_plane_factory
 		completion_reward = {
 			air_experience = 10
 			add_tech_bonus = {
@@ -2826,11 +2879,11 @@ focus_tree = {
 		icon = GFX_hoi4tgw_navalcanons
 		completion_reward = {
 			navy_experience = 10
-			add_tech_bonus = {
-				name = ww1_newnavalcanons_1
-				bonus = 0.5
+			add_doctrine_cost_reduction = {
+				name = ww1_newnavalcanons_1 
+				cost_reduction = 0.25
 				uses = 1
-				category = naval_doctrine
+				category = naval_doctrine 
 			}
 		}
 		cost = 10
@@ -2889,11 +2942,11 @@ focus_tree = {
 		icon = GFX_goal_generic_army_artillery
 		completion_reward = {
 			navy_experience = 10
-			add_tech_bonus = {
-				name = ww1_newnavalcanons_2
-				bonus = 0.5
+			add_doctrine_cost_reduction = {
+				name = ww1_newnavalcanons_2 
+				cost_reduction = 0.25
 				uses = 1
-				category = naval_doctrine
+				category = naval_doctrine 
 			}
 		}
 		cost = 10
@@ -2969,12 +3022,12 @@ focus_tree = {
 		}
 
 		completion_reward = {
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = fleet_in_being_bonus
-				bonus = 0.5
+				cost_reduction = 0.25
 				uses = 2
 				category = fleet_in_being_tree
-			}
+			}		
 		}
 		cost = 10
 		x = 36
@@ -3117,11 +3170,11 @@ focus_tree = {
 		icon = GFX_goal_generic_army_artillery
 		completion_reward = {
 			navy_experience = 10
-			add_tech_bonus = {
-				name = ww1_newnavalcanons_3
-				bonus = 0.5
+			add_doctrine_cost_reduction = {
+				name = ww1_newnavalcanons_3 
+				cost_reduction = 0.25
 				uses = 1
-				category = naval_doctrine
+				category = naval_doctrine 
 			}
 		}
 		cost = 10

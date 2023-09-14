@@ -990,7 +990,8 @@ ITA_internal_factions = {
 
 peace_deals = {
 	ITA_sue_for_peace_TUR = {
-		icon = GFX_decision_generic_ignite_civil_war	
+		name = sue_for_peace_TUR
+		icon = GFX_decision_eng_trade_unions_support	
 		allowed = {
 			tag = ITA
 		}
@@ -1003,9 +1004,24 @@ peace_deals = {
 		}
 		visible = {
 			has_global_flag = italo_turkish_war
-			NOT = { has_country_flag = ITA_lybian_war_mission_timeout }
-			NOT = { has_global_flag = kis_war }
-			NOT = { has_global_flag = italo_turkish_war_ends }
+			NOT = {
+				has_country_flag = ITA_libyan_war_mission_timeout
+				has_global_flag = italo_turkish_war_ends
+			}
+			if = {
+				limit = {
+					has_global_flag = kis_war
+				}
+				OR = {
+					has_global_flag = great_war_ends
+					NOT = {
+						is_in_faction_with = FRA
+						is_in_faction_with = GER
+						has_war_with = FRA
+						has_war_with = GER
+					}
+				}
+			}
 		}
 		fire_only_once = yes
 		ai_will_do = {
@@ -1027,12 +1043,12 @@ peace_deals = {
 						is_in_faction_with = TUR
 					}	
 					NOT = {
-						tag = TUR
+						original_tag = TUR
 					}
 					has_war_with = ROOT
 				}
 			}
-			# They give up too quick
+			# They give up too quick			## Guess you were wrong
 			modifier = {
 				add = 500
 				NOT = {
@@ -1047,7 +1063,19 @@ peace_deals = {
 						}
 					}
 				}
-				casualties > 30000
+				casualties > 20000
+			}
+			modifier = {
+				add = 500
+				NOT = {
+					any_other_Country = {
+						NOT = {
+							original_tag = TUR
+						}
+						has_war_with = TUR
+					}
+				}				
+				casualties > 500000
 			}
 		}
 		complete_effect = {
@@ -1057,10 +1085,13 @@ peace_deals = {
 		}
 	}
 	
-	ITA_lybian_war_mission = {	
+	ITA_libyan_war_mission = {	
 		icon = GFX_decision_generic_ignite_civil_war
 		allowed = {
-			tag = ITA
+			OR = {
+				tag = ITA
+				tag = TUR
+			}
 		}		
 		available = {
 			OR = {
@@ -1070,7 +1101,7 @@ peace_deals = {
 					TUR = { is_in_faction = yes }
 					ITA = { is_in_faction = yes }
 				}
-				AND = {
+				ITA = {
 					has_full_control_of_state = 448
 					has_full_control_of_state = 450
 					has_full_control_of_state = 661
@@ -1084,101 +1115,18 @@ peace_deals = {
 			NOT = { has_global_flag = kis_war }
 		}
 		timeout_effect = {
-			set_country_flag = ITA_lybian_war_mission_timeout
-			ITA = { country_event = { id = ww1_italianturkish.2 } }
+			ITA = {
+				set_country_flag = ITA_libyan_war_mission_timeout
+				country_event = { id = ww1_italianturkish.2 }
+			}
 		}
 		fire_only_once = yes
 		days_mission_timeout = 450
 		is_good = no
 	}
-}
-foreign_politics = {
-	ITA_claim_corsica = {
-		icon = GFX_decision_generic_operation
-		allowed = {
-			original_tag = ITA
-		}
-		available = {
-			has_war_with = FRA
-			NOT = { owns_state = 1 }
-		}
-		ai_will_do = {
-			factor = 100
-		}
-		cost = 25
-		visible = {
-			has_war_with = FRA
-			NOT = { owns_state = 1 }
-		}
-		fire_only_once = yes
-		complete_effect = {
-			add_state_claim = 1
-		}
-	}
-	ITA_occupy_malta = {
-		icon = GFX_decision_generic_operation
-		allowed = {
-			original_tag = ITA
-		}
-		available = {
-			has_war = no
-			has_war_support > 0.5		
-            has_manpower > 1000
-			has_equipment = {
-			    infantry_equipment > 699
-			}
-			has_navy_size = {
-			    size > 5
-			}	
-		}
-		visible = {
-			owns_state = 115
-			NOT = { has_country_flag = great_war_loser}
-			MLT = {
-				exists = yes
-				is_subject = no
-			}
-		}
-		highlight_states = {
-			state = 116
-		}
-		fire_only_once = yes
-		cost = 50
-		days_remove = 15
-		target_trigger = {
-			FROM = {
-				tag = MLT
-			}
-		}
-		ai_will_do = {
-			factor = 50
-		}
-		cancel_trigger = {
-			hidden_trigger = {
-				OR = {
-					has_war = yes
-					MLT = { exists = no }
-					MLT = { is_subject = yes }
-				}
-			}
-		}
-		remove_effect = {
-			transfer_state = 116
-			add_manpower = -323
-			add_equipment_to_stockpile = {
-    			type = infantry_equipment
-    			amount = -300
-    			producer = ITA
-			}
-			add_named_threat = {
-				threat = 3
-				name = ITA_occupy_malta
-			}
-		}
-	}
 
 	ITA_sue_for_peace_AUH = {	
-		icon = GFX_decision_generic_ignite_civil_war	
+		icon = GFX_decision_eng_trade_unions_support	
 		allowed = {
 			tag = ITA
 		}
@@ -1210,97 +1158,117 @@ foreign_politics = {
 			}
 		}
 		complete_effect = {
-			AUH = { country_event = ww1_austria.28 }
+			AUH = { country_event = ww1_auh.28 }
 		}
 	}
-
-	ITA_seize_fiume = {
-		icon = GFX_decision_generic_operation
+}
+foreign_politics = {
+	ITA_claim_corsica = {
+		icon = GFX_decision_eng_trade_unions_demand
+		allowed = {
+			original_tag = ITA
+		}
+		available = {
+			has_war_with = FRA
+			NOT = { owns_state = 1 }
+		}
+		ai_will_do = {
+			factor = 100
+		}
+		cost = 25
+		visible = {
+			has_war_with = FRA
+			NOT = { owns_state = 1 }
+		}
+		fire_only_once = yes
+		complete_effect = {
+			add_state_claim = 1
+		}
+	}
+	ITA_occupy_malta = {
+		icon = GFX_decision_infiltrate_state
 		allowed = {
 			original_tag = ITA
 		}
 		available = {
 			has_war = no
-			has_war_support > 0.4
-			has_government = fascism
-			owns_state = 736
-			513 = {
-				OR = {
-					is_claimed_by = ITA
-					is_core_of = ITA
-				}
-				OR = {
-					is_owned_by = CRO
-					is_owned_by = SER
-				}
+			has_war_support > 0.5		
+			has_manpower > 1000
+			has_equipment = {
+				infantry_equipment > 699
 			}
+			has_navy_size = {
+				size > 5
+			}	
 		}
 		visible = {
-			has_government = fascism
-			owns_state = 736
-			513 = {
-				OR = {
-					is_claimed_by = ITA
-					is_core_of = ITA
-				}
-				OR = {
-					is_owned_by = CRO
-					is_owned_by = SER
-				}
+			owns_state = 115
+			NOT = { has_country_flag = great_war_loser}
+			MLT = {
+				exists = yes
+				is_subject = no
 			}
 		}
 		highlight_states = {
-			state = 513
+			highlight_state_targets = {
+				state = 116
+			}
 		}
 		fire_only_once = yes
-		cost = 75
+		cost = 50
 		days_remove = 15
 		target_trigger = {
 			FROM = {
-				owns_state = 513
+				tag = MLT
 			}
 		}
 		ai_will_do = {
-			base = 0
+			factor = 50
 			modifier = {
-				add = 100
-				date > 1924.2.22
+				factor = 0
+				has_war_support < 0.2
+			}
+			modifier = {
+				factor = 0
+				MLT = { is_in_faction = yes }
+			}
+			modifier = {
+				factor = 0
+				MLT = { is_major = yes }
 			}
 		}
 		cancel_trigger = {
 			hidden_trigger = {
 				OR = {
 					has_war = yes
-					owns_state = 513
+					MLT = { exists = no }
+					MLT = { is_subject = yes }
 				}
 			}
 		}
 		remove_effect = {
-			transfer_state = 513
-			add_named_threat = {
-				threat = 3
-				name = ITA_seize_fiume
+			add_state_core = 116
+			transfer_state = 116
+			add_manpower = -323
+			add_equipment_to_stockpile = {
+				type = infantry_equipment
+				amount = -300
+				producer = ITA
 			}
-			news_event = ww1_italy.11
+			add_named_threat = {
+				threat = 5
+				name = ITA_occupy_malta
+			}
 		}
 	}
 }
 ITA_italian_civil_war_decisions = {
 	ROI_withdraw_to_sardinia = {	
+		icon = GFX_decision_eng_blackshirt_march
 		allowed = {
 			original_tag = ITA
 		}
 		available = {
-			has_global_flag = italian_civil_war
-			has_country_flag = ITA_republican_italy_flag
-			any_country = {
-				original_tag = ITA
-				OR = {
-					has_country_flag = ITA_socialist_italy_flag
-					has_country_flag = ITA_monarchist_italy_flag
-				}
-				has_war_with = ROOT
-			}
 			controls_state = 114
 			NOT = {
 				any_state = {
@@ -1336,23 +1304,18 @@ ITA_italian_civil_war_decisions = {
 		}
 	}
 	ITS_coronation = {
+		icon = GFX_decision_generic_monarchy
 		allowed = {
 			original_tag = ITA
 		}
 		available = {
-			has_country_leader = {
-				name = "Provisional Government of Naples"
-				ruling_only = yes
-			}
+			has_country_leader_ideology = oligarchism
 		}
 		visible = {
 			has_country_flag = ITA_monarchist_italy_flag
-			has_country_leader = {
-				name = "Provisional Government of Naples"
-				ruling_only = yes
-			}
+			has_country_leader_ideology = oligarchism
 		}
-		cost = 100
+		cost = 50
 		fire_only_once = yes
 		days_remove = 40
 		ai_will_do = {
@@ -1363,6 +1326,7 @@ ITA_italian_civil_war_decisions = {
 		}
 	}
 	ITS_remove_mafia = {
+		icon = GFX_decision_SWI_expand_covert_operations
 		allowed = {
 			original_tag = ITA
 		}
@@ -1385,7 +1349,7 @@ ITA_italian_civil_war_decisions = {
 		}
 	}
 	ITA_civil_war_timer = {
-		icon = generic_nationalism
+		icon = revolt
 		days_mission_timeout = 40
 		activation = {
 			has_global_flag = italian_civil_war
@@ -1503,6 +1467,9 @@ ITA_italian_civil_war_decisions = {
 				NOT = { has_government = democratic }
 			}
 		}
+		target_trigger = {
+			FROM = { tag = ROI }
+		}
 		complete_effect = {
 			set_country_flag = supported_italian_civil_war
 			army_experience = 5
@@ -1570,6 +1537,9 @@ ITA_italian_civil_war_decisions = {
 				factor = 0
 				NOT = { has_government = neutrality }
 			}
+		}
+		target_trigger = {
+			FROM = { tag = ITS }
 		}
 		complete_effect = {
 			set_country_flag = supported_italian_civil_war
@@ -1639,6 +1609,9 @@ ITA_italian_civil_war_decisions = {
 				NOT = { has_government = communism }
 			}
 		}
+		target_trigger = {
+			FROM = { tag = SRI }
+		}
 		complete_effect = {
 			set_country_flag = supported_italian_civil_war
 			army_experience = 5
@@ -1653,7 +1626,7 @@ ITA_italian_civil_war_decisions = {
 		}
 	}
 	ITA_FRA_intervene_in_civil_war = {
-		icon = generic_prepare_civil_war
+		icon = GFX_decision_generic_prepare_civil_war
 		allowed = {
 			original_tag = FRA
 		}
@@ -1671,6 +1644,7 @@ ITA_italian_civil_war_decisions = {
 			is_subject = no
 		}
 		visible = {
+			is_faction_leader = yes
 			NOT = { has_government = democratic }	
 			has_global_flag = italian_civil_war
 			any_country = {
@@ -1707,7 +1681,7 @@ ITA_italian_civil_war_decisions = {
 			}
 		}
 		fire_only_once = yes
-		cost = 50
+		cost = 125
 		days_remove = 15
 		target_trigger = {
 			FROM = {
@@ -1836,17 +1810,138 @@ ITA_italian_civil_war_decisions = {
 			}
 		}
 		ai_will_do = {
-			base = 0
+			base = 100
 			modifier = {
-				add = 100
-				has_war = no
-				has_government = communism
+				factor = 0
+				NOT = { has_government = communism }
 			}
 			modifier = {
-				add = 100
-				has_war = no
-				has_war_support > 0.5
-				has_manpower > 10000
+				factor = 0
+				threat < 0.30
+			}
+			modifier = {
+				factor = 0
+				has_war = yes
+			}
+			modifier = {
+				factor = 0
+				has_war_support < 0.5
+			}
+		}
+	}
+}
+interwar_decisions = {
+	ITA_fiume_timer = {
+		icon = GFX_decision_eng_blackshirt_march
+		allowed = {
+			OR = {
+				original_tag = ITA
+				original_tag = FIU
+				original_tag = CRO
+				original_tag = SER
+				original_tag = BOS
+				original_tag = SLV
+			}
+		}
+		days_mission_timeout = 200
+		visible = {
+			is_neighbor_of = FIU
+		}
+		activation = {
+			NOT = { has_global_flag = treaty_of_rapallo_1920 }
+			has_global_flag = impresa_di_fiume
+			ITA = {
+				is_subject = no
+				owns_state = 736
+				has_capitulated = no
+			}
+			FIU = { owns_state = 513 }
+		}
+		available = {
+			OR = {
+				has_global_flag = treaty_of_rapallo_1920
+				ITA = {
+					OR = {
+						is_subject = yes
+						has_capitulated = yes
+						has_war_with = FIU
+						NOT = { owns_state = 736 }
+					}
+				}
+				NOT = { FIU = { owns_state = 513 } }
+			}
+		}
+		fire_only_once = no
+		is_good = no
+		timeout_effect = {
+			effect_tooltip = {
+				ITA = { country_event = ww1_fiume.3 }
+			}
+			hidden_effect = {
+				set_global_flag = treaty_of_rapallo_1920
+				if = {
+					limit = { tag = ITA }
+					country_event = ww1_fiume.3
+				}
+			}
+		}
+	}
+	ITA_valona_timer = {
+		icon = GFX_decision_eng_blackshirt_march
+		allowed = {
+			OR = {
+				original_tag = ITA
+				original_tag = ALB
+				original_tag = GRE
+			}
+		}
+		days_mission_timeout = 200
+		visible = {
+			OR = {
+				controls_state = 44
+				controls_state = 803
+				controls_state = 871
+			}
+		}
+		activation = {
+			has_global_flag = valona_war
+			NOT = { has_global_flag = valona_war_end }
+			OR = {
+				has_active_mission = versallies_conference
+				has_active_mission = frankfurt_conference
+			}
+			ITA = {
+				owns_state = 871
+				has_capitulated = no
+				NOT = {
+					has_country_flag = great_war_loser
+					has_subject = ALB
+				}
+			}
+		}
+		available = {
+			ITA = {
+				OR = {
+					is_subject = yes
+					has_capitulated = yes
+					has_war_with = ALB
+					NOT = { owns_state = 871 }
+					has_subject = ALB
+				}
+			}
+		}
+		fire_only_once = no
+		is_good = no
+		timeout_effect = {
+			effect_tooltip = {
+				871 = { transfer_state_to = ALB }
+			}
+			hidden_effect = {
+				set_global_flag = valona_war_end
+				if = {
+					limit = { tag = ITA }
+					country_event = ww1_albania.20
+				}
 			}
 		}
 	}

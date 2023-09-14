@@ -61,22 +61,41 @@ country_event = {
 country_event = {
 	id = ww1_montenegro.4
 	title = ww1_montenegro.4.t
-	desc = ww1_montenegro.4.d
+	desc = {
+		text = ww1_montenegro.4.d
+		trigger = {
+			has_country_flag = great_war_loser
+		}
+	}
+	desc = {
+		text = ww1_montenegro.4.d
+		trigger = {
+			NOT = { has_country_flag = great_war_loser }
+		}
+	}
+	picture = GFX_report_event_generic_parliament
 	trigger = {
 		tag = MNT
-		has_capitulated = no
+		has_war = no
 		has_country_leader = {
-			name = "Nikola I"
-			ruling_only = yes
+			character = MNT_nikola_i
 		}
-		has_country_flag = Montenegro_capitulated
+		has_global_flag = great_war_ends
+		OR = {
+			has_country_flag = great_war_loser
+			AND = {
+				has_country_flag = Montenegro_capitulated
+				has_country_flag = great_war_winner
+			}
+		}
+		is_subject = no
 	}
 	mean_time_to_happen = {
-		days = 20
+		days = 15
 	}
 	option = {
 		name = ww1_montenegro.4.a
-		retire_country_leader = yes
+		retire_character = MNT_nikola_i
 		set_politics = {
 			ruling_party = democratic
 			elections_allowed = no
@@ -86,24 +105,20 @@ country_event = {
 			long_name = MNT_national_assembly_long
 			name = MNT_national_assembly
 		}
-		create_country_leader = {
-			name = "Podgorička skupština"
-			ideology = conservatism
-			expire = "1935.1.1"
-			traits = {
-				trait_conservatism
+		MNT_podgorica_assembly = {
+			add_country_leader_role = {
+				promote_leader = yes
+				country_leader = {
+					ideology = liberal_conservatism
+				}
 			}
 		}
 		hidden_effect = {
-			country_event = ww1_montenegro.6
-			create_country_leader = {
-				name = "Danilo I"
-				picture = "gfx/leaders/MNT/MNT_Danilo_I.dds"
-				ideology = autocracy
-				expire = "1935.1.1"
-				traits = {
-					inexperienced_monarch
-					trait_autocracy
+			MNT_danilo_petrovic_njegos = {
+				remove_unit_leader_role = yes
+				promote_character = semi_constitutional_monarchy
+				set_character_name = {
+					name = "MNT_danilo_ii"
 				}
 			}
 		}
@@ -116,10 +131,6 @@ country_event = {
 	title = ww1_montenegro.6.t
 	desc = ww1_montenegro.6.d
 	is_triggered_only = yes
-	fire_only_once = yes
-	mean_time_to_happen = {
-		days = 20
-	}
 	option = {
 		#ask Serbia to join
 		name = ww1_montenegro.6.a
@@ -153,6 +164,22 @@ country_event = {
 		name = ww1_montenegro.7.a
 		MNT = {
 			every_unit_leader = {
+				limit = {
+					NOT = {
+						has_trait = trait_royal
+						has_trait = trait_royalist
+					}
+				}
+				hidden_effect = {
+					remove_any_country_role_from_character = yes					
+					if = {
+						limit = {
+							is_field_marshal = no
+						}
+						demote_leader = yes
+						remove_unit_leader_trait = recently_promoted
+					}
+				}	
 				set_nationality = SER
 			}
 			every_owned_state = {
@@ -166,6 +193,24 @@ country_event = {
 			target = MNT
 			transfer_troops = yes
 		}
+		hidden_effect = {
+			MNT = {
+				set_politics = {
+					ruling_party = neutrality
+					long_name = MNT_zeleni_party_long
+					name = MNT_zeleni_party
+					elections_allowed = no
+				}
+				set_party_name = {
+					ideology = fascism
+					long_name = MNT_zeleni_party_long
+					name = MNT_zeleni_party
+				}
+				promote_character = MNT_krsto_popovic	
+				promote_character = MNT_jovan_plamenac			
+				promote_character = MNT_novica_radovic
+			}	
+		}	
 		ai_chance = {
 			factor = 100
 		}
@@ -236,7 +281,10 @@ country_event = {
 			set_cosmetic_tag = MNT_SER
 			every_country = {
 				limit = {
-					is_in_faction_with = AUH
+					has_war_with = MNT
+					NOT = {
+						has_war_with = AUH
+					}
 				}
 				white_peace = PREV
 			}
@@ -249,9 +297,15 @@ country_event = {
 		}
 		every_state = {
 			limit = {
-				is_owned_by = SER
+				is_core_of = SER
 			}
 			add_core_of = MNT
+		}
+		every_state = {
+			limit = {
+				is_owned_by = SER
+				is_controlled_by = AUH
+			}
 			MNT = {
 				set_state_controller = PREV
 			}
@@ -264,10 +318,7 @@ country_event = {
 		}
 		if = {
 			limit = {
-				OR = {
-					has_dlc = "Together for Victory"
-					has_dlc = "Waking the Tiger"
-				}
+				has_dlc = "Together for Victory"
 			}
 			set_autonomy = {
 				target = MNT
@@ -329,22 +380,28 @@ country_event = {
 }
 
 ###Kingdom of Montenegro proclaimed
-news_event = {
+country_event = {
 	id = ww1_montenegro.15
 	title = ww1_montenegro.15.t
 	desc = ww1_montenegro.15.d
+	picture = GFX_report_event_generic_parliament
 	trigger = {
+		tag = MNT
+		has_cosmetic_tag = MNT_principality
 		date > 1910.8.28
+		NOT = { has_global_flag = kingdom_of_montenegro }
 	}
 	fire_only_once = yes
 	immediate = {
 		hidden_effect = {
-			MNT = {
-				drop_cosmetic_tag = yes
-			}
+			set_global_flag = kingdom_of_montenegro
+			MNT = { drop_cosmetic_tag = yes }
 		}
 	}
 	option = {
 		name = ww1_montenegro.15.a
+		effect_tooltip = {
+			set_cosmetic_tag = MNT
+		}
 	}
 }
