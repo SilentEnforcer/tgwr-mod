@@ -23,6 +23,7 @@ replace_path="common/peace_conference/ai_peace"
 replace_path="common/peace_conference/cost_modifiers"
 replace_path="map/strategicregions"
 replace_path="gfx/loadingscreens"
+replace_path="gfx/interface/equipmentdesigner/graphic_db"
 tags={
 	"Historical"
 	"Gameplay"
@@ -31,6 +32,6 @@ tags={
 	"Technologies"
 }
 name="The Great War Redux"
-version="0.10.1"
+version="0.10.21"
 supported_version="1.12.*"
 remote_file_id="1946557392"

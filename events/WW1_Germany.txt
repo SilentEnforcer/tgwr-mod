@@ -466,6 +466,7 @@ country_event = {
 }
 
 # KIEL MUTINY
+# I tweaked this because this kills germany too early in random
 #########################
 country_event = {
 	id = ww1_germany.11
@@ -478,8 +479,12 @@ country_event = {
 		OR = {
 			has_country_flag = great_war_loser
 			AND = {
-				date > 1916.1.1
+				date > 1918.1.1
 				has_war_with = FRA
+				has_global_flag = kis_war
+				NOT = {
+					has_global_flag = great_war_ends
+				}
 				OR = {
 					casualties > 1200000
 					AND = {
@@ -487,8 +492,10 @@ country_event = {
 						has_idea = ger_famine
 					}
 				}
-				has_stability < 0.5
-				has_war_support < 0.5
+				OR = {
+					has_stability < 0.30
+					has_war_support < 0.15
+				}
 			}
 		}
 		NOT = {
@@ -505,9 +512,6 @@ country_event = {
 		add_timed_idea = {
 			idea = GER_idea_kiel_mutiny
 			days = 45
-		}
-		ai_chance = {
-			factor = 100
 		}
 		set_country_flag = kiel_mutiny
 	}
@@ -4153,8 +4157,10 @@ country_event = {
 			}
 			random_country = {
 				limit = {
-					has_war_with = ROM
+					# has_war_with = ROM
 					NOT = {
+						is_in_faction_with = ROM
+						is_subject_of = ROM
 						has_war_with = ROOT
 					}
 					owns_state = 80
@@ -4165,8 +4171,10 @@ country_event = {
 		if = {
 			limit = {
 				any_other_country = {
-					has_war_with = ROM
+					# has_war_with = ROM
 					NOT = {
+						is_in_faction_with = ROM
+						is_subject_of = ROM
 						has_war_with = ROOT
 					}
 					owns_state = 211
@@ -4174,8 +4182,10 @@ country_event = {
 			}
 			random_other_country = {
 				limit = {
-					has_war_with = ROM
+					# has_war_with = ROM
 					NOT = {
+						is_in_faction_with = ROM
+						is_subject_of = ROM
 						has_war_with = ROOT
 					}
 					owns_state = 211
@@ -4634,64 +4644,18 @@ country_event = {
 	}
 	option = {
 		name = ww1_germany.82.a
-		destroy_ships = {
-			type = ship_hull_cruiser
-			count = all
-		}
-		destroy_ships = {
-			type = ship_hull_heavy
-			count = all
-		}
-		destroy_ships = {
-			type = ship_hull_light
-			count = all
-		}
-		destroy_ships = {
-			type = ship_hull_submarine
-			count = all
-		}
-		destroy_ships = {
-			type = ship_hull_pre_dreadnought
-			count = all
-		}
-		destroy_ships = {
-			type = destroyer
-			count = all
-		}
+		custom_effect_tooltip = ww1_germany.82.a.tt
 		hidden_effect = {
-			destroy_ships = {
-				type = ship_hull_torpedo_cruiser
-				count = all
-			}
-			destroy_ships = {
-				type = ship_hull_cruiser_coastal_defense_ship
-				count = all
-			}
-			destroy_ships = {
-				type = ship_hull_cruiser_panzerschiff
-				count = all
-			}
-			destroy_ships = {
-				type = ship_hull_cruiser_submarine
-				count = all
-			}
-			destroy_ships = {
-				type = ship_hull_carrier_conversion_bb
-				count = all
-			}
-			destroy_ships = {
-				type = ship_hull_carrier_conversion_ca
-				count = all
-			}
+			destroy_all_ships = yes
 			news_event = ww1_germany.83
 			if = {
 				limit = {
 					has_dlc = "Man the Guns"
 				}
 				load_oob = GER_1921_naval_mtg
-			}
-			else = {
-				load_oob = GER_1921_naval_legacy
+				else = {
+					load_oob = GER_1921_naval_legacy
+				}
 			}
 		}
 		ai_chance = {
@@ -4850,11 +4814,6 @@ country_event = {
 				producer = ROOT
 			}
 			add_equipment_to_stockpile = {
-				type = heavy_fighter_equipment
-				amount = -10000
-				producer = ROOT
-			}
-			add_equipment_to_stockpile = {
 				type = fighter_equipment
 				amount = -10000
 				producer = ROOT
@@ -4880,7 +4839,7 @@ country_event = {
 				producer = ROOT
 			}
 			add_equipment_to_stockpile = {
-				type = cv_CAS_equipment
+				type = seaplane_equipment
 				amount = -10000
 				producer = ROOT
 			}
@@ -4890,7 +4849,7 @@ country_event = {
 				producer = ROOT
 			}
 			add_equipment_to_stockpile = {
-				type = cv_nav_bomber_equipment
+				type = airship_equipment
 				amount = -10000
 				producer = ROOT
 			}
@@ -5241,8 +5200,10 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_germany.91.a
-		add_stability = -0.10
-		add_war_support = -0.10
+		add_political_power = -250
+		# too critical
+		# add_stability = -0.10
+		# add_war_support = -0.10
 	}
 }
 
@@ -6440,6 +6401,7 @@ country_event = {
 	id = ww1_germany.115
 	title = ww1_germany.115.t
 	desc = ww1_germany.115.d
+	picture = GFX_report_event_german_troops_paris
 	trigger = {
 		original_tag = FRA
 		has_country_flag = FRA_nationalist_france
@@ -6471,6 +6433,7 @@ country_event = {
 	id = ww1_germany.116
 	title = ww1_germany.116.t
 	desc = ww1_germany.116.d
+	picture = GFX_report_event_german_troops_paris
 	is_triggered_only = yes
 	# CEDE OCCUPATIONS WITH NO CONDITIONS
 	option = {
@@ -7165,8 +7128,20 @@ country_event = {
 				add_core_of = PREV
 			}
 		}
-		34 = {
-			# Wallonie
+		906 = {
+			# Ardennes
+			if = {
+				limit = {
+					NOT = {
+						is_claimed_by = PREV
+						is_owned_by = PREV
+					}
+				}
+				add_claim_by = PREV
+			}
+		}
+		907 = {
+			# Meuse
 			if = {
 				limit = {
 					NOT = {
@@ -7269,8 +7244,8 @@ country_event = {
 				add_core_of = PREV
 			}
 		}
-		34 = {
-			# Wallonie
+		906 = {
+			# Ardennes
 			if = {
 				limit = {
 					NOT = {
@@ -7279,6 +7254,24 @@ country_event = {
 					}
 				}
 				add_claim_by = PREV
+			}
+		}
+		907 = {
+			# Meuse
+			if = {
+				limit = {
+					is_claimed_by = PREV
+				}
+				remove_claim_by = PREV
+			}
+		}
+		34 = {
+			# Wallonie
+			if = {
+				limit = {
+					is_claimed_by = PREV
+				}
+				remove_claim_by = PREV
 			}
 		}
 		29 = {
@@ -9247,5 +9240,185 @@ country_event = {
 				add_war_support = 0.20
 			}
 		}
+	}
+}
+
+# Fate of Dobruja
+country_event = {
+	id = ww1_germany.166
+	title = ww1_germany.166.t
+	desc = ww1_germany.166.desc
+	picture = GFX_report_event_generic_peaceful_annexation
+	fire_only_once = yes
+	trigger = {
+		original_tag = GER
+		has_global_flag = frankfurt_treaty
+		has_country_flag = great_war_winner
+		OR = {
+			77 = { is_owned_and_controlled_by = ROOT }
+			805 = { is_owned_and_controlled_by = ROOT }
+			846 = { is_owned_and_controlled_by = ROOT }
+		}
+	}
+	mean_time_to_happen = { days = 45 }
+	# transfer to bulgaria
+	option = {
+		name = ww1_germany.166.a
+		trigger = {
+			BUL = {
+				owns_state = 211
+				NOT = { has_war_with = ROOT }
+			}
+		}
+		every_owned_state = {
+			limit = {
+				OR = {
+					state = 77
+					state = 805
+					state = 846
+				}
+			}
+			transfer_state_to = BUL
+		}
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = -5
+				has_opinion = {
+					target = BUL
+					value < 0
+				}
+			}
+			modifier = {
+				add = -5
+				BUL = { has_country_flag = great_war_loser }
+			}
+			modifier = {
+				add = 5
+				has_subject = BUL
+			}
+			modifier = {
+				add = 5
+				is_in_faction_with = BUL
+			}
+			modifier = {
+				add = 5
+				has_opinion = {
+					target = BUL
+					value > 20
+				}
+			}
+		}
+	}
+	# transfer to romania
+	option = {
+		name = ww1_germany.166.b
+		trigger = {
+			ROM = {
+				owns_state = 46
+				NOT = { has_war_with = ROOT }
+			}
+		}
+		every_owned_state = {
+			limit = {
+				OR = {
+					state = 77
+					state = 805
+					state = 846
+				}
+			}
+			transfer_state_to = ROM
+		}
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = -5
+				has_opinion = {
+					target = ROM
+					value < 0
+				}
+			}
+			modifier = {
+				add = -5
+				ROM = { has_country_flag = great_war_loser }
+			}
+			modifier = {
+				add = 5
+				has_subject = ROM
+			}
+			modifier = {
+				add = 5
+				is_in_faction_with = ROM
+			}
+			modifier = {
+				add = 5
+				has_opinion = {
+					target = ROM
+					value > 20
+				}
+			}
+		}
+	}
+	# transfer to ottoman
+	option = {
+		name = ww1_germany.166.c
+		trigger = {
+			TUR = {
+				owns_state = 211
+				NOT = { has_war_with = ROOT }
+			}
+		}
+		every_owned_state = {
+			limit = {
+				OR = {
+					state = 77
+					state = 805
+					state = 846
+				}
+			}
+			transfer_state_to = TUR
+		}
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = -20
+				NOT = {
+					77 = { is_claimed_by = TUR }
+					805 = { is_claimed_by = TUR }
+					846 = { is_claimed_by = TUR }
+				}
+			}
+			modifier = {
+				add = -5
+				has_opinion = {
+					target = TUR
+					value < 0
+				}
+			}
+			modifier = {
+				add = -5
+				TUR = { has_country_flag = great_war_loser }
+			}
+			modifier = {
+				add = 5
+				has_subject = TUR
+			}
+			modifier = {
+				add = 5
+				is_in_faction_with = TUR
+			}
+			modifier = {
+				add = 5
+				has_opinion = {
+					target = TUR
+					value > 20
+				}
+			}
+		}
+	}
+	# keep there
+	option = {
+		name = ww1_germany.166.d
+		ai_chance = { factor = 0 }
 	}
 }
