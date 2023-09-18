@@ -75,8 +75,82 @@ GER_defensive_if_lack_of_guns_against_RUS = {
 	}
 }
 
+GER_ignore_colonies_when_ww1 = {
+	allowed = {
+		original_tag = GER
+	}
+	enable = {
+		OR = {
+			any_other_country = {
+				is_major = yes
+				has_war_with = ROOT
+			}
+			has_global_flag = kis_franzferdinand_murdered
+		}
+		
+	}
+	abort = {
+		date > 1918.1.1
+	}
+
+	ai_strategy = {
+		type = front_unit_request
+		area = africa
+		value = -1000
+	}
+	ai_strategy = {
+		type = area_priority
+		id = africa
+		value = -1000
+	}
+
+	ai_strategy = {
+		type = front_unit_request
+		area = south_america
+		value = -1000
+	}
+	ai_strategy = {
+		type = area_priority
+		id = south_america
+		value = -1000
+	}
+
+	ai_strategy = {
+		type = front_unit_request
+		area = north_america
+		value = -1000
+	}
+	ai_strategy = {
+		type = area_priority
+		id = north_america
+		value = -1000
+	}
+
+	ai_strategy = {
+		type = front_unit_request
+		area = asia
+		value = -1000
+	}
+	ai_strategy = {
+		type = area_priority
+		id = asia
+		value = -1000
+	}
+
+	ai_strategy = {
+		type = front_unit_request
+		area = middle_east
+		value = -1000
+	}
+	ai_strategy = {
+		type = area_priority
+		id = middle_east
+		value = -1000
+	}
+}
+
 ######################
-#### THIS IS PREPARATIONS, NOT THE ATTACK PHASE
+#### PREPARATION PHASE
 ###################################################
 GER_prepare_war_with_FRA = {
 	allowed = {
@@ -176,6 +250,98 @@ GER_prepare_war_with_FRA = {
 		type = antagonize
 		id = "LUX"
 		value = 200
+	}
+}
+
+# Please kill Beligum in time
+GER_rush_on_BEL = {
+	allowed = {
+		original_tag = GER	
+	}
+
+	enable = {
+		original_tag = GER
+		OR = {	## be sure to stay on planing all long
+			has_war_with = BEL
+			has_active_mission = european_crisis_mission
+			has_global_flag = kis_franzferdinand_murdered
+		}
+		BEL = { has_capitulated = no }
+		OR = {
+			has_idea = race_to_the_sea
+			has_idea = schlieffenmoltke
+			
+		}
+		
+	}
+
+	abort = {
+		OR = {
+			# We won the world war
+			has_country_flag = great_war_winner
+			## The war is over with France
+			NOT = {
+				has_war_with = FRA
+				has_war_with = BEL
+			}
+			## we are losing ground somewhere
+			surrender_progress > 0.10
+			USA = {
+				AND = {
+					has_war_with = GER
+					casualties > 30000
+				}
+			}
+			# 1 million death is too much to push
+			casualties_inflicted_by = {
+				opponent = FRA
+				thousands > 1000
+			}
+			# schlieffen failed
+			AND = {
+				NOT = { has_idea = schlieffenmoltke }
+				NOT = { has_idea = race_to_the_sea }
+			}
+			
+			# Belgium surrendered
+			# They would immediately stop the offensive after they capitulate so removed this
+			# BEL = { has_capitulated = yes }
+		}
+	}
+
+	ai_strategy = {
+		type = front_unit_request
+		tag = BEL
+		value = 200
+	}
+
+	ai_strategy = {
+		type = put_unit_buffers
+		
+		order_id = 1
+		
+		states = {
+			6
+			34
+		}
+		ratio = 0.1
+		subtract_invasions_from_need = yes
+	}
+	ai_strategy = {
+		type = front_control
+		tag = BEL
+		priority = 2000
+		ordertype = front
+		execution_type = rush
+		execute_order = yes
+	}
+	ai_strategy = {
+		type = front_control
+		tag = LUX
+		priority = 2000
+		ordertype = front
+		execution_type = rush
+		execute_order = yes
 	}
 }
 
@@ -415,59 +581,6 @@ GER_dont_help_AUH = {
 	}
 	
 }
-######################
-# Germany try to push back the entente when entente got "together to victory" idea
-######
-GER_final_battle_against_allies = {
-	allowed = {
-		tag = GER
-	}
-	enable = {
-		## must have enough equipement to perform large scale attack
-		stockpile_ratio = {	## 15% of the armies equipment must be in reserves
-				archetype = infantry_equipment
-				ratio > 0.15
-			}
-		##OR
-		OR = {
-			## France got his attack spirit
-			FRA = {
-				has_idea = ALL_together_to_victory
-			}
-			## OR Germany is able to attack anyway
-			AND = {
-				date > 1918.1.1
-				surrender_progress < 0.05
-				NOT = {
-					has_war_with = RUS
-					has_war_with = SOV
-				}
-			}
-		}
-	}
-	abort = {
-		OR = {
-			stockpile_ratio = {	## -10 % of the armies equipment must be in reserves
-				archetype = infantry_equipment
-				ratio < -0.10
-			}
-			casualties_k > 3000
-		}
-	}
-
-	ai_strategy = {
-		type = front_control
-		tag = FRA
-		ratio = 0.8
-		
-		priority = 100
-		ordertype = front
-		execution_type = balanced
-		execute_order = yes
-	}
-
-
-}
 
 GER_attack_if_france_is_weak_and_RUS_died = {
 	enable = {
@@ -508,110 +621,6 @@ GER_attack_if_france_is_weak_and_RUS_died = {
 		type = front_unit_request
 		tag = FRA
 		value = 200
-	}
-}
-
-# Please kill Beligum in time
-GER_rush_on_BEL = {
-	allowed = {
-		original_tag = GER	
-	}
-
-	enable = {
-		original_tag = GER
-		OR = {	## be sure to stay on planing all long
-			has_war_with = BEL
-			has_active_mission = european_crisis_mission
-			has_global_flag = kis_franzferdinand_murdered
-		}
-		has_war_with = FRA
-		BEL = { has_capitulated = no }
-		OR = {
-			has_idea = race_to_the_sea
-			has_idea = schlieffenmoltke
-			
-		}
-		
-	}
-
-	abort = {
-		OR = {
-			# We won the world war
-			has_country_flag = great_war_winner
-			## The war is over with France
-			NOT = {
-				has_war_with = FRA
-				has_war_with = BEL
-			}
-			## we are losing ground somewhere
-			surrender_progress > 0.10
-			USA = {
-				AND = {
-					has_war_with = GER
-					casualties > 30000
-				}
-			}
-			# 1 million death is too much to push
-			casualties_inflicted_by = {
-				opponent = FRA
-				thousands > 1000
-			}
-			# schlieffen failed
-			AND = {
-				NOT = { has_idea = schlieffenmoltke }
-				NOT = { has_idea = race_to_the_sea }
-			}
-			
-			# Belgium surrendered
-			# They would immediately stop the offensive after they capitulate so removed this
-			# BEL = { has_capitulated = yes }
-		}
-	}
-
-	ai_strategy = {
-		type = front_unit_request
-		tag = BEL
-		value = 200
-	}
-
-	ai_strategy = {
-		type = put_unit_buffers
-		
-		order_id = 1
-		
-		states = {
-			6
-			34
-		}
-		ratio = 0.1
-		subtract_invasions_from_need = yes
-	}
-	ai_strategy = {
-		type = front_control
-		tag = BEL
-		priority = 2000
-		ordertype = front
-		execution_type = rush
-		execute_order = yes
-	}
-	ai_strategy = {
-		type = front_control
-		tag = LUX
-		priority = 2000
-		ordertype = front
-		execution_type = rush
-		execute_order = yes
-	}
-
-	ai_strategy = {
-		type = front_control
-		tag = RUS
-		ratio = 0.30
-		priority = 2000
-		ordertype = front
-		execution_type = careful
-		execute_order = yes
-		manual_attack = yes
 	}
 }
 
