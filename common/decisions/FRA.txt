@@ -760,7 +760,7 @@ FRA_situation_in_morocco = {
 GER_great_war = {
 
 	FRA_send_janin_to_russia = {
-		icon = GFX_decision_decision_fra_advisors
+		icon = GFX_decision_fra_advisors
 		fire_only_once = no
 		allowed = {
 			original_tag = FRA
@@ -901,6 +901,73 @@ GER_great_war = {
 			# 		}
 			# 	}
 			# }
+		}
+	}
+	FRA_open_salonika_front = {
+		icon = GFX_decision_generic_operation
+		allowed = {
+			original_tag = FRA
+		}
+		target_trigger = {
+			FROM = {
+				owns_state = 345
+			}
+		}
+		visible = {
+			is_subject = no
+			has_war_with = GER
+			FROM = {
+				is_subject = no
+				NOT = {
+					has_war_with = ROOT
+					has_war_with = GER
+					is_in_faction_with = ROOT
+					is_in_faction_with = GER
+				}
+			}
+			SER = { is_in_faction_with = ROOT }
+			345 = {
+				NOT = {
+					has_state_flag = french_salonika
+				}
+			}
+		}
+		available = {
+			if = {
+				limit = { is_ai = no }
+				ships_in_area = { area = 202 size > 15 }
+			}
+			stockpile_ratio = {
+				archetype = convoy
+				ratio > 30
+			}
+			SER = {
+				OR = {
+					has_capitulated = yes
+					has_war_with = BUL
+					has_idea = SER_idea_exodus
+					has_idea = SER_idea_exile
+				}
+			}
+		}
+		cancel_if_not_visible = yes
+		fire_only_once = no
+		days_remove = 140
+		complete_effect = {
+			add_equipment_to_stockpile = {
+				type = convoy_1
+				amount = -30
+			}
+		}
+		remove_effect = {
+			effect_tooltip = {
+				set_state_owner = 345
+			}
+			hidden_effect = {
+				country_event = {
+					id = ww1_france.245
+				}
+			}
 		}
 	}
 }
@@ -1721,7 +1788,7 @@ peace_deals = {
 				is_subject = no
 				has_country_flag = great_war_winner
 			}
-			has_global_flag = great_war_ends
+			has_global_flag = frankfurt_treaty
 		}
 		fire_only_once = yes
 		ai_will_do = {
@@ -2616,7 +2683,68 @@ foreign_politics = {
 		}
 	}
 }
-
+interwar_decisions = {
+	FRA_conquer_syria = {
+		allowed = {
+			original_tag = FRA
+		}
+		target_trigger = {
+			FROM = {
+				tag = SYR
+			}	
+		}	
+		available = {
+			has_capitulated = no
+		}
+		visible = {
+			any_owned_state = {
+				is_core_of = FROM
+			}	
+			is_subject = no
+			has_global_flag = interbellum
+			has_country_flag = great_war_winner
+			FROM = {
+				any_owned_state = {
+					is_claimed_by = ROOT
+				}	
+			}
+			NOT = {
+				has_country_flag = franco_syrian_war
+				has_country_flag = franco_syrian_war_end
+			}	
+		}
+		war_with_on_remove = SYR
+		fire_only_once = yes
+		ai_will_do = {
+			base = 100
+			modifier = {
+				factor = 0
+				has_war = yes
+			}
+			modifier = {
+				factor = 0
+				date < 1920.3.1
+			}
+		}
+		#war_with_on_remove = FROM
+		days_remove = 8
+		complete_effect = {
+			add_ai_strategy = {
+				type = prepare_for_war
+				id = SYR
+				value = 200
+			}
+		}
+		remove_effect = {
+			country_event = ww1_france.256
+			add_ai_strategy = {
+				type = prepare_for_war
+				id = SYR
+				value = -200
+			}
+		}
+	}
+}
 FRC_interwar_internationale_category = {
 	FRC_internationale = {
 		icon = GFX_decision_SOV_the_stalin_constitution
@@ -2716,14 +2844,42 @@ FRC_interwar_internationale_category = {
 			if = {
 				limit = {
 					FROM = {
-						original_tag = ENG
+						has_country_flag = ENG_socialist_britain_flag
 					}
 				}
 				FROM = {
+					if = {
+						limit = {
+							is_ai = yes
+						}
+						add_ai_strategy = {
+							type = alliance
+							id = ROOT
+							value = 200
+						}
+					}
 					country_event = ww1_england.175
 				}
 				else = {
 					FROM = {
+						hidden_effect = {
+							if = {
+								limit = {
+									is_ai = yes
+									OR = {
+										original_tag = FRA
+										original_tag = ENG
+										original_tag = BAY
+										original_tag = HUN
+									}
+								}
+								add_ai_strategy = {
+									type = alliance
+									id = ROOT
+									value = 200
+								}
+							}
+						}
 						country_event = generic.5
 					}
 				}
@@ -2735,10 +2891,10 @@ FRC_interwar_internationale_category = {
 				add = 100
 				FROM = {
 					OR = {
-						tag = FRA
-						tag = ENG
-						tag = BAY
-						tag = HUN
+						original_tag = FRA
+						original_tag = ENG
+						original_tag = BAY
+						original_tag = HUN
 					}
 				}
 			}
@@ -2930,6 +3086,33 @@ FRA_french_civil_war_category = {
 			FRC = {
 				country_event = garibaldi.32
 			}
+		}
+	}
+}
+
+FRA_french_army = {
+	FRA_demobilize_part_of_the_army = {
+		allowed = {
+			original_tag = FRA
+		}
+		state_target = yes
+        target_trigger = {
+            FROM = {
+				is_owned_and_controlled_by = ROOT
+			}
+			divisions_in_state = { state = FROM size > 2 }
+        }
+		visible = {
+			has_idea = FRA_excessing_land_force_budget
+		}
+		remove_effect = {
+			delete_unit = {
+				state = FROM
+				disband = yes
+			}
+		}
+		ai_will_do = {
+			factor = 200
 		}
 	}
 }
