@@ -62,8 +62,11 @@ country_event = {
 		remove_ideas = {
 			RUS_student_protests
 		}
-		add_stability = -0.03
-		add_political_power = -75
+		add_stability = -0.025
+		add_political_power = -50
+		hidden_efefct = {
+			set_country_flag = octobrists_strike_1
+		}
 		ai_chance = {
 			base = 50
 			modifier = {
@@ -168,6 +171,7 @@ country_event = {
 			}
 		}
 		add_stability = 0.05
+		add_political_power = 100
 		ai_chance = {
 			base = 50
 			modifier = {
@@ -197,9 +201,21 @@ country_event = {
 	#whatever
 	option = {
 		name = ww1_russia.8.a
-		set_country_flag = stolypin_dismissed_parliament
-		add_stability  = -0.03
-		add_political_power = -100
+		add_stability  = -0.025
+		add_political_power = -50
+		hidden_efefct = {
+			set_country_flag = stolypin_dismissed_parliament
+			if = {
+				limit = {
+					has_country_flag = octobrists_strike_1
+				}
+				clr_country_flag = octobrists_strike_1
+				set_country_flag = octobrists_strike_2
+			}
+			else = {
+				set_country_flag = octobrists_strike_1
+			}
+		}
 	}
 }
 #Stolypin resigns
@@ -311,7 +327,9 @@ country_event = {
 	option = {
 		name = ww1_russia.11.c
 		trigger = {
-			has_country_flag = stolypin_resigns
+			NOT = {
+				has_country_flag = octobrists_strike_2
+			}
 		}
 		hidden_effect = {
 			deactivate_advisor = RUS_vladimir_kokovtsov
@@ -346,10 +364,33 @@ country_event = {
 	picture = GFX_filler
 	fire_only_once = yes
 	is_triggered_only = yes
-	#let the vote begin
+	#pressure governors and clergy
 	option = {
-		name = ww1_russia.12a
-		add_political_power = 50	
+		name = ww1_russia.12.a
+		add_political_power = 50
+		hidden_effect = {
+			if = {
+				limit = {
+					has_country_flag = octobrists_strike_1
+				}
+				clr_country_flag = octobrists_strike_1
+				set_country_flag = unfair_elections
+			}
+			else_if = {
+				limit = {
+					has_country_flag = octobrists_strike_2
+				}
+				clr_country_flag = octobrists_strike_2
+				set_country_flag = unfair_elections
+			}
+			else = {
+				set_country_flag = unfair_elections
+			}
+		}
+	}
+	#we'll have fair elections this time
+	option = {
+		name = ww1_russia.12.b
 	}
 }
 #Convene IV State Duma
@@ -362,14 +403,30 @@ country_event = {
 	is_triggered_only = yes
 	#balance of power shifted towards...
 	option = {
-		name = ww1_russia.15a	
-		set_country_flag = unfair_elections	
+		name = ww1_russia.15.a
 		hidden_effect = {
-			set_popularities = {
-				fascism = 15
-				communism = 5
-				democratic = 30
-				neutrality = 50
+			if = {
+				limit = {
+					has_country_flag = unfair_elections
+				}
+				set_popularities = {
+					fascism = 15
+					communism = 5
+					democratic = 30
+					neutrality = 50
+				}
+				country_event = {
+					id = ww1_russia.29
+					days = 365
+				}
+			}
+			else = {
+				set_popularities = {
+					fascism = 5
+					communism = 10
+					democratic = 40
+					neutrality = 45
+				}
 			}
 		}
 	}
@@ -419,8 +476,8 @@ country_event = {
 	}
 	option = {
 		name = ww1_russia.19a
-		add_stability = 0.025
-		add_political_power = 25
+		add_stability = 0.01
+		add_political_power = 20
 	}
 }
 #Adopt new budget flavor 2
@@ -436,6 +493,32 @@ country_event = {
 		name = ww1_russia.20a
 		add_stability = -0.025
 		add_political_power = -25
+		hidden_effect = {
+			if = {
+				limit = {
+					has_country_flag = octobrists_strike_1
+				}
+				clr_country_flag = octobrists_strike_1
+				set_country_flag = octobrists_strike_2
+			}
+			else_if = {
+				limit = {
+					has_country_flag = octobrists_strike_2
+				}
+				country_event = {
+					id = ww1_russia.29
+					days = 300
+				}
+			}
+			else_if = {
+				limit = {
+					NOT = {
+						has_country_flag = unfair_elections
+					}
+				}
+				set_country_flag = octobrists_strike_1
+			}
+		}
 	}
 }
 #Left octobrists move into opposition
@@ -1825,8 +1908,16 @@ country_event = {
 	trigger = {
 		tag = RUS
 		has_war_with = GER
-		has_idea = RUS_broken_compromise
+		OR = {
+			has_idea = RUS_june_third_political_system
+			has_idea = RUS_broken_compromise
+		}
 		has_completed_focus = RUS_strengthen_tsars_authority
+		OR = {
+			has_country_flag = octobrists_strike_1
+			has_country_flag = octobrists_strike_2
+			has_country_flag = unfair_elections
+		}
 		casualties > 400000
 		NOT = {
 			has_idea = RUS_patriotism_on_rise 
@@ -1834,9 +1925,47 @@ country_event = {
 	}
 	option = {
 		name = ww1_russia.62.a
-		swap_ideas = {
-			remove_idea = RUS_broken_compromise
-			add_idea = RUS_progressive_bloc
+		if = {
+			limit = {
+				has_country_flag = octobrists_strike_1
+			}
+			add_popularity = {
+				ideology = democratic
+   				popularity = 0.05
+			}
+		}
+		else_if = {
+			limit = {
+				has_country_flag = octobrists_strike_2
+			}
+			add_popularity = {
+				ideology = democratic
+   				popularity = 0.1
+			}
+		}
+		else_if = {
+			limit = {
+				has_idea = RUS_broken_compromise
+			}
+			add_popularity = {
+				ideology = democratic
+   				popularity = 0.15
+			}
+		}
+		if = {
+			limit = {
+				has_idea = RUS_broken_compromise
+			}
+			swap_ideas = {
+				remove_idea = RUS_broken_compromise
+				add_idea = RUS_progressive_bloc
+			}
+		}
+		else = {
+			swap_ideas = {
+				remove_idea = RUS_june_third_political_system
+				add_idea = RUS_progressive_bloc
+			}
 		}
 	}
 }
