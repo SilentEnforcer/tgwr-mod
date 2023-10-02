@@ -1,9 +1,9 @@
 ---
 name: GFX - Icon Request
-about: Request of a needed icon
-title: Tag of Nation(s) Affected - Icon Name
-labels: GFX - Icons
-projects: "@GFX Requests"
+description: Request of a needed icon
+title: "Tag of Nation(s) Affected - Icon Name"
+labels: "GFX - Icons"
+projects: ["SilentEnforcer/1"]
 assignees: ''
 
 ---
