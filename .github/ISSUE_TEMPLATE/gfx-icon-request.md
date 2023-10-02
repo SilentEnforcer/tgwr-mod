@@ -12,8 +12,4 @@ assignees: ''
 
 **Image Source:**
 
-
-**Elaborate on how you want it to be:**
-
-
 **Additional context or comments:**
