@@ -3,7 +3,7 @@ name: GFX - Icon Request
 about: Request of a needed icon
 title: Tag of Nation(s) Affected - Icon Name
 labels: GFX - Icon
-projects: ["SilentEnforcer/1"]
+projects: ["SilentEnforcer/projects/1"]
 assignees: ''
 
 ---
