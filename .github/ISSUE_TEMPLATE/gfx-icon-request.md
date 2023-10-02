@@ -1,0 +1,19 @@
+---
+name: GFX - Icon Request
+about: Request of a needed icon
+title: Tag of Nation(s) Affected - Icon Name
+labels: GFX - Icon
+projects: ["SilentEnforcer/1"]
+assignees: ''
+
+---
+
+**Request:**
+
+**Image Source:**
+
+
+**Elaborate on how you want it to be:**
+
+
+**Additional context or comments:**
