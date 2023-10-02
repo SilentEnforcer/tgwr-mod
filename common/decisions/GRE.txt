@@ -5238,6 +5238,9 @@ GRE_ottoman_war_invites = {
 		allowed = {
 			original_tag = GRE
 		}
+		ai_will_do = {
+			factor = 500
+		}
 		target_trigger = {
 			FROM = {
 				OR = {
@@ -5270,7 +5273,10 @@ GRE_ottoman_war_invites = {
 	GRE_finalise_war_plans = {
 		allowed = { original_tag = GRE }
 		cost = 10
-		days_remove = 7
+		days_remove = 10
+		ai_will_do = {
+			factor = 25
+		}
 		remove_effect = {
 			set_country_flag = GRE_finalised_war_plans
 			clr_country_flag = GRE_finalising_war_plans
@@ -5354,6 +5360,70 @@ GRE_bulgaria_war_category = {
 	}
 }
 GRE_road_to_ankara = {
+	GRE_capture_istanbul = {
+		icon = GFX_decision_generic_reorganize_irregulars
+		allowed = {
+			OR = {
+				tag = GRE
+				original_tag = TUR
+			}
+		}
+
+		highlight_states = {
+			highlight_state_targets = { state = 347 }
+			highlight_provinces = {
+				9833
+			}
+		}
+		activation = {
+			GRE = {
+				OR = {
+					has_completed_focus = GRE_begin_the_asia_minor_campaign
+					has_completed_focus = GRE_begin_the_asia_minor_campaign_metaxas	
+				}
+			}
+			OR = {
+				#visible for both greece and turkey
+				OR = {
+					has_war_with = GRE
+					has_war_with = TRR
+					has_war_with = TUR
+				}
+			}
+			OR = {
+				TUR = {
+					owns_state = 347
+				}
+				TRR = {
+					owns_state = 347
+				}
+			}
+		}
+		cancel_trigger = {
+			has_war = no
+		}
+		available = {
+			GRE = {
+				controls_province = 9833
+			}
+		}
+		days_mission_timeout = 730
+		selectable_mission = no
+		is_good = no
+
+		complete_effect = {
+			347 = {
+				OWNER = {
+					country_event = ww1_greece.210
+				}
+			}
+		}
+		timeout_effect = {
+			GRE = {
+				add_ideas = GRE_army_collapse
+			}
+		}
+	}
 	GRE_capture_ankara = {
 		icon = GFX_decision_generic_reorganize_irregulars
 		allowed = {
@@ -5384,10 +5454,29 @@ GRE_road_to_ankara = {
 					has_war_with = TUR
 				}
 			}
+			OR = {
+				TUR = {
+					owns_state = 49
+				}
+				TRR = {
+					owns_state = 49
+				}
+			}
+			NOT = {
+				OR = {
+					TUR = {
+						owns_state = 347
+					}
+					TRR = {
+						owns_state = 347
+					}
+				}
+			}
 			
 		}
 		cancel_trigger = {
 			has_war = no
+			has_active_mission = GRE_capture_istanbul
 		}
 		available = {
 			GRE = {
@@ -5418,19 +5507,8 @@ GRE_road_to_ankara = {
 		}
 		available = {
 			has_war_with = FROM
-			OR = {
-				is_faction_leader = yes
-				is_in_faction = no
-			}
 		}
 		visible = {
-			NOT = {
-				is_in_faction_with = GER 
-				has_war_together_with = GER
-				is_in_faction_with = FRA 
-				has_war_together_with = FRA
-				FROM = { has_completed_focus = TUR_lozan_conference }
-			}
 			has_global_flag = great_war_ends
 			has_global_flag = interwar_greco_turkish_war
 			any_other_country = {
@@ -5494,18 +5572,8 @@ GRE_road_to_ankara = {
 		}
 		available = {
 			has_war_with = FROM
-			OR = {
-				is_faction_leader = yes
-				is_in_faction = no
-			}
 		}
 		visible = {
-			NOT = {
-				is_in_faction_with = GER 
-				has_war_together_with = GER
-				is_in_faction_with = FRA 
-				has_war_together_with = FRA
-			}
 			has_global_flag = great_war_ends
 			has_global_flag = interwar_greco_turkish_war
 			original_tag = TUR
@@ -5534,6 +5602,79 @@ GRE_road_to_ankara = {
 			custom_effect_tooltip = GRE_sue_for_peace_TRR_tt
 			TUR_liberation_war_defeat_effect = yes
 			news_event = ww1_greece.211
+		}
+	}
+	TUR_sue_for_peace_GRE = {
+		icon = GFX_decision_eng_trade_unions_support
+		allowed = {
+			original_tag = TUR
+		}
+		available = {
+			has_war_with = FROM
+		}
+		visible = {
+			has_global_flag = great_war_ends
+			has_global_flag = GRE_asia_minor_campaign
+			original_tag = TUR
+			has_war_with = GRE
+			is_subject = no
+		}
+		target_trigger = {
+			FROM = { tag = GRE }
+		}
+		fire_only_once = yes
+		ai_will_do = {
+			base = 0
+			modifier = {
+				add = 1000
+				surrender_progress > 0.15
+			}
+			modifier = {
+				add = 1000
+				49 = {
+					is_controlled_by_ROOT_or_ally = no
+				}
+			}
+		}
+		complete_effect = {
+			news_event = ww1_greece.211
+			TUR_defeat_against_greece_junta_effect = yes
+		}
+	}
+	GRE_sue_for_peace_TUR = {
+		icon = GFX_decision_eng_trade_unions_support
+		allowed = {
+			original_tag = GRE
+		}
+		available = {
+			has_war_with = FROM
+		}
+		visible = {
+			has_global_flag = great_war_ends
+			has_global_flag = GRE_asia_minor_campaign
+			original_tag = GRE
+			has_war_with = TUR
+			is_subject = no
+		}
+		target_trigger = {
+			FROM = { tag = TUR }
+		}
+		fire_only_once = yes
+		ai_will_do = {
+			base = 0
+			modifier = {
+				add = 1000
+				surrender_progress > 0.15
+			}
+			modifier = {
+				add = 1000
+				49 = {
+					is_controlled_by_ROOT_or_ally = no
+				}
+			}
+		}
+		complete_effect = {
+			TUR_win_against_greece_junta_effect = yes
 		}
 	}
 }
