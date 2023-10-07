@@ -4,7 +4,7 @@ NDefines.NCareerProfile.MOD_STATISTICS_GROUP_NAME = "TGWR_CAREER_PROFILE"
 
 NDefines.NGame.START_DATE = "1910.5.1.12"				
 NDefines.NGame.END_DATE = "1935.1.1.1"
-NDefines.NGame.HANDS_OFF_START_TAG = "GRE"
+NDefines.NGame.HANDS_OFF_START_TAG = "BHU"
 NDefines.NGame.DECISION_ALERT_TIMEOUT_DAYS = 60	
 NDefines.NGame.LAG_DAYS_FOR_LOWER_SPEED = 30								-- Vanilla is 10
 NDefines.NGame.LAG_DAYS_FOR_PAUSE = 60			
