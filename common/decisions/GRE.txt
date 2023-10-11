@@ -4005,6 +4005,18 @@ GRE_territorial_allegeance = {
 					set_capital = {
 						state = 345
 					}
+					every_state = {
+						limit = {
+							is_claimed_by = GRE
+						}
+						add_claim_by = PREV
+					}
+					every_state = {
+						limit = {
+							is_core_of = GRE
+						}
+						add_core_of = PREV
+					}
 					add_political_power = 300
 					set_country_flag = GRE_national_defense_flag
 					set_cosmetic_tag = GRE_national_defense
@@ -4758,18 +4770,23 @@ GRE_minorities_management = {
         days_remove = 56
         cost = 25
 		state_target = yes
-		target_array = owns_state
+		target_array = owned_states
         target_trigger = {
             FROM = {
 				is_owned_by = ROOT
-                NOT = {
-					is_core_of = ROOT 
-					has_dynamic_modifier = { modifier = GRE_reinforced_local_administration scope = GRE }
+				OR = {
+					NOT = {
+						is_core_of = ROOT
+					}
+					has_resistance = yes
+				}			
+                NOT = {			
+					has_dynamic_modifier = { modifier = GRE_reinforced_local_administration }
 				}
             }
         }
 		on_map_mode = map_only
-        remove_effect = { FROM = { add_dynamic_modifier = { modifier = GRE_reinforced_local_administration scope = GRE } } }
+        remove_effect = { FROM = { add_dynamic_modifier = { modifier = GRE_reinforced_local_administration } } }
     }
 	GRE_core_claims = {
 		name = GRE_core_claims_sp
@@ -4778,8 +4795,23 @@ GRE_minorities_management = {
 			original_tag = GRE
 		}
 		available = {
-			FROM = {
-				compliance > 85				
+			if = {
+				limit = {
+					FROM = {
+						state = 345					
+					}	
+				}
+				FROM = {
+					OR = {
+						compliance > 85
+						is_core_of = ROOT
+					}	
+				}
+				else = {
+					FROM = {
+						compliance > 85				
+					}
+				}	
 			}
 			has_full_control_of_state = FROM
 		}		
@@ -4789,14 +4821,18 @@ GRE_minorities_management = {
 		days_remove = 105
 		cost = 50
 		state_target = yes
-		target_array = owns_state
+		target_array = owned_states
 		target_trigger = {
 			FROM = {
 				is_owned_by = ROOT
 				is_claimed_by = ROOT
-				NOT = {
-					is_core_of = ROOT
-				}
+				OR = {
+					state = 345
+					NOT = {
+						is_core_of = ROOT
+					}
+					has_resistance = yes
+				}	
 			}
 		}
 		on_map_mode = map_only
@@ -4813,7 +4849,19 @@ GRE_minorities_management = {
 						}
 					}
 					remove_core_of = TUR
-				}	
+				}
+				if = {
+					limit = {
+						has_dynamic_modifier = { modifier = GRE_integration_efforts }					
+					}
+					remove_dynamic_modifier = { modifier = GRE_integration_efforts }
+				}
+				if = {
+					limit = {
+						has_dynamic_modifier = { modifier = GRE_reinforced_local_administration }					
+					}
+					remove_dynamic_modifier = { modifier = GRE_reinforced_local_administration }
+				}
 			}
 		}
 		ai_will_do = {
