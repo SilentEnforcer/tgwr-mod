@@ -347,18 +347,30 @@ GRE_battle_of_epirus = {
 			OR = {
 				tag = GRE
 				tag = ITA
-				tag = BUL
 				tag = AUH
 			}
 		}
+		visible = {
+			OR = {
+				tag = GRE
+				has_country_flag = AUH_ITA_BUL_reaction_to_GRE_occupation_of_nothern_epirus
+				has_country_flag = ROOT_against_GRE_occupation_of_northern_epirus
+			}	
+		}
 		activation = {
 			AUH = {
+				exists = yes
+				is_subject = no
+				NOT = {
+					has_country_flag = great_war_loser
+				}
 				has_country_flag = AUH_ITA_BUL_reaction_to_GRE_occupation_of_nothern_epirus
 			}
 			NOT = {
-				GRE = {
-					has_country_flag = epirus_has_been_freed
-				}
+				has_global_flag = epirus_has_been_freed
+			}
+			803 = {
+				is_owned_and_controlled_by = GRE
 			}
 		}
 		selectable_mission = yes
@@ -369,6 +381,10 @@ GRE_battle_of_epirus = {
 					has_country_flag = ROOT_against_GRE_occupation_of_northern_epirus
 					is_subject = no
 					has_war = no
+					is_subject = no
+					NOT = {
+						has_country_flag = great_war_loser
+					}
 				}
 				declare_war_on = {
 					target = GRE
@@ -378,9 +394,6 @@ GRE_battle_of_epirus = {
 		}
 		complete_effect = {
 			set_global_flag = epirus_has_been_freed
-			GRE = {
-				set_country_flag = epirus_has_been_freed
-			}
 			hidden_effect = {
 				EPR = {
 					transfer_state = 803
@@ -403,10 +416,17 @@ GRE_battle_of_epirus = {
 			}
 		}
 		available = {
-			has_completed_focus = GRE_florence_protocol
-			803 = {
-				is_owned_and_controlled_by = GRE
+			if = {
+				limit = {
+					tag = GRE
+				}
+				has_completed_focus = GRE_florence_protocol
+				owns_state = 803
+				else = {
+					always = no
+				}	
 			}
+			
 		}
 		ai_will_do = {
 			factor = 15
@@ -2331,23 +2351,26 @@ GRE_debt_management = {
 			}
 		}
 		visible = {
-
+			GRE_has_IFC = yes
 		}
 		fire_only_once = no
 		days_remove = 45
 		days_re_enable = 120
 		cost = 50
 		remove_effect = {
+			custom_effect_tooltip = GRE_IFC_minus_2_tt
+			subtract_from_variable = {
+				var = GRE_IFC_var
+				value = 0.02
+			}
 			if = {
 				limit = {
-					GRE_has_IFC = yes
+					check_variable = { GRE_IFC_var < 0 }
 				}
-				custom_effect_tooltip = GRE_IFC_minus_2_tt
-				subtract_from_variable = {
-					var = GRE_IFC_var
-					value = 0.02
-				}
-			}	
+				multiply_temp_variable = {
+					GRE_IFC_var = 0
+				}						
+			}
 			custom_effect_tooltip = back_in_120_days
 		}
 		modifier = {
@@ -2377,7 +2400,8 @@ GRE_debt_management = {
 			}
 		}
 		visible = {
-        has_completed_focus = GRE_large_debt_repayments
+			GRE_has_IFC = yes
+			has_completed_focus = GRE_large_debt_repayments
 		}
 		fire_only_once = no
 		days_remove = 60
@@ -2389,6 +2413,14 @@ GRE_debt_management = {
 				value = 0.05
 			}
 			custom_effect_tooltip = GRE_IFC_minus_5_tt
+			if = {
+				limit = {
+					check_variable = { GRE_IFC_var < 0 }
+				}
+				multiply_temp_variable = {
+					GRE_IFC_var = 0
+				}						
+			}
 			custom_effect_tooltip = back_in_160_days
 		}
 		modifier = {
@@ -2625,6 +2657,9 @@ GRE_debt_management = {
 		allowed = { original_tag = GRE }
 		available = {
 			has_war = no
+			check_variable = {
+				GRE_IFC_var > 0
+			}
 			345 = {
 				is_owned_and_controlled_by = GRE
 			}
@@ -2636,6 +2671,7 @@ GRE_debt_management = {
 			NOT = {
 				has_country_flag = GRE_thessaloniki_resources_sold
 			}
+			GRE_has_IFC = yes
 		}
 		target_trigger = {
 			FROM = {
@@ -2675,17 +2711,25 @@ GRE_debt_management = {
 				value = 0.05
 			}
 			custom_effect_tooltip = GRE_IFC_minus_5_tt
-			FROM = {
-				give_resource_rights = {
-					receiver = FROM
-					state = 345
+			if = {
+				limit = {
+					check_variable = { GRE_IFC_var < 0 }
 				}
+				multiply_temp_variable = {
+					GRE_IFC_var = 0
+				}						
 			}
+			effect_tooltip = {
+				FROM = {
+					give_resource_rights = {
+						receiver = FROM
+						state = 345
+					}
+				}
+			}		
 			set_country_flag = GRE_thessaloniki_resources_sold
 			FROM = {
 				set_country_flag = GRE_own_thessaloniki_resources
-			}
-			FROM = {
 				country_event = {
 					days = 2
 					id = ww1_greece.61
@@ -2707,17 +2751,33 @@ GRE_railway_decision = {
 	GRE_electrify_pireus_railway = {
 		allowed = { original_tag = GRE }
 		icon = GFX_decision_railroad
+		state_target = yes
+		target_trigger = {
+			FROM = {
+				state = 898
+			}	
+		}
 		available = {
 			num_of_civilian_factories_available_for_projects > 2
+			has_full_control_of_state = FROM
 		}
 		visible = {
-
+			hidden_trigger = {
+				owns_state = FROM
+				NOT = {
+					FROM = {
+						has_state_flag = GRE_electrify_pireus_railway
+					}
+				}
+			}
 		}
+		cancel_if_not_visible = yes
 		fire_only_once = yes
 		days_remove = 70
 		cost = 150
 		remove_effect = {
-			898 = {
+			FROM = {
+				set_state_flag = GRE_electrify_pireus_railway
 				add_building_construction = {
 					type = infrastructure
 					level = 1
@@ -2736,20 +2796,47 @@ GRE_railway_decision = {
 	GRE_finalize_peloponnese_railway = {
 		allowed = { original_tag = GRE }
 		icon = GFX_decision_railroad
+		state_target = yes
+		target_trigger = {
+			FROM = {
+				state = 186
+			}	
+		}
 		available = {
 			num_of_civilian_factories_available_for_projects > 2
+			hidden_trigger = {
+				controls_province = 7211
+				controls_province = 4193
+				controls_province = 1173
+				controls_province = 11965
+				controls_province = 4078
+				controls_province = 7096
+				controls_province = 3988
+			}
 		}
 		visible = {
-
+			hidden_trigger = {
+				owns_state = FROM
+				owns_state = 47
+				NOT = {
+					FROM = {
+						has_state_flag = GRE_finalize_peloponnese_railway
+					}
+				}
+			}		
 		}
+		cancel_if_not_visible = yes
 		fire_only_once = yes
 		days_remove = 70
 		cost = 100
-		remove_effect = {
+		remove_effect = {	
+			FROM = {
+				set_state_flag = GRE_finalize_peloponnese_railway
+			}
 			build_railway = {
-		    level = 1
-		    path = { 7211 4193 1173 11965 4078 7096 3988 }
-		    }
+				level = 1
+				path = { 7211 4193 1173 11965 4078 7096 3988 }
+			}
 			add_stability = 0.02
 		}
 		modifier = {
@@ -2763,19 +2850,40 @@ GRE_railway_decision = {
 	GRE_finalize_chalkis_railway = {
 		allowed = { original_tag = GRE }
 		icon = GFX_decision_railroad
+		state_target = yes
+		target_trigger = {
+			FROM = {
+				state = 898
+			}	
+		}	
 		available = {
 			num_of_civilian_factories_available_for_projects > 1
+			hidden_trigger = {
+				controls_province = 4109
+				controls_province = 7127
+			}
 		}
 		visible = {
-
+			hidden_trigger = {
+				owns_state = FROM
+				NOT = {
+					FROM = {
+						has_state_flag = GRE_finalize_chalkis_railway
+					}
+				}	
+			}
 		}
+		cancel_if_not_visible = yes
 		fire_only_once = yes
 		days_remove = 35
 		cost = 50
 		remove_effect = {
+			FROM = {
+				set_state_flag = GRE_finalize_chalkis_railway
+			}	
 			build_railway = {
-		    level = 1
-		    path = { 4109 7127 }
+				level = 1
+				path = { 4109 7127 }
 		    }
 			add_stability = 0.02
 		}
@@ -2790,19 +2898,38 @@ GRE_railway_decision = {
 	GRE_finalize_messolonghi_railway = {
 		allowed = { original_tag = GRE }
 		icon = GFX_decision_railroad
+		state_target = yes
+		target_trigger = {
+			FROM = {
+				state = 47
+			}	
+		}
 		available = {
 			num_of_civilian_factories_available_for_projects > 1
+			hidden_trigger = {
+				controls_province = 1205
+				controls_province = 417
+			}
 		}
 		visible = {
-
+			hidden_trigger = {
+				owns_state = FROM
+				NOT = {
+					FROM = {
+						has_state_flag = GRE_finalize_messolonghi_railway
+					}
+				}
+			}
 		}
+		cancel_if_not_visible = yes
 		fire_only_once = yes
 		days_remove = 35
 		cost = 50
 		remove_effect = {
+			FROM = { set_state_flag = GRE_finalize_messolonghi_railway }
 			build_railway = {
-		    level = 1
-		    path = { 1205 417 }
+				level = 1
+				path = { 1205 417 }
 		    }
 			add_stability = 0.02
 		}
@@ -2817,19 +2944,40 @@ GRE_railway_decision = {
 	GRE_finalize_kalabaka_railway = {
 		allowed = { original_tag = GRE }
 		icon = GFX_decision_railroad
+		state_target = yes
+		target_trigger = {
+			FROM = {
+				state = 185
+			}	
+		}
 		available = {
 			num_of_civilian_factories_available_for_projects > 1
+			hidden_trigger = {
+				controls_province = 863
+				controls_province = 11786
+			}
 		}
 		visible = {
-
+			hidden_trigger = {
+				owns_state = FROM
+				NOT = {
+					FROM = {
+						has_state_flag = GRE_finalize_kalabaka_railway
+					}
+				}
+			}
 		}
+		cancel_if_not_visible = yes
 		fire_only_once = yes
 		days_remove = 35
 		cost = 50
 		remove_effect = {
+			FROM = {
+				set_state_flag = GRE_finalize_kalabaka_railway
+			}
 			build_railway = {
-		    level = 1
-		    path = { 863 11786 }
+				level = 1
+				path = { 863 11786 }
 		    }
 			add_stability = 0.02
 		}
@@ -3414,7 +3562,7 @@ GRE_territorial_allegeance = {
 		icon = GFX_decision_generic_political_discourse
 		allowed = { original_tag = GRE }
 		visible = {
-			has_country_flag = GRE_fight_epistratoi
+			has_completed_focus = GRE_crackdown_on_the_epistratoi
 			OR = {
 				has_idea = gre_epistratoi
 				has_idea = gre_epistratoi2
@@ -3856,7 +4004,7 @@ GRE_territorial_allegeance = {
 					transfer_state = 345
 					set_capital = {
 						state = 345
-					}
+					}					
 					add_political_power = 300
 					set_country_flag = GRE_national_defense_flag
 					set_cosmetic_tag = GRE_national_defense
@@ -3949,6 +4097,17 @@ GRE_territorial_allegeance = {
 						}
 						add_core_of = PREV
 						set_state_owner_to = PREV
+						if = {
+							limit = {
+								is_core_of = TUR
+								OR = {
+									state = 731
+									state = 345
+									state = 184
+								}
+							}
+							remove_core_of = TUR
+						}
 					}
 					every_owned_state = {
 						limit = {
@@ -4020,7 +4179,7 @@ GRE_territorial_allegeance = {
 					}
 					promote_character = GRE_eleftherios_venizelos
 					set_cosmetic_tag = GRE_national_defense
-					add_country_leader_trait = standing_alone	
+					add_ideas = standing_alone	
 				}
 				every_state = {
 					limit = {
@@ -4045,7 +4204,7 @@ GRE_territorial_allegeance = {
 						}
 					}
 					hidden_effect = {
-						add_country_leader_trait = standing_alone	
+						add_ideas = standing_alone	
 						every_state = {
 							limit = {
 								check_variable = { var = GRE_garrison_control value = -1 compare = less_than_or_equals }
@@ -4195,7 +4354,7 @@ GRE_territorial_allegeance = {
 						}
 					}
 					hidden_effect = {
-						add_country_leader_trait = standing_alone
+						add_ideas = standing_alone	
 						division_template = {
 							name = "Venizelists"
 							regiments = {
@@ -4257,7 +4416,7 @@ GRE_territorial_allegeance = {
 						character = GRE_constantine_i
 					}
 					promote_character = GRE_constantine_i
-					add_country_leader_trait = standing_alone
+					add_ideas = standing_alone	
 					every_state = {
 						limit = {
 							check_variable = { var = GRE_garrison_control value = -1 compare = less_than_or_equals }
@@ -4614,14 +4773,16 @@ GRE_minorities_management = {
         target_trigger = {
             FROM = {
 				is_owned_by = ROOT
-                NOT = {
-					is_core_of = ROOT 
-					has_dynamic_modifier = { modifier = GRE_reinforced_local_administration scope = GRE }
+				NOT = {
+					is_core_of = ROOT
+				}			
+                NOT = {			
+					has_dynamic_modifier = { modifier = GRE_reinforced_local_administration }
 				}
             }
         }
 		on_map_mode = map_only
-        remove_effect = { FROM = { add_dynamic_modifier = { modifier = GRE_reinforced_local_administration scope = GRE } } }
+        remove_effect = { FROM = { add_dynamic_modifier = { modifier = GRE_reinforced_local_administration } } }
     }
 	GRE_core_claims = {
 		name = GRE_core_claims_sp
@@ -4648,7 +4809,7 @@ GRE_minorities_management = {
 				is_claimed_by = ROOT
 				NOT = {
 					is_core_of = ROOT
-				}
+				}	
 			}
 		}
 		on_map_mode = map_only
@@ -4665,7 +4826,19 @@ GRE_minorities_management = {
 						}
 					}
 					remove_core_of = TUR
-				}	
+				}
+				if = {
+					limit = {
+						has_dynamic_modifier = { modifier = GRE_integration_efforts }					
+					}
+					remove_dynamic_modifier = { modifier = GRE_integration_efforts }
+				}
+				if = {
+					limit = {
+						has_dynamic_modifier = { modifier = GRE_reinforced_local_administration }					
+					}
+					remove_dynamic_modifier = { modifier = GRE_reinforced_local_administration }
+				}
 			}
 		}
 		ai_will_do = {
@@ -5285,7 +5458,7 @@ GRE_road_to_ankara = {
 			base = 0
 			modifier = {
 				add = 1000
-				surrender_progress > 0.15
+				surrender_progress > 0.60
 			}
 			modifier = {
 				add = 1000
@@ -5348,7 +5521,7 @@ GRE_road_to_ankara = {
 			base = 0
 			modifier = {
 				add = 1000
-				surrender_progress > 0.15
+				surrender_progress > 0.80
 			}
 			modifier = {
 				add = 1000
@@ -5386,7 +5559,7 @@ GRE_road_to_ankara = {
 			base = 0
 			modifier = {
 				add = 1000
-				surrender_progress > 0.15
+				surrender_progress > 0.80
 			}
 			modifier = {
 				add = 1000
@@ -5423,7 +5596,7 @@ GRE_road_to_ankara = {
 			base = 0
 			modifier = {
 				add = 1000
-				surrender_progress > 0.35
+				surrender_progress > 0.60
 			}
 			modifier = {
 				add = 1000
