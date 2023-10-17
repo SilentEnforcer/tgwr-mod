@@ -6,7 +6,7 @@ news_event = {
 	picture = GFX_news_event_rape_of_belgium
 	major = yes
 	mean_time_to_happen = {
-		days = 40
+		days = 100
 	}
 	trigger = {
 		BEL = {
@@ -16,6 +16,7 @@ news_event = {
 		GER = {
 			controls_state = 6
 			controls_state = 34
+			controls_state = 906
 		}
 		has_global_flag = kis_war
 		NOT = {
@@ -137,11 +138,12 @@ country_event = {
 					id = ww1_belgium.7
 				}
 			}
+			check_democratic_civil_war_popularity = yes
 			start_civil_war = {
 				ideology = democratic
 				keep_political_leader = yes
 				keep_political_party_members = yes
-				size = 0.5
+				size = civil_war_size_var
 				drop_cosmetic_tag = yes
 				hidden_effect = {
 					BEL = {
@@ -176,7 +178,7 @@ country_event = {
 						add_country_leader_role = {
 							promote_leader = yes
 							country_leader = {
-								ideology = autocracy
+								ideology = semi_constitutional_monarchy
 								traits = {
 									knight_king
 								}
@@ -295,8 +297,17 @@ country_event = {
 	trigger = {
 		tag = BEL
 		date > 1910.6.1
-		owns_state = 449
-		has_full_control_of_state = 449
+		OR = {
+			AND = {
+				owns_state = 449
+				has_full_control_of_state = 449
+			}
+			AND = {
+				owns_state = 902
+				has_full_control_of_state = 902
+			}
+		}
+		ENG = { owns_state = 549 }
 	}
 	mean_time_to_happen = {
 		days = 10
@@ -304,13 +315,24 @@ country_event = {
 	fire_only_once = yes
 	option = {
 		name = ww1_belgium.8.a
+		trigger = {
+			NOT = { is_subject_of = ENG }
+		}
 		add_political_power = -100
 		ai_chance = {
-			factor = 0
+			base = 0
+			modifier = {
+				add = 100
+				NOT = { has_government = communism }
+				ENG = { has_government = communism }
+			}
 		}
 	}
 	option = {
 		name = ww1_belgium.8.b
+		trigger = {
+			NOT = { has_war_with = ENG }
+		}
 		ENG = {
 			transfer_state = 449
 		}
@@ -324,6 +346,11 @@ country_event = {
 		}
 		ai_chance = {
 			factor = 100
+			modifier = {
+				factor = 0
+				NOT = { has_government = communism }
+				ENG = { has_government = communism }
+			}
 		}
 	}
 }
@@ -723,7 +750,7 @@ country_event = {
 				create_country_leader = {
 					name = "BEL_albert_i"
 					picture = "gfx/leaders/BEL/BEL_albert_general.png"
-					ideology = autocracy
+					ideology = semi_constitutional_monarchy
 					traits = {
 						knight_king
 					}
@@ -1400,18 +1427,14 @@ country_event = {
 			hidden_effect = {
 				set_cosmetic_tag = HOL_BAT
 				create_country_leader = {
-					name = "Pieter Jelles Troelstra"
+					name = HOL_pieter_jelles_troelstra
 					picture = "gfx/leaders/HOL/HOL_pieter_jelles_troelstra.png"
 					ideology = socialism
-					traits = {
-					}
 				}
 				create_country_leader = {
-					name = "Pieter Jelles Troelstra"
+					name = HOL_pieter_jelles_troelstra
 					picture = "gfx/leaders/HOL/HOL_pieter_jelles_troelstra.png"
 					ideology = reformist_socialism
-					traits = {
-					}
 				}
 				set_party_name = {
 					ideology = democratic
@@ -1668,6 +1691,8 @@ country_event = {
 				}
 			}
 			BEL = {
+				set_stability = 0.40
+				set_war_support = 0.10
 				set_popularities = {
 					democratic = 10
 					neutrality = 60
@@ -1718,7 +1743,7 @@ country_event = {
 				hidden_effect = {
 					BEL_albert_i = {
 						remove_country_leader_role = {
-							ideology = autocracy
+							ideology = semi_constitutional_monarchy
 						}
 					}
 				}
@@ -1801,6 +1826,153 @@ country_event = {
 		add_timed_idea = {
 			idea = BEL_quenched_militarism
 			days = 365
+		}
+	}
+}
+
+# ACM (very advanced-for-time mechanized brigade with canon
+country_event = {
+	id = ww1_belgium.50
+	title = ww1_belgium.50.t
+	desc = ww1_belgium.50.d
+	picture = GFX_report_event_armored_cars
+	fire_only_once = yes
+	mean_time_to_happen = {
+		days = 7
+	}
+	trigger = {
+		tag = BEL
+		BEL = {
+			has_war = yes
+			date > 1914.9.9
+		}
+		any_enemy_country = {
+			is_major = yes
+		}
+		NOT = {
+			has_country_flag = BEL_ACM_corps
+		}
+	}
+	option = {
+		set_country_flag = BEL_ACM_corps
+		name = ww1_belgium.50.a
+		set_technology = {
+			basic_armored_car = 1
+			bicycle_infantry = 1
+		}
+		create_equipment_variant = {
+			type = armored_car_equipment_2
+			name = "ACM Minerva"
+			upgrades = {
+				tank_reliability_upgrade = 5
+				tank_armor_upgrade = 5
+				tank_gun_upgrade = 5
+				ac_engine_upgrade = 5
+			}
+		}
+		division_template = {
+			name = "Corps expéditionnaire des autos-canons mitrailleuses"
+			override_model = RUS_armoredcar_entity
+			template_counter = 0
+			regiments = {
+				armored_car = {
+					x = 0
+					y = 0
+				}
+				armored_car = {
+					x = 0
+					y = 1
+				}
+				bicycle_battalion = {
+					x = 1
+					y = 0
+				}
+				bicycle_battalion = {
+					x = 1
+					y = 1
+				}
+				
+			}
+			priority = 2
+		}
+		if = {
+			limit = {
+				is_in_faction_with = FRA
+				FRA = {
+					has_capitulated = no
+				}
+				16 = {
+					is_owned_and_controlled_by = FRA
+				}
+			}
+			16 = {
+				create_unit = {
+					division = "name = \"Corps expéditionnaire des autos-canons mitrailleuses\" division_template = \"Corps expéditionnaire des autos-canons mitrailleuses\" start_experience_factor = 1 start_equipment_factor = 0.4"
+					owner = BEL
+				}
+			}
+			else = {
+				random_country = {
+					limit = {
+						OR = {
+							AND = {
+								is_in_faction_with = BEL
+								is_major = yes
+							}
+							tag = BEL
+						}
+					}
+					capital_scope = {
+						create_unit = {
+							division = "name = \"Corps expéditionnaire des autos-canons mitrailleuses\" division_template = \"Corps expéditionnaire des autos-canons mitrailleuses\" start_experience_factor = 1 start_equipment_factor = 0.4"
+							owner = BEL
+						}
+					}
+				}
+			}
+		}
+		
+	}
+}
+
+
+# defeat, loc is meme copied over WW2 France one
+country_event = {
+	id = ww1_belgium.51
+	title = ww1_belgium.51.t
+	desc = ww1_belgium.51.d
+	picture = GFX_report_event_gathering_protest
+	fire_only_once = yes
+	mean_time_to_happen = {
+		days = 7
+	}
+	trigger = {
+		tag = BEL
+		BEL = {
+			has_war = yes
+			has_capitulated = yes
+		}
+		any_enemy_country = {
+			is_major = yes
+		}
+		NOT = {
+			has_country_flag = BEL_defeat
+		}
+	}
+	option = {
+		set_country_flag = BEL_defeat
+		name = ww1_belgium.51.a
+		add_offsite_building = {
+			type = arms_factory
+			level = 3
+		}
+		remove_ideas = BEL_neglected_military
+		remove_ideas = BEL_nationalist_divides_1
+		hidden_effect = {
+			remove_ideas = BEL_nationalist_divides_2
+			remove_ideas = BEL_nationalist_divides_3
+			remove_ideas = BEL_nationalist_divides_4
+			remove_ideas = BEL_nationalist_divides_5
 		}
 	}
 }

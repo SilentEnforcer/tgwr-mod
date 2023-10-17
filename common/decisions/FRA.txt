@@ -760,148 +760,73 @@ FRA_situation_in_morocco = {
 GER_great_war = {
 
 	FRA_send_janin_to_russia = {
-		icon = GFX_decision_decision_fra_advisors
+		icon = GFX_decision_fra_advisors
 		fire_only_once = no
-		days_remove = 4
 		allowed = {
 			original_tag = FRA
 		}
 		visible = {
 			NOT = { has_global_flag = great_war_ends }
-			RUS = {
+			FROM = {
 				exists = yes
-				NOT = { has_war_with = ROOT }
 				is_subject = no
-				is_in_faction_with = ROOT
 			}
+			OR = {
+				is_in_faction_with = FROM
+				FROM = {
+					has_war_with = SOV
+					NOT = {
+						has_war_with = ROOT
+						has_government = communism
+						ROOT = { has_government = communism }
+					}
+				}
+			}
+			FRA_maurice_janin = { is_unit_leader = yes }
+			has_character = FRA_maurice_janin
 		}
-		days_re_enable = 14
 		custom_cost_trigger = {
 			command_power > 9
 		}
 		custom_cost_text = decision_cost_CP_10
-		
+		target_trigger = {
+			FROM = {
+				tag = RUS
+			}
+		}
 		available = {
 			any_country = {
 				OR = {
 					is_major = yes
 					tag = SOV
 				}	
-				has_war_with = RUS
+				has_war_with = FROM
 			}
 		}
 		ai_will_do = {
-			factor = 0
+			factor = 1000
 			modifier = {
-				date > 1916.8.8
-				factor = 5
+				date < 1916.8.8
+				factor = 0
 			}
 		}
-		visible = {
-			OR = {				
-				is_in_faction_with = RUS
-				RUS = {
-					has_war_with = SOV
-					NOT = {
-						has_war_with = ROOT
-					}
-				}	
-			}		
-			FRA_maurice_janin = { is_unit_leader = yes }
-		}
-
 		complete_effect = {
-			hidden_effect = {
-				add_command_power = -10
-			}
-		}
-		
-		remove_effect = {
-			FRA_maurice_janin = {
-				set_nationality = RUS	
-			}
 			effect_tooltip = {
-				RUS = { add_command_power = 25 }
+				FRA_maurice_janin = {
+					set_nationality = FROM
+				}
+				FROM = { add_command_power = 25 }
 			}
 			hidden_effect = {
-				RUS = {
-					country_event = ww1_france.240
-				}
 				set_country_flag = FRA_janin_sent_to_russia
-			}
-		}
-	}
-	FRA_alliance_with_romania = {
-		icon = GFX_decision_hol_exchange_intelligence_data
-		allowed = {
-			tag = FRA
-		}
-		target_trigger = {
-			FROM = {
-				tag = ROM
-			}
-		}
-		available = {
-			has_global_flag = kis_war
-			NOT = {
-				has_global_flag = great_war_ends
-			}
-			has_war = yes
-			has_government = democratic
-			FROM = {
-				OR = {
-					has_government = ROOT
-					has_government = neutrality
+				add_command_power = -10
+				FROM = {
+					country_event = {
+						id = ww1_france.240
+						hours = 5
+					}
 				}
-				is_in_faction = no
 			}
-			is_faction_leader = yes
-		}
-		cost = 100
-		visible = {
-			has_war = yes
-			NOT = {
-				has_war_with = ROM
-				has_global_flag = great_war_ends
-			}
-		}
-		complete_effect = {
-			FROM = {
-				country_event = ww1_romania.14
-			}
-		}
-		fire_only_once = yes
-		ai_will_do = {
-			factor = 0 # moved to romanian decision
-			# factor = 200
-			# modifier = {
-			# 	factor = 0
-			# 	RUS = { has_war_with = SOV }
-			# }
-			# modifier = {
-			# 	factor = 0
-			# 	NOT = { is_in_faction_with = RUS }
-			# }
-			# modifier = {
-			# 	factor = 0
-			# 	is_in_faction_with = BUL
-			# }
-			# modifier = {
-			# 	factor = 0
-			# 	is_in_faction_with = AUH
-			# }
-			# modifier = {
-			# 	factor = 0
-			# 	ROM = {
-			# 		OR = {
-			# 			has_country_leader = {
-			# 				character = ROM_carol_i
-			# 				ruling_only = yes
-			# 			}
-			# 			has_idea = ROM_carol_i
-			# 		}
-			# 	}
-			# }
 		}
 	}
 }
@@ -1041,6 +966,10 @@ FRA_fortifications = {
 				command_power < 25
 				has_war = yes
 				factor = 15
+			}
+			modifier = {
+				has_manpower < 50000
+				factor = 0 #go change conscription law with your PP
 			}
 		}
 		visible = {
@@ -1689,7 +1618,87 @@ FRA_defense_of_france = {
 		complete_effect = {
 			add_stability = -0.25
 			add_war_support = -0.25
-			news_event = ww1_france.218
+			# news_event = ww1_france.218
+		}
+	}
+
+	FRA_petain_head_of_state = {
+		icon = GFX_decision_fra_advisors
+		fire_only_once = yes
+		allowed = {
+			original_tag = FRA
+		}
+		cost = 0
+		
+		available = {
+			has_country_flag = FRA_collapsing_front
+		}
+		ai_will_do = {
+			factor = 100
+			modifier = {
+				is_historical_focus_on = yes
+				surrender_progress < 0.30
+				factor = 0
+			}
+		}
+		visible = {
+			tag = FRA
+			NOT = {
+				has_global_flag = great_war_ends
+			}
+			NOT = {
+				has_government = communism
+			}
+			has_country_flag = FRA_collapsing_front
+		}
+
+		complete_effect = {
+			if = {
+				limit = {
+					has_government = democratic
+				}
+				set_country_flag = return_democratic
+			}
+			if = {
+				limit = {
+					has_government = neutrality
+				}
+				set_country_flag = return_neutrality
+			}
+			if = {
+				limit = {
+					has_government = fascism
+				}
+				set_country_flag = return_fascism
+			}
+			FRA_philippe_petain = {
+				hidden_effect = {
+					add_country_leader_role = {
+						promote_leader = yes
+						country_leader = {
+							ideology = oligarchism
+							traits = { verdun_lion generallissimo }
+						}
+					}
+				}
+			}
+			set_party_name = {
+				ideology = neutrality
+				long_name = FRA_junta_fascist
+				name = FRA_junta_fascist
+			}
+			set_cosmetic_tag = FRA_alt_blue
+			hidden_effect = {
+				set_politics = {
+					ruling_party = neutrality
+					elections_allowed = no
+				}
+				add_popularity = {
+					ideology = neutrality
+					popularity = 0.20
+				}
+			}
+			
 		}
 	}
 
@@ -1722,7 +1731,7 @@ peace_deals = {
 				is_subject = no
 				has_country_flag = great_war_winner
 			}
-			has_global_flag = great_war_ends
+			has_global_flag = frankfurt_treaty
 		}
 		fire_only_once = yes
 		ai_will_do = {
@@ -2617,7 +2626,68 @@ foreign_politics = {
 		}
 	}
 }
-
+interwar_decisions = {
+	FRA_conquer_syria = {
+		allowed = {
+			original_tag = FRA
+		}
+		target_trigger = {
+			FROM = {
+				tag = SYR
+			}	
+		}	
+		available = {
+			has_capitulated = no
+		}
+		visible = {
+			any_owned_state = {
+				is_core_of = FROM
+			}	
+			is_subject = no
+			has_global_flag = interbellum
+			has_country_flag = great_war_winner
+			FROM = {
+				any_owned_state = {
+					is_claimed_by = ROOT
+				}	
+			}
+			NOT = {
+				has_country_flag = franco_syrian_war
+				has_country_flag = franco_syrian_war_end
+			}	
+		}
+		war_with_on_remove = SYR
+		fire_only_once = yes
+		ai_will_do = {
+			base = 100
+			modifier = {
+				factor = 0
+				has_war = yes
+			}
+			modifier = {
+				factor = 0
+				date < 1920.3.1
+			}
+		}
+		#war_with_on_remove = FROM
+		days_remove = 8
+		complete_effect = {
+			add_ai_strategy = {
+				type = prepare_for_war
+				id = SYR
+				value = 200
+			}
+		}
+		remove_effect = {
+			country_event = ww1_france.256
+			add_ai_strategy = {
+				type = prepare_for_war
+				id = SYR
+				value = -200
+			}
+		}
+	}
+}
 FRC_interwar_internationale_category = {
 	FRC_internationale = {
 		icon = GFX_decision_SOV_the_stalin_constitution
@@ -2717,14 +2787,42 @@ FRC_interwar_internationale_category = {
 			if = {
 				limit = {
 					FROM = {
-						original_tag = ENG
+						has_country_flag = ENG_socialist_britain_flag
 					}
 				}
 				FROM = {
+					if = {
+						limit = {
+							is_ai = yes
+						}
+						add_ai_strategy = {
+							type = alliance
+							id = ROOT
+							value = 200
+						}
+					}
 					country_event = ww1_england.175
 				}
 				else = {
 					FROM = {
+						hidden_effect = {
+							if = {
+								limit = {
+									is_ai = yes
+									OR = {
+										original_tag = FRA
+										original_tag = ENG
+										original_tag = BAY
+										original_tag = HUN
+									}
+								}
+								add_ai_strategy = {
+									type = alliance
+									id = ROOT
+									value = 200
+								}
+							}
+						}
 						country_event = generic.5
 					}
 				}
@@ -2736,10 +2834,10 @@ FRC_interwar_internationale_category = {
 				add = 100
 				FROM = {
 					OR = {
-						tag = FRA
-						tag = ENG
-						tag = BAY
-						tag = HUN
+						original_tag = FRA
+						original_tag = ENG
+						original_tag = BAY
+						original_tag = HUN
 					}
 				}
 			}
@@ -2931,6 +3029,33 @@ FRA_french_civil_war_category = {
 			FRC = {
 				country_event = garibaldi.32
 			}
+		}
+	}
+}
+
+FRA_french_army = {
+	FRA_demobilize_part_of_the_army = {
+		allowed = {
+			original_tag = FRA
+		}
+		state_target = yes
+        target_trigger = {
+            FROM = {
+				is_owned_and_controlled_by = ROOT
+			}
+			divisions_in_state = { state = FROM size > 2 }
+        }
+		visible = {
+			has_idea = FRA_excessing_land_force_budget
+		}
+		remove_effect = {
+			delete_unit = {
+				state = FROM
+				disband = yes
+			}
+		}
+		ai_will_do = {
+			factor = 200
 		}
 	}
 }

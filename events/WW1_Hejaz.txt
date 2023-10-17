@@ -1,12 +1,58 @@
 ﻿add_namespace = ww1_hejaz
 ###Arabian revolt
 country_event = {
-	title = ww1_hejaz.7.t
-	desc = ww1_hejaz.7.d
 	id = ww1_hejaz.7
-	picture = GFX_report_event_tur_turkish_soldiers
+	title = ww1_hejaz.7.t
+	picture = GFX_report_event_arab_revolt
+	desc = {
+		text =  ww1_hejaz.7.desc
+		trigger = {
+			NOT = {
+				ENG = { 
+					has_completed_focus = ENG_Lawrence_Of_Arabia 
+					has_war_with = ROOT
+				}
+			}
+		}
+	}
+	desc = {
+		text =  ww1_hejaz.7.desc_2
+		trigger = {
+			ENG = {
+				has_completed_focus = ENG_Lawrence_Of_Arabia
+				has_war_with = ROOT
+			}
+		}
+	}
 	fire_only_once = yes
-	is_triggered_only = yes
+	trigger = {
+		original_tag = TUR
+		OR = {	
+			has_completed_focus = TUR_total_integration_of_hejaz
+			ENG = {
+				has_completed_focus = ENG_Lawrence_Of_Arabia
+			}	
+		}
+		HJZ = {
+			OR = {
+				is_subject_of = TUR
+				AND = {
+					exists = no
+					any_state = {
+						is_core_of = HJZ
+						is_owned_by = ROOT
+					}
+				}				
+			}
+		}
+		NOT = {
+			has_global_flag = great_arabian_revolt
+		}
+		any_other_country = {
+			has_war_with = TUR
+			is_major = yes
+		}
+	}
 	immediate = {
 		set_global_flag = great_arabian_revolt
 		hidden_effect = {
@@ -23,48 +69,14 @@ country_event = {
 						limit = {
 							is_core_of = HJZ
 						}
-						HJZ = {
-							transfer_state = PREV
-						}
-						ROOT = {
-							add_state_claim = PREV
-						}
-					}
-				}
-			}
-			if = {
-				limit = {
-					owns_state = 878
-				}
-				HJZ = {
-					transfer_state = 878
-				}
-				add_state_claim = 878
-				else = {
-					random_owned_state = {
-						limit = {
-							is_core_of = HJZ
-						}
-						HJZ = {
-							transfer_state = PREV
-						}
-						ROOT = {
-							add_state_claim = PREV
-						}
+						transfer_state_to = HJZ
+						add_claim_by = ROOT
 					}
 				}
 			}
 			HJZ = {
-				leave_faction = yes
+				clear_all_relations = yes
 				load_oob = "HJZ_1910"
-				if = {
-					limit = {
-						is_subject = yes
-					}
-					OVERLORD = {
-						end_puppet = HJZ
-					}
-				}
 			}
 			if = {
 				limit = {
@@ -74,11 +86,7 @@ country_event = {
 					any_owned_state = {
 						is_core_of = ASR
 					}
-				}
-				ASR = {
-					load_oob = "ASR_1910"
-					set_country_flag = arab_revolt_member
-				}
+				}			
 				if = {
 					limit = {
 						owns_state = 747
@@ -101,41 +109,44 @@ country_event = {
 						}
 					}
 				}
-			}
-			if = {
-				limit = {
-					YEM = {
-						exists = no
-					}
-					any_owned_state = {
-						is_core_of = YEM
-					}
-				}
-				YEM = {
-					load_oob = "YEM_1910"
+				ASR = {
+					load_oob = "ASR_1910"
 					set_country_flag = arab_revolt_member
 				}
 				if = {
 					limit = {
-						owns_state = 293
-					}
-					YEM = {
-						transfer_state = 293
-					}
-					add_state_claim = 293
-					else = {
-						random_owned_state = {
-							limit = {
-								is_core_of = YEM
-							}
-							YEM = {
-								transfer_state = PREV
-							}
-							ROOT = {
-								add_state_claim = PREV
-							}
+						owns_state = 662
+						any_enemy_country = {
+							controls_state = 662
 						}
 					}
+					662 = { set_state_controller_to = ASR }
+				}
+			}
+			if = {
+				limit = {
+					293 = {
+						is_owned_by = ROOT
+						NOT = {
+							has_state_flag = TUR_autonomous_region
+							has_dynamic_modifier = { modifier = TUR_autonomous_region scope = TUR }
+							has_state_flag = TUR_autonomous_region_not_control
+						}
+					}	
+					NOT = {
+						country_exists = YEM
+					}
+					
+				}
+				293 = {
+					transfer_state_to = YEM
+					add_claim_by = ROOT
+				}
+				YEM = {
+					clear_all_relations = yes
+					remove_ideas = standing_alone
+					load_oob = "YEM_1910"
+					set_country_flag = arab_revolt_member
 				}
 			}
 		}
@@ -169,6 +180,7 @@ country_event = {
 			}
 		}
 		news_event = ww1_hejaz.8
+		hidden_effect = { country_event = { id = ottoman.167 days = 5 } }
 	}
 	option = {
 		name = ww1_hejaz.7.b
@@ -199,7 +211,78 @@ country_event = {
 			}
 		}
 		news_event = ww1_hejaz.8
+		hidden_effect = { country_event = { id = ottoman.167 days = 5 } }
 		HJZ = { change_tag_from = ROOT }
+	}
+	option = {
+		name = ww1_hejaz.7.c
+		trigger = { is_ai = no }
+		declare_war_on = {
+			target = HJZ
+			type = annex_everything
+		}
+		if = {
+			limit = {
+				ASR = {
+					has_country_flag = arab_revolt_member
+				}
+			}
+			declare_war_on = {
+				target = ASR
+				type = annex_everything
+			}
+		}
+		if = {
+			limit = {
+				YEM = {
+					has_country_flag = arab_revolt_member
+				}
+			}
+			declare_war_on = {
+				target = YEM
+				type = annex_everything
+			}
+		}
+		news_event = ww1_hejaz.8
+		ASR = {
+			change_tag_from = ROOT
+		}
+		hidden_effect = { country_event = { id = ottoman.167 days = 5 } }
+		ai_chance = {
+			base = 0
+		}
+	}
+	option = {
+		name = ww1_hejaz.7.d
+		trigger = {
+			is_ai = no
+			YEM = {
+				has_country_flag = arab_revolt_member
+			}
+		}
+		declare_war_on = {
+			target = HJZ
+			type = annex_everything
+		}
+		if = {
+			limit = {
+				ASR = {
+					has_country_flag = arab_revolt_member
+				}
+			}
+			declare_war_on = {
+				target = ASR
+				type = annex_everything
+			}
+		}
+		news_event = ww1_hejaz.8
+		YEM = {
+			change_tag_from = ROOT
+		}
+		hidden_effect = { country_event = { id = ottoman.167 days = 5 } }
+		ai_chance = {
+			base = 0
+		}
 	}
 }
 
@@ -285,7 +368,18 @@ country_event = {
 			}
 			any_owned_state = {
 				is_core_of = BUL
-				NOT = { is_core_of = ROOT }
+				NOT = {
+					state = 451
+					state = 757
+					state = 200
+					state = 756
+					state = 849
+					state = 860
+					state = 341
+					state = 347
+					state = 825
+					state = 861
+				}
 			}
 			any_owned_state = {
 				is_core_of = SER
@@ -293,7 +387,26 @@ country_event = {
 			}
 			any_owned_state = {
 				is_core_of = GRE
-				NOT = { is_core_of = ROOT }
+				NOT = {
+					state = 451
+					state = 757
+					state = 200
+					state = 756
+					state = 849
+					state = 860
+					state = 341
+					state = 347
+					state = 825
+					state = 861
+					state = 790
+					state = 164
+					state = 899
+					state = 183
+					state = 355
+					state = 354
+					state = 900
+					state = 184
+				}
 			}
 			any_owned_state = {
 				is_core_of = MNT
@@ -351,11 +464,19 @@ country_event = {
 			}
 			transfer_state_to = LBA
 		}
-		every_owned_state = {
+		if = {
 			limit = {
-				is_core_of = KUW
+				OR = {
+					country_exists = KUW
+					owns_state = 656
+				}
 			}
-			transfer_state_to = KUW
+			every_owned_state = {
+				limit = {
+					is_core_of = KUW
+				}
+				transfer_state_to = KUW
+			}
 		}
 		every_owned_state = {
 			limit = {
@@ -397,22 +518,55 @@ country_event = {
 			limit = {
 				is_core_of = GRE
 				OR = {
-					NOT = { is_core_of = ROOT }
-					if = {
-						limit = {
-							ROOT = {
-								NOT = { has_country_flag = thessaloniki_controlled }
-							}
-						}
-						state = 345
-					}
+					state = 345
+					state = 731
+					state = 182
+					state = 826
+					state = 758
+					state = 187
+					state = 185
+				}
+				NOT = {
+					state = 451
+					state = 757
+					state = 200
+					state = 756
+					state = 849
+					state = 860
+					state = 341
+					state = 347
+					state = 825
+					state = 861
+					state = 790
+					state = 164
+					state = 899
+					state = 183
+					state = 355
+					state = 354
+					state = 900
+					state = 184
 				}
 			}
 			transfer_state_to = GRE
+			if = {
+				limit = {
+					NOT = {
+						is_core_of = GRE
+					}
+				}
+				add_core_of = GRE
+			}
 		}
 		every_owned_state = {
 			limit = {
 				is_core_of = SER
+				OR = {
+					state = 203
+					state = 106
+				}
+				NOT = {
+					state = 759
+				}
 				NOT = { is_core_of = ROOT }
 			}
 			transfer_state_to = SER
@@ -420,9 +574,35 @@ country_event = {
 		every_owned_state = {
 			limit = {
 				is_core_of = BUL
-				NOT = { is_core_of = ROOT }
+				OR = {
+					state = 212
+					state = 788
+					state = 225
+					state = 184
+					state = 759
+				}
+				NOT = {
+					state = 451
+					state = 757
+					state = 200
+					state = 756
+					state = 849
+					state = 860
+					state = 341
+					state = 347
+					state = 825
+					state = 861
+				}
 			}
 			transfer_state_to = BUL
+			if = {
+				limit = {
+					NOT = {
+						is_core_of = BUL
+					}
+				}
+				add_core_of = BUL
+			}
 		}
 		every_owned_state = {
 			limit = {
