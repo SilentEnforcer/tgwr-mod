@@ -7838,9 +7838,14 @@ focus_tree = {
 		id = FRA_ww1_the_world_is_saved
 		icon = GFX_focus_chi_reach_out_to_france
 		allow_branch = {
-			has_country_flag = great_war_winner
-			NOT = {
-				has_country_flag = great_war_loser
+			OR = {
+				AND = {
+					has_country_flag = great_war_winner
+					NOT = {
+						has_country_flag = great_war_loser
+					}
+				}
+				is_debug = yes
 			}
 		}
 		available = {
@@ -7857,23 +7862,6 @@ focus_tree = {
 		y = 17
 	}
 	focus = {
-		id = FRA_ww1_decision_on_losers
-		icon = GFX_focus_generic_military_mission
-		relative_position_id = FRA_ww1_the_world_is_saved
-		prerequisite = {
-			focus = FRA_ww1_the_world_is_saved
-		}
-		completion_reward = {
-			add_stability = 0.10
-		}
-		ai_will_do = {
-			factor = 1000
-		}
-		cost = 10
-		x = 0
-		y = 1
-	}
-	focus = {
 		id = FRA_ww1_continental_affairs
 		icon = GFX_focus_chi_reach_out_to_france
 		relative_position_id = FRA_ww1_the_world_is_saved
@@ -7887,28 +7875,30 @@ focus_tree = {
 			factor = 1000
 		}
 		cost = 10
-		x = 6
+		x = 5
 		y = 1
 	}
 	#get 25% of turkish oil historicaly
 	focus = {
 		id = FRA_ww1_san_remo_oil_agreement
 		icon = GFX_focus_TUR_taking_over_defense_of_the_gulf
-		relative_position_id = FRA_ww1_decision_on_losers
+		relative_position_id = FRA_ww1_continental_affairs
 		prerequisite = {
-			focus = FRA_ww1_decision_on_losers
+			focus = FRA_ww1_continental_affairs
 		}
-		bypass = {
-			owns_state = 676
-			owns_state = 853
-		}
+		bypass_if_unavailable = yes
 		available = {
-			any_other_country = {
-				OR = {
-					owns_state = 676
-					owns_state = 853
+			OR = {
+				676 = {
+					OWNER = {
+						has_country_flag = great_war_loser
+					}
 				}
-				has_country_flag = great_war_loser
+				853 = {
+					OWNER = {
+						has_country_flag = great_war_loser
+					}
+				}
 			}
 		}
 		completion_reward = {
@@ -7938,10 +7928,44 @@ focus_tree = {
 			factor = 1000
 		}
 		cost = 10
-		x = 2
+		x = 6
 		y = 1
 	}
 	
+	#mandate of Syria after franco-syrian war
+	focus = {
+		id = FRA_interwar_syrian_mandate
+		icon = GFX_focus_generic_self_management
+		relative_position_id = FRA_ww1_san_remo_oil_agreement
+		prerequisite = {
+			focus = FRA_ww1_san_remo_oil_agreement
+		}
+		available = {
+			any_owned_state = {
+				is_core_of = SYR
+			}
+		}
+		completion_reward = {
+			every_owned_state = {
+				limit = {
+					is_core_of = SYR
+				}
+				add_compliance = 0.20
+				add_resistance = -0.35
+			}
+		}
+		ai_will_do = {
+			factor = 0
+			modifier = {
+				date > 1923.1.1
+				factor = 25
+			}
+		}
+		cost = 10
+		x = 0
+		y = 1
+	}
+
 	focus = {
 		id = FRA_ww1_support_yugoslavia
 		icon = GFX_focus_invite_yugoslavia
@@ -8126,16 +8150,218 @@ focus_tree = {
 			factor = 1000
 		}
 		cost = 10
-		x = 5
+		x = 4
+		y = 1
+	}
+
+	focus = {
+		id = FRA_interwar_polish_alliance
+		icon = GFX_focus_generic_polish_deal
+		relative_position_id = FRA_ww1_allied_mission_in_poland
+		available = {
+			POL = {
+				NOT = {
+					has_war_with = FRA
+				}
+				is_puppet = no
+			}
+		}
+		prerequisite = {
+			focus = FRA_ww1_allied_mission_in_poland
+		}
+		completion_reward = {
+			POL = {
+				add_opinion_modifier = {
+					target = FRA
+					modifier = large_increase
+				}
+			}
+			add_opinion_modifier = {
+				target = POL
+				modifier = large_increase
+			}
+			POL = {
+				country_event = {
+					id = ww1_generic.110
+					days = 2
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 50
+		}
+		cost = 10
+		x = 0
 		y = 1
 	}
 	
 	focus = {
+		id = FRA_ww1_memel_occupation
+		icon = GFX_goal_generic_neutrality_focus
+		relative_position_id = FRA_ww1_continental_affairs
+		prerequisite = {
+			focus = FRA_ww1_continental_affairs
+		}
+		available = {
+			owns_state = 188
+		}
+		completion_reward = {
+			country_event = ww1_france.224
+		}
+		ai_will_do = {
+			base = 0
+			modifier = {
+				add = 1000
+				date > 1925.1.1
+			}
+		}
+		cost = 10
+		x = -4
+		y = 1
+	}
+
+	focus = {
+		id = FRA_interwar_spa_conference
+		icon = GFX_goal_generic_intelligence_exchange
+		relative_position_id = FRA_ww1_memel_occupation
+		prerequisite = {
+			focus = FRA_ww1_memel_occupation
+		}
+		available = {
+			GER = {
+				has_country_flag = great_war_loser
+			}
+			FRA = {
+				has_country_flag = great_war_winner
+			}
+		}
+		bypass_if_unavailable = yes
+		completion_reward = {
+			add_timed_idea = {
+				days = 2880
+				idea = FRA_german_reparations
+			}
+		}
+		ai_will_do = {
+			base = 20
+		}
+		cost = 10
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = FRA_interwar_vimy_ridge_concession
+		icon = GFX_goal_tfv_can_compromise_with_quebec
+		relative_position_id = FRA_interwar_spa_conference
+		prerequisite = {
+			focus = FRA_interwar_spa_conference
+		}
+		available = {
+			FRA = {
+				has_country_flag = great_war_winner
+			}
+			CAN = {
+				has_country_flag = great_war_winner
+			}
+		}
+		bypass_if_unavailable = yes
+		completion_reward = {
+			add_political_power = 25
+			CAN = {
+				add_opinion_modifier = { 
+					target = FRA
+					modifier = small_increase
+				}
+			}
+		}
+		ai_will_do = {
+			base = 20
+		}
+		cost = 10
+		x = -1
+		y = 1
+	}
+	
+	focus = {
+		id = FRA_interwar_washington_treaty
+		icon = GFX_focus_generic_navy_battleship2
+		relative_position_id = FRA_interwar_spa_conference
+		prerequisite = {
+			focus = FRA_interwar_spa_conference	
+		}
+		available = {
+			has_war = no
+		}
+		bypass_if_unavailable = yes
+		completion_reward = {
+			every_country = {
+				limit = {
+					OR = {
+						#this if someone else spammed battleships
+						has_navy_size = {
+							unit = battleship
+							size > 12
+						}
+						has_country_flag = great_war_winner
+					}
+					has_war = no
+				}
+				country_event = {
+					id = MTG_naval_treaty.12
+					days = 4
+				}
+			}
+		}
+		ai_will_do = {
+			base = 20
+		}
+		cost = 10
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = FRA_interwar_paris_conference
+		icon = GFX_goal_FRA_ENG_alliance
+		relative_position_id = FRA_interwar_washington_treaty
+		prerequisite = {
+			focus = FRA_interwar_washington_treaty	
+		}
+		available = {
+			
+		}
+		bypass_if_unavailable = yes
+		completion_reward = {
+			ENG = {
+				country_event = {
+					id = ww1_france.283
+					days = 3
+				}
+				custom_effect_tooltip = needs_approval
+				FRA = {
+					swap_ideas = {
+						remove_idea = FRA_german_reparations
+						add_idea = FRA_german_reparations2
+					}
+				}
+			}
+		
+		}
+		ai_will_do = {
+			base = 20
+		}
+		cost = 10
+		x = 0
+		y = 1
+	}
+
+	focus = {
 		id = FRA_ww1_rhineland_fate
 		icon = GFX_focus_deal_with_german_empire
-		relative_position_id = FRA_ww1_decision_on_losers
+		relative_position_id = FRA_interwar_paris_conference
 		prerequisite = {
-			focus = FRA_ww1_decision_on_losers
+			focus = FRA_interwar_paris_conference
 		}
 		available = {
 			any_owned_state = {
@@ -8193,31 +8419,7 @@ focus_tree = {
 		x = 0
 		y = 1
 	}
-	
-	focus = {
-		id = FRA_ww1_memel_occupation
-		icon = GFX_goal_generic_neutrality_focus
-		relative_position_id = FRA_ww1_rhineland_fate
-		prerequisite = {
-			focus = FRA_ww1_decision_on_losers
-		}
-		available = {
-			owns_state = 188
-		}
-		completion_reward = {
-			country_event = ww1_france.224
-		}
-		ai_will_do = {
-			base = 0
-			modifier = {
-				add = 1000
-				date > 1925.1.1
-			}
-		}
-		cost = 10
-		x = -2
-		y = 0
-	}
+
 
 	focus = {
 		id = FRA_ww1_little_entente
@@ -8336,7 +8538,7 @@ focus_tree = {
 			factor = 5000
 		}
 		cost = 10
-		x = -7
+		x = -5
 		y = 1
 	}
 
@@ -8421,10 +8623,10 @@ focus_tree = {
 					is_core_of = FRA
 					is_on_continent = europe
 				}
-				add_extra_state_shared_building_slots = 2
+				add_extra_state_shared_building_slots = 1
 				add_building_construction = {
 					type = industrial_complex
-					level = 2
+					level = 1
 					instant_build = yes
 				}
 			}
@@ -8464,20 +8666,48 @@ focus_tree = {
 		y = 1
 	}
 
-	
+	focus = {
+		id = FRA_interwar_hydroelectric_energy
+		icon = GFX_focus_generic_hydroelectric_energy
+		relative_position_id = FRA_interwar_cornudet_law
+		prerequisite = {
+			focus = FRA_interwar_cornudet_law
+		}
+		completion_reward = {
+			random_owned_controlled_state = {
+				limit = {
+					is_core_of = FRA
+					is_on_continent = europe
+				}
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = {
+					type = industrial_complex
+					level = 1
+					instant_build = yes
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		cost = 10
+		x = 0
+		y = 1
+	}
+
 	
 	focus = {
 		id = FRA_ww1_fortification_studies
 		icon = GFX_goal_generic_fortify_city
-		relative_position_id = FRA_ww1_invest_in_citroen
+		relative_position_id = FRA_ww1_redirect_industry_to_agriculture
 		prerequisite = {
-			focus = FRA_ww1_invest_in_citroen
+			focus = FRA_ww1_redirect_industry_to_agriculture
 		}
 		completion_reward = {
 			add_tech_bonus = {
 				name = FRA_ww1_fortification_studies
-				bonus = 1
-				uses = 2
+				bonus = 1.5
+				uses = 1
 				technology = fortification1
 				technology = fortification2
 				technology = fortification3
@@ -8487,7 +8717,7 @@ focus_tree = {
 			factor = 1000
 		}
 		cost = 10
-		x = 2
+		x = -2
 		y = 1
 	}
 	
@@ -8636,7 +8866,7 @@ focus_tree = {
 			factor = 1000
 		}
 		cost = 10
-		x = 2
+		x = 1
 		y = 1
 	}
 	
@@ -8659,7 +8889,7 @@ focus_tree = {
 			factor = 1000
 		}
 		cost = 10
-		x = 0
+		x = -1
 		y = 1
 	}
 	
@@ -8745,10 +8975,22 @@ focus_tree = {
 		id = FRA_ww1_emergency_council
 		icon = GFX_focus_chi_reach_out_to_france
 		allow_branch = {
-			has_country_flag = great_war_loser
-			NOT = {
-				has_country_flag = great_war_winner
+			OR = {
+				AND = {
+					has_country_flag = great_war_loser
+					NOT = {
+						has_country_flag = great_war_winner
+					}
+				}
+				is_debug = yes
 			}
+		}
+		offset = {
+			trigger = {
+				is_debug = yes
+			}
+			x = -20
+			y = 0
 		}
 		available = {
 			has_global_flag = frankfurt_treaty
