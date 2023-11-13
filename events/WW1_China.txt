@@ -873,17 +873,37 @@ country_event = {
 		}
 		OR = {
 			#has_global_flag = QIN_flag_beiyang_defection
+			# we are about to die
+			surrender_progress > 0.7
+			CHI = {
+				controls_state = 608
+			}
+			# yuan dont want to waste beiyang troops
 			AND = {
 				casualties > 100000
 				surrender_progress > 0.25
-				CHI = { has_country_flag = third_uprising }
-			}
-			CHI = {
-				controls_state = 608
 			}
 			AND = {
 				casualties > 300000
 				CHI = { surrender_progress < 0.1 }
+			}
+			# yuan has another plan :)
+			# historical trigger
+			AND = {
+				has_country_leader_with_trait = schemer_yuan
+				surrender_progress > 0.10
+				CHI = {
+					has_completed_focus = CHI_stand_with_tongmenghui
+					OR = {
+						controls_state = 592
+						controls_state = 598
+						controls_state = 620
+					}
+					has_country_leader = {
+						character = CHI_sun_yatsen
+						ruling_only = yes
+					}
+				}
 			}
 			#AND = {
 			#	has_global_flag = QIN_flag_shikai_count_2
@@ -903,7 +923,7 @@ country_event = {
 	}
 	option = {
 		name = ww1_xinhai.4.a
-		ai_chance = { factor = 100 }
+		ai_chance = { base = 100 }
 		set_global_flag = QIN_flag_don't_trigger_xinhai_again
 		remove_ideas = QIN_idea_xuantong_young
 		
@@ -914,11 +934,16 @@ country_event = {
 		custom_effect_tooltip = ww1_xinhai.4.a.tt
 		hidden_effect = {
 			CHI = { country_event = ww1_xinhai.10 }
+			QIN_yuan_shikai = { # no more loyal(ish) prime minister role
+				remove_country_leader_role = {
+					ideology = autocracy
+				}
+			}
 		}
 	}
 	option = {
 		name = ww1_xinhai.4.b
-		ai_chance = { factor = 0 }
+		ai_chance = { base = 0 }
 		trigger = { has_government = neutrality }
 		add_war_support = -0.15
 		add_stability = -0.15
@@ -928,14 +953,18 @@ country_event = {
 			ideology = fascism
 			popularity = -0.35
 		}
-		clr_global_flag = QIN_flag_beiyang_army_deployed
+		# clr_global_flag = QIN_flag_beiyang_army_deployed
 		delete_unit_template_and_units = {
 			division_template = "Beiyang New Army"
 			disband = no
 		}
 		set_global_flag = QIN_flag_kick_out_shikai
-		custom_effect_tooltip = QIN_effect_cancel_invite_shikai
-		
+		# custom_effect_tooltip = QIN_effect_cancel_invite_shikai
+		QIN_yuan_shikai = {
+			remove_country_leader_role = {
+				ideology = autocracy
+			}
+		}
 		
 		set_party_name = {
 			ideology = neutrality
@@ -1270,7 +1299,7 @@ country_event = {
 	option = {
 		name = ww1_xinhai.10.a
 		ai_chance = {
-			factor = 5
+			base = 5
 		}
 		effect_tooltip = {
 			release = MON
@@ -1510,13 +1539,17 @@ country_event = {
 				division_template = "Minbing"
 				disband = no
 			}
+			delete_unit_template_and_units = {
+				division_template = "Minbing 2"
+				disband = no
+			}
 		}
 		change_tag_from = FROM
 	}
 	option = {
 		name = ww1_xinhai.10.b
 		ai_chance = { 
-			factor = 0 
+			base = 0 
 			modifier = {
 				add = 5
 				is_historical_focus_on = no
@@ -1542,6 +1575,11 @@ country_event = {
 		# congrats! you've become the empire without emperor!
 		# and the contents end here
 		add_political_power = -75
+		remove_country_leader_trait = schemer_yuan
+		set_politics = {
+			ruling_party = fascism
+			elections_allowed = no
+		}
 	}
 }
 
@@ -14075,6 +14113,7 @@ country_event = {
 	fire_only_once = yes
 	option = {
 		name = ww1_china.147.a
+		custom_effect_tooltip = historical_tt
 		set_global_flag = abdicated_qing_imperial_family_allowed
 		add_ideas = QIN_abdicated_qing_imperial_family
 		ai_chance = { factor = 100 }
@@ -15644,9 +15683,6 @@ country_event = {
 	is_triggered_only = yes
 	option = { #for democratic path
 		name = ww1_china.176.a
-		trigger = {
-			has_government = democratic
-		}
 		set_popularities = {
 			democratic = 48
 			neutrality = 41
