@@ -1,4 +1,6 @@
 ﻿add_namespace = ww1_japan
+add_namespace = ww1_kiautschou
+
 country_event = {
 	id = ww1_japan.700
 	title = ww1_japan.100.t
@@ -1122,5 +1124,223 @@ country_event = {
 				imperial_sanction
 			}
 		}
+	}
+}
+
+
+
+#########################
+### Kiautschou events ###
+
+# Japan prepares the invasion
+country_event = {
+	id = ww1_kiautschou.1
+	title = ww1_kiautschou.1.t
+	desc = ww1_kiautschou.1.d
+	picture = GFX_report_event_usa_heavy_cruiser
+	trigger = {
+		tag = JAP
+		GER = {
+			has_war_with = ROOT
+			745 = { is_owned_and_controlled_by = PREV }
+		}
+		597 = {
+			owns_or_subject_of = no
+			owner = {
+				NOT = {
+					has_war_with = ROOT
+					has_war_with = FROM
+				}
+			}
+		}
+		NOT = {
+			has_active_mission = JAP_invade_kiautschou_mission
+		}
+	}
+	fire_only_once = yes
+	option = {
+		name = ww1_kiautschou.1.a
+		unlock_decision_tooltip = JAP_invade_kiautschou_mission
+	}
+}
+
+# Invasion launched, unit spawns
+country_event = {
+	id = ww1_kiautschou.2
+	title = ww1_kiautschou.2.t
+	desc = ww1_kiautschou.2.d
+	is_triggered_only = yes
+	option = {
+		name = ww1_kiautschou.2.a
+		effect_tooltip = {
+			transfer_state = 597
+		}
+		597 = {
+			if = {
+				limit = {
+					NOT = { has_template = "Infantry Division" }
+				}
+				division_template = {
+					name = "Infantry Division"
+					regiments = {
+						infantry = { x = 0 y = 0 }
+						infantry = { x = 0 y = 1 }
+						infantry = { x = 0 y = 2 }
+						infantry = { x = 1 y = 0 }
+						infantry = { x = 1 y = 1 }
+						infantry = { x = 1 y = 2 }
+					}
+					support = {
+						engineer = { x = 0 y = 0 }
+					}
+				}
+			}
+			create_unit = {
+				division = "division_template = \"Infantry Division\" start_experience_factor = 0.4"
+				owner = ROOT
+				prioritize_location = 10000
+				allow_spawning_on_enemy_provs = yes
+			}
+		}
+	}
+}
+
+# Chinese reaction
+country_event = {
+	id = ww1_kiautschou.3
+	title = ww1_kiautschou.3.t
+	desc = ww1_kiautschou.3.d
+	picture = GFX_report_event_manchukuo_army
+	is_triggered_only = yes
+	option = { #historical ignore
+		name = ww1_kiautschou.3.a
+		custom_effect_tooltip = historical_tt
+		add_war_support = -0.05
+		ai_chance = {
+			base = 100
+		}
+	}
+	option = { #alt-his diplomatic protest
+		name = ww1_kiautschou.3.b
+		# they might wanna go war agaisnt us
+		custom_effect_tooltip = ww1_kiautschou.3.b.tt
+		
+		add_opinion_modifier = {
+			target = FROM
+			modifier = kiautschou_malus
+		}
+		FROM = {
+			country_event = {
+				id = ww1_kiautschou.4
+				hours = 3
+			}
+		}
+		ai_chance = {
+			base = 0
+		}
+	}
+}
+
+# Japan gets Chinese protest
+country_event = {
+	id = ww1_kiautschou.4
+	title = ww1_kiautschou.4.t
+	desc = ww1_kiautschou.4.d
+	is_triggered_only = yes
+	option = { #who cares
+		name = ww1_kiautschou.4.a
+		FROM = {
+			add_opinion_modifier = {
+				target = FROM
+				modifier = kiautschou_malus
+			}
+		}
+		ai_chance = {
+			base = 100
+		}
+	}
+	option = { #then war!
+		name = ww1_kiautschou.4.b
+		hidden_effect = {
+			FROM = {
+				add_opinion_modifier = {
+					target = FROM
+					modifier = kiautschou_malus
+				}
+			}
+			add_state_claim = 597
+			add_state_claim = 745
+		}
+		declare_war_on = {
+			target = FROM
+			type = take_claimed_state
+		}
+		ai_chance = {
+			base = 0
+		}
+	}
+}
+
+# German reaction
+country_event = {
+	id = ww1_kiautschou.5
+	title = ww1_kiautschou.5.t
+	desc = ww1_kiautschou.5.d
+	picture = GFX_report_event_german_troops
+	is_triggered_only = yes
+	option = {
+		name = ww1_kiautschou.5.a
+		# spawns guard regiments
+		if = {
+			limit = {
+				NOT = { has_template = "Tsingtau Garnison" }
+			}
+			division_template = {
+				name = "Tsingtau Garnison"
+				division_names_group = GER_GAR_01
+				override_model = GER_infantry_0_entity
+				obsolete = yes
+				
+				regiments = {
+					infantry = {
+						x = 0
+						y = 0
+					}
+					infantry = {
+						x = 0
+						y = 1
+					}
+				}
+				priority = 0	
+			}
+		}
+		745 = {
+			create_unit = {
+				division = "name = \"Schutzgebiet Kiautschou\" division_template = \"Tsingtau Garnison\" start_experience_factor = 0.1 start_equipment_factor = 1.0"
+				owner = ROOT
+				prioritize_location = 10000
+				allow_spawning_on_enemy_provs = yes
+			}
+		}
+	}
+}
+
+# Tsingtau has been lost
+country_event = {
+	id = ww1_kiautschou.6
+	title = ww1_kiautschou.6.t
+	desc = ww1_kiautschou.6.d
+	picture = GFX_report_event_generic_peaceful_annexation
+	trigger = {
+		tag = GER
+		owns_state = 745
+		any_enemy_country = {
+			controls_state = 745
+		}
+	}
+	fire_only_once = yes
+	option = {
+		name = ww1_kiautschou.6.a
+		add_war_support = -0.05
 	}
 }
