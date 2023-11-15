@@ -822,3 +822,148 @@ JAP_cat_siberian_intervention = {
 		}
 	}
 }
+
+operations = {
+	# JAP_invade_kiautschou_mission_activate = {
+	# 	icon = GFX_decision_generic_operation
+	# 	allowed = {
+	# 		original_tag = JAP
+	# 	}
+	# 	target_trigger = {
+	# 		FROM = {
+	# 			tag = GER
+	# 			owns_state = 745
+	# 		}
+	# 	}
+	# 	available = {
+	# 		FROM = {
+	# 			controls_state = 745
+	# 		}
+	# 	}
+	# 	visible = {
+	# 		has_capitulated = no
+	# 		is_subject = no
+	# 		has_war_with = FROM
+	# 		597 = {
+	# 			owner = {
+	# 				NOT = {
+	# 					has_war_with = ROOT
+	# 					has_war_with = FROM
+	# 				}
+	# 			}
+	# 		}
+	# 		NOT = {
+	# 			has_active_mission = JAP_invade_kiautschou_mission
+	# 		}
+	# 	}
+	# 	fire_only_once = no
+	# 	cost = 75
+	# 	ai_will_do = {
+	# 		factor = 100
+	# 		# need to secure the homeland
+	# 		modifier = {
+	# 			factor = 0
+	# 			surrender_progress > 0.05
+	# 		}
+	# 		# navy is gone
+	# 		modifier = {
+	# 			factor = 0
+	# 			has_navy_size = {
+	# 				size < 30
+	# 			}
+	# 		}
+	# 	}
+	# 	complete_effect = {
+	# 		activate_mission = JAP_invade_kiautschou_mission
+	# 	}
+	# }
+	JAP_invade_kiautschou_mission = {
+		icon = GFX_decision_generic_operation
+		allowed = {
+			original_tag = JAP
+		}
+		target_trigger = {
+			FROM = {
+				tag = GER
+				owns_state = 745
+			}
+		}
+		days_mission_timeout = 140
+		selectable_mission = yes
+		activation = {
+			tag = JAP
+			FROM = {
+				has_war_with = ROOT
+				745 = { is_owned_and_controlled_by = PREV }
+			}
+			597 = {
+				owns_or_subject_of = no
+				owner = {
+					NOT = {
+						has_war_with = ROOT
+						has_war_with = FROM
+					}
+				}
+			}
+			hidden_trigger = {
+				NOT = { has_global_flag = kiautschou_mission_fired }
+				has_capitulated = no
+				is_subject = no
+			}
+		}
+		available = {
+			OR = {
+				has_war = no
+				has_capitulated = yes
+				is_subject = yes
+				NOT = { has_war_with = FROM }
+				FROM = {
+					NOT = { controls_state = 745 }
+				}
+				controls_state = 745
+				597 = {
+					owns_or_subject_of = yes
+				}
+			}
+		}
+		fire_only_once = no
+		is_good = yes
+		ai_will_do = {
+			factor = 100
+			# need to secure the homeland
+			modifier = {
+				factor = 0
+				surrender_progress > 0.05
+			}
+			# navy is gone
+			modifier = {
+				factor = 0
+				has_navy_size = {
+					size < 30
+				}
+			}
+		}
+		timeout_effect = {
+			custom_effect_tooltip = JAP_invade_kiautschou_mission_tt
+			hidden_effect = {
+				set_global_flag = kiautschou_mission_fired
+				add_named_threat = {
+					threat = 0.05
+					name = kiautschou_mission_fired
+				}
+				# Transfer Schantung
+				if = {
+					limit = {
+						597 = { owns_or_subject_of = no }
+					}
+					# Chinese reaction
+					597.owner = { country_event = ww1_kiautschou.3 }
+					transfer_state = 597
+				}
+				# German reaction
+				FROM = { country_event = ww1_kiautschou.5 }
+				country_event = ww1_kiautschou.2
+			}
+		}
+	}
+}
