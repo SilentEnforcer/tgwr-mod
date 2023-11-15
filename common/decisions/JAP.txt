@@ -824,60 +824,7 @@ JAP_cat_siberian_intervention = {
 }
 
 operations = {
-	# JAP_invade_kiautschou_mission_activate = {
-	# 	icon = GFX_decision_generic_operation
-	# 	allowed = {
-	# 		original_tag = JAP
-	# 	}
-	# 	target_trigger = {
-	# 		FROM = {
-	# 			tag = GER
-	# 			owns_state = 745
-	# 		}
-	# 	}
-	# 	available = {
-	# 		FROM = {
-	# 			controls_state = 745
-	# 		}
-	# 	}
-	# 	visible = {
-	# 		has_capitulated = no
-	# 		is_subject = no
-	# 		has_war_with = FROM
-	# 		597 = {
-	# 			owner = {
-	# 				NOT = {
-	# 					has_war_with = ROOT
-	# 					has_war_with = FROM
-	# 				}
-	# 			}
-	# 		}
-	# 		NOT = {
-	# 			has_active_mission = JAP_invade_kiautschou_mission
-	# 		}
-	# 	}
-	# 	fire_only_once = no
-	# 	cost = 75
-	# 	ai_will_do = {
-	# 		factor = 100
-	# 		# need to secure the homeland
-	# 		modifier = {
-	# 			factor = 0
-	# 			surrender_progress > 0.05
-	# 		}
-	# 		# navy is gone
-	# 		modifier = {
-	# 			factor = 0
-	# 			has_navy_size = {
-	# 				size < 30
-	# 			}
-	# 		}
-	# 	}
-	# 	complete_effect = {
-	# 		activate_mission = JAP_invade_kiautschou_mission
-	# 	}
-	# }
-	JAP_invade_kiautschou_mission = {
+	JAP_invade_kiautschou_mission_activate = {
 		icon = GFX_decision_generic_operation
 		allowed = {
 			original_tag = JAP
@@ -888,16 +835,17 @@ operations = {
 				owns_state = 745
 			}
 		}
-		days_mission_timeout = 140
-		selectable_mission = yes
-		activation = {
-			tag = JAP
+		available = {
+			has_completed_focus = JAP_ww1_Siege_of_Tsingtao
 			FROM = {
-				has_war_with = ROOT
-				745 = { is_owned_and_controlled_by = PREV }
+				controls_state = 745
 			}
-			597 = {
-				owns_or_subject_of = no
+		}
+		visible = {
+			has_capitulated = no
+			is_subject = no
+			has_war_with = FROM
+			872 = {
 				owner = {
 					NOT = {
 						has_war_with = ROOT
@@ -905,13 +853,14 @@ operations = {
 					}
 				}
 			}
-			hidden_trigger = {
-				NOT = { has_global_flag = kiautschou_mission_fired }
-				has_capitulated = no
-				is_subject = no
+			NOT = {
+				# has_active_mission = JAP_invade_kiautschou_mission
+				has_global_flag = kiautschou_mission_fired
 			}
 		}
-		available = {
+		days_remove = 70
+		cancel_if_not_visible = yes
+		cancel_trigger = {
 			OR = {
 				has_war = no
 				has_capitulated = yes
@@ -921,13 +870,13 @@ operations = {
 					NOT = { controls_state = 745 }
 				}
 				controls_state = 745
-				597 = {
+				872 = {
 					owns_or_subject_of = yes
 				}
 			}
 		}
 		fire_only_once = no
-		is_good = yes
+		cost = 75
 		ai_will_do = {
 			factor = 100
 			# need to secure the homeland
@@ -942,8 +891,17 @@ operations = {
 					size < 30
 				}
 			}
+			# no war
+			modifier = {
+				factor = 0
+				has_war_support < 0.30
+			}
 		}
-		timeout_effect = {
+		# complete_effect = {
+		# 	set_global_flag = JAP_invade_kiautschou_mission_activate
+		# 	activate_mission = JAP_invade_kiautschou_mission
+		# }
+		remove_effect = {
 			custom_effect_tooltip = JAP_invade_kiautschou_mission_tt
 			hidden_effect = {
 				set_global_flag = kiautschou_mission_fired
@@ -951,19 +909,136 @@ operations = {
 					threat = 0.05
 					name = kiautschou_mission_fired
 				}
+				# please go there
+				add_ai_strategy = {
+					type = front_control
+					state_trigger = {
+						state = 745
+					}
+					priority = 1
+					ratio = 0.2
+					ordertype = front
+					execution_type = rush
+					execute_order = yes
+				}
+				add_ai_strategy = {
+					type = front_control
+					state_trigger = {
+						state = 745
+					}
+					priority = 1
+					ratio = 0.2
+					ordertype = invasion
+					execute_order = yes
+				}
 				# Transfer Schantung
 				if = {
 					limit = {
-						597 = { owns_or_subject_of = no }
+						872 = { owns_or_subject_of = no }
 					}
 					# Chinese reaction
-					597 = { owner = { country_event = ww1_kiautschou.3 } }
-					transfer_state = 597
+					872 = { owner = { country_event = ww1_kiautschou.3 } }
+
+					# first they control every provinces
+					FROM = { transfer_state = 872 }
+					set_state_owner = 872
 				}
 				# German reaction
-				FROM = { country_event = ww1_kiautschou.5 }
+				FROM = {
+					# please secure there
+					add_ai_strategy = {
+						type = put_unit_buffers
+						ratio = 0.2
+						states = {
+							745
+						}
+						subtract_fronts_from_need = yes
+					}
+					country_event = ww1_kiautschou.5
+				}
 				country_event = ww1_kiautschou.2
 			}
 		}
 	}
+	# JAP_invade_kiautschou_mission = {
+	# 	icon = GFX_decision_generic_operation
+	# 	allowed = {
+	# 		original_tag = JAP
+	# 	}
+	# 	target_trigger = {
+	# 		FROM = {
+	# 			tag = GER
+	# 			owns_state = 745
+	# 		}
+	# 	}
+	# 	days_mission_timeout = 140
+	# 	# selectable_mission = yes
+	# 	activation = {
+	# 		tag = JAP
+	# 		has_global_flag = JAP_invade_kiautschou_mission_activate
+	# 		NOT = { has_global_flag = kiautschou_mission_fired }
+
+	# 		has_war_with = FROM
+	# 		is_subject = no
+	# 		has_capitulated = no
+	# 	}
+	# 	visible = {
+	# 		tag = JAP
+	# 		has_global_flag = JAP_invade_kiautschou_mission_activate
+	# 	}
+	# 	available = {
+	# 		OR = {
+	# 			has_war = no
+	# 			has_capitulated = yes
+	# 			is_subject = yes
+	# 			NOT = { has_war_with = FROM }
+	# 			FROM = {
+	# 				NOT = { controls_state = 745 }
+	# 			}
+	# 			controls_state = 745
+	# 			872 = {
+	# 				owns_or_subject_of = yes
+	# 			}
+	# 		}
+	# 	}
+	# 	fire_only_once = no
+	# 	is_good = yes
+	# 	# ai_will_do = {
+	# 	# 	factor = 100
+	# 	# 	# need to secure the homeland
+	# 	# 	modifier = {
+	# 	# 		factor = 0
+	# 	# 		surrender_progress > 0.05
+	# 	# 	}
+	# 	# 	# navy is gone
+	# 	# 	modifier = {
+	# 	# 		factor = 0
+	# 	# 		has_navy_size = {
+	# 	# 			size < 30
+	# 	# 		}
+	# 	# 	}
+	# 	# }
+	# 	timeout_effect = {
+	# 		custom_effect_tooltip = JAP_invade_kiautschou_mission_tt
+	# 		hidden_effect = {
+	# 			set_global_flag = kiautschou_mission_fired
+	# 			add_named_threat = {
+	# 				threat = 0.05
+	# 				name = kiautschou_mission_fired
+	# 			}
+	# 			# Transfer Schantung
+	# 			if = {
+	# 				limit = {
+	# 					872 = { owns_or_subject_of = no }
+	# 				}
+	# 				# Chinese reaction
+	# 				872 = { owner = { country_event = ww1_kiautschou.3 } }
+	# 				transfer_state = 872
+	# 			}
+	# 			# German reaction
+	# 			FROM = { country_event = ww1_kiautschou.5 }
+	# 			country_event = ww1_kiautschou.2
+	# 		}
+	# 	}
+	# }
 }
