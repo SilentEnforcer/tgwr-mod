@@ -46,16 +46,14 @@ GER_defensive_if_lack_of_guns_against_RUS = {
 	}
 	enable = {
 		has_war_with = RUS
-		stockpile_ratio = {	## 5% of the armies equipment must be in reserves
-			archetype = infantry_equipment
-			ratio < 0.01
+		has_equipment = {
+			infantry_equipment < 1
 		}
 	}
 	abort = {
 		OR = {
-			stockpile_ratio = {	## 5% of the armies equipment must be in reserves
-				archetype = infantry_equipment
-				ratio > 0.02
+			has_equipment = {
+				infantry_equipment > 2500
 			}
 			surrender_progress > 0.15
 		}
@@ -367,20 +365,22 @@ GER_big_army_before_ww1 = {
 	}
 
 	enable = {
-		date > 1911.1.1
 		has_war = no
+		not = {
+			has_global_flag = great_war_ends
+		}
 	}
 	abort_when_not_enabled = yes
 
 	ai_strategy = {
 		type = build_army
 		id = infantry
-		value = 100
+		value = 110
 	}
 
 	ai_strategy = {
 		type = force_build_armies
-		value = 100
+		value = 110
 	}
 
 }
@@ -832,7 +832,7 @@ GER_unit_production = {
 	ai_strategy = {
 		type = role_ratio
 		id = heavy_armor
-		value = 10 #germany dont like tanks
+		value = 5 #germany dont like tanks
 	}
 
 	ai_strategy = {
@@ -1057,7 +1057,7 @@ GER_early_template_design = {
 	ai_strategy = {
 		type = role_ratio
 		id = armor
-		value = 10 #germany dont like tanks
+		value = 5 #germany dont like tanks
 	}
 
 }
@@ -1353,7 +1353,9 @@ GER_naval_role_ratios_maximum_kaiser = {
 GER_beware_soviets_if_not_communist = {
 	enable = {
 		original_tag = GER
-		SOV = { exists = yes }
+		RUS = {
+			tag = SOV
+		}	
 		NOT = {
 			has_government = communism
 			# Don't afford to put some garrison
@@ -1363,12 +1365,14 @@ GER_beware_soviets_if_not_communist = {
 	abort_when_not_enabled = yes
 	ai_strategy = {
 		type = front_unit_request
-		tag = SOV
+		country_trigger = { 
+			tag = SOV			
+		}
 		value = 40
 	}
 	ai_strategy = {
 		type = antagonize
-		id = SOV		
+		id = RUS		
 		value = 250
 	}
 }
@@ -1623,5 +1627,33 @@ GER_less_focus_on_colonies_when_ww1 = {
 		type = area_priority
 		id = middle_east
 		value = -100
+	}
+}
+GER_go_kiautschou_operation = {
+	allowed = {
+		original_tag = GER
+	}
+	enable = {
+		tag = GER
+		has_capitulated = no
+		has_war_with = JAP
+		has_global_flag = kiautschou_mission_fired
+	}
+	abort = {
+		OR = {
+			has_war = no
+			has_capitulated = yes
+			NOT = { has_war_with = JAP }
+			NOT = { controls_state = 745 }
+			NOT = { owns_state = 745 }
+		}
+	}
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = 0.2
+		states = {
+			745
+		}
+		subtract_fronts_from_need = yes
 	}
 }
