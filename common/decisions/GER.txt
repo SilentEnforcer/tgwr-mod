@@ -343,7 +343,7 @@ GER_great_war = {
 		
 		available = {
 			has_tech = railway_gun
-			has_completed_focus = GER_focus_on_artillery
+			has_completed_focus = GER_finance_rheinmetall
 		}
 		ai_will_do = {
 			factor = 1
@@ -499,16 +499,19 @@ GER_great_war = {
 		activation = {
 			has_global_flag = kis_war
 			GER = { has_war_with = FRA }
-			OR = {
-				has_war_with = FRA
-				has_war_with = GER
-				has_war_together_with = GER
-				has_war_together_with = FRA
-			}
+			# this has problem that if a country joins the war in late, they would get this
+			# so it is better to show em this
+			# OR = {
+			# 	has_war_with = FRA
+			# 	has_war_with = GER
+			# 	has_war_together_with = GER
+			# 	has_war_together_with = FRA
+			# }
 			NOT = {
 				has_global_flag = great_war_ends
 				has_global_flag = GER_capitulation
 				has_global_flag = FRA_capitulation
+				has_global_flag = before_the_leaves_fall_flag
 			}
 		}
 		available = {
@@ -519,6 +522,7 @@ GER_great_war = {
 				has_global_flag = great_war_ends
 				has_global_flag = GER_capitulation
 				has_global_flag = FRA_capitulation
+				has_global_flag = before_the_leaves_fall_flag
 			}
 		}
 		visible = {
@@ -528,89 +532,37 @@ GER_great_war = {
 		fire_only_once = yes
 		is_good = no
 		timeout_effect = {
-			add_political_power = -100
-			add_war_support = -0.10
+			effect_tooltip = {
+				every_country = {
+					limit = {
+						OR = {
+							has_war_with = FRA
+							has_war_with = GER
+							has_war_together_with = GER
+							has_war_together_with = FRA
+						}
+					}
+					add_political_power = -100
+					add_war_support = -0.10
+				}
+			}
+			hidden_effect = {
+				if = {
+					limit = {
+						OR = {
+							has_war_with = FRA
+							has_war_with = GER
+							has_war_together_with = GER
+							has_war_together_with = FRA
+						}
+					}
+					add_political_power = -100
+					add_war_support = -0.10
+				}
+			}
 		}
 		complete_effect = {
 			set_global_flag = before_the_leaves_fall_flag
-		}
-	}
-	GER_release_TZN = {
-		allowed = {
-			original_tag = GER
-		}
-		visible = {
-			owns_state = 546
-			has_war_with = FRA
-			has_global_flag = kis_war
-			has_completed_focus = GER_colonial_protectorates
-			NOT = {
-				country_exists = TZN
-				has_global_flag = great_war_ends
-			}
-		}
-		available = {
-			is_subject = no
-			has_capitulated = no
-			controls_state = 546
-		}
-		fire_only_once = yes
-		complete_effect = {
-			hidden_effect = {
-				every_owned_state = {
-					limit = {
-						is_core_of = TZN
-					}
-					transfer_state_to = TZN
-				}
-			}
-			if = {
-				limit = {
-					has_dlc = "Together for Victory"
-				}
-				set_autonomy = {
-					target = TZN
-					autonomy_state = autonomy_colony
-				}
-				else = {
-					puppet = TZN
-				}
-			}
-			GER_paul_von_lettowvorbeck = {
-				set_nationality = TZN
-			}
-			TZN = {
-				division_template = {
-					name = "Ostafrikanische Schutztruppe"
-					division_names_group = GER_GAR_01
-					override_model = GER_infantry_0_entity
-					template_counter = 67
-					regiments = {
-						infantry = {
-							x = 0
-							y = 0
-						}
-						infantry = {
-							x = 0
-							y = 1
-						}
-					}
-					priority = 0
-				}
-				capital_scope = {
-					create_unit = {
-						division = "name = \"Schutztruppe\" division_template = \"Ostafrikanische Schutztruppe\" start_experience_factor = 0.8"
-						owner = TZN
-						count = 10
-						allow_spawning_on_enemy_provs = yes
-					}
-				}
-				add_ideas = GER_idea_schutztruppe_colony
-			}
-		}
-		cost = 25
-		ai_will_do = {
-			factor = 1000
 		}
 	}
 }
@@ -817,11 +769,7 @@ GER_decision_puppet_kingdoms = {
 			}
 			OR = {
 				has_full_control_of_state = 784
-				any_other_country = {
-					NOT = {
-						original_tag = SOV
-						original_tag = RUS
-					}
+				SOV = {
 					is_in_faction_with = PREV
 					has_full_control_of_state = 784
 				}
@@ -2363,7 +2311,7 @@ foreign_politics = {
 				tag = SOV
 			}
 		}
-		war_with_on_remove = SOV
+		#war_with_on_remove = SOV
 		complete_effect = {
 			add_stability = -0.1
 			add_named_threat = {
@@ -4887,43 +4835,6 @@ GER_interwar_reichspakt_category = {
 
 GER_decision_form_landsturm = {
 
-	GER_mobilization_campaign = {
-		icon = eng_propaganda_campaigns
-		allowed = {
-			OR = {
-				tag = GER
-			}
-		}
-		available = {
-			has_war_support < 0.75
-		}
-		visible = {
-			OR = {
-				has_completed_focus = GER_prussian_militarism
-				has_completed_focus = AUH_reinforce_Gemeinsame_Armee
-			}
-		}
-		fire_only_once = no
-		days_remove = 7
-		days_re_enable = 190
-		cost = 50
-		remove_effect = {
-			add_war_support = 0.05
-			custom_effect_tooltip = back_in_190_days
-		}
-		ai_will_do = { 
-			base = 0 
-			modifier = {
-				has_war_support < 0.50
-				add = 10
-			}
-			modifier = {
-				has_war_support < 0.25
-				add = 10
-			}
-		}
-	}
-
 	GER_reserve_guns = {
 		icon = generic_industry
 		allowed = {
@@ -4945,7 +4856,7 @@ GER_decision_form_landsturm = {
 		fire_only_once = no
 		days_remove = 7
 		days_re_enable = 190
-		cost = 50
+		cost = 25
 		remove_effect = {
 			add_equipment_to_stockpile = {
 				type = infantry_equipment_0
@@ -4967,6 +4878,10 @@ GER_decision_form_landsturm = {
 					infantry_equipment < 1
 				}
 				add = 10
+			}
+			modifier = {
+				factor = 0
+				has_manpower < 5000 
 			}
 		}
 	}
@@ -4998,7 +4913,7 @@ GER_decision_form_landsturm = {
 		fire_only_once = no
 		days_remove = 7
 		days_re_enable = 190
-		cost = 50
+		cost = 25
 		complete_effect = {
 			add_war_support = -0.025
 			add_equipment_to_stockpile = {
@@ -5048,11 +4963,15 @@ GER_decision_form_landsturm = {
 				has_army_manpower = {
 					size < 2000000
 				}
-				add = 10
+				add = 100
 			}
 			modifier = {
 				surrender_progress > 0.10
 				add = 10
+			}
+			modifier = {
+				factor = 0
+				has_manpower < 5000 
 			}
 		}
 	}

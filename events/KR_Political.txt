@@ -1,0 +1,315 @@
+﻿###########################
+# Political Events
+###########################
+# By Kallar, Nijato, Sir Rogers, Zankoas and ~mw~
+###########################
+
+add_namespace = kr.political
+
+##################################
+###   Demobilization Events    ###
+##################################
+
+# unit limit calculations
+country_event = { #donotlog
+	id = kr.political.119
+
+	hidden = yes
+	is_triggered_only = yes
+
+	trigger = {
+		NOT = { has_global_flag = KR_no_unit_limits }
+	}
+
+	option = {
+		# step one, calculate num of actual divisions
+		set_variable = { num_actual_divisions = num_battalions }
+
+		# ignore fake intel divisions
+		subtract_from_variable = { num_actual_divisions = num_fake_intel_battalions }
+
+		# expeditionaries should count towards the sender's limit, not the receiver's
+		clear_variable = num_expeditionary_battalions_sent
+		clear_variable = num_expeditionary_battalions_received
+		for_each_scope_loop = {
+			array = faction_members
+			if = {
+				limit = {
+					received_expeditionary_forces = { sender = ROOT value > 0 }
+				}
+				set_temp_variable = { expeditionary_battalions_sent_temp = 0 }
+				while_loop_effect = {
+					limit = {
+						received_expeditionary_forces = { sender = ROOT value > expeditionary_battalions_sent_temp }
+					}
+					add_to_temp_variable = { expeditionary_battalions_sent_temp = 1 }
+				}
+				add_to_variable = { ROOT.num_expeditionary_battalions_sent = expeditionary_battalions_sent_temp }
+			}
+			if = {
+				limit = {
+					ROOT = { received_expeditionary_forces = { sender = PREV value > 0 } }
+				}
+				set_temp_variable = { expeditionary_battalions_received_temp = 0 }
+				while_loop_effect = {
+					limit = {
+						ROOT = { received_expeditionary_forces = { sender = PREV value > expeditionary_battalions_received_temp } }
+					}
+					add_to_temp_variable = { expeditionary_battalions_received_temp = 1 }
+				}
+				add_to_variable = { ROOT.num_expeditionary_divisions_received = expeditionary_battalions_received_temp }
+			}
+		}
+		subtract_from_variable = { num_actual_divisions = num_expeditionary_battalions_received }
+		add_to_variable = { num_actual_divisions = num_expeditionary_battalions_sent }
+
+		# calculate the limit
+		calculate_maximum_divisions = yes
+
+		# if already suffering penalties, check if they still apply
+		if = {
+			limit = {
+				has_dynamic_modifier = { modifier = mobilisation_penalty_modifier }
+			}
+			if = {
+				limit = {
+					OR = {
+						is_ai = yes
+						has_reached_maximum_divisions = no
+					}
+				}
+				clear_variable = mobilisation_penalty_var
+				clear_variable = mobilisation_penalty_var_positive
+				remove_dynamic_modifier = { modifier = mobilisation_penalty_modifier }
+			}
+			else = {
+				calculate_mobilisation_penalty = yes
+			}
+		}
+		# if not suffering penalties, check if they should apply
+		else_if = {
+			limit = {
+				is_ai = no
+				has_reached_maximum_divisions = yes
+				NOT = { has_global_flag = KR_unit_limits_ai_only }
+			}
+			calculate_mobilisation_penalty = yes
+			add_dynamic_modifier = { modifier = mobilisation_penalty_modifier }
+		}
+	}
+}
+
+# Check after a war whether we should be demobilizing
+country_event = {
+	id = kr.political.120
+	immediate = { log = "[GetDateText]: [Root.GetName]: event kr.political.120 FROM = [From.GetName]" }
+
+	hidden = yes
+	is_triggered_only = yes
+
+	trigger = {
+		OR = {
+			is_ai = yes
+		}
+		has_war = no
+	    OR = { 
+			has_idea = interwar_recovery
+		    has_unsupported_economic_law_ai = yes 
+		    has_unsupported_manpower_law_ai = yes  
+	    }  
+		NOT = {
+			has_global_flag = KR_no_demob
+			any_other_country = {
+				OR = {
+					is_justifying_wargoal_against = ROOT
+					has_wargoal_against = ROOT
+					ROOT = { is_justifying_wargoal_against = PREV }
+					ROOT = { has_wargoal_against = PREV }
+				}
+			}
+		}
+	}
+
+	immediate = {
+		clr_country_flag = has_demobilization_check
+		
+		if = {
+			set_country_flag = has_reduce_units_check
+			country_event = { id = kr.political.121 days = 4 random = 96 }
+		}
+
+		if = {
+			limit = {
+			    has_unsupported_economic_law_ai = yes  
+			    #has_unattained_important_goals = no  
+			    OR = {  
+				    has_elected_government = yes  
+					has_war_support < 0.25
+			    }  
+			}
+			if = {
+				limit = { has_idea = tot_economic_mobilisation }
+				add_political_power = 200
+			}
+			else_if = {
+				limit = { has_idea = war_economy }
+				add_political_power = 150
+			}
+			else_if = {
+				limit = { has_idea = partial_economic_mobilisation }
+				add_political_power = 100
+			}
+			else = {
+				add_political_power = 50
+			}
+			add_ideas = civilian_economy
+		}
+		else_if = {
+			limit = {
+			    has_unsupported_economic_law_ai = yes  
+			    #has_unattained_important_goals = no  
+				has_war_support < 0.50
+			}
+			if = {
+				limit = { has_idea = tot_economic_mobilisation }
+				add_political_power = 150
+			}
+			else_if = {
+				limit = { has_idea = war_economy }
+				add_political_power = 100
+			}
+			else = {
+				add_political_power = 50
+			}
+			add_ideas = low_economic_mobilisation
+		}
+		else_if = {
+		    limit = { has_unsupported_economic_law_ai = yes }  
+			if = {
+				limit = { has_idea = tot_economic_mobilisation }
+				add_political_power = 100
+			}
+			else = {
+				add_political_power = 50
+			}
+			add_ideas = partial_economic_mobilisation
+		}
+
+		if = {
+			limit = {
+			    has_unsupported_manpower_law_ai = yes  
+			    #has_unattained_important_goals = no  
+			    OR = {  
+					has_war_support < 0.25
+			        has_government = democratic #social_liberal ✖ MODDED BY KEN
+			       #has_government = market_liberal ✖ MODDED BY KEN 
+			       #has_government = social_democrat ✖ MODDED BY KEN  
+			    }  
+			}
+			if = {
+				limit = { has_idea = scraping_the_barrel }
+				add_political_power = 250
+			}
+			else_if = {
+				limit = { has_idea = all_adults_serve }
+				add_political_power = 200
+			}
+			else_if = {
+				limit = { has_idea = service_by_requirement }
+				add_political_power = 150
+			}
+			else_if = {
+				limit = { has_idea = extensive_conscription }
+				add_political_power = 100
+			}
+			else = {
+				add_political_power = 50
+			}
+			add_ideas = volunteer_only
+		}
+		else_if = {
+			limit = {
+			    has_unsupported_manpower_law_ai = yes  
+			    #has_unattained_important_goals = no  
+			    OR = { 
+					has_war_support < 0.50
+			        has_elected_government = yes 
+			    }  
+			}
+			if = {
+				limit = { has_idea = scraping_the_barrel }
+				add_political_power = 200
+			}
+			else_if = {
+				limit = { has_idea = all_adults_serve }
+				add_political_power = 150
+			}
+			else_if = {
+				limit = { has_idea = service_by_requirement }
+				add_political_power = 100
+			}
+			else = {
+				add_political_power = 50
+			}
+			add_ideas = limited_conscription
+		}
+		else_if = {
+	        limit = { has_unsupported_manpower_law_ai = yes }  
+			if = {
+				limit = { has_idea = scraping_the_barrel }
+				add_political_power = 150
+			}
+			else_if = {
+				limit = { has_idea = all_adults_serve }
+				add_political_power = 100
+			}
+			else = {
+				add_political_power = 50
+			}
+			add_ideas = extensive_conscription
+		}
+	}
+}
+
+# Repeated check for whether an AI country should reduce its number of units
+country_event = {
+	id = kr.political.121
+	immediate = { log = "[GetDateText]: [Root.GetName]: event kr.political.121 FROM = [From.GetName]" }
+
+	hidden = yes
+	is_triggered_only = yes
+
+	immediate = {
+		calculate_maximum_divisions = yes
+		if = {
+			limit = {
+				#is_ai = yes
+				has_war = no
+				num_divisions > 4
+				OR = {
+					has_excessive_army_size = yes
+				    needs_army_reduction_for_manpower = yes  
+					AND = {
+						has_reached_maximum_divisions = yes
+						NOT = { has_global_flag = KR_no_unit_limits }
+					}
+				}
+				NOT = {
+					any_other_country = {
+						OR = {
+							is_justifying_wargoal_against = ROOT
+							has_wargoal_against = ROOT
+							ROOT = { is_justifying_wargoal_against = PREV }
+							ROOT = { has_wargoal_against = PREV }
+						}
+					}
+				}
+			}
+			disband_twenty_percent_units = yes
+			country_event = { id = kr.political.121 days = 7 random = 72 }
+		}
+		else = {
+			clr_country_flag = has_reduce_units_check
+		}
+	}
+}
