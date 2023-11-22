@@ -772,7 +772,24 @@ country_event = {
 				}
 				set_politics = {
 					ruling_party = communism
+					long_name = SOV_communism_party_long
+					name = SOV_communism_party
 					elections_allowed = no
+				}
+				set_party_name = {
+					ideology = neutrality
+					long_name =SOV_neutrality_party_long
+					name = SOV_neutrality_party
+				}
+				set_party_name = {
+					ideology = democratic
+					long_name = SOV_democratic_party_long
+					name = SOV_democratic_party
+				}
+				set_party_name = {
+					ideology = fascism
+					long_name = SOV_fascism_party_long
+					name = SOV_fascism_party
 				}
 				country_event = {
 					id  = ww1_rcw.1
@@ -946,34 +963,6 @@ country_event = {
 		news_event = {
 			hours = 6
 			id = rusrevolt.7
-		}
-		trigger = {
-			tag = RUS
-			NOT = {
-				tag = SOV
-			}
-		}
-		ai_chance = {
-			factor = 100
-		}
-	}
-	option = {
-		name = rusrevolt.6.b
-		SOV = {
-			change_tag_from = RUS
-		}
-		news_event = {
-			hours = 6
-			id = rusrevolt.7
-		}
-		trigger = {
-			tag = RUS
-			NOT = {
-				tag = SOV
-			}
-		}
-		ai_chance = {
-			factor = 0
 		}
 	}
 }
@@ -2101,7 +2090,7 @@ country_event = {
 		NOT = {
 			has_global_flag = great_war_ends
 		}
-		RUS = { 
+		SOV = {
 			is_subject = no
 			has_government = communism
 			has_war_with = SIB
@@ -2112,7 +2101,7 @@ country_event = {
 	mean_time_to_happen = { days = 60 }
 	option = {
 		name = rusrevolt.20.a
-		RUS = {
+		SOV = {
 			country_event = {
 				id = rusrevolt.21
 				days = 40
@@ -2134,102 +2123,63 @@ country_event = {
 	picture = GFX_report_event_generic_army
 	is_triggered_only = yes
 	trigger = {
-		RUS = {
+		SOV = {
 			is_subject = no
 			has_government = communism
 			owns_state = 214
 		}
 	}
-	option = {
-		name = rusrevolt.21.a
+	immediate = {
 		hidden_effect = {
-			create_dynamic_country = {
-				original_tag = RUS
-				set_cosmetic_tag = RSO
-				set_country_flag = RUS_northern_oblast
-				set_country_flag = dont_trigger_political_eventa
-				set_politics = {
-					ruling_party = democratic
-					long_name = RSO_supreme_administration_party_long
-					name = RSO_supreme_administration_party
-					elections_allowed = no
-				}
-				set_party_name = {
-					ideology = neutrality
-					long_name = RSO_supreme_administration_party_long
-					name = RSO_supreme_administration_party
-				}
-				set_party_name = {
-					ideology = fascism
-					long_name = RSO_nothern_army_party
-					name = RSO_nothern_army_party
-				}
-				set_party_name = {
-					ideology = communism
-					long_name = RUS_popular_socialists_party_long
-					name = RUS_popular_socialists_party
-				}
-				set_popularities = {
-					democratic = 45
-					neutrality = 25
-					fascism = 20
-					communism = 10
-				}
-				set_war_support = 0.7
-				reserve_dynamic_country = yes
-			}	
-		}
-		RSO = {
-			transfer_state = 214
-			every_state = {
-				limit = {
-					OR = {
-						is_owned_by = RUS
-						is_owned_by = SOV				
-					}	
-					OR = {
-						is_controlled_by = RUS
+			RSO = {
+				transfer_state = 214
+				every_state = {
+					limit = {
+						is_owned_by = SOV		
 						is_controlled_by = SOV
+						OR = {
+							state = 213
+							state = 214
+							state = 215
+							state = 722
+							state = 262
+						}
 					}
-					OR = {
-						state = 213
-						state = 214
-						state = 215
-						state = 722
-						state = 262
+					transfer_state_to = PREV
+				}
+				inherit_technology = RUS
+				declare_war_on = {
+					target = SOV
+					type = civil_war
+				}
+				every_other_country = {
+					limit = {
+						OR = {
+							tag = FRA
+							is_in_faction_with = FRA
+							AND = {
+								original_tag = RUS
+								has_war_with = SOV
+							}
+						}
+						NOT = { has_government = communism }
 					}
-				}
-				transfer_state_to = PREV
-			}
-			declare_war_on = {
-				target = RUS
-				type = take_claimed_state
-			}
-			every_other_country = {
-				limit = {
-					OR = {
-						tag = FRA
-						is_in_faction_with = FRA
-						tag = SIB
-						is_in_faction_with = SIB
-					}
-					NOT = { has_government = communism }
-				}
-				diplomatic_relation = {
-					country = PREV
-					relation = non_aggression_pact
-				}
-				PREV = {
 					diplomatic_relation = {
 						country = PREV
-						relation = military_access
+						relation = non_aggression_pact
+					}
+					PREV = {
+						diplomatic_relation = {
+							country = PREV
+							relation = military_access
+						}
 					}
 				}
+				add_ideas = RUS_idea_allied_intervention
 			}
-			ROOT = { add_to_faction = PREV }
-			add_ideas = RUS_idea_allied_intervention
-		}
-		hidden_effect = {
+			WML = {
+				add_to_faction = RSO
+			}
 			set_global_flag = north_russian_campaign
 			every_possible_country = {
 				limit = {
@@ -2327,7 +2277,22 @@ country_event = {
 					}
 				}
 				load_oob = RSO_1918
-			}
+			}	
+		}
+	}	
+	option = {
+		name = rusrevolt.21.a
+		effect_tooltip = {
+			release = RSO
+		}
+	}
+	option = {
+		name = rusrevolt.21.b
+		RSO = {
+			change_tag_from = ROOT
+		}
+		trigger = {
+			is_ai = no
 		}
 	}
 }
@@ -2341,9 +2306,9 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		tag = RSO
-		has_war_with = RUS
+		has_war_with = SOV
 		SIB = {
-			has_war_with = RUS		
+			has_war_with = SOV		
 		}
 		NOT = { FRA = { has_country_flag = great_war_loser } }
 	}
@@ -2522,7 +2487,7 @@ country_event = {
 					is_in_faction_with = SIB
 					SIB = {
 						has_capitulated = no
-						has_war_with = RUS
+						has_war_with = SOV
 					}
 				}
 				SIB = { puppet = PREV }
@@ -2759,7 +2724,7 @@ country_event = {
 			character = RUS_alexander_kolchak
 			ruling_only = yes
 		}
-		has_war_with = RUS
+		has_war_with = SOV
 		OR = {
 			AND = {
 				surrender_progress > 0.65
@@ -2850,11 +2815,10 @@ news_event = {
 	option = {
 		name = rusrevolt.27.a
 		trigger = {
-			OR = {
-				tag = RUS
-				is_in_faction_with = RUS
-				is_subject_of = RUS
-			}
+			original_tag = RUS
+			NOT = {
+				tag = SOV
+			}	
 		}
 	}
 	option = {
@@ -2872,9 +2836,7 @@ news_event = {
 		name = rusrevolt.27.c
 		trigger = {
 			NOT = {
-				tag = RUS
-				is_in_faction_with = RUS
-				is_subject_of = RUS
+				original_tag = RUS
 				tag = SOV
 				is_in_faction_with = SOV
 				is_subject_of = SOV
