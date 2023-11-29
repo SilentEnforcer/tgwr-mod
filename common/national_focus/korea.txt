@@ -1170,7 +1170,70 @@ focus_tree = {
 			FOCUS_FILTER_WAR_SUPPORT
 		}
 		completion_reward = {
-			country_event = ww1_korea.55
+			if = {
+				limit = {
+					NOT = { has_war_with = GER }
+				}
+				if = {
+					limit = { has_dlc = "Man the Guns" }
+					create_ship = {
+						type = ship_hull_pre_dreadnought
+						equipment_variant = "Brandenburg Class"
+						creator = GER
+						name = "Chungmugong Yi"
+					}
+				}
+				else = {
+					create_ship = {
+						type = battleship_1
+						creator = GER
+						name = "Chungmugong Yi"
+					}
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_war_with = ENG }
+				}
+				if = {
+					limit = { has_dlc = "Man the Guns" }
+					create_ship = {
+						type = ship_hull_pre_dreadnought
+						equipment_variant = "Majestic Class"
+						creator = ENG
+						name = "Sejong the Great"
+					}
+				}
+				else = {
+					create_ship = {
+						type = battleship_1
+						creator = ENG
+						name = "Sejong the Great"
+					}
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_war_with = RUS }
+				}
+				if = {
+					limit = { has_dlc = "Man the Guns" }
+					create_ship = {
+						type = ship_hull_pre_dreadnought
+						equipment_variant = "Borodino Class"
+						creator = RUS
+						name = "Gwanggaeto the Great"
+					}
+				}
+				else = {
+					create_ship = {
+						type = battleship_1
+						equipment_variant = "Borodino Class"
+						creator = RUS
+						name = "Gwanggaeto the Great"
+					}
+				}
+			}
 		}
 		ai_will_do = {
 			factor = 1
@@ -1246,6 +1309,12 @@ focus_tree = {
 			JAP = {
 				transfer_navy = {
 					target = ROOT
+				}
+				if = {
+					limit = {
+						owns_state = 744
+					}
+					744 = { transfer_state_to = ROOT }
 				}
 			}
 		}
@@ -1425,7 +1494,7 @@ focus_tree = {
 	focus = {
 		id = KOR_outer_manchuria_expedition
 		icon = GFX_goal_generic_major_war
-		x = 11
+		x = 13
 		y = 4
 		cost = 20
 		available_if_capitulated = yes
@@ -1473,6 +1542,7 @@ focus_tree = {
 								is_in_faction_with = ROOT
 							}
 						}
+						PREV = { save_event_target_as = demanded_prov_target }
 						country_event = {
 							id = generic.23
 							hours = 3
@@ -1556,12 +1626,7 @@ focus_tree = {
 		completion_reward = {
 			every_state = {
 				limit = {
-					OR = {
-						region = 155
-						state = 610
-						state = 611
-						state = 612
-					}
+					region = 155
 				}
 				add_claim_by = ROOT
 				owner = {
@@ -1720,7 +1785,7 @@ focus_tree = {
 							has_character = MAN_hong_beomdo
 						}
 						MAN_hong_beomdo = {
-							set_nationality = PREV
+							set_nationality = PREV.PREV
 						}
 					}
 					MAN_hong_beomdo = {
@@ -1785,6 +1850,75 @@ focus_tree = {
 			}
 			effect_tooltip = {
 				release_puppet = MAN
+			}
+		}
+	}
+	#Focus for Deal with Russia
+	focus = {
+		id = KOR_two_manchu_solution
+		icon = GFX_goal_generic_military_deal
+		x = 11
+		y = 4
+		cost = 10
+		prerequisite = {
+			focus = KOR_continental_strike
+		}
+		search_filters = {
+			FOCUS_FILTER_ANNEXATION
+		}
+		bypass = {
+		}
+		available = {
+			is_subject = no
+			any_country = {
+				original_tag = MAN
+				is_subject_of = ROOT
+			}
+			714 = { is_owned_or_subject_trigger = yes }
+			717 = { is_owned_or_subject_trigger = yes }
+			CER = { is_subject_of = RUS }
+			NOT = {
+				has_war_with = RUS
+			}
+		}
+		completion_reward = {
+			custom_effect_tooltip = agree_effect_tooltip
+			effect_tooltip = {
+				RUS = {
+					transfer_state = 714
+					transfer_state = 717
+					diplomatic_relation = {
+						country = ROOT
+						relation = non_aggression_pact
+						active = yes
+					}
+					if = {
+						limit = {
+							has_subject = CER
+						}
+						CER = {
+							give_military_access = FROM
+							diplomatic_relation = {
+								country = FROM
+								relation = non_aggression_pact
+								active = yes
+							}
+							every_owned_state = {
+								limit = { is_claimed_by = FROM }
+								remove_claim_by = FROM
+							}
+						}
+						FROM = { give_guarantee = CER }
+					}
+				}
+			}
+			hidden_effect = {
+				RUS = {
+					country_event = {
+						id = ww1_korea.70
+						hours = 3
+					}
+				}
 			}
 		}
 	}
@@ -1853,11 +1987,9 @@ focus_tree = {
 			add_state_claim = 716
 			custom_effect_tooltip = agree_effect_tooltip
 			effect_tooltip = {
-				QIN = {
-					add_to_war = {
-						targeted_alliance = ROOT
-						enemy = CHI
-					}
+				add_to_war = {
+					targeted_alliance = QIN
+					enemy = CHI
 				}
 				328 = { transfer_state_to = ROOT }
 				716 = { transfer_state_to = ROOT }
@@ -1912,28 +2044,32 @@ focus_tree = {
 		completion_reward = {
 			every_state = {
 				limit = {
-					region = 155
+					OR = {
+						state = 328
+						state = 716
+						state = 744
+					}
 				}
 				add_claim_by = ROOT
 			}
-			every_other_country = {
-				limit = {
-					any_owned_state = {
-						region = 155
-					}
-					NOT = {
-						is_in_faction_with = ROOT
-						is_subject_of = ROOT
-						has_war_with = ROOT
-					}
-				}
-				ROOT = {
-					create_wargoal = {
-						type = take_claimed_state
-						target = PREV
-					}
-				}
-			}
+			# every_other_country = {
+			# 	limit = {
+			# 		any_owned_state = {
+			# 			region = 155
+			# 		}
+			# 		NOT = {
+			# 			is_in_faction_with = ROOT
+			# 			is_subject_of = ROOT
+			# 			has_war_with = ROOT
+			# 		}
+			# 	}
+			# 	ROOT = {
+			# 		create_wargoal = {
+			# 			type = take_claimed_state
+			# 			target = PREV
+			# 		}
+			# 	}
+			# }
 		}
 		ai_will_do = {
 			base = 0
@@ -2008,44 +2144,25 @@ focus_tree = {
 			FOCUS_FILTER_POLITICAL
 		}
 		completion_reward = {
-			add_political_power = 200
-			if = {
+			every_other_country = {
 				limit = {
-					country_exists = CHI
-				}
-				CHI = {
-					country_event = {
-						id = ww1_korea.3
+					OR = {
+						is_china_or_warlord = yes
+						original_tag = RUS
 					}
+					has_chinese_civil_war = no
+					has_russian_civil_war = no
+					is_neighbor_of = ROOT
 				}
-			}
-			if = {
-				limit = {
-					country_exists = QIN
+				country_event = {
+					id = ww1_korea.3
+					hours = 3
 				}
-				QIN = {
-					country_event = {
-						id = ww1_korea.3
-					}
-				}
-			}
-			if = {
-				limit = {
-					country_exists = RUS
-				}
-				RUS = {
-					country_event = {
-						id = ww1_korea.3
-					}
-				}
-			}
-			if = {
-				limit = {
-					country_exists = SOV
-				}
-				SOV = {
-					country_event = {
-						id = ww1_korea.3
+				ROOT = {
+					custom_effect_tooltip = agree_effect_tooltip
+					effect_tooltip = {
+						add_war_support = 0.05
+						add_political_power = 75
 					}
 				}
 			}
@@ -2457,24 +2574,26 @@ focus_tree = {
 			FOCUS_FILTER_POLITICAL
 		}
 		available = {
-			JAP = {
-				has_country_flag = great_war_winner
+			is_subject = yes
+			OVERLORD = {
+				tag = JAP
+				has_capitulated = no
+				NOT = { has_country_flag = great_war_loser }
 			}
-			is_subject_of = JAP
 		}
 		completion_reward = {
 			custom_effect_tooltip = GAME_OVER_TT
-			every_state = {
-				limit = {
-					is_core_of = ROOT
+			effect_tooltip = {
+				every_state = {
+					limit = {
+						is_core_of = ROOT
+					}
+					add_core_of = JAP
 				}
-				add_core_of = JAP
 			}
-			JAP = {
-				news_event = ww1_korea.5
-				annex_country = {
-					target = ROOT
-					transfer_troops = yes
+			hidden_effect = {
+				OVERLORD = {
+					country_event = ww1_korea.5
 				}
 			}
 		}
@@ -2769,6 +2888,7 @@ focus_tree = {
 					target = ROOT
 					autonomy_state = autonomy_wtt_imperial_subject
 				}
+				country_event = ww1_korea.4
 			}
 			unlock_national_focus = KOR_start_rearmament
 			remove_ideas = KOR_disbanded_army
@@ -2784,12 +2904,38 @@ focus_tree = {
 				long_name = KOR_governorship_party2_long
 				name = KOR_governorship_party2
 			}
-			create_country_leader = {
-				name = "KOR_JAP_resident_general_name"
-				picture = "gfx/leaders/KOR/KOR_JAP_resident_general.png"
-				ideology = stratocracy
-				
-				
+			hidden_effect = {
+				every_possible_country = {
+					limit = {
+						has_character = KOR_japanese_administraton
+					}
+					KOR_japanese_administraton = {
+						set_nationality = PREV.PREV
+					}
+				}
+			}
+			KOR_japanese_administraton = {
+				if = {
+					limit = {
+						has_ideology = stratocracy
+					}
+					promote_character = stratocracy
+				}
+				else = {
+					add_country_leader_role = {
+						promote_leader = yes
+						country_leader = {
+							ideology = stratocracy
+							traits = { foreign_leader }
+						}
+					}
+				}
+				set_character_name = "KOR_JAP_resident_general_name"
+				set_portraits = {
+					civilian = {
+						large = "gfx/leaders/KOR/KOR_JAP_resident_general.png"
+					}
+				}
 			}
 			add_popularity = {
 				ideology = neutrality
@@ -2803,7 +2949,6 @@ focus_tree = {
 				ruling_party = neutrality
 				elections_allowed = no
 			}
-			news_event = ww1_korea.4
 		}
 		ai_will_do = {
 			factor = 200
