@@ -21,7 +21,7 @@ debug_decisions = {
 		}
 		fire_only_once = no
 		complete_effect = {
-			load_focus_tree = turkey2_focus_tree
+			load_focus_tree = kostantiniyye_focus_tree
 		}
 		ai_will_do = {
 			base = 0
@@ -383,7 +383,12 @@ GER_great_war = {
 			has_war_with = RUS
 		}
 		visible = {
+			is_in_faction_with = GER
 			has_completed_focus = TUR_schelendorfs_plan
+			NOT = {
+				has_war_with = GER
+				has_global_flag = great_war_ends
+			}
 		}
 		complete_effect = {
 			every_state = {
@@ -4519,7 +4524,7 @@ TUR_minority_decision = {
 			}
 			if = {
 				limit = {
-					has_focus_tree = turkey2_focus_tree
+					has_focus_tree = kostantiniyye_focus_tree
 					FROM = {
 						state = 676
 					}
@@ -4730,7 +4735,7 @@ TUR_minority_decision = {
 			}
 			if = {
 				limit = {
-					has_focus_tree = turkey2_focus_tree
+					has_focus_tree = kostantiniyye_focus_tree
 					FROM = {
 						OR = {
 							state = 879
@@ -12135,6 +12140,7 @@ TUR_minority_decision = {
 					if = {
 						limit = {
 							is_controlled_by = TUR
+							NOT = { has_dynamic_modifier = { modifier = TUR_autonomous_region scope = TUR } }
 						}
 						add_dynamic_modifier = { modifier = TUR_kurd_minority }
 					}
@@ -12144,7 +12150,7 @@ TUR_minority_decision = {
 								is_controlled_by = TUR
 							}
 						}
-						add_dynamic_modifier = { modifier = TUR_kurd_minority }
+						set_state_flag = TUR_kurd_state_nocontrol
 					}
 				}
 				custom_effect_tooltip = TUR_an_alliance_with_the_kurds_tt
@@ -12371,6 +12377,7 @@ TUR_minority_decision = {
 					if = {
 						limit = {
 							is_controlled_by = TUR
+							NOT = { has_dynamic_modifier = { modifier = TUR_autonomous_region scope = TUR } }
 						}
 						add_dynamic_modifier = { modifier = TUR_kurd_minority }
 					}
@@ -12380,7 +12387,7 @@ TUR_minority_decision = {
 								is_controlled_by = TUR
 							}
 						}
-						add_dynamic_modifier = { modifier = TUR_kurd_minority }
+						set_state_flag = TUR_kurd_state_nocontrol
 					}
 				}
 				custom_effect_tooltip = TUR_an_alliance_with_the_kurds_tt
@@ -16102,7 +16109,8 @@ TUR_minority_decision = {
 					custom_effect_tooltip = TUR_ottoman_arab_minority_modify_resistance_target_10_2
 				}
 			}
-			add_political_power = -100
+			add_stability = 0.02
+			add_political_power = -50
 			if = {
 				limit = {
 					has_government = neutrality
@@ -16205,37 +16213,6 @@ TUR_minority_decision = {
 			add_stability = -0.05
 			every_state = {
 				limit = {
-					OR = {
-						state = 353
-						state = 352
-						state = 349
-						state = 348
-						state = 806
-						state = 816
-						state = 787
-						state = 230
-						state = 818
-					}
-					has_dynamic_modifier = { modifier = TUR_autonomous_region scope = TUR }
-				}
-				remove_dynamic_modifier = { modifier = TUR_autonomous_region scope = TUR }
-				add_dynamic_modifier = { modifier = TUR_armenian_minority }
-				set_state_flag = TUR_armenian_state
-			}
-			every_state = {
-				limit = {
-					OR = {
-						state = 881
-						state = 350
-					}
-					has_dynamic_modifier = { modifier = TUR_autonomous_region scope = TUR }
-				}
-				remove_dynamic_modifier = { modifier = TUR_autonomous_region scope = TUR }
-				add_dynamic_modifier = { modifier = TUR_kurd_minority }
-				set_state_flag = TUR_kurd_state
-			}
-			every_state = {
-				limit = {
 					state = 828
 					has_dynamic_modifier = { modifier = TUR_autonomous_region scope = TUR }
 				}
@@ -16259,11 +16236,26 @@ TUR_minority_decision = {
 						state = 230
 						state = 818
 					}
+					NOT = { has_state_flag = TUR_kurd_state }
 					has_dynamic_modifier = { modifier = TUR_autonomous_region scope = TUR }
 				}
 				remove_dynamic_modifier = { modifier = TUR_autonomous_region scope = TUR }
 				add_dynamic_modifier = { modifier = TUR_armenian_minority }
 				set_state_flag = TUR_armenian_state
+			}
+			every_state = {
+				limit = {
+					OR = {
+						state = 881
+						state = 350
+						state = 352
+					}
+					has_state_flag = TUR_kurd_state
+					has_dynamic_modifier = { modifier = TUR_autonomous_region scope = TUR }
+				}
+				remove_dynamic_modifier = { modifier = TUR_autonomous_region scope = TUR }
+				add_dynamic_modifier = { modifier = TUR_kurd_minority }
+				set_state_flag = TUR_kurd_state
 			}
 			hidden_effect = {
 				every_state = {
@@ -16294,6 +16286,7 @@ TUR_minority_decision = {
 								state = 230
 								state = 818
 							}
+							NOT = { has_state_flag = TUR_kurd_state }
 						}
 						set_state_flag = TUR_armenian_state_nocontrol
 						set_state_flag = TUR_armenian_state
@@ -16303,7 +16296,9 @@ TUR_minority_decision = {
 							OR = {
 								state = 881
 								state = 350
+								state = 352
 							}
+							has_state_flag = TUR_kurd_state
 						}
 						set_state_flag = TUR_kurd_state_nocontrol
 						set_state_flag = TUR_kurd_state
@@ -16689,6 +16684,16 @@ peace_deals = {
 			modifier = {
 				factor = 0
 				OR = {
+					is_historical_focus_on = no
+					AND = {
+						date < 1914.1.12	##force surrender if it last forever
+						NOT = {
+							has_country_flag = TUR_must_won_bw1
+						}
+						is_historical_focus_on = yes
+					}
+				}
+				OR = {
 					#historical trigger
 					AND = {
 						date < 1913.5.24
@@ -16735,191 +16740,9 @@ peace_deals = {
 					id = ww1_firstbalkan.5
 				}
 			}
-			# every_country = {
-			# 	limit = {
-			# 		is_in_faction_with = SER
-			# 	}
-			# 	white_peace = TUR
-			# }
-			
-			# hidden_effect = {
-			# 	if = {
-			# 		limit = {
-			# 			has_government = democratic
-			# 			has_active_mission = TUR_CUP_prepares_coup_mission
-			# 		}
-			# 		remove_mission = TUR_CUP_prepares_coup_mission
-			# 		remove_mission = TUR_CUP_coup_averted
-			# 		country_event = {
-			# 			id = ww1_ottoman.27
-			# 			days = 51
-			# 		}
-			# 	}
-			# }
 		}
 	}
-	# london_conference = {
-	# 	allowed = {
-	# 		OR = {
-	# 			original_tag = BUL
-	# 			original_tag = SER
-	# 			original_tag = TUR
-	# 			original_tag = GRE
-	# 			original_tag = MNT
-	# 		}
-	# 	}
-	# 	visible = {
-	# 		OR = {
-	# 			original_tag = BUL
-	# 			original_tag = SER
-	# 			original_tag = TUR
-	# 			original_tag = GRE
-	# 			original_tag = MNT
-	# 		}
-	# 	}
-	# 	activation = {
-	# 		always = no
-	# 	}
-	# 	available = {
-	# 		TUR = {
-	# 			has_war_with = SER
-	# 		}
-	# 	}
-	# 	days_mission_timeout = 15
-	# 	is_good = yes
-	# 	timeout_effect = {
-	# 		set_global_flag = kis_firstbalkanwar_victory
-	# 		every_country = {
-	# 			limit = {
-	# 				OR = {
-	# 					tag = SER
-	# 					is_in_faction_with = SER
-	# 				}
-	# 			}
-	# 			set_country_flag = BW1_winner
-	# 		}
-	# 		if = {
-	# 			limit = {
-	# 				has_global_flag = autonomous_macedonia
-	# 			}
-	# 			MAC = {
-	# 				transfer_state = 759
-	# 				transfer_state = 106
-	# 				transfer_state = 203
-	# 				transfer_state = 225
-	# 				transfer_state = 345
-	# 				transfer_state = 731
-	# 				transfer_state = 788
-	# 			}
-	# 		}
-	# 		GRE = {
-	# 			add_state_claim = 345
-	# 		}
-	# 		if = {
-	# 			limit = {
-	# 				tag = SER
-	# 			}
-	# 			country_event = ww1_firstbalkan.5
-	# 		}
-	# 	}
-	# }
-	# TUR_sue_for_peace_SER = {
-	# 	allowed = {
-	# 		original_tag = TUR
-	# 	}
-	# 	target_trigger = {
-	# 		FROM = {
-	# 			tag = SER
-	# 		}
-	# 	}
-	# 	available = {
-	# 		NOT = {
-	# 			custom_trigger_tooltip = {
-	# 				tooltip = the_great_war_has_started
-	# 				has_global_flag = kis_war
-	# 			}
-	# 		}
-	# 		NOT = {
-	# 			has_global_flag = kis_firstbalkanwar_victory
-	# 		}
-	# 		has_war_with = SER
-	# 		OR = {
-	# 			surrender_progress > 0.3
-	# 			casualties > 60000
-	# 			NOT = {
-	# 				AND = {
-	# 					controls_state = 44
-	# 					controls_state = 106
-	# 					controls_state = 184
-	# 					controls_state = 731
-	# 					controls_state = 758
-	# 					controls_state = 803
-	# 					controls_state = 759
-	# 					controls_state = 757
-	# 					controls_state = 760
-	# 					controls_state = 761
-	# 					controls_state = 788
-	# 				}
-	# 			}
-	# 		}
-	# 		is_in_faction = no
-	# 		NOT = {
-	# 			has_global_flag = TUR_peace_SER
-	# 		}
-	# 	}
-	# 	visible = {
-	# 		has_war_with = SER
-	# 		has_global_flag = kis_firstbalkan_war
-	# 		NOT = {
-	# 			has_global_flag = kis_war
-	# 			has_global_flag = kis_firstbalkanwar_victory
-	# 			has_global_flag = TUR_peace_SER
-	# 		}
-	# 	}
-	# 	ai_will_do = {
-	# 		base = 0
-	# 		modifier = {
-	# 			factor = 500
-	# 			NOT = {
-	# 				all_owned_state = {
-	# 					if = {
-	# 						limit = {
-	# 							is_on_continent = europe
-	# 							NOT = {
-	# 								state = 347 # Istanbul
-	# 								state = 860 # Gallipoli
-	# 							}
-	# 						}
-	# 						is_controlled_by = ROOT
-	# 					}
-	# 					else = {
-	# 						always = yes
-	# 					}
-	# 				}
-	# 			}
-	# 			casualties < 300000
-	# 		}
-	# 		modifier = {
-	# 			factor = 500
-	# 			NOT = { controls_state = 347 } #Surrender if they lose Konstantiniyye
-	# 		}
-	# 		modifier = {
-	# 			add = 500
-	# 			is_historical_focus_on = yes
-	# 			date > 1913.5.20
-	# 			has_completed_focus = TUR_glory_to_the_action_army
-	# 		}
-	# 	}
-	# 	complete_effect = {
-	# 		SER = {
-	# 			country_event = {
-	# 				id = ww1_firstbalkan.6
-	# 				hours = 3
-	# 			}
-	# 		}
-	# 		set_global_flag = TUR_peace_SER
-	# 	}
-	# }
+
 	TUR_sue_for_peace_BUL = {
 		icon = GFX_decision_eng_trade_unions_support
 		target_trigger = {
@@ -16943,18 +16766,34 @@ peace_deals = {
 			}
 		}
 		available = {
-			FROM = {
-				controls_state = 341
-				controls_state = 347
-				controls_state = 860
-			}
-			casualties_inflicted_by = {
-				opponent = FROM
-				thousands > 5
-			}
+			
 		}
 		ai_will_do = {
-			base = 500
+			base = 0
+			modifier = {
+				OR = {
+					NOT = {
+						has_country_flag = TUR_second_balkan_war_intervention
+					}
+					has_global_flag = kis_franzferdinand_murdered
+				}
+				BUL = {
+					surrender_progress < 0.10
+				}
+				factor = 15
+			}
+			modifier = {
+				FROM = {
+					controls_state = 341
+					controls_state = 347
+					controls_state = 860
+				}
+				casualties_inflicted_by = {
+					opponent = FROM
+					thousands > 5
+				}
+				factor = 500
+			}
 		}
 		complete_effect = {
 			set_country_flag = defeated_in_bw2
@@ -17088,6 +16927,11 @@ operations = {
 				}
 			}
 			hidden_effect = {
+				set_country_flag = {
+					flag = TUR_second_balkan_war_intervention
+					days = 180
+					value = 1
+				}
 				news_event = {
 					id = ww1_secondbalkan.18
 					hours = 3
@@ -17287,6 +17131,67 @@ operations = {
 		remove_effect = {
 			FROM = { set_country_flag = andranik_finished }
 			818 = { set_demilitarized_zone = no }
+		}
+		ai_will_do = {
+			factor = 1000
+			modifier = {
+				factor = 0
+				NOT = { has_country_flag = great_war_winner }
+			}
+		}
+	}
+	TUR_split_ARM = {
+		icon = GFX_decision_generic_prepare_civil_war
+		allowed = {
+			original_tag = TUR
+		}
+		target_trigger = {
+			FROM = {
+				tag = ARM
+			}
+		}
+		visible = {
+			is_subject = no
+			has_country_flag = great_war_winner
+			is_neighbor_of = FROM
+			NOT = {
+				has_war_with = FROM
+			}
+			818 = {
+				is_demilitarized_zone = no
+			}
+		}
+		available = {
+			has_global_flag = interbellum
+			has_war = no
+			has_subject = AZR
+		}
+		cancel_if_not_visible = yes
+		custom_cost_text = command_power_more_than_10
+		custom_cost_trigger = {
+			command_power > 10
+		}
+		complete_effect = {
+			AZR = {
+				declare_war_on = {
+					target = FROM
+					type = take_core_state
+				}
+			}
+			add_to_war = {
+				targeted_alliance = AZR
+				enemy = FROM
+			}
+			add_state_claim = 230
+		}
+		war_with_on_complete = ARM
+		fire_only_once = yes
+		ai_will_do = {
+			factor = 10
+			modifier = {
+				factor = 0
+				has_war_support < 10
+			}
 		}
 	}
 }
@@ -21004,7 +20909,7 @@ TUR_economy_decision = {
 				has_completed_focus = TUR_purge_heretics_from_economy
 			}
 			NOT = {
-				has_focus_tree = turkey2_focus_tree
+				has_focus_tree = kostantiniyye_focus_tree
 			}
 		}
 		available = {
@@ -21065,7 +20970,7 @@ TUR_economy_decision = {
 		available = {
 			if = {
 				limit = {
-					has_focus_tree = turkey2_focus_tree
+					has_focus_tree = kostantiniyye_focus_tree
 				}
 				has_completed_focus = TUR_pay_debts
 			}
@@ -22886,7 +22791,7 @@ TUR_economy_decision = {
 			has_variable = opda_lira
 			if = {
 				limit = {
-					has_focus_tree = turkey2_focus_tree
+					has_focus_tree = kostantiniyye_focus_tree
 				}
 				has_completed_focus = TUR_purchase_guns
 			}
@@ -23178,7 +23083,7 @@ TUR_economy_decision = {
 			}
 			has_variable = opda_lira
 			NOT = {
-				has_focus_tree = turkey2_focus_tree
+				has_focus_tree = kostantiniyye_focus_tree
 				has_focus_tree = turkey_focus_tree
 				has_completed_focus = TUR_domestic_weapon_companies
 			}
@@ -23308,7 +23213,7 @@ TUR_economy_decision = {
 			}
 			has_variable = opda_lira
 			NOT = {
-				has_focus_tree = turkey2_focus_tree
+				has_focus_tree = kostantiniyye_focus_tree
 				has_focus_tree = turkey_focus_tree
 				has_completed_focus = TUR_domestic_weapon_companies
 			}
@@ -24091,7 +23996,7 @@ TUR_economy_decision = {
 				has_country_flag = great_war_winner
 			}
 			has_variable = opda_lira
-			has_focus_tree = turkey2_focus_tree
+			has_focus_tree = kostantiniyye_focus_tree
 			has_completed_focus = TUR_purchase_factory_rights
 		}
 		target_trigger = {
@@ -31547,9 +31452,9 @@ TUR_army_civilian_struggle_decisions = {
 		days_remove = 35
 		days_re_enable = 35
 		complete_effect = {
-			army_experience = 1
-			air_experience = 1
-			navy_experience = 1
+			army_experience = 10
+			air_experience = 10
+			navy_experience = 10
 			add_power_balance_value = {
 				id = TUR_army_civilian_struggle
 				value = -0.05

@@ -352,15 +352,15 @@ country_event = {
 	fire_only_once = yes
 	option = {
 		name = ww1_england.5.a
+		trigger = {
+			NOT = { has_country_flag = great_war_loser }
+		}
 		add_political_power = -50
 		ai_chance = {
 			factor = 10
 			modifier = {
 				factor = 0
-				OR = {
-					has_stability < 0.25
-					has_country_flag = great_war_loser
-				}
+				has_stability < 0.25
 			}
 		}
 	}
@@ -598,7 +598,7 @@ country_event = {
 	}
 }
 
-# ZIMMERMAN TELEGRAM (NO DLC "Blya Resistor")
+# ZIMMERMAN TELEGRAM
 ############################
 country_event = {
 	id = ww1_england.9
@@ -653,8 +653,8 @@ country_event = {
 							option = DEFAULT
 						}
 					}
-				}
-				has_war_with = GER
+					has_war_with = GER
+				}		
 				factor = 0
 			}
 		}
@@ -712,86 +712,6 @@ news_event = {
 		}
 	}
 }
-
-# ZIMMERMAN TELEGRAM (HAS DLC "Blya Resistor")
-############################
-country_event = {
-	id = ww1_england.12
-	title = ww1_england.9.t
-	desc = ww1_england.9.d
-	picture = GFX_report_event_generic_sign_treaty2
-	trigger = {
-		has_dlc = "La Resistance"
-		original_tag = ENG
-		ENG = {
-			has_done_agency_upgrade = upgrade_decryption_boost
-		}
-		has_global_flag = zimmermann_telegram
-		NOT = {
-			GER = {
-				has_completed_focus = GER_war_with_usa
-			}
-		}
-	}
-	mean_time_to_happen = {
-		days = 10
-	}
-	fire_only_once = yes
-	option = {
-		name = ww1_england.9.a
-		trigger = {
-			NOT = { has_war_with = USA }
-		}
-		USA = {
-			country_event = {
-				id = ww1_england.10
-				days = 2
-			}
-		}
-		set_global_flag = zimmermann_telegram_intercepted
-		ai_chance = {
-			factor = 100
-			modifier = {
-				OR = {
-					USA = {
-						has_war_with = ENG
-					}
-					ENG = {
-						NOT = {
-							has_war_with = GER
-						}
-					}
-				}
-				factor = 0
-			}
-		}
-	}
-	option = {
-		name = ww1_england.9.b		#ignore telegram
-		ai_chance = {
-			factor = 1
-			modifier = {
-				OR = {
-					has_country_flag = ENG_AI_DEMOCRATIC_HISTORICAL
-					has_game_rule = {
-						rule = ENG_ai_behavior
-						option = DEMOCRATIC_HISTORICAL
-					}
-					AND = {
-						is_historical_focus_on = yes
-						has_game_rule = {
-							rule = ENG_ai_behavior
-							option = DEFAULT
-						}
-					}
-				}
-				has_war_with = GER
-				factor = 0
-			}
-		}
-	}
-}
-
 # SCOTLAND FOREVER
 ############################
 country_event = {
@@ -1413,7 +1333,7 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_england.33.a
-		ENG = {
+		FROM = {
 			end_puppet = ROOT
 		}
 	}
@@ -1646,6 +1566,26 @@ country_event = {
 				id = ww1_england.33
 			}
 		}
+		every_other_country = {
+			limit = {
+				OR = {
+					tag = CAN
+					tag = AST
+					tag = NZL
+					tag = SAF
+					tag = IRE
+					tag = NIR
+				}
+				NOT = {
+					has_government = communism
+					has_country_leader_ideology = national_syndicalism
+				}
+			}
+			add_timed_idea = {
+				idea = ENG_idea_influence_of_revolution
+				days = 365
+			}
+		}
 		EGY = {
 			hidden_effect = {
 				country_lock_all_division_template = no
@@ -1659,7 +1599,7 @@ country_event = {
 			}	
 		}
 		hidden_effect = {
-			load_focus_tree = uk_3
+			load_focus_tree = uk_iw_focus
 			set_country_flag = ENG_socialist_britain_flag
 			ENG_clement_attlee = {
 				add_field_marshal_role = {
@@ -2315,7 +2255,7 @@ country_event = {
 				id = ww1_england.151
 				days = 85
 			}
-			load_focus_tree = uk_3
+			load_focus_tree = uk_iw_focus
 			ENG_oswald_mosley = {
 				remove_unit_leader_role = yes
 			}
@@ -2495,7 +2435,7 @@ country_event = {
 		set_cosmetic_tag = UOB
 		hidden_effect = {
 			set_country_flag = ENG_socialist_britain_flag
-			load_focus_tree = uk_3
+			load_focus_tree = uk_iw_focus
 			country_event = {
 				id = ww1_england.151
 				days = 200
@@ -2533,7 +2473,7 @@ country_event = {
 	fire_only_once = yes
 	immediate = {
 		hidden_effect = {
-			load_focus_tree = uk_3
+			load_focus_tree = uk_iw_focus
 			remove_ideas = standing_alone
 			set_rule = {
 				can_join_factions = yes
@@ -2935,6 +2875,16 @@ country_event = {
 			else = {
 				827 = { add_claim_by = EGY }
 			}
+			EGY = {
+				# since this event is triggered only when they failed to control suez and cairo
+				# they shouldn't get there just like that
+				every_owned_state = {
+					limit = {
+						is_claimed_by = TUR
+					}
+					remove_claim_by = TUR
+				}
+			}
 		}
 	}
 }
@@ -3326,7 +3276,7 @@ country_event = {
 					limit = { owns_state = 693 }
 					693 = {
 						create_unit = {
-							division = "name = \"Bahaman Militia\" division_template = \"Carribbean Militi\" start_experience_factor = 0.0"
+							division = "name = \"Bahaman Militia\" division_template = \"Carribbean Militia\" start_experience_factor = 0.0"
 							owner = PREV
 						}
 					}
@@ -4061,6 +4011,7 @@ country_event = {
 		ai_chance = {
 			factor = 100
 		}
+		custom_effect_tooltip = historical_tt
 	}
 	option = {
 		#Honour the Balfour Declaration
@@ -5830,7 +5781,7 @@ country_event = {
 		set_politics = {
 			ruling_party = fascism
 		}
-		load_focus_tree = uk_3
+		load_focus_tree = uk_iw_focus
 	}
 	#James May
 	option = {
@@ -5838,7 +5789,7 @@ country_event = {
 		set_politics = {
 			ruling_party = democratic
 		}
-		load_focus_tree = uk_3
+		load_focus_tree = uk_iw_focus
 	}
 	#Richard Hammond
 	option = {
@@ -5846,7 +5797,7 @@ country_event = {
 		set_politics = {
 			ruling_party = communism
 		}
-		load_focus_tree = uk_3
+		load_focus_tree = uk_iw_focus
 	}
 }
 
@@ -6049,12 +6000,17 @@ country_event = {
 		ai_chance = {
 			factor = 50
 		}
+		custom_effect_tooltip = historical_tt
 	}
 	#Smutsland- next most likely
 	option = {
 		name = ww1_england.125.b
 		ai_chance = {
-			factor = 35
+			base = 35
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+			}
 		}
 		546 = {
 			set_state_name = SMUTSLAND_STATE
@@ -6064,7 +6020,11 @@ country_event = {
 	option = {
 		name = ww1_england.125.c
 		ai_chance = {
-			factor = 7
+			base = 7
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+			}
 		}
 		546 = {
 			set_state_name = KILIMANJARO_STATE
@@ -6074,7 +6034,11 @@ country_event = {
 	option = {
 		name = ww1_england.125.e
 		ai_chance = {
-			factor = 8
+			base = 8
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+			}
 		}
 		546 = {
 			set_state_name = WINDSORLAND_STATE
@@ -6108,14 +6072,19 @@ country_event = {
 	option = {
 		name = ww1_england.126.a
 		ai_chance = {
-			factor = 75
+			base = 75
 		}
+		custom_effect_tooltip = historical_tt
 	}
 	#Bothaland
 	option = {
 		name = ww1_england.126.b
 		ai_chance = {
-			factor = 25
+			base = 25
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+			}
 		}
 		541 = {
 			set_state_name = BOTHALAND_STATE
@@ -7135,9 +7104,46 @@ country_event = {
 				type = annex_everything
 			}
 			set_province_controller = 3273
+			division_template = {
+				name = "Red Militia"
+				regiments = {
+					militia = {
+						x = 0
+						y = 0
+					}
+					militia = {
+						x = 0
+						y = 1
+					}
+					militia = {
+						x = 0
+						y = 2
+					}
+					cavalry = {
+						x = 1
+						y = 0
+					}
+					militia = {
+						x = 2
+						y = 0
+					}
+					militia = {
+						x = 2
+						y = 1
+					}
+					militia = {
+						x = 3
+						y = 0
+					}
+					militia = {
+						x = 3
+						y = 1
+					}
+				}
+			}
 			133 = {
 				create_unit = {
-					division = "name = \"Red Clydeside\" division_template = \"Reserve Brigade\" start_experience_factor = 0.2"
+					division = "name = \"Red Clydeside\" division_template = \"Red Militia\" start_experience_factor = 0.2"
 					owner = ENG
 				}
 			}
@@ -8441,7 +8447,10 @@ country_event = {
 	}
 	immediate = {
 		hidden_effect = {
-			add_threat = 1
+			add_named_threat = {
+				threat = 1
+				name = ENG_two_power_standard
+			}
 			add_timed_idea = {
 				idea = ENG_two_power_standard
 				days = 250
@@ -8456,7 +8465,10 @@ country_event = {
 	option = {
 		name = ww1_england.182.a
 		effect_tooltip = {
-			add_threat = 1
+			add_named_threat = {
+				threat = 1
+				name = ENG_two_power_standard
+			}
 			add_timed_idea = {
 				idea = ENG_two_power_standard
 				days = 250
@@ -8852,6 +8864,7 @@ country_event = {
 	#Coalition Stands
 	option = {
 		name = ww1_england.188.a
+		custom_effect_tooltip = historical_tt
 		ai_chance = {
 			factor = 15
 			modifier = {
@@ -8926,6 +8939,18 @@ country_event = {
 			}
 		}
 	}
+	#No fuck off lol
+	option = {
+		name = ww1_england.189.b
+		ai_chance = {
+			factor = 100
+		}
+		custom_effect_tooltip = historical_tt
+		add_political_power = 5
+		SAF = {
+			add_political_power = 10
+		}
+	}
 	#OK
 	option = {
 		name = ww1_england.189.a
@@ -8948,17 +8973,6 @@ country_event = {
 				ruling_party = democratic
 				elections_allowed = yes
 			}
-		}
-	}
-	#No fuck off lol
-	option = {
-		name = ww1_england.189.b
-		ai_chance = {
-			factor = 100
-		}
-		add_political_power = 5
-		SAF = {
-			add_political_power = 10
 		}
 	}
 }
@@ -10034,6 +10048,10 @@ country_event = {
 			}
 			is_ai = no #I don't trust AI lol
 		}
+		OR = {
+			has_war_with_major = yes
+			NOT = { has_global_flag = great_war_ends }
+		}
 	}
 	fire_only_once = yes
 	mean_time_to_happen = { days = 100 }
@@ -10176,12 +10194,9 @@ country_event = {
 	desc = ww1_england.219.d
 	picture = GFX_report_event_british_inspect_troops
 	trigger = {
-		OR ={
-			original_tag = SOV
-			AND = {
-				original_tag = RUS
-				has_government = communism
-			}
+		AND = {
+			original_tag = RUS
+			has_government = communism
 		}
 		has_global_flag = british_civil_war
 		NOT = { country_exists = UOB }
