@@ -1928,62 +1928,56 @@ country_event = {
 				exists = no
 			}
 		}
-		any_owned_state = {
-			OR = {
-				is_core_of = GEO
-				is_core_of = AZR
-				is_core_of = ARM
-				is_core_of = MOU
+		OR = {
+			any_owned_state = {
+				OR = {
+					is_core_of = GEO
+					is_core_of = AZR
+					is_core_of = ARM
+				}
+				NOT = {
+					state = 235
+				}
 			}
-			NOT = {
-				state = 235
-			}
+			has_subject = AZR
+			has_subject = ARM
 		}
 	}
 	immediate = {
 		hidden_effect = {
 			every_owned_state = {
 				limit = {
-					is_core_of = PER
-					region = 116
-				}
-				set_state_owner_to = PER
-			}
-			every_owned_state = {
-				limit = {
 					OR = {
 						is_core_of = GEO
 						is_core_of = AZR
 						is_core_of = ARM
+						is_core_of = PER
 					}
-					is_fully_controlled_by = ROOT
 				}
-				GEO = {
-					transfer_state = PREV 
-					add_state_core = PREV
+				if = {
+					limit = {
+						NOT = { is_core_of = PER }
+					}
+					add_core_of = GEO
+				}
+				if = {
+					limit = {
+						is_controlled_by_ROOT_or_ally = yes
+					}
+					transfer_state_to = GEO
+					else = {
+						set_state_owner_to = GEO
+					}
 				}
 			}
-			every_owned_state = {
+			every_other_country = {
 				limit = {
 					OR = {
-						is_core_of = GEO
-						is_core_of = AZR
-						is_core_of = ARM
-					}	
-					NOT = { is_fully_controlled_by = ROOT }
-				}
-				GEO = {
-					set_state_owner = PREV 
-					add_state_core = PREV
-				}
-			}
-			every_country = {
-				limit = {
-					OR = {
-						tag = ARM
-						tag = AZR
+						original_tag = ARM
+						original_tag = AZR
+						original_tag = MOU
 					}
-					is_subject_of = RUS
+					is_subject_of = ROOT
 				}
 				drop_cosmetic_tag = yes
 				GEO = {
@@ -1996,30 +1990,18 @@ country_event = {
 			}
 			every_state = {
 				limit = {
-					NOT = {
-						is_owned_by = ROOT
-					}
+					NOT = { is_owned_by = ROOT }
 					is_fully_controlled_by = ROOT
-					OR = {
-						is_owned_by = PER
-						is_owned_by = TUR
+					owner = {
+						has_war_with = ROOT
 					}
 					is_on_continent = middle_east
 				}
-				GEO = { set_state_controller = PREV }
+				set_state_controller_to = GEO
 			}
-			every_state = {
+			random_state = {
 				limit = {
 					is_owned_by = GEO
-					OR = {
-						is_core_of = AZR
-						is_core_of = ARM
-					}
-				}
-				GEO = { add_state_core = PREV }
-			}
-			random_owned_state = {
-				limit = {
 					OR = {
 						state = 231
 						state = 229
@@ -2053,33 +2035,32 @@ country_event = {
 					promote_character = socialism
 					promote_character = authoritarian_democracy
 				}
-				inherit_technology = RUS
+				inherit_technology = ROOT
 				country_event = {
 					id = ww1_russia.33
 					days = 100
 				}
-				give_military_access = RUS
+				give_military_access = ROOT
 			}
 			give_military_access = GEO
 			every_other_country = {
 				limit = {
 					has_war_with = ROOT
-					NOT = {
-						original_tag = RUS
-						original_tag = DON
-						original_tag = KUB
-						original_tag = UCH
-						original_tag = ORE
-						original_tag = CER
-					}	
+					is_russian_tag = no
 				}
 				GEO = {
 					add_to_war = {
 						targeted_alliance = ROOT
 						enemy = PREV
-						hostility_reason = asked_to_join
 					}
 				}
+			}
+			# Mountainous Republic
+			every_owned_state = {
+				limit = {
+					is_core_of = MOU
+				}
+				transfer_state_to = MOU
 			}
 		}
 	}
@@ -2088,9 +2069,7 @@ country_event = {
 	}
 	option = {
 		name = ww1_russia.32.b
-		trigger = {
-			is_ai = no
-		}
+		trigger = { is_ai = no }
 		GEO = { change_tag_from = ROOT }
 	}
 }
@@ -2108,7 +2087,7 @@ country_event = {
 	}
 	option = {
 		name = ww1_russia.33.a
-		RUS = {
+		OVERLORD = {
 			end_puppet = ROOT
 		}
 		add_stability = 0.05
@@ -2124,6 +2103,14 @@ country_event = {
 		}
 		GEO_nikoloz_chkheidze = {
 			promote_character = socialism
+		}
+		# Withdraw from Persia
+		every_owned_state = {
+			limit = {
+				is_core_of = PER
+				NOT = { region = 155 }
+			}
+			transfer_state_to = PER
 		}
 	}
 }
@@ -6863,12 +6850,12 @@ country_event = {
 					active = no
 				}
 			}
-			TUR = {
-				country_event = {
-					id = ww1_ottoman.112
-					days = 10
-				}
-			}
+			# TUR = {
+			# 	country_event = {
+			# 		id = ww1_ottoman.112
+			# 		days = 10
+			# 	}
+			# }
 			if = {
 				limit = {
 					any_other_country = {
@@ -7054,6 +7041,7 @@ country_event = {
 	option = {
 		name = ww1_russia.104.a
 			hidden_effect = {
+				set_global_flag = brest_litovsk_finished
 				remove_ideas = RUS_idea_armistice_rus
 				remove_ideas = RUS_demobilizing_army
 				#South Russian Army
@@ -7212,12 +7200,12 @@ country_event = {
 							}	
 						}				
 					}
-					TUR = {
-						country_event = {
-							id = ww1_ottoman.112
-							days = 10
-						}
-					}
+					# TUR = {
+					# 	country_event = {
+					# 		id = ww1_ottoman.112
+					# 		days = 10
+					# 	}
+					# }
 				}
 			}
 			news_event = { id = ww1_russia.10 }	
