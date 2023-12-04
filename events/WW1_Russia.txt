@@ -756,14 +756,21 @@ country_event = {
 						}
 						owner = {
 							OR = {
-								has_war_with = FROM
 								has_russian_civil_war = yes
+								has_war_with = PREV.PREV
+								is_in_faction_with = RUS
+								is_subject_of = RUS
+							}
+							NOT = {
+								is_in_faction_with = PREV.PREV
 							}
 						}
 					}
 					if = {
 						limit = {
-							NOT = { is_controlled_by = UPR }
+							controller = {
+								NOT = { original_tag = UKR }
+							}
 						}
 						transfer_state_to = PREV
 					}
@@ -2011,11 +2018,55 @@ country_event = {
 			promote_character = socialism
 		}
 		# Withdraw from Persia
-		if = {
-			limit = {
-				ENG = {
+		hidden_effect = {
+			if = {
+				limit = {
+					any_owned_state = { is_core_of = ASY }
+					NOT = { country_exists = ASY }
 					has_war_with = TUR
-					any_owned_state = { is_core_of = PER }
+				}
+				every_owned_state = {
+					limit = { is_core_of = ASY }
+					transfer_state_to = ASY
+					add_claim_by = TUR
+				}
+				ASY = {
+					set_cosmetic_tag = ASY_volunteers
+					add_to_war = {
+						targeted_alliance = ROOT
+						enemy = TUR
+					}
+					division_template = {
+						name = "Assyrian Volunteers"
+						regiments = {
+							irregular_infantry = { x = 0 y = 0 }
+							irregular_infantry = { x = 0 y = 1 }
+							irregular_infantry = { x = 0 y = 2 }
+						}
+					}
+					every_owned_state = {
+						create_unit = {
+							division = "name = \"Militia\" division_template = \"Assyrian Volunteers\" start_experience_factor = 0.8"
+							owner = PREV
+							allow_spawning_on_enemy_provs = yes
+						}
+					}
+					give_military_access = ENG
+				}
+			}
+			if = {
+				limit = {
+					ENG = {
+						has_war_with = TUR
+						any_owned_state = { is_core_of = PER }
+					}
+				}
+				every_owned_state = {
+					limit = {
+						is_core_of = PER
+						NOT = { region = 155 }
+					}
+					transfer_state_to = ENG
 				}
 			}
 			every_owned_state = {
@@ -2023,15 +2074,8 @@ country_event = {
 					is_core_of = PER
 					NOT = { region = 155 }
 				}
-				transfer_state_to = ENG
+				transfer_state_to = PER
 			}
-		}
-		every_owned_state = {
-			limit = {
-				is_core_of = PER
-				NOT = { region = 155 }
-			}
-			transfer_state_to = PER
 		}
 	}
 }
@@ -2079,6 +2123,16 @@ country_event = {
 					}
 				}
 				add_claim_by = UKR
+			}
+			# disagreed with universal
+			every_owned_state = {
+				limit = {
+					OR = {
+						region = 192
+						state = 221
+					}
+				}
+				set_demilitarized_zone = yes
 			}
 			RUS = {
 				transfer_ship = {
