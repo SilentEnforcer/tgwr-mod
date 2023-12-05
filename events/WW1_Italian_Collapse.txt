@@ -58,14 +58,6 @@ country_event = {
 				id = garibaldi.5
 				days = 19
 			}
-			SRD = {
-				SRD_vittorio_emanuele_iii = {
-					remove_country_leader_role = {
-						ideology = semi_constitutional_monarchy
-					}
-				}
-				promote_character = SRD_umberto_ii
-			}
 		}
 	}
 }
@@ -408,9 +400,7 @@ country_event = {
 	}
 	option = {
 		name = garibaldi.4.b
-		ai_chance = {
-			factor = 0
-		}
+		trigger = { is_ai = no }
 		SRI = {
 			change_tag_from = ROOT
 		}
@@ -478,6 +468,12 @@ country_event = {
 				set_character_name = ITA_emanuele_filiberto_i
 				promote_leader = yes
 				set_nationality = SRD
+				add_country_leader_role = {
+					promote_leader = yes
+					country_leader = {
+						ideology = semi_constitutional_monarchy
+					}
+				}
 			}
 			ITA_luigi_amedeo = {
 				set_nationality = SRD
@@ -485,17 +481,12 @@ country_event = {
 			ITA_vittorio_emanuele_di_savoy_aosta = {
 				set_nationality = SRD
 			}
-			SRD = {
-				retire_character = SRD_umberto_ii
-				SRD_emanuele_filiberto_i = {
-					add_country_leader_role = {
-						promote_leader = yes
-						country_leader = {
-							ideology = semi_constitutional_monarchy
-						}
-					}
-				}
-			}	
+			ITA_umberto_ii = {
+				set_nationality = SRD
+			}
+			ITA_vittorio_emanuele_iii = {
+				set_nationality = SRD
+			}
 		}
 	}
 	option = {
@@ -1029,16 +1020,11 @@ country_event = {
 	#stay as republic
 	option = {
 		name = garibaldi.6.a
-		ai_chance = {
-			factor = 100
-		}
 	}
 	#For King and Stuff
 	option = {
 		name = garibaldi.6.b
-		ai_chance = {
-			factor = 0
-		}
+		trigger = { is_ai = no }
 		ITS = {
 			change_tag_from = ROOT
 		}
@@ -1096,7 +1082,7 @@ country_event = {
 	id = garibaldi.9
 	title = garibaldi.9.t
 	desc = garibaldi.9.desc
-	picture = GFX_report_event_gre_city_devastated
+	picture = GFX_report_event_ITA_italian_civil_war
 	is_triggered_only = yes
 	immediate = {
 		hidden_effect = {
@@ -1111,17 +1097,20 @@ country_event = {
 	option = {
 		name = garibaldi.9.a
 		ai_chance = {
-			factor = 10
+			base = 10
 		}
-		ROI = {
-			set_politics = {
-				ruling_party = fascism
-			}
-			add_popularity = {
-				ideology = democratic
-				popularity = -0.3
-			}
-			hidden_effect = {
+		set_politics = {
+			ruling_party = fascism
+		}
+		add_popularity = {
+			ideology = democratic
+			popularity = -0.3
+		}
+		hidden_effect = {
+			if = {
+				limit = {
+					has_focus_tree = italian_focus
+				}
 				unlock_national_focus = ITA_vittoria_mutilata
 				unlock_national_focus = ITA_fascismo_movimento
 				unlock_national_focus = ITA_mussolini_cult
@@ -1134,110 +1123,93 @@ country_event = {
 	option = {
 		name = garibaldi.9.b
 		ai_chance = {
-			factor = 15
+			base = 15
 		}
-		ROI = {
-			add_war_support = 0.03
-			add_stability = -0.07
-		}
+		add_war_support = 0.03
+		add_stability = -0.07
 	}
 	option = {
 		ai_chance = {
-			factor = 30
+			base = 30
+			modifier = {
+				add = 100
+				GER = { has_country_flag = great_war_winner }
+			}
 		}
 		name = garibaldi.9.c
-		every_owned_state = {
-			limit = {
-				is_owned_by = ROI
-				is_fully_controlled_by = SRI
-			}
-			SRI = {
-				transfer_state = PREV
-			}
-		}
-		every_state = {
-			limit = {
-				is_owned_by = ROI
-				is_fully_controlled_by = ITS
-			}
-			ITS = {
-				transfer_state = PREV
-			}
-		}
-		every_state = {
-			limit = {
-				is_owned_by = ROI
-				is_controlled_by = SRI
-			}
-			SRI = {
-				transfer_state = PREV
-			}
-		}
-		every_state = {
-			limit = {
-				is_owned_by = ROI
-				is_controlled_by = ITS
-			}
-			ITS = {
-				transfer_state = PREV
-			}
-		}
-		every_state = {
-			limit = {
-				is_owned_by = ROI
-				is_core_of = ROI
-				NOT = {
-					state = 114
-				}
-			}
-			ITS = {
-				transfer_state = PREV
-			}
+		effect_tooltip = {
+			SRD = { change_tag_from = ROOT }
 		}
 		hidden_effect = {
+			every_owned_state = {
+				limit = {
+					is_controlled_by = SRI
+				}
+				transfer_state_to = SRI
+				SRI = {
+					transfer_state = PREV
+				}
+			}
+			every_state = {
+				limit = {
+					is_controlled_by = ITS
+				}
+				transfer_state_to = ITS
+			}
+			every_owned_state = {
+				limit = {
+					is_core_of = ROOT
+					NOT = { state = 114 }
+				}
+				transfer_state_to = ITS
+			}
 			every_state = {
 				limit = {
 					OR = {
-						is_core_of = ROI
-						is_claimed_by = ROI
+						is_core_of = ROOT
+						is_claimed_by = ROOT
 					}
 				}
-				remove_core_of = ROI
-				remove_claim_by = ROI
+				remove_core_of = ROOT
+				remove_claim_by = ROOT
+			}
+			every_character = {
+				set_nationality = SRD
+			}
+			every_unit_leader = {
+				set_nationality = SRD
+			}
+			transfer_navy = {
+				target = SRD
 			}
 			SRD = {
-				transfer_state = 114
 				add_state_core = 114
-				inherit_technology = ROI
-				ROI = {
-					every_unit_leader = {
-						set_nationality = SRD
-					}
-				}
+				transfer_state = 114
+				inherit_technology = ROOT
 				set_politics = {
 					ruling_party = neutrality
 					elections_allowed = no
 				} 
 				annex_country = {
-					target = ROI
+					target = ROOT
 					transfer_troops = yes
 				}
 				delete_unit_template_and_units = {
 					division_template = "Avanguardie Repubblicane"
 					disband = yes
 				}
-				change_tag_from = ROOT
 				every_state = {
 					teleport_armies = {
 						to_state_array = owned_controlled_states
 					}
 				}
+				change_tag_from = ROOT
 			}
 		}
 	}
 	option = {
 		ai_chance = {
-			factor = 30
+			base = 30
 		}
 		name = garibaldi.9.d
 		ITS = {
