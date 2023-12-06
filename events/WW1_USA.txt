@@ -7067,7 +7067,7 @@ country_event = {
 	option = {
 		name = ww1_usa.124.a
 		trigger = {
-			tag = USA
+			original_tag = USA
 		}
 		add_war_support = 0.1
 		ai_chance = {
@@ -7077,7 +7077,7 @@ country_event = {
 	option = {
 		name = ww1_usa.124.b
 		trigger = {
-			tag = MEX
+			original_tag = MEX
 		}
 		add_war_support = -0.1
 		ai_chance = {
@@ -7193,16 +7193,24 @@ country_event = {
 			has_subject = PHI
 		}
 		has_country_flag = great_war_loser
-		has_global_flag = frankfurt_treaty
+		has_global_flag = interbellum
 	}
 	fire_only_once = yes
 	mean_time_to_happen = {
-		days = 90
+		days = 200
 	}
 	option = {
 		name = ww1_usa.129.a
 		ai_chance = {
-			factor = 95
+			base = 30
+			modifier = {
+				add = 100
+				has_government = fascism
+			}
+			modifier = {
+				add = 100
+				has_government = neutrality
+			}
 		}
 		hidden_effect = {
 			if = {
@@ -7300,7 +7308,7 @@ country_event = {
 						owner = PHI
 					}
 				}
-				add_country_leader_trait = standing_alone
+				add_ideas = standing_alone	
 			}
 			division_template = {
 				name = "Infantry Division in the Philippines"
@@ -7390,9 +7398,27 @@ country_event = {
 		activate_mission = philippine_american_war
 	}
 	option = {
+		name = ww1_usa.129.c
+		trigger = {
+			NOT = { has_subject = PHI }
+		}
+		ai_chance = {
+			base = 30
+			modifier = {
+				add = 100
+				has_government = democratic
+			}
+		}
+		release_puppet = PHI
+	}
+	option = {
 		name = ww1_usa.129.b
 		ai_chance = {
-			factor = 5
+			base = 30
+			modifier = {
+				add = 100
+				has_government = communism
+			}
 		}
 		if = {
 			limit = { has_subject = PHI }
@@ -7457,16 +7483,17 @@ country_event = {
 	id = ww1_usa.132
 	title = ww1_usa.132.t
 	desc = ww1_usa.132.d
-	trigger = {
-		tag = USA
-		has_global_flag = zimmermann_telegram_received
-		NOT = {
-			has_war_with = GER
-			has_global_flag = great_war_ends
-		}
-	}
-	fire_only_once = yes
-	mean_time_to_happen = { days = 0 }
+	#trigger = {
+	# 	tag = USA
+	# 	has_global_flag = zimmermann_telegram_received
+	# 	NOT = {
+	# 		has_war_with = GER
+	#		has_global_flag = great_war_ends
+	# 	}
+	#}
+	#fire_only_once = yes
+	is_triggered_only = yes
+	#mean_time_to_happen = { days = 0 }
 	option = {
 		name = ww1_usa.132.a
 			if = {
@@ -7492,13 +7519,7 @@ country_event = {
 							is_major = yes
 							has_war_with = GER
 							has_civil_war = no
-							has_capitulated = no
-							NOT = {
-								AND = {
-									original_tag = RUS
-									has_war_with = SOV
-								}
-							}					
+							has_capitulated = no				
 							OR = {
 								has_government = USA
 								has_government = neutrality
@@ -7511,12 +7532,6 @@ country_event = {
 							has_war_with = GER
 							has_civil_war = no
 							has_capitulated = no
-							NOT = {
-								AND = {
-									original_tag = RUS
-									has_war_with = SOV
-								}
-							}
 							OR = {
 								has_government = USA
 								has_government = neutrality
@@ -7615,18 +7630,12 @@ country_event = {
 		USA = {
 			has_war_with = GER
 		}
-		OR = {
-			tag = PAN
-			tag = CUB
-			tag = GUA
-			tag = NIC
-			tag = COS
-			tag = HAI
-			tag = HON
-			tag = ECU
-			tag = BOL
-			tag = URG
-			tag = PRU
+		capital_scope = {
+			is_core_of = ROOT
+			OR = {
+				is_on_continent = north_america
+				is_on_continent = south_america
+			}
 		}
 		exists = yes
 		is_subject = no
@@ -7635,9 +7644,17 @@ country_event = {
 		is_in_faction = no
 		NOT = {
 			has_global_flag = great_war_ends
+			has_country_flag = american_campaign
 		}
 	}
-	fire_only_once = yes
+	mean_time_to_happen = {
+		days = 0
+	}
+	immediate = {
+		hidden_effect = {
+			set_country_flag = american_campaign
+		}
+	}
 	option = {
 		name = ww1_usa.133.a
 		FRA = { country_event = generic.2 }
@@ -7739,10 +7756,19 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_usa.136.a
+		# trigger = {
+		# 	has_political_power > 75
+		# 	has_equipment = {
+		# 		infantry_equipment < 1000
+		# 	}
+		# }
 		effect_tooltip = {
-			add_equipment_to_stockpile = {
-				type = infantry_equipment_1
-				amount = 2000
+			FROM = {
+				send_equipment = {
+					type = infantry_equipment
+					amount = 2000
+					target = ROOT
+				}
 			}
 		}
 		add_political_power = -75
@@ -7755,6 +7781,10 @@ country_event = {
 					archetype = infantry_equipment
 					ratio > 0.5
 				}
+			}
+			modifier = {
+				factor = 0
+				has_political_power < 75
 			}
 		}
 	}
@@ -7804,11 +7834,17 @@ country_event = {
 	option = {
 		name = ww1_usa.136.a
 		effect_tooltip = {
-			add_equipment_to_stockpile = {
-				type = artillery_equipment_1
-				amount = 100
+			FROM = {
+				send_equipment = {
+					type = artillery_equipment
+					amount = 100
+					target = ROOT
+				}
 			}
 		}
+		# trigger = {
+		# 	has_political_power > 200
+		# }
 		add_political_power = -200
 		FROM = { country_event = ww1_usa.140 }
 		ai_chance = {
@@ -7819,6 +7855,10 @@ country_event = {
 					archetype = artillery_equipment
 					ratio > 0.5
 				}
+			}
+			modifier = {
+				factor = 0
+				has_political_power < 200
 			}
 		}
 	}
@@ -7871,6 +7911,27 @@ country_event = {
 			idea = USA_idea_food_supply
 			days = 140
 		}
+		# trigger = {
+		# 	has_political_power > 100
+		# }
+		if = {
+			limit = {
+				has_active_mission = GER_mission_famine_timer
+			}
+			add_days_mission_timeout = {
+				mission = GER_mission_famine_timer
+				days = 70
+			}
+		}
+		if = {
+			limit = {
+				has_active_mission = GER_mission_famine_timer_early
+			}
+			add_days_mission_timeout = {
+				mission = GER_mission_famine_timer_early
+				days = 100
+			}
+		}
 		add_political_power = -100
 		FROM = { country_event = ww1_usa.143 }
 		ai_chance = {
@@ -7878,6 +7939,10 @@ country_event = {
 			modifier = {
 				factor = 0
 				num_of_available_civilian_factories > 10
+			}
+			modifier = {
+				factor = 0
+				has_political_power < 100
 			}
 		}
 	}

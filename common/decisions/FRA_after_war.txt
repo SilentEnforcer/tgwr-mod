@@ -289,6 +289,7 @@ FRA_the_next_revolution = {
 				has_state_flag = communard_presence
 			}
 		}
+		state_target = yes
 		target_array = FRA.core_states
 		target_trigger = {
 			FROM = {
@@ -307,10 +308,10 @@ FRA_the_next_revolution = {
 		icon = generic_nationalism
 		on_map_mode = map_and_decisions_view
 
-	#	highlight_states = {
-	#		highlight_state_targets = { state = 14 } 
-	# 		highlight_color_while_active = 1
-	#	}
+		highlight_states = {
+			highlight_state_targets = { state = FROM } 
+			highlight_color_while_active = 1
+		}
 		complete_effect = {
 			set_country_flag = FRA_is_fighting_communist
 		}
@@ -412,61 +413,37 @@ FRA_keep_guard_over_the_versailles_system = {
 		available = {
 			has_capitulated = no
 			has_war = no
+			has_country_flag = great_war_winner
+			OR = {
+				GER = {
+					controls_state = 873
+					is_neighbor_of = PREV
+				}
+				HAN = {
+					controls_state = 873
+					is_neighbor_of = PREV
+				}
+			}
 			GER = {
-				is_neighbor_of = PREV
 				has_capitulated = no
-				controls_state = 873
-				OR = {
-					is_faction_leader = yes
-					is_in_faction = no
-				}
-				OR = {
-					AND = {
-						PREV = { NOT = { has_government = communism } }
-						has_government = communism
-					}
-					has_government = fascism
-					has_country_leader_ideology = autocracy
-					has_country_leader_ideology = semi_constitutional_monarchy
-				}
+				has_country_flag = great_war_loser
 			}
-			NOT = {
-				has_idea = idea_army_restrictions
-				has_wargoal_against = GER
-			}
+			has_country_flag = can_occupy_ruhr
 		}
 		visible = {
-			has_global_flag = interbellum
 			has_country_flag = great_war_winner
-			is_subject = no
-			owns_state = 42
-			GER = {
-				has_country_flag = great_war_loser
-				is_subject = no
-				NOT = {
-					is_in_faction_with = PREV
-				}
-				owns_state = 873
-			}
-			NOT = {
-				has_global_flag = ruhr_occupation
-				has_global_flag = prussian_blue
-			}
+			has_country_flag = can_occupy_ruhr
 		}
 		target_trigger = {
 			FROM = { tag = GER }
 		}
 		fire_only_once = yes
-		cost = 75
+		cost = 0
 		ai_will_do = {
 			factor = 1000
 			modifier = {
 				factor = 0
-				has_war_support < 0.3
-			}
-			modifier = {
-				factor = 0
-				has_stability < 0.4
+				has_stability < 0.2
 			}
 			modifier = {
 				factor = 0
@@ -483,27 +460,44 @@ FRA_keep_guard_over_the_versailles_system = {
 					NOT = { has_country_flag = kapp_civil_war }
 				}
 			}
-			modifier = {
-				factor = 0
-				GER = {
-					has_government = fascism
-					has_country_leader_ideology = nazism
-				}
-			}
 		}
 		days_remove = 10
 		war_with_on_remove = GER
 		complete_effect = {
 			add_manpower = -1000
 			add_named_threat = {
-				threat = 5
+				threat = 2
 				name = FRA_ruhr_occupation
 			}
 		}
 		remove_effect = {
 			transfer_state = 873
 			add_ideas = FRA_ruhr_occupation
+			set_global_flag = ruhr_occupation
 			news_event = ww1_germany.135
+			ENG = {
+				add_opinion_modifier = {
+					target = FROM
+					modifier = medium_decrease
+				}
+			}
+			random_country = {
+				limit = {
+					owns_state = 793
+				}
+				transfer_state = 51
+				add_ideas = FRA_ruhr_occupation
+			}
+			GER = {
+				country_event = {
+					id = ww1_germany.136
+					days = 7
+				}
+				country_event = {
+					id = ww1_germany.138
+					days = 20
+				}
+			}
 		}
 	}
 	FRA_withdraw_from_ruhr = {
@@ -557,6 +551,10 @@ FRA_keep_guard_over_the_versailles_system = {
 			modifier = {
 				factor = 0
 				GER = { has_idea = GER_idea_default }
+			}
+			modifier = {
+				factor = 0
+				date < 1925.5.5
 			}
 		}
 		complete_effect = {

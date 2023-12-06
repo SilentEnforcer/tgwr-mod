@@ -466,6 +466,7 @@ country_event = {
 }
 
 # KIEL MUTINY
+# I tweaked this because this kills germany too early in random
 #########################
 country_event = {
 	id = ww1_germany.11
@@ -478,8 +479,12 @@ country_event = {
 		OR = {
 			has_country_flag = great_war_loser
 			AND = {
-				date > 1916.1.1
+				date > 1918.1.1
 				has_war_with = FRA
+				has_global_flag = kis_war
+				NOT = {
+					has_global_flag = great_war_ends
+				}
 				OR = {
 					casualties > 1200000
 					AND = {
@@ -487,8 +492,10 @@ country_event = {
 						has_idea = ger_famine
 					}
 				}
-				has_stability < 0.5
-				has_war_support < 0.5
+				OR = {
+					has_stability < 0.30
+					has_war_support < 0.15
+				}
 			}
 		}
 		NOT = {
@@ -505,9 +512,6 @@ country_event = {
 		add_timed_idea = {
 			idea = GER_idea_kiel_mutiny
 			days = 45
-		}
-		ai_chance = {
-			factor = 100
 		}
 		set_country_flag = kiel_mutiny
 	}
@@ -703,7 +707,7 @@ country_event = {
 			set_stability = 0.4
 			remove_ideas = GER_idea_kiel_mutiny
 			remove_ideas = GER_idea_stuggle_for_power
-			add_country_leader_trait = standing_alone
+			add_ideas = standing_alone	
 			division_template = {
 				name = "Freikorps Brigade"
 				regiments = {
@@ -791,7 +795,7 @@ country_event = {
 						logistics_skill = 2
 					}
 				}
-				add_country_leader_trait = standing_alone
+				add_ideas = standing_alone	
 				every_unit_leader = {
 					limit = {
 						OR = {
@@ -802,7 +806,7 @@ country_event = {
 							has_trait = old_guard_navy
 						}
 					}
-					set_nationality = PREV
+					set_nationality = PREV.PREV
 				}
 				division_template = {
 					name = "Spartacus Brigade"
@@ -924,7 +928,7 @@ country_event = {
 					logistics_skill = 2
 				}
 			}
-			add_country_leader_trait = standing_alone
+			add_ideas = standing_alone	
 			division_template = {
 				name = "Spartacus Brigade"
 				regiments = {
@@ -991,7 +995,7 @@ country_event = {
 				set_country_flag = great_war_loser
 				set_cosmetic_tag = GER_civil_war
 				promote_character = GER_friedrich_ebert
-				add_country_leader_trait = standing_alone
+				add_ideas = standing_alone	
 				PREV = {
 					every_unit_leader = {
 						limit = {
@@ -1003,7 +1007,7 @@ country_event = {
 								has_trait = old_guard_navy
 							}
 						}
-						set_nationality = PREV
+						set_nationality = PREV.PREV
 					}
 				}
 				add_popularity = {
@@ -1694,7 +1698,7 @@ country_event = {
 	}
 }
 
-# WAR WITH SOVIET RUSSIA
+# Operation Faustschlag
 country_event = {
 	id = ww1_germany.25
 	title = ww1_germany.25.t
@@ -1704,12 +1708,80 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_germany.25.a
-		declare_war_on = {
-			target = SOV
-			type = annex_everything
+		hidden_effect = {
+			FROM = {
+				remove_ideas = RUS_idea_armistice_rus
+				country_event = ww1_russia.103
+			}
+			every_country = {
+				limit = {
+					has_idea = RUS_idea_armistice_cp
+				}
+				remove_ideas = RUS_idea_armistice_cp
+			}
+			every_other_country = {
+				limit = {
+					original_tag = UKR
+					has_idea = standing_alone
+				}
+				# remove_ideas = standing_alone
+				if = {
+					limit = {
+						has_government = communism
+					}
+					add_to_war = {
+						targeted_alliance = FROM
+						enemy = ROOT
+					}
+				}
+				else = {
+					add_to_war = {
+						targeted_alliance = ROOT
+						enemy = FROM
+					}
+				}
+			}
+		}
+		add_timed_idea = {
+			idea = RUS_idea_operation_faustschlag
+			days = 14
+		}
+		if = {
+			limit = {
+				190 = { is_controlled_by_ROOT_or_ally = yes }
+			}
+			GER_release_COU = yes
+		}
+		if = {
+			limit = {
+				189 = { is_controlled_by_ROOT_or_ally = yes }
+				11 = { is_controlled_by_ROOT_or_ally = yes }
+				784 = { is_controlled_by_ROOT_or_ally = yes }
+				773 = { is_controlled_by_ROOT_or_ally = yes }
+				97 = { is_controlled_by_ROOT_or_ally = yes }
+			}
+			GER_release_LIT = yes
+		}
+		if = {
+			limit = {
+				13 = { is_controlled_by_ROOT_or_ally = yes }
+				191 = { is_controlled_by_ROOT_or_ally = yes }
+				12 = { is_controlled_by_ROOT_or_ally = yes }
+			}
+			GER_release_UBD = yes
+		}
+		if = {
+			limit = {
+				87 = { is_controlled_by_ROOT_or_ally = yes }
+				90 = { is_controlled_by_ROOT_or_ally = yes }
+				92 = { is_controlled_by_ROOT_or_ally = yes }
+				98 = { is_controlled_by_ROOT_or_ally = yes }
+				10 = { is_controlled_by_ROOT_or_ally = yes }
+			}
+			GER_release_POL = yes
 		}
 		ai_chance = {
-			factor = 100
+			base = 100
 		}
 	}
 }
@@ -4153,8 +4225,10 @@ country_event = {
 			}
 			random_country = {
 				limit = {
-					has_war_with = ROM
+					# has_war_with = ROM
 					NOT = {
+						is_in_faction_with = ROM
+						is_subject_of = ROM
 						has_war_with = ROOT
 					}
 					owns_state = 80
@@ -4165,8 +4239,10 @@ country_event = {
 		if = {
 			limit = {
 				any_other_country = {
-					has_war_with = ROM
+					# has_war_with = ROM
 					NOT = {
+						is_in_faction_with = ROM
+						is_subject_of = ROM
 						has_war_with = ROOT
 					}
 					owns_state = 211
@@ -4174,8 +4250,10 @@ country_event = {
 			}
 			random_other_country = {
 				limit = {
-					has_war_with = ROM
+					# has_war_with = ROM
 					NOT = {
+						is_in_faction_with = ROM
+						is_subject_of = ROM
 						has_war_with = ROOT
 					}
 					owns_state = 211
@@ -4563,8 +4641,9 @@ news_event = {
 					limit = {
 						owns_state = 793
 					}
-					transfer_state = 51
-					give_military_access = FRA
+					#no this is 1923 content
+					#transfer_state = 51
+					#give_military_access = FRA
 				}
 			}
 			# British part
@@ -4634,64 +4713,18 @@ country_event = {
 	}
 	option = {
 		name = ww1_germany.82.a
-		destroy_ships = {
-			type = ship_hull_cruiser
-			count = all
-		}
-		destroy_ships = {
-			type = ship_hull_heavy
-			count = all
-		}
-		destroy_ships = {
-			type = ship_hull_light
-			count = all
-		}
-		destroy_ships = {
-			type = ship_hull_submarine
-			count = all
-		}
-		destroy_ships = {
-			type = ship_hull_pre_dreadnought
-			count = all
-		}
-		destroy_ships = {
-			type = destroyer
-			count = all
-		}
+		custom_effect_tooltip = ww1_germany.82.a.tt
 		hidden_effect = {
-			destroy_ships = {
-				type = ship_hull_torpedo_cruiser
-				count = all
-			}
-			destroy_ships = {
-				type = ship_hull_cruiser_coastal_defense_ship
-				count = all
-			}
-			destroy_ships = {
-				type = ship_hull_cruiser_panzerschiff
-				count = all
-			}
-			destroy_ships = {
-				type = ship_hull_cruiser_submarine
-				count = all
-			}
-			destroy_ships = {
-				type = ship_hull_carrier_conversion_bb
-				count = all
-			}
-			destroy_ships = {
-				type = ship_hull_carrier_conversion_ca
-				count = all
-			}
+			destroy_all_ships = yes
 			news_event = ww1_germany.83
 			if = {
 				limit = {
 					has_dlc = "Man the Guns"
 				}
 				load_oob = GER_1921_naval_mtg
-			}
-			else = {
-				load_oob = GER_1921_naval_legacy
+				else = {
+					load_oob = GER_1921_naval_legacy
+				}
 			}
 		}
 		ai_chance = {
@@ -4850,11 +4883,6 @@ country_event = {
 				producer = ROOT
 			}
 			add_equipment_to_stockpile = {
-				type = heavy_fighter_equipment
-				amount = -10000
-				producer = ROOT
-			}
-			add_equipment_to_stockpile = {
 				type = fighter_equipment
 				amount = -10000
 				producer = ROOT
@@ -4880,7 +4908,7 @@ country_event = {
 				producer = ROOT
 			}
 			add_equipment_to_stockpile = {
-				type = cv_CAS_equipment
+				type = seaplane_equipment
 				amount = -10000
 				producer = ROOT
 			}
@@ -4890,7 +4918,7 @@ country_event = {
 				producer = ROOT
 			}
 			add_equipment_to_stockpile = {
-				type = cv_nav_bomber_equipment
+				type = airship_equipment
 				amount = -10000
 				producer = ROOT
 			}
@@ -4919,9 +4947,6 @@ country_event = {
 		has_war_with = FRA
 		NOT = {
 			has_global_flag = great_war_ends
-		}
-		NOT = {
-			has_cosmetic_tag = GER_norddeutscher_bund
 		}
 		is_puppet = no
 		fascism > 0.25
@@ -5244,8 +5269,15 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_germany.91.a
-		add_stability = -0.10
-		add_war_support = -0.10
+		if = {
+			limit = {
+				has_idea = ger_famine_early
+			}
+			add_political_power = -100
+			else = {
+				add_political_power = -250
+			}
+		}
 	}
 }
 
@@ -6101,9 +6133,9 @@ country_event = {
 						ideology = marxism
 						traits = {
 							our_right_to_survive
-							standing_alone
 						}
 					}
+					add_ideas = standing_alone
 					load_focus_tree = {
 						tree = german_focus
 						keep_completed = yes
@@ -6443,6 +6475,7 @@ country_event = {
 	id = ww1_germany.115
 	title = ww1_germany.115.t
 	desc = ww1_germany.115.d
+	picture = GFX_report_event_german_troops_paris
 	trigger = {
 		original_tag = FRA
 		has_country_flag = FRA_nationalist_france
@@ -6474,6 +6507,7 @@ country_event = {
 	id = ww1_germany.116
 	title = ww1_germany.116.t
 	desc = ww1_germany.116.d
+	picture = GFX_report_event_german_troops_paris
 	is_triggered_only = yes
 	# CEDE OCCUPATIONS WITH NO CONDITIONS
 	option = {
@@ -6720,6 +6754,7 @@ country_event = {
 	id = ww1_germany.121
 	title = ww1_germany.121.t
 	desc = ww1_germany.121.d
+	picture = GFX_report_event_hungary_parliament
 	fire_only_once = yes
 	mean_time_to_happen = {
 		days = 3
@@ -6728,13 +6763,14 @@ country_event = {
 		original_tag = GER
 		has_war = no
 		has_completed_focus = GER_HRE_focus
+		capital_scope = { state = 54 }
 		owns_state = 55		# Frankfurt
 		owns_state = 53		# Regensburg
 		owns_state = 54		# Berlin
 	}
 	option = {
 		ai_chance = {
-			factor = 1
+			factor = 0
 		}		#move capital to Frankfurt
 		name = ww1_germany.121.a
 		set_capital = {
@@ -6748,7 +6784,7 @@ country_event = {
 	}
 	option = {
 		ai_chance = {
-			factor = 2
+			factor = 0
 		}		#move capital to Regensburg
 		name = ww1_germany.121.b
 		set_capital = {
@@ -6810,9 +6846,9 @@ country_event = {
 					ideology = marxism
 					traits = {
 						our_right_to_survive
-						standing_alone
 					}
 				}
+				add_ideas = standing_alone
 				load_focus_tree = {
 					tree = german_focus
 					keep_completed = yes
@@ -6930,9 +6966,9 @@ country_event = {
 					ideology = marxism
 					traits = {
 						our_right_to_survive
-						standing_alone
 					}
 				}
+				add_ideas = standing_alone
 				load_focus_tree = {
 					tree = german_focus
 					keep_completed = yes
@@ -7047,7 +7083,7 @@ country_event = {
 	option = {
 		name = ww1_germany.123.a
 		hidden_effect = {
-			remove_country_leader_trait = standing_alone
+			remove_ideas = standing_alone
 		}
 		set_capital = {
 			state = 64
@@ -7166,8 +7202,19 @@ country_event = {
 				add_core_of = PREV
 			}
 		}
-		34 = {
-			# Wallonie
+		906 = {
+			# Ardennes
+			if = {
+				limit = {
+					NOT = {
+						is_core_of = PREV
+					}
+				}
+				add_core_of = PREV
+			}
+		}
+		907 = {
+			# Meuse
 			if = {
 				limit = {
 					NOT = {
@@ -7270,16 +7317,33 @@ country_event = {
 				add_core_of = PREV
 			}
 		}
+		906 = {
+			# Ardennes
+			if = {
+				limit = {
+					NOT = {
+						is_core_of = PREV
+					}
+				}
+				add_core_of = PREV
+			}
+		}
+		907 = {
+			# Meuse
+			if = {
+				limit = {
+					is_claimed_by = PREV
+				}
+				remove_claim_by = PREV
+			}
+		}
 		34 = {
 			# Wallonie
 			if = {
 				limit = {
-					NOT = {
-						is_claimed_by = PREV
-						is_owned_by = PREV
-					}
+					is_claimed_by = PREV
 				}
-				add_claim_by = PREV
+				remove_claim_by = PREV
 			}
 		}
 		29 = {
@@ -7345,6 +7409,9 @@ country_event = {
 						}
 						remove_claim_by = PREV
 					}
+				}
+				907 = {
+					transfer_state_to = PREV
 				}
 			}
 		}
@@ -7842,63 +7909,63 @@ country_event = {
 	}
 }
 
-# Occupation of the Ruhr
-country_event = {
-	id = ww1_germany.134
-	title = ww1_germany.134.t
-	desc = ww1_germany.134.d
-	picture = GFX_report_event_worker_protests
-	is_triggered_only = yes
-	option = {
-		name = ww1_germany.134.a
-		trigger = {
-			FROM = {
-				owns_state = 873
-			}
-			any_owned_state = {
-				OR = {
-					state = 42
-					state = 51
-					state = 343
-				}
-			}
-		}
-		add_manpower = -1000
-		add_political_power = -75
-		transfer_state = 873
-		add_ideas = FRA_ruhr_occupation
-		set_global_flag = ruhr_occupation
-		news_event = ww1_germany.135
-		FROM = {
-			country_event = {
-				id = ww1_germany.136
-				days = 7
-			}
-			country_event = {
-				id = ww1_germany.138
-				days = 20
-			}
-		}
-		add_named_threat = {
-			name = ww1_germany.134.t
-			threat = 5
-		}
-	}
-	option = {
-		name = ww1_germany.134.b
-		add_political_power = -100
-		add_war_support = -0.05
-		ai_chance = {
-			base = 1
-			modifier = {
-				factor = 0
-				FROM = {
-					owns_state = 873
-				}
-			}
-		}
-	}
-}
+# # Occupation of the Ruhr
+# country_event = {
+# 	id = ww1_germany.134
+# 	title = ww1_germany.134.t
+# 	desc = ww1_germany.134.d
+# 	picture = GFX_report_event_worker_protests
+# 	is_triggered_only = yes
+# 	option = {
+# 		name = ww1_germany.134.a
+# 		trigger = {
+# 			FROM = {
+# 				owns_state = 873
+# 			}
+# 			any_owned_state = {
+# 				OR = {
+# 					state = 42
+# 					state = 51
+# 					state = 343
+# 				}
+# 			}
+# 		}
+# 		add_manpower = -1000
+# 		add_political_power = -75
+# 		transfer_state = 873
+# 		add_ideas = FRA_ruhr_occupation
+# 		set_global_flag = ruhr_occupation
+# 		news_event = ww1_germany.135
+# 		FROM = {
+# 			country_event = {
+# 				id = ww1_germany.136
+# 				days = 7
+# 			}
+# 			country_event = {
+# 				id = ww1_germany.138
+# 				days = 20
+# 			}
+# 		}
+# 		add_named_threat = {
+# 			name = ww1_germany.134.t
+# 			threat = 5
+# 		}
+# 	}
+# 	option = {
+# 		name = ww1_germany.134.b
+# 		add_political_power = -100
+# 		add_war_support = -0.05
+# 		ai_chance = {
+# 			base = 1
+# 			modifier = {
+# 				factor = 0
+# 				FROM = {
+# 					owns_state = 873
+# 				}
+# 			}
+# 		}
+# 	}
+# }
 
 # Occupation of the Ruhr
 news_event = {
@@ -9248,5 +9315,349 @@ country_event = {
 				add_war_support = 0.20
 			}
 		}
+	}
+}
+
+# Fate of Dobruja
+country_event = {
+	id = ww1_germany.166
+	title = ww1_germany.166.t
+	desc = ww1_germany.166.desc
+	picture = GFX_report_event_generic_peaceful_annexation
+	fire_only_once = yes
+	trigger = {
+		original_tag = GER
+		has_global_flag = frankfurt_treaty
+		has_country_flag = great_war_winner
+		OR = {
+			77 = { is_owned_and_controlled_by = ROOT }
+			805 = { is_owned_and_controlled_by = ROOT }
+			846 = { is_owned_and_controlled_by = ROOT }
+		}
+	}
+	mean_time_to_happen = { days = 45 }
+	# transfer to bulgaria
+	option = {
+		name = ww1_germany.166.a
+		trigger = {
+			BUL = {
+				owns_state = 211
+				NOT = { has_war_with = ROOT }
+			}
+		}
+		every_owned_state = {
+			limit = {
+				OR = {
+					state = 77
+					state = 805
+					state = 846
+				}
+			}
+			transfer_state_to = BUL
+		}
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = -5
+				has_opinion = {
+					target = BUL
+					value < 0
+				}
+			}
+			modifier = {
+				add = -5
+				BUL = { has_country_flag = great_war_loser }
+			}
+			modifier = {
+				add = 5
+				has_subject = BUL
+			}
+			modifier = {
+				add = 5
+				is_in_faction_with = BUL
+			}
+			modifier = {
+				add = 5
+				has_opinion = {
+					target = BUL
+					value > 20
+				}
+			}
+		}
+	}
+	# transfer to romania
+	option = {
+		name = ww1_germany.166.b
+		trigger = {
+			ROM = {
+				owns_state = 46
+				NOT = { has_war_with = ROOT }
+			}
+		}
+		every_owned_state = {
+			limit = {
+				OR = {
+					state = 77
+					state = 805
+					state = 846
+				}
+			}
+			transfer_state_to = ROM
+		}
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = -5
+				has_opinion = {
+					target = ROM
+					value < 0
+				}
+			}
+			modifier = {
+				add = -5
+				ROM = { has_country_flag = great_war_loser }
+			}
+			modifier = {
+				add = 5
+				has_subject = ROM
+			}
+			modifier = {
+				add = 5
+				is_in_faction_with = ROM
+			}
+			modifier = {
+				add = 5
+				has_opinion = {
+					target = ROM
+					value > 20
+				}
+			}
+		}
+	}
+	# transfer to ottoman
+	option = {
+		name = ww1_germany.166.c
+		trigger = {
+			TUR = {
+				owns_state = 211
+				NOT = { has_war_with = ROOT }
+			}
+		}
+		every_owned_state = {
+			limit = {
+				OR = {
+					state = 77
+					state = 805
+					state = 846
+				}
+			}
+			transfer_state_to = TUR
+		}
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = -20
+				NOT = {
+					77 = { is_claimed_by = TUR }
+					805 = { is_claimed_by = TUR }
+					846 = { is_claimed_by = TUR }
+				}
+			}
+			modifier = {
+				add = -5
+				has_opinion = {
+					target = TUR
+					value < 0
+				}
+			}
+			modifier = {
+				add = -5
+				TUR = { has_country_flag = great_war_loser }
+			}
+			modifier = {
+				add = 5
+				has_subject = TUR
+			}
+			modifier = {
+				add = 5
+				is_in_faction_with = TUR
+			}
+			modifier = {
+				add = 5
+				has_opinion = {
+					target = TUR
+					value > 20
+				}
+			}
+		}
+	}
+	# keep there
+	option = {
+		name = ww1_germany.166.d
+		ai_chance = { factor = 0 }
+	}
+}
+
+# Fate of Belarus
+country_event = {
+	id = ww1_germany.167
+	title = ww1_germany.167.t
+	desc = ww1_germany.167.d
+	picture = GFX_report_event_generic_peaceful_annexation
+	fire_only_once = yes
+	trigger = {
+		original_tag = GER
+		has_global_flag = frankfurt_treaty
+		has_country_flag = great_war_winner
+		OR = {
+			95 = { is_owned_and_controlled_by = ROOT }
+			204 = { is_owned_and_controlled_by = ROOT }
+			206 = { is_owned_and_controlled_by = ROOT }
+		}
+		NOT = {
+			has_war_with = RUS
+			has_war_with = SOV
+			country_exists = BLR
+		}
+	}
+	mean_time_to_happen = { days = 45 }
+	option = {
+		name = ww1_germany.167.a
+		every_owned_state = {
+			limit = {
+				is_core_of = BLR
+				NOT = { is_core_of = ROOT }
+			}
+			remove_claim_by = ROOT
+			transfer_state_to = BLR
+		}
+		puppet = BLR
+		hidden_effect = {
+			BLR = {
+				set_politics = {
+					ruling_party = neutrality
+					last_election = "1908.11.1"
+					election_frequency = 48
+					elections_allowed = no
+				}
+				set_popularities = {
+					democratic = 23
+					fascism = 10
+					communism = 5
+					neutrality = 62
+				}
+				set_cosmetic_tag = BLR_WHR
+				if = {
+					limit = {
+						ROOT = {
+							OR = {
+								has_government = neutrality
+								has_idea = GER_idea_wilhelm_ii
+							}
+						}
+					}
+					if = {
+						limit = { date < 1929.4.20 }
+						BLR_genrikh = {
+							add_country_leader_role = {
+								promote_leader = yes
+								country_leader = {
+									ideology = semi_constitutional_monarchy
+									traits = { german_agent foreign_leader }
+								}
+							}
+						}
+						GER = {
+							GER_albert_wilhelm_heinrich = {
+								set_character_name = BLR_genrikh
+								set_nationality = BLR
+							}
+						}
+					}	
+					else = {
+						BLR_uladzimir = {
+							add_country_leader_role = {
+								promote_leader = yes
+								country_leader = {
+									ideology = semi_constitutional_monarchy
+								}
+							}
+						}
+						GER = {
+							retire_character = GER_albert_wilhelm_heinrich
+						}
+					}
+					set_party_name = {
+						ideology = neutrality
+						long_name = GER_neutrality_party
+						name = GER_neutrality_party
+					}
+				}
+			}
+		}
+		ai_chance = { base = 10 }
+	}
+	option = {
+		name = ww1_germany.167.b
+		every_owned_state = {
+			limit = {
+				is_core_of = BLR
+				NOT = { is_core_of = ROOT }
+			}
+			remove_claim_by = ROOT
+			242 = {
+				owner = {
+					transfer_state = PREV.PREV
+				}
+			}
+		}
+		ai_chance = {
+			base = 0
+		}
+	}
+}
+
+# Fate of Düünaburg
+country_event = {
+	id = ww1_germany.168
+	title = ww1_germany.168.t
+	desc = ww1_germany.168.d
+	picture = GFX_report_event_generic_peaceful_annexation
+	fire_only_once = yes
+	trigger = {
+		original_tag = GER
+		has_global_flag = frankfurt_treaty
+		has_country_flag = great_war_winner
+		96 = { is_owned_and_controlled_by = ROOT }
+		NOT = {
+			has_war_with = RUS
+			has_war_with = SOV
+			country_exists = BLR
+		}
+	}
+	mean_time_to_happen = { days = 45 }
+	option = {
+		name = ww1_germany.168.b
+		96 = {
+			remove_claim_by = ROOT
+		}
+		207 = {
+			owner = {
+				transfer_state = 96
+			}
+		}
+		ai_chance = { base = 10 }
+	}
+	option = {
+		name = ww1_germany.168.a
+		96 = {
+			remove_claim_by = ROOT
+		}
+		12 = {
+			owner = {
+				transfer_state = 96
+			}
+		}
+		ai_chance = { base = 0 }
 	}
 }
