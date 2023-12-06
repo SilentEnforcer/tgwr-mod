@@ -1640,12 +1640,9 @@ focus_tree = {
 		icon = GFX_focus_generic_provoke_border_clashes
 		available = {
 			is_subject = no
-			SOV = { has_war_with = RUS }
+			has_russian_civil_war = yes
 			any_other_country = {
-				OR = {
-					original_tag = RUS
-					tag = SOV
-				}
+				original_tag = RUS
 				owns_state = 655
 			}
 			NOT = {
@@ -1822,31 +1819,7 @@ focus_tree = {
 		icon = GFX_focus_jap_cast_the_die
 		available = {
 			is_subject = no
-			NOT = { 
-				has_idea = idea_armistice
-			}
-			FNG = {
-				exists = yes
-				OR = {
-					NOT = {
-						has_country_leader = {
-							character = FNG_zhang_zuolin
-							ruling_only = yes
-						}
-					}
-					any_other_country = {
-						OR = {
-							original_tag = QIN
-							has_country_flag = CHI_kuomintang_flag
-						}
-						is_in_faction_with = FNG
-					}
-				}
-				OR = {
-					has_global_flag = warlord_era_end
-					date > 1931.9.18
-				}
-			}
+			owns_state = 744
 			OR = {
 				AND = {
 					owns_state = 527
@@ -1855,13 +1828,24 @@ focus_tree = {
 				has_subject = KOR
 				is_in_faction_with = KOR
 			}
-			strength_ratio = {
-				tag = FNG
-				ratio > 2
+			OR = {
+				any_other_country = {
+					owns_state = 328
+					strength_ratio = {
+						tag = ROOT
+						ratio < 0.5
+					}
+				}
+				FNG = {
+					has_country_leader = {
+						character = FNG_zhang_xueliang
+					}
+				}
 			}
-		}
-		bypass = {
-			has_subject = FNG
+			OR = {
+				NOT = { has_government = fascism }
+				fascism > 0.35
+			}
 		}
 		will_lead_to_war_with = FNG
 		completion_reward = {
@@ -1873,9 +1857,143 @@ focus_tree = {
 				threat = 5
 				name = JAP_ww1_Invasion_of_Manchuria
 			}
-			create_wargoal = {
-				type = annex_everything
-				target = FNG
+			hidden_effect = {
+				if = {
+					limit = { country_exists = CER }
+					CER = {
+						give_military_access = ROOT
+						give_military_access = MAN
+					}
+				}
+				if = {
+					limit = {
+						country_exists = MAN
+					}
+					create_dynamic_country = {
+						original_tag = MAN
+						transfer_state = 716
+						add_ideas = MAN_banditry
+						add_ideas = CHI_idea_manchu_ethnic_problem
+						add_ideas = CHI_FNG_idea_kwantung_army
+					}
+				}
+				else = {
+					MAN = { transfer_state = 716 }
+					puppet = MAN
+				}
+				random_other_country = {
+					limit = {
+						original_tag = MAN
+						is_subject_of = ROOT
+					}
+					transfer_state = 716
+					set_truce = {
+						target = ROOT
+						days = 365
+					}
+					set_politics = {
+						ruling_party = fascism
+						elections_allowed = no
+					}
+					set_popularities = {
+						fascism = 80
+						neutrality = 20
+					}
+					MAN_kwantung_army_hq = {
+						add_country_leader_role = {
+							promote_leader = yes
+							country_leader = {
+								ideology = stratocracy
+							}
+						}
+					}
+					add_ideas = standing_alone
+					division_template = {
+						name = "Kwantung Infantry Regiment"
+						regiments = {
+							infantry = { x = 0 y = 0 }
+							infantry = { x = 0 y = 1 }
+							infantry = { x = 1 y = 0 }
+							infantry = { x = 1 y = 1 }
+						}
+						support = {
+							engineer = { x = 0 y = 0 }
+						}
+						division_names_group = MAN_INF_01
+					}
+					random_owned_state = {
+						create_unit = {
+							division = "division_template = \"Kwantung Infantry Regiment\"	start_experience_factor = 0.8	start_equipment_factor = 1.0"
+							owner = PREV
+							allow_spawning_on_enemy_provs = yes
+							count = 20
+						}
+					}
+					set_cosmetic_tag = MAN_kwantung_army
+				}
+			}
+			every_state = {
+				limit = {
+					OR = {
+						region = 155
+						state = 610
+					}
+				}
+				add_claim_by = MAN
+			}
+			effect_tooltip = {
+				MAN = {
+					declare_war_on = {
+						target = CHI
+						type = take_claimed_state
+					}
+				}
+			}
+			country_event = {
+				id = ww1_japan.15
+				hours = 10
+			}
+			hidden_effect = {
+				every_other_country = {
+					limit = {
+						is_china_or_warlord = yes
+						any_owned_state = {
+							OR = {
+								region = 155
+								state = 610
+							}
+						}
+					}
+					random_other_country = {
+						limit = {
+							original_tag = MAN
+							is_subject_of = ROOT
+						}
+						declare_war_on = {
+							target = PREV
+							type = take_claimed_state
+						}
+					}
+				}
+				every_other_country = {
+					limit = {
+						is_china_or_warlord = yes
+						is_subject = no
+						any_owned_state = {
+							region = 143
+						}
+					}
+				}
+				set_party_name = {
+					ideology = fascism
+					name = JAP_national_unity_government
+					long_name = JAP_national_unity_government
+				}
+				set_party_name = {
+					ideology = democratic
+					name = JAP_national_unity_government
+					long_name = JAP_national_unity_government
+				}
 			}
 		}
 		ai_will_do = {
@@ -1904,75 +2022,151 @@ focus_tree = {
 		}
 		icon = GFX_focus_jap_manchurian_project
 		available = {
-			OR = {
-				owns_state = 328
-				has_subject = FNG
+			is_subject = no
+			has_capitulated = no
+			328 = {
+				controls_or_subject_of = yes
+			}
+			610 = {
+				controls_or_subject_of = yes
+			}
+			617 = {
+				controls_or_subject_of = yes
+			}
+			714 = {
+				controls_or_subject_of = yes
+			}
+			715 = {
+				controls_or_subject_of = yes
+			}
+			716 = {
+				controls_or_subject_of = yes
+			}
+			717 = {
+				controls_or_subject_of = yes
 			}
 		}
 		completion_reward = {
-			every_state = {
-				limit = {
-					is_core_of = FNG
-				}
-				remove_core_of = FNG
-			}
-			if = {
-				limit = {
-					country_exists = FNG
-				}
-				MAN = {
-					annex_country = {
-						target = FNG
-						transfer_troops = yes
+			hidden_effect = {
+				random_other_country = {
+					limit = {
+						original_tag = MAN
+						is_subject_of = ROOT
 					}
-					if = {
+					every_state = {
 						limit = {
-							owns_state = 609
+							OR = {
+								region = 155
+								state = 610
+							}
 						}
-						PREV = { transfer_state = 609 }
+						add_core_of = MAN
+					}
+					ROOT = {
+						every_state = {
+							limit = {
+								is_core_of = MAN
+								controller = {
+									OR = {
+										tag = ROOT
+										is_subject_of = ROOT
+									}
+								}
+								NOT = {
+									is_core_of = ROOT
+									state = 744
+									owner = {
+										tag = CER
+									}
+								}
+							}
+							transfer_state_to = PREV.PREV
+						}
+						if = {
+							limit = {
+								has_dlc = "Waking the Tiger"
+							}
+							set_autonomy = {
+								target = PREV
+								autonomy_state = autonomy_wtt_imperial_protectorate
+							}
+							else = {
+								puppet = PREV
+							}
+						}
+					}
+				}
+				if = {
+					limit = {
+						has_subject = FNG
+					}
+					random_country = {
+						limit = {
+							original_tag = MAN
+							is_subject_of = ROOT
+						}
+						FNG = {
+							transfer_navy = {
+								target = PREV
+							}
+						}
+						annex_country = {
+							target = FNG
+							transfer_troops = yes
+						}
+					}
+				}
+				if = {
+					limit = {
+						has_subject = CER
+					}
+					random_country = {
+						limit = {
+							original_tag = MAN
+							is_subject_of = ROOT
+						}
+						CER = {
+							transfer_navy = {
+								target = PREV
+							}
+						}
+						annex_country = {
+							target = CER
+							transfer_troops = yes
+						}
+					}
+					every_state = {
+						remove_claim_by = CER
+						remove_core_of = CER
+					}
+				}
+				else_if = {
+					limit = {
+						country_exists = CER
+					}
+					random_country = {
+						limit = {
+							original_tag = MAN
+							is_subject_of = ROOT
+						}
+						CER = { give_military_access = PREV }
 					}
 				}
 			}
-			every_owned_state = {
-				limit = {
-					OR = {
-						state = 716
-						state = 328
-						state = 610
-						state = 715
-						state = 617
-						state = 717
-						state = 714
-						state = 872
-					}
-				}
-				transfer_state_to = MAN
-			}
-			if = {
-				limit = {
-					has_dlc = "Waking the Tiger" 
-				}
-				set_autonomy = {
-					target = MAN
-					autonomous_state = autonomy_wtt_imperial_protectorate
-				}
-			}
-			else_if = {
-				limit = { 
-					has_dlc = "Together for Victory"
-				}
-				set_autonomy = {
-					target = MAN
-					autonomous_state = autonomy_tgwr_protectorate
-				}
-				MAN = { set_country_flag = protectorate }
-			}
-			else = {
-				puppet = MAN
-				MAN = { add_ideas = protectorate }
+			effect_tooltip = {
+				release_puppet = MAN
 			}
 			hidden_effect = {
-				MAN = {
+				add_victory_points = {
+					province = 4572
+					value = 2
+				}
+				random_other_country = {
+					limit = {
+						is_subject_of = ROOT
+						original_tag = MAN
+					}
+					load_focus_tree = generic_focus
 					set_politics = {
 						ruling_party = fascism
 						elections_allowed = no
@@ -1981,95 +2175,87 @@ focus_tree = {
 						fascism = 80
 						neutrality = 20
 					}
+					remove_ideas = standing_alone
+					add_ideas = CHI_FNG_idea_kwantung_army
+					drop_cosmetic_tag = yes
+					if = {
+						limit = {
+							OR = {
+								NOT = { country_exists = FNG }
+								FNG = { has_capitulated = yes }
+							}
+						}
+						every_possible_country = {
+							limit = {
+								OR = {
+									has_character = FNG_zhang_haipeng
+									has_character = FNG_zhang_jinghui
+								}
+							}
+							FNG_zhang_haipeng = {
+								set_nationality = PREV.PREV
+							}
+							FNG_zhang_jinghui = {
+								set_nationality = PREV.PREV
+							}
+						}
+						if = {
+							limit = {
+								all_country = {
+									is_qing_monarchy = no
+								}
+							}
+							if = {
+								limit = {
+									NOT = { has_character = MAN_aisin_gioro_puyi }
+								}
+								every_possible_country = {
+									limit = {
+										has_character = MAN_aisin_gioro_puyi
+									}
+									MAN_aisin_gioro_puyi = { set_nationality = PREV.PREV }
+								}
+							}
+							MAN_aisin_gioro_puyi = {
+								add_country_leader_role = {
+									promote_leader = yes
+									country_leader = {
+										ideology = semi_constitutional_monarchy
+										traits = { warrior_code }
+									}
+								}
+								add_country_leader_role = {
+									promote_leader = yes
+									country_leader = {
+										ideology = fascism_ideology
+										traits = { warrior_code }
+									}
+								}
+							}
+						}
+					}
 				}
-			}		
-			hidden_effect = {
-				set_party_name = {
-					ideology = democratic
-					name = JAP_national_unity_government
-					long_name = JAP_national_unity_government
+				set_politics = {
+					ruling_party = fascism
+					elections_allowed = no
 				}
-				every_state = {
+				add_popularity = {
+					ideology = fascism
+					popularity = 0.20
+				}
+				every_other_country = {
 					limit = {
 						OR = {
-							state = 716
-							state = 328
-							state = 610
-							state = 715
-							state = 617
-							state = 717
-							state = 714
-							state = 872
+							has_war_with = ROOT
+							tag = FNG
 						}
+						is_china_or_warlord = yes
 					}
-					add_core_of =  MAN
-				}
-				FNG = {
-					FNG_zhang_haipeng = {
-						set_nationality = MAN
-					}
-					FNG_zhang_jinghui = {
-						set_nationality = MAN
+					country_event = {
+						id = ww1_china.66
+						days = 10
 					}
 				}
-				if = {
-					limit = {
-						NOT = {
-							country_exists = QIN
-							any_country = {
-								has_cosmetic_tag = QIN_government
-							}
-							any_country = {
-								has_cosmetic_tag = QIN_democratic
-							}
-						}
-					}
-					MAN = {
-						MAN_aisin_gioro_puyi = {
-							add_country_leader_role = {
-								promote_leader = yes
-								country_leader = {
-									ideology = semi_constitutional_monarchy
-									traits = { warrior_code }
-								}
-							}
-							add_country_leader_role = {
-								promote_leader = yes
-								country_leader = {
-									ideology = fascism_ideology
-									traits = { warrior_code }
-								}
-							}
-						}
-					}
-					else = {
-						MAN = {
-							set_cosmetic_tag = FNG_government
-							MAN_zhang_xueliang = {
-								add_country_leader_role = {
-									promote_leader = yes
-									country_leader = {
-										ideology = despotism
-									}
-								}
-								add_country_leader_role = {
-									promote_leader = yes
-									country_leader = {
-										ideology = stratocracy
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-			add_popularity = {
-				ideology = fascism
-				popularity = 0.20
-			}
-			set_politics = {
-				ruling_party = fascism
-				elections_allowed = no
 			}
 		}
 		ai_will_do = {
