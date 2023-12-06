@@ -97,11 +97,23 @@ GER_great_war = {
 				has_global_flag = FRA_capitulation
 				has_war_with = RUS
 			}
+			# shouldn't able to launch this early
+			OR = {
+				has_idea = ger_famine
+				has_war_support < 0.5
+				has_stability < 0.5
+				surrender_progress > 0.05
+			}
 		}	
 		visible = {
 			tag = GER
 			has_global_flag = kis_war
-			NOT = { has_global_flag = great_war_ends }
+			NOT = {
+				has_active_mission = before_the_leaves_fall
+			}
+			# You can't launch Ludendorff Offensive without him
+			has_completed_focus = GER_oberster_kriegsherr
+			has_character = GER_erich_ludendorff
 		}
 		fire_only_once = yes
 		allowed = {
@@ -242,13 +254,55 @@ GER_great_war = {
 			hidden_effect = {
 				country_event = {
 					id = ww1_germany.91
-					days = 20
+					hours = 10
 				}
 			}
 		}
 		complete_effect = {
 			remove_ideas = ger_famine
 			remove_ideas = ger_famine_early
+		}
+	}
+	GER_delay_famine_mission = {
+		icon = GFX_decision_generic_consumer_goods
+		allowed = {
+			original_tag = GER
+		}
+		available = {
+			has_completed_focus = GER_Vaterlandische_industrialisierung
+		}
+		visible = {
+			OR = {
+				has_active_mission = GER_mission_famine_timer_early
+				has_active_mission = GER_mission_famine_timer
+			}
+		}
+		days_re_enable = 70
+		days_remove = 70
+		modifier = {
+			civilian_factory_use = 5
+		}
+		cancel_if_not_visible = yes
+		custom_cost_trigger = {
+			num_of_civilian_factories > 5
+		}
+		custom_cost_text = decision_cost_5_civ
+		complete_effect = {
+			if = {
+				limit = {
+					has_active_mission = GER_mission_famine_timer_early
+				}
+				add_days_mission_timeout = {
+					mission = GER_mission_famine_timer_early
+					days = 45
+				}
+				else = {
+					add_days_mission_timeout = {
+						mission = GER_mission_famine_timer
+						days = 30
+					}
+				}
+			}
 		}
 	}
 	GER_mission_famine_timer_early = {
@@ -318,7 +372,7 @@ GER_great_war = {
 			hidden_effect = {
 				country_event = {
 					id = ww1_germany.91
-					days = 20
+					hours = 10
 				}
 			}
 		}
@@ -439,6 +493,8 @@ GER_great_war = {
 				is_debug = yes
 				difficulty < 1
 			}
+			has_war = yes
+			NOT = { has_global_flag = great_war_ends }
 		}
 		available = {
 			has_completed_focus = GER_atlantic_class
@@ -499,16 +555,19 @@ GER_great_war = {
 		activation = {
 			has_global_flag = kis_war
 			GER = { has_war_with = FRA }
-			OR = {
-				has_war_with = FRA
-				has_war_with = GER
-				has_war_together_with = GER
-				has_war_together_with = FRA
-			}
+			# this has problem that if a country joins the war in late, they would get this
+			# so it is better to show em this
+			# OR = {
+			# 	has_war_with = FRA
+			# 	has_war_with = GER
+			# 	has_war_together_with = GER
+			# 	has_war_together_with = FRA
+			# }
 			NOT = {
 				has_global_flag = great_war_ends
 				has_global_flag = GER_capitulation
 				has_global_flag = FRA_capitulation
+				has_global_flag = before_the_leaves_fall_flag
 			}
 		}
 		available = {
@@ -519,6 +578,7 @@ GER_great_war = {
 				has_global_flag = great_war_ends
 				has_global_flag = GER_capitulation
 				has_global_flag = FRA_capitulation
+				has_global_flag = before_the_leaves_fall_flag
 			}
 		}
 		visible = {
@@ -528,8 +588,34 @@ GER_great_war = {
 		fire_only_once = yes
 		is_good = no
 		timeout_effect = {
-			add_political_power = -100
-			add_war_support = -0.10
+			effect_tooltip = {
+				every_country = {
+					limit = {
+						OR = {
+							has_war_with = FRA
+							has_war_with = GER
+							has_war_together_with = GER
+							has_war_together_with = FRA
+						}
+					}
+					add_political_power = -100
+					add_war_support = -0.10
+				}
+			}
+			hidden_effect = {
+				if = {
+					limit = {
+						OR = {
+							has_war_with = FRA
+							has_war_with = GER
+							has_war_together_with = GER
+							has_war_together_with = FRA
+						}
+					}
+					add_political_power = -100
+					add_war_support = -0.10
+				}
+			}
 		}
 		complete_effect = {
 			set_global_flag = before_the_leaves_fall_flag
@@ -739,11 +825,7 @@ GER_decision_puppet_kingdoms = {
 			}
 			OR = {
 				has_full_control_of_state = 784
-				any_other_country = {
-					NOT = {
-						original_tag = SOV
-						original_tag = RUS
-					}
+				SOV = {
 					is_in_faction_with = PREV
 					has_full_control_of_state = 784
 				}
@@ -814,9 +896,7 @@ GER_decision_puppet_kingdoms = {
 			modifier = {
 				factor = 0
 				has_war_with = RUS
-				RUS = {
-					NOT = { has_war_with = SOV }
-				}
+				has_russian_civil_war = no
 			}
 		}
 	}
@@ -878,9 +958,7 @@ GER_decision_puppet_kingdoms = {
 			modifier = {
 				factor = 0
 				has_war_with = RUS
-				RUS = {
-					NOT = { has_war_with = SOV }
-				}
+				has_russian_civil_war = no
 			}
 		}
 	}
@@ -969,9 +1047,7 @@ GER_decision_puppet_kingdoms = {
 			modifier = {
 				factor = 0
 				has_war_with = RUS
-				RUS = {
-					NOT = { has_war_with = SOV }
-				}
+				has_russian_civil_war = no
 			}
 		}
 	}
@@ -2255,9 +2331,6 @@ foreign_politics = {
 			}
 		}
 		available = {
-			RUS = {
-				has_war_with = SOV
-			}
 			has_war = no
 			has_war_support > 0.5
 			has_stability > 0.5
@@ -2271,9 +2344,7 @@ foreign_politics = {
 			}
 		}
 		visible = {
-			RUS = {
-				has_war_with = SOV
-			}
+			has_russian_civil_war = yes
 			has_country_flag = great_war_winner
 			is_greater_germany = yes
 		}
@@ -2285,7 +2356,7 @@ foreign_politics = {
 				tag = SOV
 			}
 		}
-		war_with_on_remove = SOV
+		#war_with_on_remove = SOV
 		complete_effect = {
 			add_stability = -0.1
 			add_named_threat = {
@@ -2433,7 +2504,8 @@ GER_decision_military_advisers = {
 		available = {
 			is_faction_leader = yes
 			has_manpower > 999
-			FROM = { 
+			FROM = {
+				has_war = yes
 				NOT = { has_idea = GER_idea_german_military_advisors } 
 			}
 		}	
@@ -2467,6 +2539,14 @@ GER_decision_military_advisers = {
 		cost = 75
 		ai_will_do = {
 			factor = 100
+			modifier = {
+				factor = 0
+				FROM = { has_war = no }
+			}
+			modifier = {
+				factor = 0
+				has_manpower < 30000
+			}
 		}
 	}
 }
@@ -3955,7 +4035,7 @@ GER_prussian_blue_category = {
 
 	GER_prussian_russian_withdrawal = {
 		icon = GFX_decision_eng_blackshirt_march
-		days_mission_timeout = 730
+		days_mission_timeout = 3650
 		activation = {
 			NOT = {
 				has_global_flag = prussian_withdrawal
@@ -4777,12 +4857,30 @@ GER_interwar_reichspakt_category = {
 								tag = BLR
 								tag = UKR
 								tag = POL
+								tag = FIN
 							}
 						}
 						add_ai_strategy = {
 							type = alliance
 							id = ROOT
 							value = 200
+						}
+					}
+					if = {
+						limit = {
+							is_historical_focus_on = no
+							is_ai = yes
+						}
+						random_list = {
+							4 = {
+								add_ai_strategy = {
+									type = alliance
+									id = ROOT
+									value = 200
+								}
+							}
+							6 = {
+							}
 						}
 					}
 				}
@@ -4800,6 +4898,7 @@ GER_interwar_reichspakt_category = {
 						tag = BLR
 						tag = UKR
 						tag = POL
+						tag = FIN
 					}
 				}
 			}
@@ -4808,48 +4907,6 @@ GER_interwar_reichspakt_category = {
 }
 
 GER_decision_form_landsturm = {
-
-	GER_mobilization_campaign = {
-		icon = eng_propaganda_campaigns
-		allowed = {
-			OR = {
-				tag = GER
-			}
-		}
-		available = {
-			has_war_support < 0.75
-		}
-		visible = {
-			always = no
-			OR = {
-				has_completed_focus = GER_prussian_militarism
-				has_completed_focus = AUH_reinforce_Gemeinsame_Armee
-			}
-		}
-		fire_only_once = no
-		days_remove = 7
-		days_re_enable = 190
-		cost = 25
-		remove_effect = {
-			add_war_support = 0.05
-			custom_effect_tooltip = back_in_190_days
-		}
-		ai_will_do = { 
-			base = 0 
-			modifier = {
-				has_war_support < 0.50
-				add = 10
-			}
-			modifier = {
-				has_war_support < 0.25
-				add = 10
-			}
-			modifier = {
-				factor = 0
-				has_manpower < 5000 
-			}
-		}
-	}
 
 	GER_reserve_guns = {
 		icon = generic_industry
@@ -5066,6 +5123,11 @@ interwar_decisions = {
 		icon = GFX_decision_eng_install_government
 		days_mission_timeout = 70
 		activation = {
+			NOT = {
+				FRA = {
+					has_country_flag = FRA_interwar_locarno_agreements
+				}
+			}
 			has_global_flag = interbellum
 			has_global_flag = versallies_treaty
 			threat < 0.2
@@ -5835,24 +5897,6 @@ GER_fortifications = {
 }
 
 GER_hre_cat = {
-	GER_yellow_HRE = { #not yellow.
-		icon = GFX_decision_generic_monarchy
-		allowed = { tag = GER }
-		available = {
-			has_cosmetic_tag = GER_HRE
-		}
-		visible = {
-			has_global_flag = holy_roman_empire
-		}
-		fire_only_once = yes
-		cost = 0
-		ai_will_do = {
-			factor = 0
-		}
-		complete_effect = {
-			set_cosmetic_tag = GER_HRY
-		}
-	}
 	GER_restore_burgundy = {
 		icon = GFX_decision_generic_monarchy
 		available = {
@@ -6132,17 +6176,20 @@ GER_german_east_asia_cat = {
 		available = {
 			has_war = no
 			has_global_flag = frankfurt_treaty
-		}
-		visible = {
-			is_subject = no
 			any_owned_state = {
 				OR = {
+					state = 647
+					state = 523
 					state = 336
 					is_core_of = VIN
 					is_core_of = CAM
 					is_core_of = LAO
 				}
 			}
+		}
+		visible = {
+			is_subject = no
+			has_country_flag = great_war_winner
 			OR = {
 				NOT = { country_exists = OST }
 				has_subject = OST
@@ -6166,6 +6213,9 @@ GER_german_east_asia_cat = {
 					NOT = {
 						any_owned_state = {
 							OR = {
+								state = 647
+								state = 523
+								state = 336
 								is_core_of = VIN
 								is_core_of = CAM
 								is_core_of = LAO
@@ -6413,9 +6463,10 @@ GER_german_east_asia_cat = {
 				limit = {
 					FROM = {
 						OR = {
-							tag = VIN
-							tag = CAM
-							tag = LAO
+							original_tag = VIN
+							original_tag = CAM
+							original_tag = LAO
+							original_tag = SIA
 						}
 					}
 				}
@@ -6448,15 +6499,15 @@ GER_german_east_asia_cat = {
 				factor = 0
 				any_other_country = {
 					is_major = yes
-					has_guaranteed = PREV
+					has_guaranteed = FROM
 				}
 			}
 			modifier = {
 				factor = 0
 				FROM = {
 					OR = {
-						tag = HAW
-						tag = SIA
+						original_tag = HAW
+						original_tag = SIA
 					}
 				}
 			}
