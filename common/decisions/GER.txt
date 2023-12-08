@@ -97,11 +97,23 @@ GER_great_war = {
 				has_global_flag = FRA_capitulation
 				has_war_with = RUS
 			}
+			# shouldn't able to launch this early
+			OR = {
+				has_idea = ger_famine
+				has_war_support < 0.5
+				has_stability < 0.5
+				surrender_progress > 0.05
+			}
 		}	
 		visible = {
 			tag = GER
 			has_global_flag = kis_war
-			NOT = { has_global_flag = great_war_ends }
+			NOT = {
+				has_active_mission = before_the_leaves_fall
+			}
+			# You can't launch Ludendorff Offensive without him
+			has_completed_focus = GER_oberster_kriegsherr
+			has_character = GER_erich_ludendorff
 		}
 		fire_only_once = yes
 		allowed = {
@@ -131,16 +143,21 @@ GER_great_war = {
 		}
 		complete_effect = {
 			custom_effect_tooltip = GER_ludendorff_offensive_tt
-			news_event = ww1_germany.92
 			add_ideas = GER_idea_ludendorff_offensive
-			set_global_flag = ludendorff_offensive
+			hidden_effect = {
+				set_global_flag = ludendorff_offensive
+				news_event = {
+					id = ww1_germany.92
+					hours = 3
+				}
+			}
 		}
 		remove_effect = {
 			# It would be critical for the German Empire
-			remove_ideas = GER_idea_ludendorff_offensive
 			add_stability = -0.5
 			add_war_support = -0.7
 			hidden_effect = {
+				remove_ideas = GER_idea_ludendorff_offensive
 				set_global_flag = ludendorff_offensive_failed
 				if = {
 					limit = {
@@ -154,7 +171,9 @@ GER_great_war = {
 			}
 		}
 		cancel_effect = {
-			remove_ideas = GER_idea_ludendorff_offensive
+			hidden_effect = {
+				remove_ideas = GER_idea_ludendorff_offensive
+			}
 		}
 		ai_will_do = {
 			base = 0
@@ -242,13 +261,55 @@ GER_great_war = {
 			hidden_effect = {
 				country_event = {
 					id = ww1_germany.91
-					days = 20
+					hours = 10
 				}
 			}
 		}
 		complete_effect = {
 			remove_ideas = ger_famine
 			remove_ideas = ger_famine_early
+		}
+	}
+	GER_delay_famine_mission = {
+		icon = GFX_decision_generic_consumer_goods
+		allowed = {
+			original_tag = GER
+		}
+		available = {
+			has_completed_focus = GER_Vaterlandische_industrialisierung
+		}
+		visible = {
+			OR = {
+				has_active_mission = GER_mission_famine_timer_early
+				has_active_mission = GER_mission_famine_timer
+			}
+		}
+		days_re_enable = 70
+		days_remove = 70
+		modifier = {
+			civilian_factory_use = 5
+		}
+		cancel_if_not_visible = yes
+		custom_cost_trigger = {
+			num_of_civilian_factories > 5
+		}
+		custom_cost_text = decision_cost_5_civ
+		complete_effect = {
+			if = {
+				limit = {
+					has_active_mission = GER_mission_famine_timer_early
+				}
+				add_days_mission_timeout = {
+					mission = GER_mission_famine_timer_early
+					days = 45
+				}
+				else = {
+					add_days_mission_timeout = {
+						mission = GER_mission_famine_timer
+						days = 30
+					}
+				}
+			}
 		}
 	}
 	GER_mission_famine_timer_early = {
@@ -318,7 +379,7 @@ GER_great_war = {
 			hidden_effect = {
 				country_event = {
 					id = ww1_germany.91
-					days = 20
+					hours = 10
 				}
 			}
 		}
@@ -2450,7 +2511,8 @@ GER_decision_military_advisers = {
 		available = {
 			is_faction_leader = yes
 			has_manpower > 999
-			FROM = { 
+			FROM = {
+				has_war = yes
 				NOT = { has_idea = GER_idea_german_military_advisors } 
 			}
 		}	
@@ -2484,6 +2546,14 @@ GER_decision_military_advisers = {
 		cost = 75
 		ai_will_do = {
 			factor = 100
+			modifier = {
+				factor = 0
+				FROM = { has_war = no }
+			}
+			modifier = {
+				factor = 0
+				has_manpower < 30000
+			}
 		}
 	}
 }
@@ -3972,7 +4042,7 @@ GER_prussian_blue_category = {
 
 	GER_prussian_russian_withdrawal = {
 		icon = GFX_decision_eng_blackshirt_march
-		days_mission_timeout = 730
+		days_mission_timeout = 3650
 		activation = {
 			NOT = {
 				has_global_flag = prussian_withdrawal
@@ -4794,12 +4864,30 @@ GER_interwar_reichspakt_category = {
 								tag = BLR
 								tag = UKR
 								tag = POL
+								tag = FIN
 							}
 						}
 						add_ai_strategy = {
 							type = alliance
 							id = ROOT
 							value = 200
+						}
+					}
+					if = {
+						limit = {
+							is_historical_focus_on = no
+							is_ai = yes
+						}
+						random_list = {
+							4 = {
+								add_ai_strategy = {
+									type = alliance
+									id = ROOT
+									value = 200
+								}
+							}
+							6 = {
+							}
 						}
 					}
 				}
@@ -4817,6 +4905,7 @@ GER_interwar_reichspakt_category = {
 						tag = BLR
 						tag = UKR
 						tag = POL
+						tag = FIN
 					}
 				}
 			}
@@ -6094,17 +6183,20 @@ GER_german_east_asia_cat = {
 		available = {
 			has_war = no
 			has_global_flag = frankfurt_treaty
-		}
-		visible = {
-			is_subject = no
 			any_owned_state = {
 				OR = {
+					state = 647
+					state = 523
 					state = 336
 					is_core_of = VIN
 					is_core_of = CAM
 					is_core_of = LAO
 				}
 			}
+		}
+		visible = {
+			is_subject = no
+			has_country_flag = great_war_winner
 			OR = {
 				NOT = { country_exists = OST }
 				has_subject = OST
@@ -6128,6 +6220,9 @@ GER_german_east_asia_cat = {
 					NOT = {
 						any_owned_state = {
 							OR = {
+								state = 647
+								state = 523
+								state = 336
 								is_core_of = VIN
 								is_core_of = CAM
 								is_core_of = LAO
@@ -6375,9 +6470,10 @@ GER_german_east_asia_cat = {
 				limit = {
 					FROM = {
 						OR = {
-							tag = VIN
-							tag = CAM
-							tag = LAO
+							original_tag = VIN
+							original_tag = CAM
+							original_tag = LAO
+							original_tag = SIA
 						}
 					}
 				}
@@ -6410,15 +6506,15 @@ GER_german_east_asia_cat = {
 				factor = 0
 				any_other_country = {
 					is_major = yes
-					has_guaranteed = PREV
+					has_guaranteed = FROM
 				}
 			}
 			modifier = {
 				factor = 0
 				FROM = {
 					OR = {
-						tag = HAW
-						tag = SIA
+						original_tag = HAW
+						original_tag = SIA
 					}
 				}
 			}
