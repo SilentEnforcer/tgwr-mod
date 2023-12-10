@@ -1,5 +1,6 @@
 league_of_nations_category = {
 	join_the_league_of_nations = {
+		icon = GFX_decision_eng_trade_unions_support
 		allowed = {
 			always = yes
 		}
@@ -196,6 +197,7 @@ league_of_nations_category = {
 		}
 	}
 	leave_the_league_of_nations = {
+		icon = GFX_decision_generic_break_treaty
 		allowed = {
 			always = yes
 		}
@@ -256,12 +258,12 @@ league_of_nations_category = {
 			modifier = {
 				add = 1000
 				OR = {
-					AND = {
-						is_subject = yes
-						OVERLORD = {
-							is_league_of_nations_member = no
-						}
-					}
+					# AND = {
+					# 	is_subject = yes
+					# 	OVERLORD = {
+					# 		is_league_of_nations_member = no
+					# 	}
+					# }
 					AND = {
 						tag = ARG
 						date > 1921.1.10
@@ -287,14 +289,99 @@ league_of_nations_category = {
 						is_major = no
 						has_offensive_war = yes
 					}
+					has_country_flag = embargoed_by_lon
 				}
 			}
 		}
 	}
-	# WORK IN PROCESS
-	#embargo_threatening_country = {
-	#
-	#}
+	embargo_threatening_country = {
+		icon = GFX_decision_generic_no_industry_icon
+		allowed = {
+			always = yes
+		}
+		visible = {
+			is_subject = no
+			is_league_of_nations_member = yes
+			has_global_flag = league_of_nations
+		}
+		available = {
+			NOT = {
+				has_global_flag = LoN_disbanded_flag
+				has_global_flag = lon_embargo_vote
+			}
+		}
+		target_trigger = {
+			FROM = {
+				OR = {
+					has_offensive_war = yes
+					has_border_war = yes
+					has_war_with = ROOT
+					has_added_tension_amount > 10
+				}
+			}
+		}
+		cancel_trigger = {
+			has_global_flag = LoN_disbanded_flag
+			any_country = {
+				has_country_flag = lon_embargo_reject
+			}
+		}
+		cancel_if_not_visible = yes
+		fire_only_once = no
+		days_remove = 25
+		days_re_enable = 365
+		cost = 75
+		complete_effect = {
+			set_global_flag = lon_embargo_vote
+			FROM = {
+				save_global_event_target_as = lon_embargo_target
+			}
+			every_other_country = {
+				limit = {
+					is_league_of_nations_member = yes
+				}
+				country_event = {
+					id = league_of_nations.11
+				}
+			}
+		}
+		remove_effect = {
+			every_country = {
+				limit = {
+					has_country_flag = lon_embargo_reject
+				}
+				clr_country_flag = lon_embargo_reject
+			}
+			clr_global_flag = lon_embargo_vote
+			clear_global_event_target = lon_embargo_target
+			every_country = {
+				limit = {
+					is_league_of_nations_member = yes
+				}
+				send_embargo = FROM
+			}
+			FROM = {
+				set_country_flag = embargoed_by_lon
+				news_event = {
+					id = league_of_nations.12
+				}
+			}
+		}
+		cancel_effect = {
+			every_country = {
+				limit = {
+					has_country_flag = lon_embargo_reject
+				}
+				clr_country_flag = lon_embargo_reject
+			}
+			clr_global_flag = lon_embargo_vote
+			clear_global_event_target = lon_embargo_target
+			add_political_power = 75
+		}
+		ai_will_do = {
+			factor = 0
+		}
+	}
 }
 
 debug_decisions = {
