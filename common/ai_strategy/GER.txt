@@ -41,7 +41,10 @@ GER_ignore_turnip_winter_effect = {
 		tag = GER
 	}
 	enable = {
-		has_idea = ger_famine
+		OR = {
+			has_idea = ger_famine
+			has_idea = ger_famine_early
+		}
 	}
 	abort_when_not_enabled = yes
 	ai_strategy = {
@@ -61,11 +64,15 @@ GER_attack_russia = {
 				surrender_progress < 0.1
 			}
 		}
+		NOT = {
+			is_in_faction_with = RUS
+		}
 	}
 	abort = {
 		OR = {
 			has_global_flag = brest_litovsk
 			has_global_flag = russian_civil_war
+			is_in_faction_with = RUS
 		}
 		OR = {
 			surrender_progress > 0.15
@@ -83,18 +90,18 @@ GER_low_priority_on_russia_if_they_are_losing = {
 		tag = GER
 	}
 	enable = {
-		OR = {
-			RUS = {
-				surrender_progress > 0.2
-			}
-			GER = {
-				surrender_progress < 0.1
-			}
+		has_war_with = RUS
+		RUS = {
+			surrender_progress > 0.2
+		}
+		GER = {
+			surrender_progress < 0.1
 		}
 	}
 	abort = {
 		OR = {
 			surrender_progress > 0.15
+			NOT = { has_war_with = RUS }
 		}
 	}
 	ai_strategy = {
@@ -175,6 +182,72 @@ GER_rush_on_BEL = {
 		ordertype = front
 		execution_type = rush
 		execute_order = yes
+	}
+	
+	ai_strategy = {
+		type = front_control
+		tag = FRA
+		priority = 1000
+		ordertype = front
+		execution_type = balanced
+		execute_order = yes
+	}
+	ai_strategy = {
+		type = front_unit_request
+		tag = BEL
+		value = 10
+	}
+	ai_strategy = {
+		type = front_unit_request
+		tag = LUX
+		value = 10
+	}
+	ai_strategy = {
+		type = front_unit_request
+		tag = FRA
+		value = 20
+	}
+	ai_strategy = {
+		type = front_unit_request
+		tag = RUS
+		value = -10
+	}
+}
+
+GER_hold_western_front = {
+	allowed = {
+		original_tag = GER	
+	}
+	enable = {
+		original_tag = GER
+		has_war_with = FRA
+		# trigger after schlieffen failed
+		AND = {
+			NOT = { has_idea = schlieffenmoltke }
+			NOT = { has_idea = race_to_the_sea }
+			date > 1914.11.11
+		}
+	}
+
+	abort = {
+		OR = {
+			# We won the world war
+			has_country_flag = great_war_winner
+			surrender_progress > 0.10
+			# France is weak
+			strength_ratio = {
+				tag = FRA
+				ratio > 2
+			}
+		}
+	}
+
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = front_unit_request
+		tag = FRA
+		value = 15
 	}
 }
 
