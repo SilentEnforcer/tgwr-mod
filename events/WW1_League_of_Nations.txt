@@ -52,6 +52,10 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = league_of_nations.2.a
+		custom_effect_tooltip = league_of_nations_agreed
+		effect_tooltip = {
+			FROM = { join_the_league_of_nations = yes }
+		}
 		ai_chance = {
 			base = 0
 			modifier = {
@@ -68,8 +72,11 @@ country_event = {
 	}
 	option = {
 		name = league_of_nations.2.b
-		FROM = {
-			set_country_flag = refused_by_league_of_nations
+		custom_effect_tooltip = league_of_nations_disagreed
+		hidden_effect = {
+			FROM = {
+				set_country_flag = refused_by_league_of_nations
+			}
 		}
 		ai_chance = {
 			base = 0
@@ -92,7 +99,14 @@ country_event = {
 country_event = {
 	id = league_of_nations.3
 	title = league_of_nations.3.t
-	desc = league_of_nations.3.d
+	desc = {
+		text = league_of_nations.3.d
+		trigger = { NOT = { has_country_flag = refused_by_league_of_nations } }
+	}
+	desc = {
+		text = league_of_nations.3.d_2
+		trigger = { has_country_flag = refused_by_league_of_nations }
+	}
 	picture = GFX_report_event_generic_conference
 	is_triggered_only = yes
 	option = {
@@ -146,15 +160,13 @@ news_event = {
 	option = {
 		name = league_of_nations.5.a
 		trigger = {
-			has_idea = league_of_nations_member_idea
+			is_league_of_nations_member = yes
 		}
 	}
 	option = {
 		name = league_of_nations.5.b
 		trigger = {
-			NOT = {
-				has_idea = league_of_nations_member_idea
-			}
+			is_league_of_nations_member = no
 		}
 	}
 }
@@ -220,15 +232,13 @@ news_event = {
 	option = {
 		name = league_of_nations.7.a
 		trigger = {
-			has_idea = league_of_nations_member_idea
+			is_league_of_nations_member = yes
 		}
 	}
 	option = {
 		name = league_of_nations.7.b
 		trigger = {
-			NOT = {
-				has_idea = league_of_nations_member_idea
-			}
+			is_league_of_nations_member = no
 		}
 	}
 }
@@ -257,10 +267,27 @@ country_event = {
 	trigger = {
 		is_subject = yes
 		OVERLORD = {
-			has_idea = league_of_nations_member_idea
+			is_league_of_nations_member = yes
 		}
+		is_league_of_nations_member = no
+		# Protectorate won't join
 		NOT = {
-			has_idea = league_of_nations_member_idea
+			has_country_flag = protectorate
+			has_idea = protectorate
+		}
+		# Puppets won't join
+		NOT = {
+			has_autonomy_state = autonomy_tgwr_protectorate
+			has_autonomy_state = autonomy_tgwr_informal_protectorate
+			has_autonomy_state = autonomy_tgwr_concession
+			has_autonomy_state = autonomy_tgwr_crownland
+			has_autonomy_state = autonomy_integrated_puppet
+			has_autonomy_state = autonomy_puppet
+			has_autonomy_state = autonomy_wtt_imperial_subject
+			has_autonomy_state = autonomy_wtt_imperial_protectorate
+			has_autonomy_state = autonomy_colony
+			has_autonomy_state = autonomy_tgwr_ottoman_emirate #they have no diplomatic rights
+			has_autonomy_state = autonomy_tgwr_unilateral_union #they don't want to be a independent nation
 		}
 	}
 	mean_time_to_happen = {
@@ -279,16 +306,120 @@ country_event = {
 	trigger = {
 		is_subject = yes
 		OVERLORD = {
-			NOT = {
-				has_idea = league_of_nations_member_idea
-			}
+			is_league_of_nations_member = no
 		}
-		has_idea = league_of_nations_member_idea
+		is_league_of_nations_member = yes
 	}
 	mean_time_to_happen = {
 		days = 0
 	}
 	immediate = {
 		leave_the_league_of_nations = yes
+	}
+}
+
+# Vote to Embargo
+country_event = {
+	id = league_of_nations.11
+	title = league_of_nations.11.t
+	desc = league_of_nations.11.d
+	picture = GFX_report_event_generic_conference
+	is_triggered_only = yes
+	option = {
+		name = league_of_nations.11.a
+		custom_effect_tooltip = league_of_nations_agreed
+		effect_tooltip = {
+			send_embargo = event_target:lon_embargo_target
+		}
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = -5
+				has_opinion = {
+					target = event_target:lon_embargo_target
+					value > 10
+				}
+			}
+			modifier = {
+				add = 10
+				has_added_tension_amount > 20
+			}
+			modifier = {
+				add = 5
+				has_opinion = {
+					target = FROM
+					value > 10
+				}
+			}
+			modifier = {
+				add = 10
+				threat > 0.30
+			}
+			modifier = {
+				add = -100
+				has_war_with = event_target:lon_embargo_target
+			}
+		}
+	}
+	option = {
+		name = league_of_nations.11.b
+		custom_effect_tooltip = league_of_nations_disagreed
+		set_country_flag = lon_embargo_reject
+		ai_chance = {
+			base = 50
+			modifier = {
+				add = -20
+				has_opinion = {
+					target = event_target:lon_embargo_target
+					value < -20
+				}
+			}
+			modifier = {
+				add = -20
+				has_opinion = {
+					target = FROM
+					value > 10
+				}
+			}
+			modifier = {
+				add = -20
+				threat > 0.30
+			}
+			modifier = {
+				add = 100
+				has_war_with = event_target:lon_embargo_target
+			}
+		}
+	}
+}
+
+# The League of Nations embargoed a country
+news_event = {
+	id = league_of_nations.12
+	title = league_of_nations.12.t
+	desc = league_of_nations.12.d
+	major = yes
+	picture = GFX_news_event_generic_factory
+	is_triggered_only = yes
+	option = {
+		name = league_of_nations.12.a
+		trigger = {
+			is_league_of_nations_member = yes
+			NOT = { has_country_flag = embargoed_by_lon }
+		}
+	}
+	option = {
+		name = league_of_nations.12.b
+		trigger = {
+			has_country_flag = embargoed_by_lon
+		}
+		clr_country_flag = embargoed_by_lon
+	}
+	option = {
+		name = league_of_nations.12.c
+		trigger = {
+			is_league_of_nations_member = no
+			NOT = { has_country_flag = embargoed_by_lon }
+		}
 	}
 }
