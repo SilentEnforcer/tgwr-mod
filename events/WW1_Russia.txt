@@ -67,13 +67,18 @@ country_event = {
 			FROM = { add_ideas = RUS_idea_armistice_rus }
 		}
 		hidden_effect = {
+			save_global_event_target_as = brest_litovsk_ger
 			FROM = {
+				save_global_event_target_as = brest_litovsk_rus
 				add_ideas = RUS_idea_armistice_rus
 				# Notify Russia that Germans accepted the Armistice
 				country_event = {
 					id = ww1_russia.112
 					days = 3
 				}
+				# moved from .6
+				activate_mission = RUS_demobilizing_army_timer
+				add_ideas = RUS_demobilizing_army
 			}
 			every_country = {
 				limit = {
@@ -137,7 +142,11 @@ news_event = {
 	option = {
 		name = ww1_russia.5.a
 		trigger = {
-			tag = GER
+			OR = {
+				tag = event_target:brest_litovsk_ger
+				is_subject_of = event_target:brest_litovsk_ger
+				is_in_faction_with = event_target:brest_litovsk_ger
+			}
 		}
 		ai_chance = {
 			factor = 100
@@ -147,7 +156,9 @@ news_event = {
 		name = ww1_russia.5.b
 		trigger = {
 			NOT = {
-				tag = GER
+				tag = event_target:brest_litovsk_ger
+				is_subject_of = event_target:brest_litovsk_ger
+				is_in_faction_with = event_target:brest_litovsk_ger
 			}
 		}
 		ai_chance = {
@@ -172,16 +183,12 @@ news_event = {
 		name = ww1_russia.6.a
 		trigger = {
 			OR = {
-				tag = RUS
-				tag = RUS
-				tag = GER
+				tag = event_target:brest_litovsk_rus
+				tag = event_target:brest_litovsk_ger
 			}
 		}
 		hidden_effect = {
-			RUS = { 
-				activate_mission = RUS_demobilizing_army_timer
-				add_ideas = RUS_demobilizing_army
-			}
+			# it is bad to assign an effect in news event since player just can turn off
 		}
 		ai_chance = {
 			factor = 100
@@ -191,9 +198,8 @@ news_event = {
 		name = ww1_russia.6.b
 		trigger = {
 			NOT = {
-				tag = RUS
-				tag = RUS
-				tag = GER
+				tag = event_target:brest_litovsk_rus
+				tag = event_target:brest_litovsk_ger
 			}
 		}
 		ai_chance = {
@@ -225,7 +231,7 @@ country_event = {
 		}
 		hidden_effect = {
 			set_global_flag = brest_litovsk_poland_1
-			RUS = {
+			event_target:brest_litovsk_rus = {
 				country_event = {
 					id = ww1_russia.15
 					days = 3
@@ -239,7 +245,7 @@ country_event = {
 			POL = {
 				OR = {
 					exists = no
-					is_subject_of = RUS
+					is_subject_of = event_target:brest_litovsk_rus
 					is_subject_of = ROOT
 				}
 			}
@@ -251,7 +257,7 @@ country_event = {
 		effect_tooltip = {
 			if = {
 				limit = {
-					RUS = { has_subject = POL }
+					event_target:brest_litovsk_rus = { has_subject = POL }
 				}
 				annex_country = {
 					target = POL
@@ -259,7 +265,7 @@ country_event = {
 			}
 			every_state = {
 				limit = {
-					is_owned_by = RUS
+					is_owned_by = event_target:brest_litovsk_rus
 					is_core_of = POL
 				}
 				transfer_state_to = ROOT
@@ -268,7 +274,7 @@ country_event = {
 		}
 		hidden_effect = {
 			set_global_flag = brest_litovsk_poland_2		
-			RUS = {
+			event_target:brest_litovsk_rusevent_target:brest_litovsk_rus = {
 				country_event = {
 					id = ww1_russia.15
 					days = 3
@@ -279,7 +285,7 @@ country_event = {
 			POL = {
 				OR = {
 					exists = no
-					is_subject_of = RUS
+					is_subject_of = event_target:brest_litovsk_rus
 				}
 			}
 		}
@@ -296,7 +302,7 @@ country_event = {
 		}
 		hidden_effect = {
 			set_global_flag = brest_litovsk_poland_3
-			RUS = {
+			event_target:brest_litovsk_rus = {
 				country_event = {
 					id = ww1_russia.15
 					days = 3
@@ -310,7 +316,7 @@ country_event = {
 				POL = {
 					OR = {
 						exists = no
-						is_subject_of = RUS
+						is_subject_of = event_target:brest_litovsk_rus
 					}
 				}
 			}
@@ -374,18 +380,26 @@ country_event = {
 			puppet = LIT
 		}
 		trigger = {
-			NOT = {
-				EST = {
-					exists = yes
-					is_subject = no
+			LIT = {
+				OR = {
+					exists = no
+					is_subject_of = ROOT
+					is_subject_of = FROM
 				}
-				LAT = {
-					exists = yes
-					is_subject = no
+			}
+			LAT = {
+				OR = {
+					exists = no
+					is_subject_of = ROOT
+					is_subject_of = FROM
+					has_cosmetic_tag = LAT_iskolata
 				}
-				LIT = {
-					exists = yes
-					is_subject = no
+			}
+			EST = {
+				OR = {
+					exists = no
+					is_subject_of = ROOT
+					is_subject_of = FROM
 				}
 			}
 		}
@@ -6604,13 +6618,14 @@ country_event = {
 		name = ww1_russia.100.a
 		hidden_effect = {
 			set_global_flag = brest_litovsk_first_demand_puppet
-			RUS = {
+			event_target:brest_litovsk_rus = {
 				country_event = {
 					id = ww1_russia.101
 					days = 3
 				}
 			}
 		}
+		custom_effect_tooltip = historical_tt
 		custom_effect_tooltip = agree_effect_tooltip
 		effect_tooltip = {
 			puppet = COU
@@ -6618,22 +6633,25 @@ country_event = {
 			puppet = POL
 		}
 		trigger = {
-			NOT = {
-				EST = {
-					exists = yes
-					is_subject = no
+			COU = {
+				OR = {
+					exists = no
+					is_subject_of = ROOT
+					is_subject_of = event_target:brest_litovsk_rus
 				}
-				LAT = {
-					exists = yes
-					is_subject = no
+			}
+			LIT = {
+				OR = {
+					exists = no
+					is_subject_of = ROOT
+					is_subject_of = event_target:brest_litovsk_rus
 				}
-				LIT = {
-					exists = yes
-					is_subject = no
-				}
-				POL = {
-					exists = yes
-					is_subject = no
+			}
+			POL = {
+				OR = {
+					exists = no
+					is_subject_of = ROOT
+					is_subject_of = event_target:brest_litovsk_rus
 				}
 			}
 		}
@@ -6645,7 +6663,7 @@ country_event = {
 		name = ww1_russia.100.b
 		hidden_effect = {
 			set_global_flag = brest_litovsk_first_demand_annex
-			RUS = {
+			event_target:brest_litovsk_rus = {
 				country_event = {
 					id = ww1_russia.101
 				}
@@ -6669,7 +6687,7 @@ country_event = {
 					}
 				}
 			}
-			RUS = {
+			event_target:brest_litovsk_rus = {
 				every_state = {
 					limit = {
 						is_owned_or_subject_PREV_trigger = yes
@@ -6693,19 +6711,15 @@ country_event = {
 			NOT = {
 				EST = {
 					exists = yes
-					is_subject = no
 				}
 				LAT = {
 					exists = yes
-					is_subject = no
 				}
 				LIT = {
 					exists = yes
-					is_subject = no
 				}
 				POL = {
 					exists = yes
-					is_subject = no
 				}
 			}
 		}
@@ -6717,16 +6731,16 @@ country_event = {
 		name = ww1_russia.100.c
 		hidden_effect = {
 			set_global_flag = brest_litovsk_first_demand_liberate
-			RUS = {
+			event_target:brest_litovsk_rus = {
 				country_event = {
 					id = ww1_russia.101
 				}
 			}
 		}
-		custom_effect_tooltip = historical_tt
+		custom_effect_tooltip = agree_effect_tooltip
 		effect_tooltip = {
 			add_political_power = 200
-			RUS = {
+			event_target:brest_litovsk_rus = {
 				release = POL
 				release = COU
 			}
@@ -6785,9 +6799,6 @@ country_event = {
 	}
 	option = {
 		name = ww1_russia.101.a
-		trigger = {
-			has_global_flag = brest_litovsk_first_demand_puppet
-		}
 		custom_effect_tooltip = unforseen_consequences
 		retire_character = SOV_vladimir_lenin
 		effect_tooltip = {
@@ -6799,10 +6810,60 @@ country_event = {
 			white_peace = FROM
 		}
 		hidden_effect = {
-			FROM = {
-				GER_release_COU = yes
-				GER_release_LIT = yes
-				GER_release_POL = yes
+			if = {
+				limit = {
+					has_global_flag = brest_litovsk_first_demand_liberate
+				}
+				190 = {
+					remove_core_of = ROOT
+					transfer_state_to = COU
+				}
+				release = LIT
+				release = POL
+			}
+			else_if = {
+				limit = {
+					has_global_flag = brest_litovsk_first_demand_annex
+				}
+				every_other_country = {
+					limit = {
+						is_subject_of = ROOT
+						OR = {
+							original_tag = EST
+							original_tag = LAT
+							original_tag = LIT
+							original_tag = POL
+						}
+					}
+					FROM = {
+						annex_country = {
+							target = PREV
+						}
+					}
+				}
+				every_state = {
+					limit = {
+						is_owned_or_subject_PREV_trigger = yes
+						OR = {
+							region = 37
+							region = 38
+							state = 773
+						}
+						NOT = {
+							state = 12
+							state = 96
+							is_core_of = EST
+						}
+					}
+					transfer_state_to = FROM
+				}
+			}
+			else = {
+				FROM = {
+					GER_release_COU = yes
+					GER_release_LIT = yes
+					GER_release_POL = yes
+				}
 			}
 			remove_ideas = RUS_idea_armistice_rus
 
@@ -6924,7 +6985,7 @@ country_event = {
 		custom_effect_tooltip = historical_tt
 		effect_tooltip = {
 			add_ideas = RUS_idea_armistice_rus
-			GER = { add_ideas = RUS_idea_armistice_cp }
+			event_target:brest_litovsk_ger = { add_ideas = RUS_idea_armistice_cp }
 		}
 		hidden_effect = {
 			add_ideas = RUS_idea_armistice_rus
@@ -6932,14 +6993,14 @@ country_event = {
 				limit = {
 					has_war_with = ROOT
 					OR = {
-						tag = GER
-						is_in_faction_with = GER
-						is_subject_of = GER
+						tag = event_target:brest_litovsk_ger
+						is_in_faction_with = event_target:brest_litovsk_ger
+						is_subject_of = event_target:brest_litovsk_ger
 					}
 				}
 				add_ideas = RUS_idea_armistice_cp
 			}
-			GER = {
+			event_target:brest_litovsk_ger = {
 				country_event = ww1_russia.116
 			}
 		}
@@ -7019,7 +7080,7 @@ country_event = {
 			}
 			every_country = {
 				limit = {
-					has_war_with = RUS
+					has_war_with = event_target:brest_litovsk_rus
 				}
 				remove_ideas = RUS_idea_armistice_cp
 			}
@@ -7028,7 +7089,7 @@ country_event = {
 					has_war_with = FROM
 				}
 				diplomatic_relation = {
-					country = RUS
+					country = event_target:brest_litovsk_rus
 					relation = military_access
 					active = no
 				}
