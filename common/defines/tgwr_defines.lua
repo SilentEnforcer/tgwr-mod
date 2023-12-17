@@ -107,8 +107,6 @@ NDefines.NSupply.NAVAL_DISTANCE_FACTOR_FOR_REINFORCEMENT_SPEED = 0.12
 NDefines.NSupply.NAVAL_BASE_INITIAL_SUPPLY_FLOW = 5
 NDefines.NSupply.CAPITAL_SUPPLY_DOCKYARDS = 0.6
 
-NDefines.NCountry.MIN_MAJOR_COUNTRIES = 8	-- Vanilla is 7, Eight countries; ENG, FRA, GER, RUS, AUH, ITA, USA, JAP
-
 NDefines.NCountry.MAX_BOMBING_WAR_SUPPORT_IMPACT = -0.1 -- Vanilla is -0.3, it is not ww2
 NDefines.NCountry.MAX_CONVOYS_BEING_RAIDED_WAR_SUPPORT_IMPACT = -0.3 -- Vanilla is -0.5, it is not ww2
 
