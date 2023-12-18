@@ -10210,41 +10210,84 @@ country_event = {
 	picture = GFX_report_event_german_parade_paris
 	is_triggered_only = yes
 	option = {
-		name =  ww1_france.306.a	# set up the puppet ! 
+		name =  ww1_france.306.a	# set up the truce ! 
 		ai_chance = {
 			factor = 500
 		}
-		every_country = {
-			limit = {
-				OR = {
-					is_subject_of = FRA
-					original_tag = FRA
-				}
-			}
-			set_country_flag = FRA_surrender_alone
-			set_country_flag = { flag = has_capitulated_with_france_early days = 180 value = 1 }
-			leave_faction = yes
-			GER = {
-				white_peace = PREV
-			}
-			hidden_effect = {
+		effect_tooltip = {
+			FRA = {
+				white_peace = GER
 				add_ideas = standing_alone
 				add_ideas = disarmed_nation
 				add_ideas = interwar_recovery
+				add_ideas = idea_armistice
 			}
-		}
-		if = {
-			limit = {
-				RUS = {
-					NOT = {
-						has_country_flag = has_capitulated_with_france_early
-					}
-					has_war_with = GER
-				}
-			}
-			set_faction_leader = yes
 		}
 		hidden_effect = {
+			if = {
+				limit = {
+					ENG = {
+						NOT = {
+							has_country_flag = has_capitulated_with_france_early
+						}
+						has_war_with = GER
+					}
+				}
+				ENG = {
+					set_country_flag = entente_leader
+					set_faction_leader = yes
+				}
+			}
+			else_if = {
+				limit = {
+					RUS = {
+						NOT = {
+							has_country_flag = has_capitulated_with_france_early
+						}
+						has_war_with = GER
+					}
+				}
+				RUS = {
+					set_country_flag = entente_leader
+					set_faction_leader = yes
+				}
+			}
+			else = {
+				random_country = {
+					limit = {
+						is_in_faction_with = FRA
+						has_war_with = GER
+						is_major = yes
+					}
+					set_country_flag = entente_leader
+					set_faction_leader = yes
+				}
+			}
+			every_country = {
+				limit = {
+					OR = {
+						is_subject_of = FRA
+						original_tag = FRA
+					}
+				}
+				set_country_flag = FRA_surrender_alone
+				set_country_flag = { flag = has_capitulated_with_france_early days = 180 value = 1 }
+				leave_faction = yes
+				GER = {
+					white_peace = PREV
+				}
+				add_ideas = standing_alone
+				add_ideas = disarmed_nation
+				add_ideas = interwar_recovery
+				add_ideas = idea_armistice
+				random_country = {
+					limit = { has_country_flag = entente_leader }
+					add_to_faction = PREV
+				}
+			}
+			#to make any other country can join entente
+			# they usually use FRA = { add_to_faction = ROOT }
+			FRA = { set_faction_leader = yes }
 			every_country = {
 				diplomatic_relation = {
 					country = FRA
@@ -10260,6 +10303,23 @@ country_event = {
 					country = FRA
 					relation = docking_rights
 					active = no
+				}
+				FRA = {
+					diplomatic_relation = {
+						country = PREV
+						relation = guarantee
+						active = no
+					}
+					diplomatic_relation = {
+						country = PREV
+						relation = military_access
+						active = no
+					}
+					diplomatic_relation = {
+						country = PREV
+						relation = docking_rights
+						active = no
+					}
 				}
 			}
 			every_country = {
@@ -10278,44 +10338,83 @@ country_event = {
 					target = FRA
 					type = all
 				}
-				every_state = {
-					limit = {
-						OWNER = {
-							has_country_flag = has_capitulated_with_france_early
-						}
-						NOT = {
-							OWNER = {
-								is_in_faction_with = GER
-								is_subject_of = GER
-								has_war_together_with = GER
-							}
-						}
-						OR = {
-							is_claimed_by = PREV
-							is_core_of = PREV
-						}
+				# every_state = {
+				# 	limit = {
+				# 		OWNER = {
+				# 			has_country_flag = has_capitulated_with_france_early
+				# 		}
+				# 		NOT = {
+				# 			OWNER = {
+				# 				is_in_faction_with = GER
+				# 				is_subject_of = GER
+				# 				has_war_together_with = GER
+				# 			}
+				# 		}
+				# 		OR = {
+				# 			is_claimed_by = PREV
+				# 			is_core_of = PREV
+				# 		}
+				# 	}
+				# 	transfer_state_to = PREV
+				# }
+				FRA = {
+					give_military_access = PREV
+					set_truce = {
+						target = PREV
+						days = 365
 					}
-					transfer_state_to = PREV
 				}
 			}
-		}
-		effect_tooltip = {
+			# german military occupation
 			every_state = {
 				limit = {
-					OWNER = {
-						OR = {
-							tag = FRA
-							is_subject_of = FRA
-						}
-					}
+					owner = { has_country_flag = FRA_surrender_alone }
 					OR = {
-						is_claimed_by = GER
-						is_core_of = GER
+						state = 6
+						state = 8
+						state = 29
+						state = 34
+						state = 785
+						state = 863
+						state = 864
+						state = 865
+						state = 906
+						state = 907
 					}
 				}
 				transfer_state_to = GER
 			}
+			every_state = {
+				limit = {
+					owner = { has_country_flag = FRA_surrender_alone }
+					OR = {
+						state = 15
+						state = 16
+						state = 17
+						state = 18
+					}
+				}
+				set_demilitarized_zone = yes
+			}
 		}
+		custom_effect_tooltip = ww1_france.306.tt
+		# effect_tooltip = {
+		# 	every_state = {
+		# 		limit = {
+		# 			OWNER = {
+		# 				OR = {
+		# 					tag = FRA
+		# 					is_subject_of = FRA
+		# 				}
+		# 			}
+		# 			OR = {
+		# 				is_claimed_by = GER
+		# 				is_core_of = GER
+		# 			}
+		# 		}
+		# 		transfer_state_to = GER
+		# 	}
+		# }
 		FRA = {
 			country_event = {
 				id = ww1_france.307
@@ -10324,10 +10423,10 @@ country_event = {
 		}
 
 	}
-	option = {
-		name =  ww1_france.306.b
-		add_war_support = -0.10
-	}
+	# option = {
+	# 	name =  ww1_france.306.b
+	# 	add_war_support = -0.10
+	# }
 }
 
 ### France lost in early game
@@ -10339,15 +10438,69 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name =  ww1_france.307.a
-		promote_character = FRA_joseph_caillaux
-		FRA_joseph_caillaux = {
-			add_country_leader_trait = fra_homme_de_la_defaite
+		add_ideas = FRA_interim_government
+		if = {
+			limit = {
+				OR = {
+					has_country_leader_ideology = semi_constitutional_monarchy
+					has_country_leader_ideology = semi_constitutional_monarchy_reserve
+				}
+			}
+			add_country_leader_trait = ww_one_trauma
 		}
-		set_politics = {
-			ruling_party = democratic
-			has_elections = no
+		else_if = {
+			limit = {
+				OR = {
+					has_government = fascism
+					has_government = neutrality
+				}
+			}
+			FRA_joseph_caillaux = {
+				hidden_effect = {
+					add_country_leader_role = {
+						country_leader = {
+							ideology = authoritarian_democracy
+							traits = { corrupted_minister fra_homme_de_la_defaite }
+						}
+					}
+				}
+				promote_character = authoritarian_democracy
+			}
+			set_politics = {
+				ruling_party = neutrality
+			}
+			if = {
+				limit = {
+					neutrality < 0.30
+				}
+				add_popularity = {
+					ideology = neutrality
+					popularity = 0.30
+				}
+			}
+			set_party_name = {
+				ideology = neutrality
+				long_name = FRA_interim_government_party
+				name = FRA_interim_government_party
+			}
+		}
+		else = {
+			FRA_joseph_caillaux = {
+				promote_character = social_liberalism
+				add_country_leader_trait = fra_homme_de_la_defaite
+			}
+			set_party_name = {
+				ideology = democratic
+				long_name = FRA_interim_government_party
+				name = FRA_interim_government_party
+			}
+		}
+		if = {
+			limit = { has_elections = yes }
+			suspend_elections = yes
 		}
 		hidden_effect = {
+			remove_french_presidents = yes
 			country_event = {
 				id = ww1_france.308
 				days = 14
@@ -10355,6 +10508,17 @@ country_event = {
 			country_event = {
 				id = ww1_france.309
 				days = 27
+			}
+			if = {
+				limit = {
+					NOT = {
+						has_cosmetic_tag = FRA_KINGDOM
+						has_cosmetic_tag = FRA_KINGDOM_legitimist
+						has_cosmetic_tag = FRA_THIRD_EMPIRE
+						has_cosmetic_tag = FRA_socialism
+					}
+				}
+				set_cosmetic_tag = FRA_alt_blue
 			}
 		}
 		hidden_effect = {
@@ -10403,7 +10567,10 @@ country_event = {
 			ideology = communism
 			popularity = 0.1
 		}
-		add_ideas = FRA_inflation
+		add_timed_idea = {
+			idea = FRA_inflation
+			days = 700
+		}
 	}
 }
 
@@ -10415,21 +10582,137 @@ country_event = {
 	picture = report_event_damremont_manifestation
 	is_triggered_only = yes
 	option = {
-		name =  ww1_france.301.a
-		add_popularity = {
-			ideology = fascism
-			popularity = party_popularity@neutrality
-		}
+		name =  ww1_france.310.a
 		hidden_effect = {
-			add_popularity = {
-				ideology = neutrality
-				popularity = -1
+			if = {
+				limit = {
+					NOT = { has_government = neutrality }
+				}
+				add_popularity = {
+					ideology = fascism
+					popularity = party_popularity@neutrality
+				}
+				add_popularity = {
+					ideology = neutrality
+					popularity = -1
+				}
+			}
+			else = {
+				add_popularity = {
+					ideology = fascism
+					popularity = 0.25
+				}
+			}
+			FRA_philippe_petain = {
+				if = {
+					limit = {
+						has_ideology = revolutionary_nationalism
+					}
+					promote_character = revolutionary_nationalism
+				}
+				else = {
+					add_country_leader_role = {
+						promote_leader = yes
+						country_leader = {
+							ideology = revolutionary_nationalism
+							traits = { verdun_lion generallissimo }
+						}
+					}
+				}
 			}
 		}
 		set_party_name = {
 			ideology = fascism
 			name = FRA_FSN
 			long_name = FRA_FSN_long
+		}
+		effect_tooltip = {
+			FRA_philippe_petain = { promote_character = stratocracy }
+		}
+	}
+}
+
+### France returns to War!
+country_event = {
+	id = ww1_france.311
+	title = ww1_france.311.t
+	desc = ww1_france.311.d
+	picture = GFX_report_event_france_parade
+	is_triggered_only = yes
+	immediate = {
+		hidden_effect = {
+			remove_ideas = FRA_interim_government
+			remove_ideas = idea_armistice
+			remove_ideas = FRA_military_disloyalty
+			remove_ideas = standing_alone
+			set_politics = {
+				ruling_party = fascism
+				elections_allowed = no
+			}
+			add_popularity = {
+				ideology = fascism
+				popularity = 0.20
+			}
+			random_other_country = {
+				limit = {
+					has_war_with = GER
+					is_major = yes
+					is_in_faction_with = ROOT
+				}
+				ROOT = {
+					add_to_war = {
+						targeted_alliance = PREV
+						enemy = GER
+					}
+				}
+			}
+			FRA_joseph_caillaux = {
+				remove_country_leader_role = {
+					ideology = social_liberalism
+				}
+				remove_country_leader_role = {
+					ideology = social_liberalism
+				}
+			}
+			if = {
+				limit = {
+					has_government = neutrality
+					NOT = {
+						has_country_leader_ideology = semi_constitutional_monarchy
+						has_country_leader_ideology = semi_constitutional_monarchy_reserve
+					}
+				}
+				FRA_maurice_pujo = {
+					promote_character = oligarchism
+				}
+				set_party_name = {
+					ideology = neutrality
+					long_name = FRA_neutrality_party
+					name = FRA_neutrality_party
+				}
+			}
+			if = {
+				limit = {
+					NOT = {
+						has_cosmetic_tag = FRA_KINGDOM
+						has_cosmetic_tag = FRA_KINGDOM_legitimist
+						has_cosmetic_tag = FRA_THIRD_EMPIRE
+						has_cosmetic_tag = FRA_socialism
+						has_completed_focus = FRA_ww1_authoritarian_coup
+					}
+				}
+				set_cosmetic_tag = NFA
+			}
+		}
+	}
+	option = {
+		name = ww1_france.311.a
+		effect_tooltip = {
+			remove_ideas = FRA_interim_government
+			declare_war_on = {
+				target = GER
+				type = take_core_state
+			}
 		}
 	}
 }
