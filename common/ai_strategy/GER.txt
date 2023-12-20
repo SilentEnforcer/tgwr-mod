@@ -1,4 +1,33 @@
 
+### AI DIVISION SETTINGS
+GER_go_kiautschou_operation = {
+	allowed = {
+		original_tag = GER
+	}
+	enable = {
+		tag = GER
+		has_capitulated = no
+		has_war_with = JAP
+		has_global_flag = kiautschou_mission_fired
+	}
+	abort = {
+		OR = {
+			has_war = no
+			has_capitulated = yes
+			NOT = { has_war_with = JAP }
+			NOT = { controls_state = 745 }
+			NOT = { owns_state = 745 }
+		}
+	}
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = 0.05
+		states = {
+			745
+		}
+	}
+}
+
 GER_dont_help_AUH_before_1915 = {
 	allowed = {
 		original_tag = GER
@@ -20,13 +49,13 @@ GER_dont_help_AUH_before_1915 = {
 	}
 	ai_strategy = {
 		type = dont_defend_ally_borders
-		id = GAL
+		id = AUH
 		value = 1
 	}
 	ai_strategy = {
-		type = dont_defend_ally_borders
-		id = AUH
-		value = 1
+		type = front_unit_request
+		tag = SER
+		value = -500
 	}
 	ai_strategy = {
 		type = send_volunteers_desire
@@ -34,79 +63,6 @@ GER_dont_help_AUH_before_1915 = {
 		value = 500
 	}
 }
-
-
-GER_ignore_turnip_winter_effect = {
-	allowed = {
-		tag = GER
-	}
-	enable = {
-		has_idea = ger_famine
-	}
-	abort_when_not_enabled = yes
-	ai_strategy = {
-		type = ignore_army_incompetence
-		value = 50
-	}
-}
-
-GER_attack_russia = {
-	allowed = {
-		tag = GER
-	}
-	enable = {
-		has_global_flag = kis_franzferdinand_murdered
-		OR = {
-			GER = {
-				surrender_progress < 0.1
-			}
-		}
-	}
-	abort = {
-		OR = {
-			has_global_flag = brest_litovsk
-			has_global_flag = russian_civil_war
-		}
-		OR = {
-			surrender_progress > 0.15
-		}
-	}
-	ai_strategy = {
-		type = front_unit_request
-		tag = RUS
-		value = 10
-	}
-}
-
-GER_low_priority_on_russia_if_they_are_losing = {
-	allowed = {
-		tag = GER
-	}
-	enable = {
-		OR = {
-			RUS = {
-				surrender_progress > 0.2
-			}
-			GER = {
-				surrender_progress < 0.1
-			}
-		}
-	}
-	abort = {
-		OR = {
-			surrender_progress > 0.15
-		}
-	}
-	ai_strategy = {
-		type = front_unit_request
-		tag = RUS
-		value = -50
-	}
-}
-
-######################
-#### PREPARATION PHASE
-###################################################
 
 # # Please kill Beligum in time
 GER_rush_on_BEL = {
@@ -126,7 +82,6 @@ GER_rush_on_BEL = {
 			}
 		}
 	}
-
 	abort = {
 		OR = {
 			# We won the world war
@@ -140,7 +95,6 @@ GER_rush_on_BEL = {
 			}
 		}
 	}
-
 	ai_strategy = {
 		type = prepare_for_war
 		id = "BEL"			
@@ -160,22 +114,30 @@ GER_rush_on_BEL = {
 	}
 
 	ai_strategy = {
-		type = front_control
-		tag = BEL
-		priority = 2000
-		ordertype = front
-		execution_type = rush
-		execute_order = yes
+		type = put_unit_buffers
+		ratio = 0.10
+		states = {
+			42
+			793
+			907
+			34
+			6
+			865
+			29
+		}
 	}
 
 	ai_strategy = {
 		type = front_control
-		tag = LUX
+		strategic_region = 5
 		priority = 2000
+		ratio = 0.4
 		ordertype = front
 		execution_type = rush
 		execute_order = yes
+		manual_attack = yes
 	}
+
 }
 
 GER_slowy_beat_russia = {
@@ -201,6 +163,18 @@ GER_slowy_beat_russia = {
 		}
 	}
 
+	ai_strategy = {
+		type = front_unit_request
+		tag = RUS
+		value = -25
+	}
+	
+	ai_strategy = {
+		type = front_unit_request
+		tag = ROM
+		value = -25
+	}
+	
 	abort_when_not_enabled = yes
 
 	ai_strategy = {
@@ -211,80 +185,14 @@ GER_slowy_beat_russia = {
 		ordertype = front
 		execution_type = careful
 		execute_order = yes
+		manual_attack = yes
 	}
 }
 
-GER_big_army_before_ww1 = {
-	allowed = { 
-		original_tag = GER 
-	}
 
-	enable = {
-		has_war = no
-		not = {
-			has_global_flag = great_war_ends
-		}
-		has_army_manpower = {
-			size < 2000000
-		} #2 million
-	}
-	abort_when_not_enabled = yes
-
-	ai_strategy = {
-		type = build_army
-		id = infantry
-		value = 10000
-	}
-
-	ai_strategy = {
-		type = force_build_armies
-		value = 10000
-	}
-
-}
-
-GER_stockpile_less_early_game = {
-	allowed = { 
-		original_tag = GER 
-	}
-
-	enable = {
-		date < 1914.1.1
-	}
-	abort_when_not_enabled = yes
-
-	ai_strategy = {
-		type = equipment_stockpile_surplus_ratio
-		value = -100 # reduce while we build up troops for africa etc
-	}
-}
-
-GER_supply_austria = {
-	allowed = {
-		original_tag = GER
-	}
-	enable = {
-		is_in_faction_with = AUH
-	}
-	abort = {
-		has_global_flag = great_war_ends
-	}
-	ai_strategy = {
-		type = send_volunteers_desire
-		id = AUH
-		value = 200
-	}
-	ai_strategy = {
-		type = support
-		id = AUH
-		value = 50
-	}
-	ai_strategy = {
-		type = send_lend_lease_desire
-		id = AUH
-		value = 400
-	}
-}
+########################
+#	AI secondary division management
+##################
 
 GER_low_priority_on_serbia = {
 	allowed = {
@@ -308,7 +216,33 @@ GER_low_priority_on_serbia = {
 	ai_strategy = {
 		type = front_unit_request
 		tag = SER
-		value = -50
+		value = -100
+	}
+}
+
+GER_low_priority_on_romania = {
+	allowed = {
+		original_tag = GER
+	}
+	enable = {
+		is_in_faction_with = AUH
+		ROM = {
+			has_capitulated = no
+		}
+	}
+	abort = {
+		OR = {
+			ROM = {
+				has_capitulated = yes
+			}
+			AUH = { surrender_progress > 0.20 }	
+			has_war_with = HUN
+		}
+	}
+	ai_strategy = {
+		type = front_unit_request
+		tag = ROM
+		value = -100
 	}
 }
 
@@ -393,16 +327,105 @@ GER_dont_help_TUR = {
 	}
 }
 
+#################
+# below non frontline rules
+#######
+
+
+
+GER_ignore_turnip_winter_effect = {
+	allowed = {
+		tag = GER
+	}
+	enable = {
+		has_idea = ger_famine
+	}
+	abort_when_not_enabled = yes
+	ai_strategy = {
+		type = ignore_army_incompetence
+		value = 50
+	}
+}
+
+GER_big_army_before_ww1 = {
+	allowed = { 
+		original_tag = GER 
+	}
+
+	enable = {
+		has_war = no
+		not = {
+			has_global_flag = great_war_ends
+		}
+		has_army_manpower = {
+			size < 2000000
+		} #2 million
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = build_army
+		id = infantry
+		value = 10000
+	}
+
+	ai_strategy = {
+		type = force_build_armies
+		value = 10000
+	}
+
+}
+
+GER_stockpile_less_early_game = {
+	allowed = { 
+		original_tag = GER 
+	}
+
+	enable = {
+		date < 1914.1.1
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = equipment_stockpile_surplus_ratio
+		value = -100 # reduce while we build up troops for africa etc
+	}
+}
+
+GER_supply_austria = {
+	allowed = {
+		original_tag = GER
+	}
+	enable = {
+		is_in_faction_with = AUH
+	}
+	abort = {
+		has_global_flag = great_war_ends
+	}
+	ai_strategy = {
+		type = send_volunteers_desire
+		id = AUH
+		value = 200
+	}
+	ai_strategy = {
+		type = support
+		id = AUH
+		value = 50
+	}
+	ai_strategy = {
+		type = send_lend_lease_desire
+		id = AUH
+		value = 400
+	}
+}
+
 russian_civil_war_ignore_ai = {
 	allowed = {
 		original_tag = GER
 	}
 	enable = {
 		original_tag = GER
-		OR = {
-			has_global_flag = brest_litovsk
-			has_global_flag = russian_civil_war
-		}
+		has_global_flag = russian_revolution
 		NOT = {
 			has_global_flag = great_war_ends
 		}
@@ -433,6 +456,20 @@ russian_civil_war_ignore_ai = {
 		id = "MOU"
 		value = -500
 	}
+}
+ignore_russian_front_brest_litovsk = {
+	allowed = {
+		original_tag = GER
+	}
+	enable = {
+		original_tag = GER
+		has_global_flag = brest_litovsk
+		NOT = {
+			has_war_with = RUS
+			has_global_flag = great_war_ends
+		}
+	}
+	abort_when_not_enabled = yes
 	ai_strategy = {
 		type = front_unit_request
 		tag = "RUS"
@@ -708,19 +745,6 @@ GER_area_priority = {
 	
 	ai_strategy = {
 		type = area_priority
-		id = africa
-		value = -200 #several units
-	}
-
-	ai_strategy = {
-		type = front_unit_request
-		area = africa
-		value = -200 #several units
-	}
-	
-	
-	ai_strategy = {
-		type = area_priority
 		id = pacific
 		value = -100 #less focus here
 	}
@@ -794,34 +818,6 @@ axis_stay_away_from_the_royal_navy = {
 		type = naval_avoid_region
 		id = 18 #english channel
 		value = 100
-	}
-}
-GER_go_kiautschou_operation = {
-	allowed = {
-		original_tag = GER
-	}
-	enable = {
-		tag = GER
-		has_capitulated = no
-		has_war_with = JAP
-		has_global_flag = kiautschou_mission_fired
-	}
-	abort = {
-		OR = {
-			has_war = no
-			has_capitulated = yes
-			NOT = { has_war_with = JAP }
-			NOT = { controls_state = 745 }
-			NOT = { owns_state = 745 }
-		}
-	}
-	ai_strategy = {
-		type = put_unit_buffers
-		ratio = 0.05
-		states = {
-			745
-		}
-		subtract_fronts_from_need = yes
 	}
 }
 
@@ -1007,33 +1003,10 @@ GER_ignore_colonies_when_ww1 = {
 		}
 	}
 	abort_when_not_enabled = yes
-
+	
 	ai_strategy = {
-		type = garrison_reinforcement_priority
-		value = 9999
-	}
-
-	ai_strategy = {
-		type = build_army
-		id = garrison
-		value = -9999
-	}
-
-	ai_strategy = {
-		type = role_ratio
-		id = garrison
-		value = -9999
-	}
-
-	ai_strategy = {
-		type = front_unit_request
-		area = africa
-		value = -2000
-	}
-	ai_strategy = {
-		type = area_priority
-		id = africa
-		value = -2000
+		type = garrison		
+		value = -500
 	}
 
 	ai_strategy = {
@@ -1057,26 +1030,32 @@ GER_ignore_colonies_when_ww1 = {
 		id = north_america
 		value = -2000
 	}
-
-	ai_strategy = {
-		type = front_unit_request
-		area = asia
-		value = -2000
-	}
-	ai_strategy = {
-		type = area_priority
-		id = asia
-		value = -2000
-	}
-
-	ai_strategy = {
-		type = front_unit_request
-		area = middle_east
-		value = -2000
-	}
-	ai_strategy = {
-		type = area_priority
-		id = middle_east
-		value = -2000
-	}
 }
+
+# THIS IS NOT WORKING
+# GER_mobilization = {
+# 	allowed = {
+# 		original_tag = GER
+# 	}
+# 	enable = {
+# 		has_war = yes
+# 	}
+# 	abort = {
+# 		OR = {
+# 			has_war = no
+# 			has_idea = service_by_requirement
+# 		}	
+# 	}
+
+# 	ai_strategy = {
+# 		type = pp_spend_amount
+# 		id = extensive_conscription
+# 		value = 100
+# 	}
+
+# 	ai_strategy = {
+# 		type = pp_spend_amount
+# 		id = service_by_requirement
+# 		value = 100
+# 	}
+# }

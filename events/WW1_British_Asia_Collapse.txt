@@ -21,6 +21,11 @@ country_event = {
 			has_subject = BHU
 			has_subject = NEP
 			has_subject = SKK
+			has_subject = JOH
+			has_subject = KED
+			has_subject = KEL
+			has_subject = PLS
+			has_subject = TRG
 			owns_state = 746
 		}
 	}
@@ -90,7 +95,7 @@ country_event = {
 			end_puppet = MAL
 			hidden_effect = {
 				MAL = {
-					set_cosmetic_tag = MAL_UK
+					set_cosmetic_tag = MAL_interwar
 				}
 				if = {
 					limit = {
@@ -99,6 +104,36 @@ country_event = {
 					MAL = { transfer_state = 733 }
 				}
 			}
+		}
+		if = {
+			limit = {
+				has_subject = JOH
+			}
+			end_puppet = JOH
+		}
+		if = {
+			limit = {
+				has_subject = KED
+			}
+			end_puppet = KED
+		}
+		if = {
+			limit = {
+				has_subject = KEL
+			}
+			end_puppet = KEL
+		}
+		if = {
+			limit = {
+				has_subject = PLS
+			}
+			end_puppet = PLS
+		}
+		if = {
+			limit = {
+				has_subject = TRG
+			}
+			end_puppet = TRG
 		}
 		if = {
 			limit = {
@@ -173,6 +208,16 @@ country_event = {
 					}
 				}
 				transfer_state = 746
+			}
+		}
+		every_state = {
+			limit = {
+				has_dynamic_modifier = {
+					modifier = per_british_sphere
+				}
+			}
+			remove_dynamic_modifier = {
+				modifier = per_british_sphere
 			}
 		}
 	}
@@ -949,6 +994,60 @@ country_event = {
 				}
 				promote_character = RAJ_sir_charles_townshend
 				add_ideas = standing_alone
+				if = {
+					limit = { NOT = { has_tech = tech_military_police } }
+					set_technology = {
+						tech_military_police = 1
+					}
+				}
+				declare_war_on = {
+					target = RAJ
+					type = annex_everything
+				}
+				division_template = {
+					name = "Loyalist Infantry Division"
+					division_names_group = RAJ_INF_01
+					regiments = {
+						infantry = { x = 0 y = 0 }
+						infantry = { x = 0 y = 1 }
+						infantry = { x = 0 y = 2 }
+						infantry = { x = 1 y = 0 }
+						infantry = { x = 1 y = 1 }
+						infantry = { x = 1 y = 2 }
+					}
+					is_locked = yes
+				}
+				division_template = {
+					name = "Police Division"
+					division_names_group = RAJ_INF_01
+					regiments = {
+						irregular_infantry = { x = 0 y = 0 }
+						irregular_infantry = { x = 0 y = 1 }
+						irregular_infantry = { x = 0 y = 2 }
+						irregular_cavalry = { x = 1 y = 0 }
+						irregular_cavalry = { x = 1 y = 1 }
+					}
+					support = {
+						military_police = { x = 0 y = 0 }
+					}
+					is_locked = yes
+				}
+				every_owned_state = {
+					create_unit = {
+						division = "division_template = \"Loyalist Infantry Division\"	start_experience_factor = 1.0	start_equipment_factor = 1.0"
+						owner = PREV
+						allow_spawning_on_enemy_provs = yes
+						count = 1
+					}
+				}
+				every_owned_state = {
+					create_unit = {
+						division = "division_template = \"Police Division\"	start_experience_factor = 0.3	start_equipment_factor = 0.7"
+						owner = PREV
+						allow_spawning_on_enemy_provs = yes
+						count = 2
+					}
+				}
 			}
 			every_owned_state = {
 				create_unit = {
@@ -980,45 +1079,23 @@ country_event = {
 					allow_spawning_on_enemy_provs = yes
 					count = 2
 				}
-				create_unit = {
-					division = "name = \"Islamist Militia\"	division_template = \"Islamist Militia\"	start_experience_factor = 0.1	start_equipment_factor = 0.3"
-					owner = ROOT
-					allow_spawning_on_enemy_provs = yes
-					count = 1
-				}
 			}
 			add_ideas = RAJ_idea_independence_war
 			add_ideas = standing_alone	
 			set_global_flag = raj_collapse
+			news_event = {
+				id = eng_news.15
+				hours = 3
+			}
 		}
 	}
 	option = {
 		name = britas.6.a
-		news_event = {
-			id = eng_news.15
-			hours = 3
-		}
-		BRJ = {
-			declare_war_on = {
-				target = ROOT
-				type = annex_everything
-			}
-			change_tag_from = ROOT
-		}
+		BRJ = { change_tag_from = ROOT }
 	}
 	option = {
 		name = britas.6.b
 		trigger = { is_ai = no }
-		news_event = {
-			id = eng_news.15
-			hours = 3
-		}
-		BRJ = {
-			declare_war_on = {
-				target = ROOT
-				type = annex_everything
-			}
-		}
 	}
 }
 
@@ -1071,6 +1148,10 @@ country_event = {
 		}
 		set_politics = {
 			ruling_party = fascism
+		}
+		delete_unit_template_and_units = {
+			division_template = "Socialist Militia"
+			disband = no
 		}
 		ai_chance = {
 			factor = 100
@@ -1290,7 +1371,7 @@ country_event = {
 			}
 			set_autonomy = {
 				target = BRJ
-				autonomy_state = atuonomy_dominion
+				autonomy_state = autonomy_dominion
 			}
 			else = {
 				puppet = BRJ
@@ -1355,6 +1436,43 @@ country_event = {
 			activate_mission = ENG_afghanistan_war_timer
 			AFG = {
 				activate_mission = ENG_afghanistan_war_timer
+				add_ideas = AFG_idea_i_hate_mountains
+				if = {
+					limit = {
+						has_army_size = {
+							size < 5
+						}
+					}
+					division_template = {
+						name = "Afghan Tribes"
+						priority = 0
+						regiments = {
+							irregular_infantry = { x = 0 y = 0 }
+							irregular_infantry = { x = 0 y = 1 }
+							irregular_infantry = { x = 1 y = 0 }
+							irregular_infantry = { x = 1 y = 1 }
+							irregular_infantry = { x = 2 y = 0 }
+							irregular_infantry = { x = 2 y = 1 }
+						}
+					}
+					capital_scope = {
+						create_unit = {
+							division = "name = \"Pashtuns\" division_template = \"Afghan Tribes\" start_experience_factor = 0.2"
+							owner = PREV
+							count = 2
+						}
+						create_unit = {
+							division = "name = \"Hazaras\" division_template = \"Afghan Tribes\" start_experience_factor = 0.2"
+							owner = PREV
+							count = 2
+						}
+						create_unit = {
+							division = "name = \"Tadjiks\" division_template = \"Afghan Tribes\" start_experience_factor = 0.2"
+							owner = PREV
+							count = 2
+						}
+					}
+				}
 			}
 		}
 	}
@@ -1391,6 +1509,19 @@ country_event = {
 				is_owned_by = AFG
 			}
 			remove_claim_by = ROOT
+		}
+		hidden_effect = {
+			every_other_country = {
+				limit = {
+					has_war_with = AFG
+					OR = {
+						is_in_faction_with = ROOT
+						is_subject_of = ROOT
+						NOT = { has_war_with = ROOT }
+					}
+				}
+				white_peace = AFG
+			}
 		}
 	}
 }
@@ -1540,6 +1671,14 @@ country_event = {
 			remove_core_of = ROOT
 		}
 		hidden_effect = {
+			set_division_template_lock = {
+				division_template = "Loyalist Infantry Division"
+				is_locked = no
+			}
+			delete_unit_template_and_units = {
+				division_template = "Police Division"
+				disband = yes
+			}
 			JAP = {
 				if = {
 					limit = {

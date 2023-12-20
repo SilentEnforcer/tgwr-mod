@@ -111,6 +111,8 @@ country_event = {
 		}
 		NOT = {
 			has_global_flag = irish_war_of_independence
+			has_active_mission = frankfurt_conference
+			has_active_mission = versallies_conference
 		}
 	}
 	mean_time_to_happen = {
@@ -326,6 +328,8 @@ country_event = {
 				type = annex_everything
 				target = IRE
 			}
+			activate_mission = IRE_irish_independence_war_timer
+			IRE = { activate_mission = IRE_irish_independence_war_timer }
 		}
 	}
 }
@@ -1453,7 +1457,7 @@ country_event = {
 	id = ww1_england.36
 	title = ww1_england.36.t
 	desc = ww1_england.36.d
-	picture = GFX_report_event_royal_parade
+	picture = GFX_report_event_gathering_protest
 	fire_only_once = yes
 	trigger = {
 		original_tag = ENG
@@ -1466,24 +1470,30 @@ country_event = {
 			has_global_flag = frankfurt_treaty
 			has_global_flag = versallies_treaty
 		}
-		has_war = no
+		has_civil_war = no
+		NOT = {
+			any_other_country = {
+				original_tag = ROOT
+			}
+		}
 	}
 	mean_time_to_happen = {
-		days = 250
+		days = 140
 	}
 	option = {
 		name = ww1_england.36.a
-		add_stability = -0.35
-		add_war_support = -0.2
-		add_popularity = {
-			ideology = communism
-			popularity = 0.2
-		}
+		add_ideas = ENG_general_strike
 		hidden_effect = {
-			country_event = {
-				id = ww1_england.37
-				days = 16
+			add_stability = -0.35
+			add_war_support = -0.2
+			add_popularity = {
+				ideology = communism
+				popularity = 0.2
 			}
+			# country_event = {
+			# 	id = ww1_england.37
+			# 	days = 16
+			# }
 			set_party_name = {
 				ideology = communism
 				long_name = ENG_tuc_long
@@ -1512,11 +1522,19 @@ country_event = {
 					name = ENG_white_army
 				}
 			}
-			add_ideas = standing_alone	
-			
-			set_rule = {
-				can_join_factions = no
-				can_create_factions = no
+			if = {
+				limit = {
+					OR = {
+						has_subject = AST
+						is_in_faction_with = AST
+					}
+				}
+				AST = {
+					country_event = {
+						id = ww1_australia.24
+						days = 14
+					}
+				}
 			}
 		}
 	}
@@ -1529,7 +1547,43 @@ country_event = {
 	desc = ww1_england.37.d
 	picture = GFX_report_event_yugoslavia_partisans
 	fire_only_once = yes
-	is_triggered_only = yes
+	trigger = {
+		original_tag = ENG
+		is_subject = no
+		NOT = {
+			has_government = communism
+		}
+		has_country_flag = great_war_loser
+		OR = {
+			has_global_flag = frankfurt_treaty
+			has_global_flag = versallies_treaty
+		}
+		has_civil_war = no
+		NOT = {
+			any_other_country = {
+				original_tag = ROOT
+			}
+		}
+		has_idea = ENG_general_strike
+	}
+	mean_time_to_happen = {
+		days = 450
+		modifier = {
+			factor = 0.5
+			any_other_country = {
+				has_government = communism
+				is_major = yes
+			}
+		}
+		modifier = {
+			factor = 0.5
+			has_global_flag = french_civil_war
+		}
+		modifier = {
+			factor = 0.5
+			AST = { has_civil_war = yes }
+		}
+	}
 	option = {
 		name = ww1_england.37.a
 		ai_chance = {
@@ -1548,57 +1602,50 @@ country_event = {
 				has_government = fascism
 			}
 		}
-		add_popularity = {
-			ideology = communism
-			popularity = 0.25
-		}
 		set_politics = {
 			ruling_party = communism
 			elections_allowed = no
 		}
 		set_cosmetic_tag = UOB
-		remove_ideas = standing_alone
-		every_country = {
-			limit = {
-				is_subject_of = ENG
-			}
-			country_event = {
-				id = ww1_england.33
-			}
-		}
-		every_other_country = {
-			limit = {
-				OR = {
-					tag = CAN
-					tag = AST
-					tag = NZL
-					tag = SAF
-					tag = IRE
-					tag = NIR
-				}
-				NOT = {
-					has_government = communism
-					has_country_leader_ideology = national_syndicalism
-				}
-			}
-			add_timed_idea = {
-				idea = ENG_idea_influence_of_revolution
-				days = 365
-			}
-		}
-		EGY = {
-			hidden_effect = {
-				country_lock_all_division_template = no
-				add_ideas = ENG_british_officers_independent_egypt
-			}
-		}
-		CAN = {
-			country_event = {
-				id = canada.69
-				days = 20
-			}	
-		}
 		hidden_effect = {
+			add_popularity = {
+				ideology = communism
+				popularity = 0.25
+			}
+			every_country = {
+				limit = {
+					is_subject_of = ROOT
+				}
+				country_event = {
+					id = ww1_england.33
+				}
+			}
+			every_other_country = {
+				limit = {
+					OR = {
+						tag = CAN
+						tag = AST
+						tag = NZL
+						tag = SAF
+						tag = IRE
+						tag = NIR
+					}
+					NOT = {
+						has_government = communism
+						has_country_leader_ideology = national_syndicalism
+					}
+				}
+				add_timed_idea = {
+					idea = ENG_idea_influence_of_revolution
+					days = 365
+				}
+			}
+			CAN = {
+				country_event = {
+					id = canada.69
+					days = 2
+				}	
+			}
 			load_focus_tree = uk_iw_focus
 			set_country_flag = ENG_socialist_britain_flag
 			ENG_clement_attlee = {
@@ -1670,94 +1717,7 @@ country_event = {
 					}
 				}
 			}
-			if = {
-				limit = {
-					any_country = {
-						original_tag = ENG
-						owns_state = 558
-					}
-				}
-				if = {
-					limit = {
-						FRA = {
-							exists = yes
-							has_country_flag = great_war_winner
-						}
-					}
-					FRA = {
-						transfer_state = 558
-					}
-				}
-				if = {
-					limit = {
-						GER = {
-							exists = yes
-							has_country_flag = great_war_winner
-						}
-					}
-					GER = {
-						transfer_state = 558
-					}
-				}
-				if = {
-					limit = {
-						GER = {
-							exists = no
-						}
-						AUH = {
-							exists = yes
-							has_country_flag = great_war_winner
-						}
-					}
-					AUH = {
-						transfer_state = 558
-					}
-				}
-			}
-			if = {
-				limit = {
-					any_country = {
-						original_tag = ENG
-						owns_state = 274
-					}
-				}
-				if = {
-					limit = {
-						FRA = {
-							exists = yes
-							has_country_flag = great_war_winner
-						}
-					}
-					FRA = {
-						transfer_state = 274
-					}
-				}
-				if = {
-					limit = {
-						GER = {
-							exists = yes
-							has_country_flag = great_war_winner
-						}
-					}
-					GER = {
-						transfer_state = 274
-					}
-				}
-				if = {
-					limit = {
-						GER = {
-							exists = no
-						}
-						AUH = {
-							exists = yes
-							has_country_flag = great_war_winner
-						}
-					}
-					AUH = {
-						transfer_state = 274
-					}
-				}
-			}	
+			release_british_cw_territories = yes
 		}
 	}
 	option = {
@@ -1765,22 +1725,22 @@ country_event = {
 		ai_chance = {
 			factor = 90
 		}
-		add_popularity = {
-			ideology = fascism
-			popularity = 0.15
-		}
-		add_popularity = {
-			ideology = communism
-			popularity = 0.15
-		}
 		set_politics = {
 			ruling_party = fascism
 			elections_allowed = no
 		}
 		hidden_effect = {
+			add_popularity = {
+				ideology = fascism
+				popularity = 0.15
+			}
+			add_popularity = {
+				ideology = communism
+				popularity = 0.15
+			}
 			country_event = {
 				id = ww1_england.38
-				days = 13
+				days = 70
 			}
 		}
 	}
@@ -1789,6 +1749,7 @@ country_event = {
 		name = ww1_england.37.c
 		trigger = {
 			is_ai = no
+			is_historical_focus_on = no
 		}
 		hidden_effect = {
 			set_popularities = {
@@ -1812,6 +1773,7 @@ country_event = {
 				long_name = "The Grand Tour - the Hamster"
 				name = "The Grand Tour (H)" 
 			}
+			remove_ideas = ENG_general_strike
 		}
 		create_country_leader = {
 			name = "James May"
@@ -1841,7 +1803,7 @@ country_event = {
 		}
 		create_field_marshal = {
 			name = "Jeremy Clarkson"
-			portrait_path = "gfx/leaders/ENG/ENG_top_gear_clarkson.png.dds"
+			picture = "gfx/leaders/ENG/ENG_top_gear_clarkson.png.dds"
 			traits = { harsh_leader brilliant_strategist offensive_doctrine substance_abuser combined_arms_expert panzer_leader media_personality }
 			skill = 4
 			attack_skill = 4
@@ -1899,10 +1861,9 @@ country_event = {
 				id = eng_news.3
 			}
 		}
-		check_communism_civil_war_popularity = yes
 		start_civil_war = {
 			ideology = communism
-			size = civil_war_size_var
+			size = 0.5
 			states = {
 				130
 				122
@@ -1957,11 +1918,7 @@ country_event = {
 				set_country_flag = british_white_civil_war
 				set_country_flag = ENG_socialist_britain_flag
 				set_country_flag = great_war_loser
-				set_rule = {
-					#To prevent joining Red Guard faction, jesus
-					can_join_factions = no
-					can_create_factions = no
-				}
+				add_ideas = ENG_red_guards_cw
 				every_unit_leader = {
 					limit = {
 						OR = {
@@ -1993,6 +1950,48 @@ country_event = {
 				set_nationality = UOB
 			}
 			UOB = {
+				division_template = {
+					name = "Red Guards"
+					is_locked = yes
+					priority = 0
+					division_names_group = ENG_DEM_02
+					regiments = {
+						militia = { x = 0 y = 0 }
+						militia = { x = 0 y = 1 }
+						militia = { x = 0 y = 2 }
+						militia = { x = 1 y = 0 }
+						militia = { x = 1 y = 1 }
+						militia = { x = 1 y = 2 }
+						militia = { x = 2 y = 0 }
+						militia = { x = 2 y = 1 }
+						militia = { x = 2 y = 2 }
+						militia = { x = 2 y = 3 }
+					}
+				}
+				random_controlled_state = {
+					prioritize = { 132 }
+					create_unit = {
+						division = "division_template = \"Red Guards\" start_experience_factor = 0.0"
+						owner = ROOT
+						count = 5
+					}
+				}
+				random_controlled_state = {
+					prioritize = { 130 }
+					create_unit = {
+						division = "division_template = \"Red Guards\" start_experience_factor = 0.0"
+						owner = ROOT
+						count = 2
+					}
+				}
+				random_controlled_state = {
+					prioritize = { 131 }
+					create_unit = {
+						division = "division_template = \"Red Guards\" start_experience_factor = 0.0"
+						owner = ROOT
+						count = 2
+					}
+				}
 				ENG_george_lansbury = {
 					add_country_leader_role = {
 						promote_leader = yes
@@ -2041,9 +2040,18 @@ country_event = {
 						logistics_skill = 4
 					}
 				}
-				remove_ideas = stiff_upper_lip
-				remove_ideas = ENG_staff
-				add_ideas = ENG_red_guard
+				every_other_country = {
+					limit = {
+						has_country_flag = great_war_winner
+						NOT = { has_government = communism }
+					}
+					PREV = {
+						add_opinion_modifier = {
+							target = PREV
+							modifier = great_war_enemy
+						}
+					}
+				}
 			}
 			set_country_flag = english_civil_war
 			set_country_flag = ENG_nationalist_britain_flag
@@ -2066,117 +2074,30 @@ country_event = {
 				ideology = fascism
 				popularity = 0.32
 			}
-			transfer_units_fraction = {
-				target = UOB
-				size = 0.37
-				stockpile_ratio = 0.37
-				army_ratio = 0.4
-				navy_ratio = 0
-				air_ratio = 0.1
-				keep_unit_leaders_trigger = {
-					OR = {
-						has_trait = trait_royalist
-						has_trait = trait_royal
-						has_trait = old_guard
-						has_trait = politically_connected
-						has_trait = old_guard_navy
-						has_trait = trait_royal
-						has_trait = harsh_leader
-					}
-				}
+			# transfer_units_fraction = {
+			# 	target = UOB
+			# 	size = 0.27
+			# 	stockpile_ratio = 0.37
+			# 	army_ratio = 0.2
+			# 	navy_ratio = 0
+			# 	air_ratio = 0.1
+			# 	keep_unit_leaders_trigger = {
+			# 		OR = {
+			# 			has_trait = trait_royalist
+			# 			has_trait = trait_royal
+			# 			has_trait = old_guard
+			# 			has_trait = politically_connected
+			# 			has_trait = old_guard_navy
+			# 			has_trait = trait_royal
+			# 			has_trait = harsh_leader
+			# 		}
+			# 	}
+			# }
+			swap_ideas = {
+				remove_idea = ENG_general_strike
+				add_idea = ENG_general_strike_cw
 			}
-			add_timed_idea = {
-				idea = strikes_3
-				days = 150
-			}
-			if = {
-				limit = {
-					any_country = {
-						original_tag = ENG
-						owns_state = 558
-					}
-				}
-				if = {
-					limit = {
-						FRA = {
-							exists = yes
-							has_country_flag = great_war_winner
-						}
-					}
-					FRA = {
-						transfer_state = 558
-					}
-				}
-				if = {
-					limit = {
-						GER = {
-							exists = yes
-							has_country_flag = great_war_winner
-						}
-					}
-					GER = {
-						transfer_state = 558
-					}
-				}
-				if = {
-					limit = {
-						GER = {
-							exists = no
-						}
-						AUH = {
-							exists = yes
-							has_country_flag = great_war_winner
-						}
-					}
-					AUH = {
-						transfer_state = 558
-					}
-				}
-			}
-			if = {
-				limit = {
-					any_country = {
-						original_tag = ENG
-						owns_state = 274
-					}
-				}
-				if = {
-					limit = {
-						FRA = {
-							exists = yes
-							has_country_flag = great_war_winner
-						}
-					}
-					FRA = {
-						transfer_state = 274
-					}
-				}
-				if = {
-					limit = {
-						GER = {
-							exists = yes
-							has_country_flag = great_war_winner
-						}
-					}
-					GER = {
-						transfer_state = 274
-					}
-				}
-				if = {
-					limit = {
-						GER = {
-							exists = no
-						}
-						AUH = {
-							exists = yes
-							has_country_flag = great_war_winner
-						}
-					}
-					AUH = {
-						transfer_state = 274
-					}
-				}
-			}
+			release_british_cw_territories = yes
 			every_other_country = {
 				limit = {
 					OR = {
@@ -2247,13 +2168,18 @@ country_event = {
 		has_civil_war = no
 	}
 	mean_time_to_happen = {
-		days = 31
+		days = 70
 	}
 	immediate = {
 		hidden_effect = {
-			country_event = {
-				id = ww1_england.151
-				days = 85
+			if = {
+				limit = {
+					is_historical_focus_on = no
+				}
+				country_event = {
+					id = ww1_england.151
+					days = 85
+				}
 			}
 			load_focus_tree = uk_iw_focus
 			ENG_oswald_mosley = {
@@ -2864,12 +2790,12 @@ country_event = {
 				}
 				if = {
 					limit = {
-						827 = { is_core_of = DAR }
+						has_country_flag = ENG_darfur_pacified
 					}
-					827 = { transfer_state_to = DAR }
+					827 = { transfer_state_to = EGY }
 				}
 				else = {
-					827 = { transfer_state_to = EGY }
+					827 = { transfer_state_to = DAR }
 				}
 			}
 			else = {
@@ -3818,15 +3744,33 @@ country_event = {
 						owns_or_subject_of = yes
 					}
 				}
+				542 = { transfer_state_to = BOT }
+				release = BOT
+				end_puppet = BOT
+				# random_other_country = {
+				# 	limit = {
+				# 		owns_state = 681
+				# 		OR = {
+				# 			NOT = { has_country_flag = great_war_loser }
+				# 			original_tag = SAF
+				# 		}
+				# 	}
+				# 	transfer_state = 542
+				# }
+			}
+
+			# Chinde
+			if = {
+				limit = {
+					924 = {
+						owns_or_subject_of = yes
+					}
+				}
 				random_other_country = {
 					limit = {
-						owns_state = 681
-						OR = {
-							NOT = { has_country_flag = great_war_loser }
-							original_tag = SAF
-						}
+						owns_state = 544
 					}
-					transfer_state = 542
+					transfer_state = 924
 				}
 			}
 
@@ -3849,11 +3793,56 @@ country_event = {
 					start_civil_war = {
 						ideology = fascism
 						size = 0.2
+						navy_ratio = 0
 						states = {
-							275
+							275 719
 						}
 						keep_unit_leaders_trigger = {
 							has_trait = trait_royalist
+						}
+						PREV = {
+							SAF_manie_maritz = {
+								set_nationality = PREV.PREV
+							}
+							PREV = { promote_character = SAF_manie_maritz }
+							if = {
+								limit = {
+									has_character = SAF_christiaan_de_wet
+								}
+								SAF_christiaan_de_wet = {
+									set_nationality = PREV.PREV
+								}
+							}
+							if = {
+								limit = {
+									has_character = SAF_jopie_fourie
+								}
+								SAF_jopie_fourie = {
+									set_nationality = PREV.PREV
+								}
+							}
+							if = {
+								limit = {
+									has_character = SAF_christiaan_beyers
+								}
+								SAF_christiaan_beyers = {
+									set_nationality = PREV.PREV
+								}
+							}
+							if = {
+								limit = {
+									has_character = SAF_koos_de_larey
+								}
+								SAF_koos_de_larey = {
+									set_nationality = PREV.PREV
+								}
+							}
+						}
+						if = {
+							limit = {
+								has_character = SAF_christiaan_de_wet
+							}
+							promote_character = SAF_christiaan_de_wet
 						}
 					}
 					if = {
@@ -3868,15 +3857,38 @@ country_event = {
 							target = ZIM
 							type = annex_everything
 						}
+						random_other_country = {
+							limit = {
+								original_tag = SAF
+								has_government = fascism
+							}
+							declare_war_on = {
+								target = ZIM
+								type = annex_everything
+							}
+						}
 					}
-					random_other_country = {
+					if = {
 						limit = {
-							original_tag = SAF
-							has_government = fascism
+							BOT = {
+								exists = yes
+								is_subject = no
+								NOT = { has_country_flag = great_war_winner }
+							}
 						}
 						declare_war_on = {
-							target = ZIM
+							target = BOT
 							type = annex_everything
+						}
+						random_other_country = {
+							limit = {
+								original_tag = SAF
+								has_government = fascism
+							}
+							declare_war_on = {
+								target = BOT
+								type = annex_everything
+							}
 						}
 					}
 				}
@@ -5158,69 +5170,7 @@ country_event = {
 	}
 }
 
-#if Japan is Germany aligned and Britain wins, make Japan 'occupied'
-news_event = {
-	id = ww1_england.108
-	title = ww1_england.108.t
-	desc = ww1_england.108.d
-	picture = GFX_report_event_generic_read_write
-	major = yes
-	fire_only_once = yes
-	trigger = {
-		ENG = {
-			has_war = no
-			has_country_flag = great_war_winner
-			has_country_flag = british_expedition_on_japs
-		}
-		JAP = {
-			has_war = no
-			has_country_flag = great_war_loser
-		}
-		GER = {
-			has_war = no
-			has_country_flag = great_war_loser
-		}
-		has_global_flag = versallies_treaty
-		NOT = {
-			has_global_flag = japanese_puppet_of_britain_lol_based
-		}
-	}
-	immediate = {
-		hidden_effect = {
-			set_global_flag = japanese_puppet_of_britain_lol_based
-		}
-	}
-	option = {
-		name = ww1_england.108.a
-		trigger = {
-			original_tag = ENG
-		}
-		if = {
-			limit = {
-				has_dlc = "Man the Guns"
-			}
-			ENG = {
-				set_autonomy = {
-					target = JAP
-					autonomous_state = autonomy_supervised_state
-					freedom_level = 0.9
-				}
-			}
-			else = {
-				puppet = JAP
-			}
-		}
-	}
-	option = {
-		name = ww1_england.108.b
-		trigger = {
-			NOT = {
-				original_tag = ENG
-			}
-		}
-		###
-	}
-}
+# ww1_england.108
 
 #Quebec revolts
 country_event = {
@@ -7098,7 +7048,10 @@ country_event = {
 	immediate = {
 		hidden_effect = {
 			set_country_flag = scottish_independence_war_based
-			release = SCO
+			every_owned_state = {
+				limit = { is_core_of = SCO }
+				transfer_state_to = SCO
+			}
 			declare_war_on = {
 				target = SCO
 				type = annex_everything
@@ -7106,51 +7059,24 @@ country_event = {
 			set_province_controller = 3273
 			division_template = {
 				name = "Red Militia"
+				division_names_group = ENG_DEM_02
 				regiments = {
-					militia = {
-						x = 0
-						y = 0
-					}
-					militia = {
-						x = 0
-						y = 1
-					}
-					militia = {
-						x = 0
-						y = 2
-					}
-					cavalry = {
-						x = 1
-						y = 0
-					}
-					militia = {
-						x = 2
-						y = 0
-					}
-					militia = {
-						x = 2
-						y = 1
-					}
-					militia = {
-						x = 3
-						y = 0
-					}
-					militia = {
-						x = 3
-						y = 1
-					}
+					militia = { x = 0 y = 0 }
+					militia = { x = 0 y = 1 }
+					militia = { x = 0 y = 2 }
+					cavalry = { x = 1 y = 0 }
+					militia = { x = 2 y = 0 }
+					militia = { x = 2 y = 1 }
+					militia = { x = 3 y = 0 }
+					militia = { x = 0 y = 1 }
 				}
 			}
 			133 = {
 				create_unit = {
 					division = "name = \"Red Clydeside\" division_template = \"Red Militia\" start_experience_factor = 0.2"
-					owner = ENG
+					owner = ROOT
 				}
 			}
-			add_state_core = 133
-			add_state_core = 121
-			add_state_core = 136
-			add_state_core = 120
 			SCO = {
 				add_ideas = SCO_scotland_forever_idea
 				set_politics = {
@@ -7163,39 +7089,16 @@ country_event = {
 				}
 				division_template = {
 					name = "Neo-Highlanders"
+					division_names_group = ENG_DEM_01
 					regiments = {
-						militia = {
-							x = 0
-							y = 0
-						}
-						militia = {
-							x = 0
-							y = 1
-						}
-						militia = {
-							x = 0
-							y = 2
-						}
-						cavalry = {
-							x = 1
-							y = 0
-						}
-						militia = {
-							x = 2
-							y = 0
-						}
-						militia = {
-							x = 2
-							y = 1
-						}
-						militia = {
-							x = 3
-							y = 0
-						}
-						militia = {
-							x = 3
-							y = 1
-						}
+						militia = { x = 0 y = 0 }
+						militia = { x = 0 y = 1 }
+						militia = { x = 0 y = 2 }
+						cavalry = { x = 1 y = 0 }
+						militia = { x = 2 y = 0 }
+						militia = { x = 2 y = 1 }
+						militia = { x = 3 y = 0 }
+						militia = { x = 0 y = 1 }
 					}
 				}
 				121 = {
@@ -8202,6 +8105,7 @@ country_event = {
 			}
 		}
 		AST = {
+			set_country_flag = AST_australasia
 			set_cosmetic_tag = AST_australasia
 			annex_country = {
 				target = NZL
@@ -8988,26 +8892,12 @@ country_event = {
 	trigger = {
 		tag = ENG
 		owns_state = 827
-		
 	}
 	immediate = {
 		hidden_effect = {
-			if = {
-				limit = {
-					is_ai = no
-				}
-				SUD = {
-					add_state_core = 827
-				}	
-				DAR = {
-					remove_state_core = 827
-				}
-				else = {
-					set_country_flag = ENG_pacify_darfur
-					827 = {
-						set_border_war = yes
-					}	
-				}			
+			set_country_flag = ENG_pacify_darfur
+			827 = {
+				set_border_war = yes
 			}
 		}
 	}
@@ -9035,19 +8925,26 @@ country_event = {
 			set_country_flag = ENG_darfur_pacified
 			827 = {
 				set_border_war = no
+				add_core_of = SUD
+				remove_core_of = DAR
 			}
-			SUD = {
-				add_state_core = 827
-			}
-			DAR = {
-				remove_state_core = 827			
+			random_country = {
+				limit = {
+					owns_state = 549
+					OR = {
+						tag = ROOT
+						is_subject_of = ROOT
+					}
+				}
+				transfer_state = 827
 			}
 		}
 	}
 	option = {
 		name = ww1_england.191.a
 		DAR = {
-			kill_ideology_leader = neutrality
+			remove_state_core = 827
+			retire_character = DAR_ali_dinar
 		}
 	}
 }
@@ -10005,31 +9902,7 @@ country_event = {
 	}
 }
 
-# Be sure Japan is invaded
-country_event = {
-	id = ww1_england.216
-	hidden = yes
-	trigger = {
-		tag = ENG
-		has_global_flag = kis_war
-		NOT = {
-			has_global_flag = great_war_ends
-		}
-		JAP = {
-			has_war_with = PREV
-			is_in_faction_with = GER
-			has_capitulated = yes #is this meant to be no? will leave as is for now.
-		}
-		any_controlled_state = {
-			is_core_of = JAP
-		}
-		has_capitulated = no
-	}
-	fire_only_once = yes
-	immediate = {
-		set_country_flag = british_expedition_on_japs
-	}
-}
+# ww1_england.216
 
 #shell crisis of 1915!
 country_event = {
@@ -12280,5 +12153,32 @@ country_event = {
 			ideology = fascism
 			popularity = 0.15
 		}
+	}
+}
+
+# Lease of Chinde Cancelled
+country_event = {
+	id = ww1_england.250
+	title = ww1_england.250.t
+	desc = ww1_england.250.d
+	picture = GFX_report_event_generic_peaceful_annexation
+	is_triggered_only = yes
+	option = {
+		name = ww1_england.250.a
+		transfer_state = 924
+	}
+}
+
+# Notify Darfur
+country_event = {
+	id = ww1_england.251
+	title = ww1_england.251.t
+	desc = ww1_england.251.d
+	picture = GFX_report_event_spr_army_of_africa
+	is_triggered_only = yes
+	option = {
+		name = ww1_england.251.a
+		add_state_claim = 827
+		unlock_decision_tooltip = ENG_darfur_expedition
 	}
 }
