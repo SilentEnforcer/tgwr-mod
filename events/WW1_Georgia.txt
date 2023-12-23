@@ -316,19 +316,28 @@ country_event = {
 	picture = GFX_report_event_generic_parliament
 	trigger = {
 		tag = GEO
-		has_global_flag = brest_litovsk_finished
 		has_cosmetic_tag = GEO_TSCN
 		NOT = {
 			has_global_flag = caucasus_collapsed
 		}
 		OR = {
-			surrender_progress > 0.5
+			surrender_progress > 0.3
 			any_enemy_country = {
 				original_tag = TUR
 			}
 		}
 	}
-	mean_time_to_happen = { days = 0 }
+	mean_time_to_happen = {
+		days = 34
+		modifier = {
+			factor = 0
+			surrender_progress > 0.5
+		}
+		modifier = {
+			factor = 0
+			has_global_flag = brest_litovsk_finished
+		}
+	}
 	immediate = {
 		hidden_effect = {
 			set_global_flag = caucasus_collapsed
@@ -445,6 +454,20 @@ country_event = {
 				promote_character = authoritarian_democracy
 				promote_character = socialism
 			}
+			if = {
+				limit = {
+					has_global_flag = kis_war
+					NOT = { has_global_flag = great_war_ends }
+				}
+				# to make sure they wont surrender and call vanilla peace
+				# only affects when in the great war as you see
+				# with batum they anyway leaves
+				FRA = {
+					add_to_faction = ROOT
+					add_to_faction = ARM
+					add_to_faction = AZR
+				}
+			}
 			every_other_country = {
 				limit = {
 					has_war_with = ROOT
@@ -463,14 +486,36 @@ country_event = {
 					}
 				}
 			}
-			random_other_country = {
+			# call the treaty of batum
+			if = {
 				limit = {
-					original_tag = TUR
-					has_war_with = ROOT
+					any_enemy_country = {
+						original_tag = TUR
+					}
 				}
-				country_event = {
-					id = ww1_ottoman.112
-					hours = 0
+				random_other_country = {
+					limit = {
+						original_tag = TUR
+						has_war_with = ROOT
+					}
+					country_event = {
+						id = ww1_ottoman.112
+						days = 1
+					}
+				}
+			}
+			# rare case but what if there is no ottomans but still in war
+			else = {
+				every_country = {
+					limit = {
+						has_country_flag = post_transcaucasia
+					}
+					every_enemy_country = {
+						limit = {
+							NOT = { is_neighbor_of = PREV }
+						}
+						white_peace = PREV
+					}
 				}
 			}
 		}
