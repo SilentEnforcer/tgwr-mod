@@ -13,6 +13,12 @@ country_event = {
 			idea = war_of_liberation
 			days = 140
 		}
+		GRE = {
+			add_timed_idea = {
+				idea = gre_naval_supremacy_idea
+				days = 140
+			}
+		}
 		add_ai_strategy = {
 			type = conquer
 			id = TUR
@@ -54,6 +60,19 @@ news_event = {
 	major = yes
 	option = {
 		name = ww1_firstbalkan.2.a
+		if = {
+			limit = {
+				has_game_rule = {
+					rule = rule_superevent
+					option = DEFAULT
+				}
+				is_ai = no
+			}
+			hidden_effect = {
+				play_song = "SE_balkan_war_1"
+				set_country_flag = SE_balkan_war_1
+			}
+		}
 	}
 }
 
@@ -65,6 +84,7 @@ country_event = {
 	picture = GFX_report_event_albanian_uprising
 	fire_only_once = yes
 	trigger = {
+		tag = TUR
 		NOT = {
 			country_exists = ALB
 		}
@@ -78,7 +98,7 @@ country_event = {
 	immediate = {
 		hidden_effect = {
 			ALB = {
-				add_country_leader_trait = standing_alone
+				add_ideas = standing_alone	
 				# what if balkan league is failing? the leader would be changed
 				# add_ai_strategy = {
 				# 	type = alliance
@@ -126,9 +146,11 @@ country_event = {
 	}
 	option = {
 		name = ww1_firstbalkan.3.b
-		declare_war_on = {
-			target = ALB
-			type = annex_everything
+		ALB = {
+			declare_war_on = {
+				target = ROOT
+				type = independence_wargoal
+			}
 		}
 		ai_chance = {
 			base = 5
@@ -143,56 +165,47 @@ country_event = {
 	desc = ww1_firstbalkan.4.d
 	picture = GFX_report_event_generic_conference
 	is_triggered_only = yes
-	option = {
-		name = ww1_firstbalkan.4.a
-		if = {
-			limit = {
-				NOT = {
-					has_global_flag = kis_firstbalkanwar_victory
-				}
-			}
-			set_global_flag = kis_firstbalkanwar_victory
-			white_peace = FROM
-			hidden_effect = {
-				every_other_country = {
-					limit = {
-						is_in_faction_with = ROOT
+	immediate = {
+		hidden_effect = {
+			#if albania is ottoman puppet
+			every_other_country = {
+				limit = {
+					is_subject_of = TUR
+					capital_scope = {
+						is_on_continent = europe
 					}
-					set_country_flag = BW1_winner
-					white_peace = FROM
-					#activate_mission = london_conference
-					country_event = ww1_firstbalkan.4
+				}
+				set_country_flag = BW1_loser
+				white_peace = BLL
+				set_politics = {
+					ruling_party = democratic
+					elections_allowed = yes
+					
 				}
 				if = {
 					limit = {
-						FROM = {
-							has_war_with = ALB
+						tag = ALB
+					}
+					TUR = {
+						country_event = {
+							id = ww1_albania.28
+							days = 4
 						}
-					}
-					FROM = {
-						white_peace = ALB
-					}
-					ALB = {
-						remove_country_leader_trait = standing_alone
+						
 					}
 				}
 			}
-		}
-		custom_effect_tooltip = bw1_end_tooltip
-	}
-}
-
-#london conference 
-news_event = {
-	id = ww1_firstbalkan.5
-	title = ww1_firstbalkan.5.t
-	desc = ww1_firstbalkan.5.d
-	picture = EVENT_hoi4tgw_first_balkan_war_end
-	major = yes
-	is_triggered_only = yes
-	fire_for_sender = yes
-	immediate = {
-		hidden_effect = {
+			if = {
+				limit = {
+					ALB = {
+						has_country_flag = BW1_loser
+						controls_state = 44
+					}
+				}
+				44 = {
+					remove_claim_by = SER	# if albania held albania, then they didnt losed it
+				}
+			}
 			every_country = {
 				limit = {
 					has_country_flag = BW1_winner
@@ -208,7 +221,13 @@ news_event = {
 								OWNER = {
 									has_country_flag = BW1_winner
 								}
-								is_owned_by = TUR
+								OWNER = {
+									OR = {
+										tag = TUR
+										is_subject_of = TUR
+										has_country_flag = BW1_loser
+									}
+								}
 							}
 							OR = {
 								state = 759
@@ -233,11 +252,16 @@ news_event = {
 					}
 					every_state = {
 						limit = {
-							is_owned_by = TUR
+							OWNER = {
+								OR = {
+									tag = TUR
+									is_subject_of = TUR
+									has_country_flag = BW1_loser
+								}
+							}
 							OR = {
-								state = 44
-								#in case when ottomans surrender too early, vlore included
-								state = 871
+								state = 106
+								state = 203
 								is_core_of = SER
 								is_claimed_by = SER
 							}
@@ -252,9 +276,24 @@ news_event = {
 					}
 					every_state = {
 						limit = {
-							is_owned_by = TUR
-							is_core_of = GRE
-							region = 202
+							OWNER = {
+								OR = {
+									tag = TUR
+									is_subject_of = TUR
+									has_country_flag = BW1_loser
+								}
+							}
+							OR = {
+								AND = {
+									region = 202
+									is_core_of = GRE
+								}
+								state = 758
+								state = 826
+								state = 345
+								state = 731
+								state = 803
+							}
 						}
 						transfer_state_to = PREV
 					}
@@ -262,7 +301,13 @@ news_event = {
 				##bonus for bulgaria
 				every_state = {
 					limit = {
-						is_owned_by = TUR
+						OWNER = {
+							OR = {
+								tag = TUR
+								is_subject_of = TUR
+								has_country_flag = BW1_loser
+							}
+						}
 						OR = {
 							is_claimed_by = BUL
 							is_core_of = BUL
@@ -280,7 +325,13 @@ news_event = {
 					}
 					every_state = {
 						limit = {
-							is_owned_by = TUR
+							OWNER = {
+								OR = {
+									tag = TUR
+									is_subject_of = TUR
+									has_country_flag = BW1_loser
+								}
+							}
 							OR = {
 								is_core_of = MNT
 								state = 870
@@ -291,7 +342,13 @@ news_event = {
 				}
 				every_state = {
 					limit = {
-						is_owned_by = TUR
+						OWNER = {
+							OR = {
+								tag = TUR
+								is_subject_of = TUR
+								has_country_flag = BW1_loser
+							}
+						}
 						is_core_of = PREV
 						is_claimed_by = PREV
 						NOT = {
@@ -306,19 +363,101 @@ news_event = {
 						NOT = {
 							has_global_flag = autonomous_macedonia
 						}
-						is_owned_by = TUR
+						OWNER = {
+							OR = {
+								tag = TUR
+								is_subject_of = TUR
+								has_country_flag = BW1_loser
+							}
+						}
 						is_core_of = MAC
 						is_claimed_by = PREV
 					}
 					transfer_state_to = PREV
 				}
+				every_state = {
+					limit = {
+						OR = {
+							is_claimed_by = TUR
+							is_core_of = TUR
+							region = 26
+							region = 24
+							region = 25
+							state = 182
+						}
+						NOT = {
+							is_owned_by = TUR
+							state = 756
+							state = 200
+							state = 757
+							state = 451
+							state = 731
+							state = 345
+						}				
+					}
+					remove_core_of = TUR
+					remove_claim_by = TUR
+				}	
 			}
-			SER = { #for Serbian theiving 
-				remove_state_core = 106
+			SER = {
+				#for Serbian theiving 
 				remove_state_core = 203
-			}	
+			}
+			TUR = {
+				end_puppet = JBS
+			}
 		}
 	}
+	option = {
+		name = ww1_firstbalkan.4.a
+		if = {
+			limit = {
+				NOT = {
+					has_global_flag = kis_firstbalkanwar_victory
+				}
+			}
+			set_global_flag = kis_firstbalkanwar_victory
+			white_peace = FROM
+			hidden_effect = {
+				every_other_country = {
+					limit = {
+						is_in_faction_with = ROOT
+					}
+					set_country_flag = BW1_winner
+					white_peace = {
+						tag = FROM
+					}
+					#activate_mission = london_conference
+					country_event = ww1_firstbalkan.4
+				}
+				if = {
+					limit = {
+						FROM = {
+							has_war_with = ALB
+						}
+					}
+					FROM = {
+						white_peace = ALB
+					}
+					ALB = {
+						remove_ideas = standing_alone
+					}
+				}
+			}
+		}
+	}
+}
+
+#london conference 
+news_event = {
+	id = ww1_firstbalkan.5
+	title = ww1_firstbalkan.5.t
+	desc = ww1_firstbalkan.5.d
+	picture = EVENT_hoi4tgw_first_balkan_war_end
+	major = yes
+	is_triggered_only = yes
+	fire_for_sender = yes
+	
 	option = {
 		name = ww1_firstbalkan.5.a
 	}
@@ -525,7 +664,10 @@ country_event = {
 		trigger = {
 			is_ai = no
 		}
-		add_threat = 5
+		add_named_threat = {
+			threat = 5
+			name = kis_firstbalkanwar_lose
+		}
 		set_global_flag = TUR_is_winning_balkan_war
 	}
 }
@@ -2568,7 +2710,7 @@ country_event = {
 			has_global_flag = SER_surrender_in_balkan_war
 			SER = {
 				has_capitulated = yes
-				is_puppet_of = TUR
+				is_subject_of = TUR
 				exists = no
 			}
 		}
@@ -2576,7 +2718,7 @@ country_event = {
 			has_global_flag = BUL_surrender_in_balkan_war
 			BUL = {
 				has_capitulated = yes
-				is_puppet_of = TUR
+				is_subject_of = TUR
 				exists = no
 			}
 		}
@@ -2887,15 +3029,14 @@ country_event = {
 	title = ww1_firstbalkan.33.t
 	desc = ww1_firstbalkan.33.d
 	picture = GFX_report_event_gre_athens
-	fire_only_once = yes
-	trigger = {
-		original_tag = GRE
-		has_subject = CRE
-		has_country_flag = BW1_winner
-	}
-	mean_time_to_happen = {
-		days = 0
-	}
+	is_triggered_only = yes
+	# fire_only_once = yes
+	# trigger = {
+	# 	original_tag = GRE
+	# 	has_subject = CRE
+	# 	has_country_flag = BW1_winner
+	# }
+	#mean_time_to_happen = { days = 0 }
 	option = {
 		name = ww1_firstbalkan.33.a
 		annex_country = {
@@ -3499,6 +3640,179 @@ country_event = {
 	}
 }
 
+# greek occupation of nothern epirus
+country_event = {
+	id = ww1_firstbalkan.50
+	title = ww1_firstbalkan.50.t
+	desc = ww1_firstbalkan.50.d
+	picture = GFX_french_parliament
+	trigger = {
+		tag = GRE
+		has_war = no
+		has_country_flag = kis_secondbalkan_war_winner
+		803 = {
+			OR = {
+				is_controlled_by_ROOT_or_ally = yes
+				is_controlled_by = ALB
+			}
+		}
+		NOT = {
+			has_global_flag = GRE_surrender_in_balkan_war
+		}
+		NOT = {
+			has_country_flag = GRE_decision_on_nothern_epirus
+		}
+		NOT = {
+			has_completed_focus = GRE_florence_protocol
+		}
+	}
+	immediate = {
+		set_country_flag = GRE_decision_on_nothern_epirus
+	}
+	fire_only_once = yes
+	mean_time_to_happen = {
+		days = 24
+	}
+	option = {
+		name = ww1_firstbalkan.50.a
+		transfer_state = 803
+		ai_chance = {
+			factor = 50
+		}
+	}
+}
+
+# situation over nothern Epirus from austria
+country_event = {
+	id = ww1_firstbalkan.51
+	title = ww1_firstbalkan.51.t
+	desc = ww1_firstbalkan.51.d
+	picture = GFX_french_parliament
+	trigger = {
+		tag = AUH
+		is_subject = no
+		NOT = {
+			has_country_flag = great_war_loser
+		}
+		803 = {
+			is_owned_and_controlled_by = GRE
+		}
+		GRE = {
+			has_country_flag = GRE_decision_on_nothern_epirus
+			has_war = no
+			is_subject = no
+			NOT = {
+				has_completed_focus = GRE_florence_protocol
+			}
+		}
+		NOT = {
+			has_country_flag = AUH_ITA_BUL_reaction_to_GRE_occupation_of_nothern_epirus
+		}
+	}
+	immediate = {
+		set_country_flag = AUH_ITA_BUL_reaction_to_GRE_occupation_of_nothern_epirus
+	}
+	mean_time_to_happen = {
+		days = 24
+	}
+	option = {
+		name = ww1_firstbalkan.51.a
+		custom_effect_tooltip = GRE_will_have_150_days_to_free_epirus
+		set_country_flag = ROOT_against_GRE_occupation_of_northern_epirus
+		ITA = {
+			if = {
+				limit = {
+					is_subject = no
+					NOT = {
+						has_war_with = ROOT
+						has_guaranteed = GRE
+						is_in_faction_with = GRE
+					}
+					NOT = {
+						has_country_flag = AUH_ITA_BUL_reaction_to_GRE_occupation_of_nothern_epirus
+					}
+				}
+				country_event = ww1_firstbalkan.53
+			}	
+		}
+		GRE = {
+			country_event = {
+				id = ww1_firstbalkan.54
+				days = 3
+			}
+		}
+		ai_chance = {
+			factor = 50
+			modifier = {
+				factor = 100
+				is_historical_focus_on = yes
+			}
+		}
+	}
+}
+
+# greece yeld
+country_event = {
+	id = ww1_firstbalkan.52
+	title = ww1_firstbalkan.52.t
+	desc = ww1_firstbalkan.52.d
+	picture = GFX_french_parliament
+	immediate = {
+		set_global_flag = GRE_AUH_northern_epirus_problem_solved
+	}
+	is_triggered_only = yes
+	option = {
+		name = ww1_firstbalkan.52.a
+	}
+}
+
+# situation over nothern Epirus from italy or bulgaria
+country_event = {
+	id = ww1_firstbalkan.53
+	title = ww1_firstbalkan.51.t
+	desc = ww1_firstbalkan.51.d
+	picture = GFX_french_parliament
+	is_triggered_only = yes
+	option = {
+		name = ww1_firstbalkan.51.a
+		custom_effect_tooltip = GRE_will_have_150_days_to_free_epirus
+		set_country_flag = ROOT_against_GRE_occupation_of_northern_epirus
+		ai_chance = {
+			factor = 50
+			modifier = {
+				factor = 100
+				is_historical_focus_on = yes
+			}
+		}
+	}
+	option = {
+		name = ww1_firstbalkan.51.b
+		add_stability = -0.05
+		ai_chance = {
+			factor = 0
+			modifier = {
+				is_historical_focus_on = no
+				factor = 25
+			}
+		}
+	}
+}
+
+
+# situation over nothern Epirus from italy or bulgaria
+country_event = {
+	id = ww1_firstbalkan.54
+	title = ww1_firstbalkan.51.t
+	desc = ww1_firstbalkan.54.d
+	picture = GFX_french_parliament
+	is_triggered_only = yes
+	option = {
+		name = ww1_firstbalkan.54.a
+		custom_effect_tooltip = GRE_will_have_150_days_to_free_epirus
+		custom_effect_tooltip = GRE_get_out_of_epirus
+	}
+}
+
 ##Serbia gets the coast warning for Austria, will be triggered by on-actions
 country_event = {
 	id = ww1_firstbalkan.102
@@ -3577,6 +3891,7 @@ country_event = {
 		}
 	}
 }
+
 ##Bulgaria invited to stand on Serbia side
 country_event = {
 	id = ww1_firstbalkan.104
@@ -3613,6 +3928,7 @@ country_event = {
 		}
 	}
 }
+
 ##Treaty reassured
 country_event = {
 	id = ww1_firstbalkan.105
@@ -3630,6 +3946,7 @@ country_event = {
 		}
 	}
 }
+
 ##Bulgaria refused to stand on Serbia side
 country_event = {
 	id = ww1_firstbalkan.106
@@ -3640,9 +3957,9 @@ country_event = {
 	option = {
 		name = ww1_firstbalkan.106.a
 		add_ideas = SER_idea_retreat_from_shore
-		unlock_decision_tooltip = SER_seize_Ohrid
 	}
 }
+
 ##Serbia defiant
 country_event = {
 	id = ww1_firstbalkan.107
@@ -3678,7 +3995,221 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_firstbalkan.108.a
+		country_event = {
+			id = ww1_firstbalkan.109
+			days = 1
+		}
+		ai_chance = {
+			factor = 70
+			modifier = {
+				is_historical_focus_on = yes
+				factor = 150
+			}
+		}
+	}
+	option = {
+		name = ww1_firstbalkan.108.b
+		unlock_national_focus = BUL_relative_hegemony
+		ai_chance = {
+			factor = 30
+			modifier = {
+				is_historical_focus_on = yes
+				factor = 0
+			}
+		}
+	}
+}
+
+#Bulgaria claims Ohrid
+country_event = {
+	id = ww1_firstbalkan.109
+	title = ww1_firstbalkan.109.t
+	desc = ww1_firstbalkan.109.d
+	picture = GFX_report_event_generic_rifles
+	is_triggered_only = yes
+	option = {
+		name = ww1_firstbalkan.109.a
 		add_political_power = -50
-		add_war_support = 0.1
+		203 = {
+			transfer_state_to = BUL
+		}
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 200
+				OR = {
+					any_character = {
+						has_ideology = social_liberalism
+						is_country_leader = yes
+					}
+					NOT = {
+						has_idea = SER_idea_retreat_from_shore
+					}
+				}
+			}
+			modifier = {
+				is_historical_focus_on = yes
+				factor = 0
+			}
+		}
+		BUL = {
+			country_event = ww1_firstbalkan.111
+		}
+	}
+	option = {
+		name = ww1_firstbalkan.109.b
+		ai_chance = {
+			base = 50
+			modifier = {
+				is_historical_focus_on = yes
+				factor = 500
+			}
+		}
+		BUL = {
+			country_event = {
+				id = ww1_firstbalkan.110
+				days = 1
+			}
+		}
+	}
+}
+
+country_event = {
+	id = ww1_firstbalkan.110
+	title = ww1_firstbalkan.110.t
+	desc = ww1_firstbalkan.110.d
+	picture = GFX_report_event_generic_rifles
+	is_triggered_only = yes
+	option = {
+		name = ww1_firstbalkan.110.a
+		hidden_effect = {
+			if = {
+				limit = {
+					is_faction_leader = yes
+				}
+				SER = {
+					set_faction_leader = yes
+				}
+			}
+			remove_opinion_modifier = {
+				target = SER
+				modifier = BUL_treaty_of_friendship
+			}
+			diplomatic_relation = {
+				country = SER
+				relation = guarantee
+				active = no
+			}
+			SER = {
+				remove_opinion_modifier = {
+					target = ROOT
+					modifier = BUL_treaty_of_friendship
+				}
+				diplomatic_relation = {
+					country = ROOT
+					relation = guarantee
+					active = no
+				}
+			}
+			diplomatic_relation = {
+				country = SER
+				relation = guarantee
+				active = no
+			}
+		}
+		set_country_flag = leave_balkan_league
+	}
+}
+
+country_event = {
+	id = ww1_firstbalkan.111
+	title = ww1_firstbalkan.111.t
+	desc = ww1_firstbalkan.111.d
+	picture = GFX_report_event_generic_rifles
+	is_triggered_only = yes
+	option = {
+		name = ww1_firstbalkan.111
+		add_political_power = 50
+		complete_national_focus = BUL_relative_hegemony
+	}
+}
+
+news_event = {
+	id = ww1_firstbalkan.112
+	title = ww1_firstbalkan.112.t
+	desc = ww1_firstbalkan.112.d
+	picture = GFX_news_event_extermination_of_muslims
+	major = yes
+	fire_only_once = yes
+	trigger = {
+		NOT = { has_global_flag = explusion_of_muslims_from_the_balkans }
+		OR = {
+			has_global_flag = kis_firstbalkanwar_victory
+			AND = {
+				TUR = {
+					NOT = {
+						owns_state = 345
+						controls_state = 345
+						owns_state = 184
+						controls_state = 184
+						owns_state = 731
+						controls_state = 731
+					}
+				}
+				any_country = {
+					OR = {
+						original_tag = BUL
+						original_tag = SER
+						original_tag = MNT
+						original_tag = GRE
+						original_tag = ROM
+					}
+					owns_state = 345
+					controls_state = 345
+					owns_state = 184
+					controls_state = 184
+					owns_state = 731
+					controls_state = 731
+				}
+			}
+		}
+	}
+	immediate = {
+		set_global_flag = explusion_of_muslims_from_the_balkans
+	}
+	option = {
+		name = ww1_firstbalkan.112.a
+		trigger = {
+			original_tag = TUR
+		}
+		add_popularity = {
+			ideology = fascism
+			popularity = 0.05
+		}
+	}
+	option = {
+		name = ww1_firstbalkan.112.b
+		trigger = {
+			OR = {
+				original_tag = BUL
+				original_tag = SER
+				original_tag = MNT
+				original_tag = GRE
+				original_tag = ROM
+			}
+		}
+	}
+	option = {
+		name = ww1_firstbalkan.112.c
+		trigger = {
+			NOT = {
+				original_tag = TUR
+				original_tag = BUL
+				original_tag = SER
+				original_tag = MNT
+				original_tag = GRE
+				original_tag = ROM
+			}
+		}
 	}
 }
