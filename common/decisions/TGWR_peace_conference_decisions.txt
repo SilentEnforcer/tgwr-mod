@@ -11,6 +11,7 @@ GER_great_war = {
 				has_global_flag = GER_capitulation
 				has_global_flag = FRA_capitulation
 			}
+			is_faction_leader = yes
 		}
 		visible = {
 			NOT = {
@@ -23,6 +24,7 @@ GER_great_war = {
 		}
 		fire_only_once = yes
 		complete_effect = {
+			set_country_flag = ask_for_peace
 			if = {
 				limit = {
 					RUS = {
@@ -127,23 +129,18 @@ GER_great_war = {
 		visible = {
 			has_war_with = GER
 			has_country_flag = entente_leader
-			NOT = {
-				has_global_flag = GER_capitulation
-				has_global_flag = FRA_capitulation
-			}
 		}
 		allowed = {
 			always = yes
 		}
 		fire_only_once = yes
 		complete_effect = {
+			set_country_flag = ask_for_peace
 			set_global_flag = FRA_capitulation
-			FRA = {
-				GER = {
-					country_event = {
-						id = ww1_entente_capitulation.1
-						hours = 5
-					}
+			GER = {
+				country_event = {
+					id = ww1_entente_capitulation.1
+					hours = 5
 				}
 			}
 		}
@@ -236,22 +233,20 @@ GER_great_war = {
 		}
 		days_mission_timeout = 10
 		activation = {
-			any_country = {
-				tag = GER
+			GER = {
 				has_global_flag = germany_accepts_FRA_capitulation
 				OR = {
 					has_war_with = FRA
 					any_country = {
 						has_country_flag = entente_leader
 						has_war_with = GER
+						has_country_flag = ask_for_peace
 					}
 				}
 			}
 		}
 		visible = {
 			OR = {
-				tag = FRA
-				is_in_faction_with = FRA
 				has_country_flag = member_of_entente
 				tag = GER
 				has_country_flag = member_of_central_powers
@@ -306,9 +301,18 @@ GER_great_war = {
 						limit = {
 							has_war = yes
 							OR = {
-								is_in_faction_with = FRA
-								tag = FRA
-								is_subject_of = FRA
+								AND = {
+									OR = {
+										is_in_faction_with = FRA
+										tag = FRA
+										is_subject_of = FRA
+									}
+									FRA = {
+										NOT = {
+											has_country_flag = FRA_surrender_alone
+										}
+									}
+								}
 								has_country_flag = member_of_entente
 							}
 							NOT = {
@@ -667,6 +671,18 @@ GER_great_war = {
 						casualties > 1000000
 					}
 				}
+				add = 1000
+			}
+			#Germany has no fight spirit #3
+			modifier = {
+				date > 1918.6.6
+				FRA = {
+					surrender_progress < 0.35
+					has_war_with = GER
+				}
+				has_war_support < 0.03
+				has_stability < 0.03
+				has_idea = ger_famine
 				add = 1000
 			}
 			#German armistice historical trigger

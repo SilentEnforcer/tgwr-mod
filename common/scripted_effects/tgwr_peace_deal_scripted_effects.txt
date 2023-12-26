@@ -200,36 +200,199 @@ armistice_effect = {
 		}
 		if = {
 			limit = {
-				has_global_flag = FRA_capitulation_alone
-				GER = {
-					OR = {
-						owns_state = 29
-						owns_state = 785
-						owns_state = 863
-						owns_state = 864
-						owns_state = 865
-					}
-				}
+				GER = { has_war_with = SOV }
 			}
 			every_state = {
 				limit = {
-					owner = {
-						has_country_flag = great_war_loser
-					}
 					OR = {
-						state = 29
-						state = 785
-						state = 863
-						state = 864
-						state = 865
+						region = 38
+						region = 130
+						region = 131
+					}
+					owner = {
+						OR = {
+							tag = GER
+							is_subject_of = GER
+							is_in_faction_with = GER
+							has_country_flag = member_of_central_powers
+						}
+					}
+					controller = {
+						OR = {
+							tag = SOV
+							is_subject_of = SOV
+							is_in_faction_with = SOV
+						}
 					}
 				}
-				16 = { owner = { transfer_state = PREV.PREV } }
+				set_state_flag = soviet_occupation
+				owner = {
+					if = {
+						limit = { has_capitulated = yes }
+						set_country_flag = soviet_occupation
+					}
+				}
 			}
-		}
-		if = {
-			limit = {
-				has_war_with = SOV
+			# cores and claims
+			every_state = {
+				limit = {
+					has_state_flag = soviet_occupation
+					OR = {
+						is_core_of = SOV
+						is_claimed_by = SOV
+					}
+				}
+				transfer_state_to = SOV
+			}
+			every_country = {
+				limit = {
+					has_country_flag = soviet_occupation
+				}
+				# in case there is soviet puppet, they annexes
+				if = {
+					limit = {
+						any_other_country = {
+							original_tag = PREV
+							OR = {
+								is_subject_of = SOV
+								is_in_faction_with = SOV
+							}
+							exists = yes
+						}
+					}
+					random_other_country = {
+						limit = {
+							original_tag = PREV
+							OR = {
+								is_subject_of = SOV
+								is_in_faction_with = SOV
+							}
+						}
+						annex_country = {
+							target = PREV
+						}
+					}
+				}
+				# soviet ukraine
+				if = {
+					limit = { original_tag = UKR }
+					if = {
+						limit = { NOT = { has_character = UKR_yuriy_pyatakov } }
+						every_possible_country = {
+							limit = { has_character = UKR_yuriy_pyatakov }
+							UKR_yuriy_pyatakov = { set_nationality = PREV.PREV }
+						}
+					}
+					SOV = {
+						puppet = PREV
+						PREV = { copy_government_of_PREV = yes }
+					}
+					promote_character = UKR_yuriy_pyatakov
+					set_cosmetic_tag = UKR_SOV_provisional
+					set_party_name = { 
+						ideology = communism 
+						long_name = UKR_communist_party_long
+						name = UKR_communist_party 
+					}
+				}
+				# soviet poland
+				else_if = {
+					limit = { original_tag = POL }
+					if = {
+						limit = { NOT = { has_character = POL_felix_dzerzhinsky } }
+						every_possible_country = {
+							limit = { has_character = POL_felix_dzerzhinsky }
+							POL_felix_dzerzhinsky = { set_nationality = PREV.PREV }
+						}
+					}
+					SOV = {
+						puppet = PREV
+						PREV = { copy_government_of_PREV = yes }
+					}
+					POL_felix_dzerzhinsky = {
+						if = {
+							limit = { has_government = vanguardism }
+							promote_character = vanguardism
+						}
+						else = {
+							add_country_leader_role = {
+								promote_leader = yes
+								country_leader = {
+									ideology = vanguardism
+									traits = { prince_of_terror }
+								}
+							}
+						}
+					}
+					set_cosmetic_tag = POL_SOVIET
+					set_party_name = { 
+						ideology = communism 
+						long_name = POL_polrewkom_party_long
+						name = POL_polrewkom_party 
+					}
+				}
+				# soviet baltics
+				else_if = {
+					limit = { original_tag = UBD }
+					every_owned_state = {
+						limit = { is_core_of = EST }
+						if = {
+							limit = { EST = { exists = no } }
+							EST = { set_country_flag = soviet_occupation }
+						}
+						transfer_state_to = EST
+					}
+					every_owned_state = {
+						limit = { is_core_of = LAT }
+						if = {
+							limit = { LAT = { exists = no } }
+							LAT = { set_country_flag = soviet_occupation }
+						}
+						transfer_state_to = LAT
+					}
+					every_state = {
+						limit = {
+							OR = {
+								is_core_of = UBD
+								is_claimed_by = UBD
+							}
+						}
+						remove_core_of = UBD
+						remove_claim_by = UBD
+					}
+				}
+				else = {
+					SOV = {
+						puppet = PREV
+						PREV = { copy_government_of_PREV = yes }
+					}
+					set_cosmetic_tag = SOV_puppet
+				}
+				# cores and claims of puppets
+				every_state = {
+					limit = {
+						has_state_flag = soviet_occupation
+						OR = {
+							is_core_of = PREV
+							is_claimed_by = PREV
+						}
+						owner = {
+							OR = {
+								tag = GER
+								is_subject_of = GER
+								is_in_faction_with = GER
+								has_country_flag = member_of_central_powers
+							}
+						}
+						PREV = {
+							OR = {
+								is_subject_of = SOV
+								is_in_faction_with = SOV
+							}
+						}
+					}
+					transfer_state_to = PREV
+				}
 			}
 			every_country = {
 				limit = {
@@ -1023,21 +1186,29 @@ armistice_effect = {
 						transfer_state_to = GER
 					}
 				}
-				FRA = {
-					every_owned_state = {
-						limit = {
-							OR = {
-								is_core_of = BEL
-								is_claimed_by = BEL
-							}
-							NOT = {
-								is_core_of = GER
-								is_claimed_by = GER
-							}
+				if = {
+					limit = {
+						FRA = {
+							has_country_flag = great_war_loser
 						}
-						transfer_state_to = BEL
+					}
+					FRA = {
+						every_owned_state = {
+							limit = {
+								OR = {
+									is_core_of = BEL
+									is_claimed_by = BEL
+								}
+								NOT = {
+									is_core_of = GER
+									is_claimed_by = GER
+								}
+							}
+							transfer_state_to = BEL
+						}
 					}
 				}
+
 			}
 			if = {
 				limit = {
@@ -1279,6 +1450,27 @@ armistice_effect = {
 					is_core_of = ALB
 				}
 				transfer_state_to = ALB
+			}
+		}
+	}
+	if = {
+		limit = {
+			ALB = {
+				has_war_with = AUH
+			}
+			AUH = {
+				has_country_flag = great_war_winner
+			}
+			NOT = {
+				ALB = {
+					has_country_flag = AUH_occupation_of_ALB
+				}
+			}
+		}
+		AUH = {
+			set_autonomy = {
+				target = ALB
+				autonomy_state = autonomy_tgwr_protectorate
 			}
 		}
 	}
@@ -2172,8 +2364,6 @@ conference_effect = {
 							OWNER = {
 								OR = {
 									tag = GER
-									original_tag = FRA
-									is_subject_of = FRA
 									has_country_flag = great_war_loser
 								}
 							}
@@ -2191,8 +2381,6 @@ conference_effect = {
 							OWNER = {
 								OR = {
 									tag = GER
-									original_tag = FRA
-									is_subject_of = FRA
 									has_country_flag = great_war_loser
 								}
 							}
@@ -2216,8 +2404,6 @@ conference_effect = {
 					}	
 					OWNER = {
 						OR = {						
-							original_tag = FRA
-							is_subject_of = FRA
 							has_country_flag = great_war_loser
 						}
 					}				
@@ -4667,6 +4853,7 @@ conference_effect = {
 					is_core_of = SAU
 					is_core_of = ASR
 					is_core_of = YEM
+					is_core_of = RWL
 					is_core_of = OMA
 					is_core_of = QAT
 					is_core_of = BHR
