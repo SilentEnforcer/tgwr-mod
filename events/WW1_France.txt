@@ -7372,7 +7372,7 @@ country_event = {
 					is_core_of = FRA
 					NOT = { state = 1 }
 				}
-				transfer_state_to = FRC
+				set_state_owner_to = FRC
 			}
 			every_enemy_country = {
 				white_peace = ROOT
@@ -7393,6 +7393,7 @@ country_event = {
 			set_capital = { state = 459 }
 			white_peace = FRC
 		}
+		mark_focus_tree_layout_dirty = yes
 	}
 }
 
@@ -9209,7 +9210,7 @@ country_event = {
 	}
 }
 
-#if France win, democratic regime return
+#if France war end, democratic regime return
 country_event = {
 	id = ww1_france.276
 	title = ww1_france.276.t
@@ -9224,7 +9225,10 @@ country_event = {
 		}
 		has_country_flag = FRA_collapsing_front
 		has_global_flag = great_war_ends
-		has_country_flag = great_war_winner
+		OR = {
+			has_country_flag = great_war_winner
+			has_global_flag = FRA_surrender_alone
+		}
 		has_war = no
 	}
 	mean_time_to_happen = {
@@ -10774,6 +10778,7 @@ country_event = {
 			id = FRA_socialist_democratic_militarist
 			set_value = -0.05
 		}
+		set_country_flag = FRA_three_side_civil_war_trigger
 		hidden_effect = {
 			country_event = {
 				id = ww1_france.318
@@ -10903,12 +10908,6 @@ country_event = {
 	id = ww1_france.318
 	picture = GFX_french_parliament
 	is_triggered_only = yes
-	immediate = {
-		country_event = {
-			id = ww1_france.319
-			days = 30
-		}
-	}
 	option = {
 		name = ww1_france.318.a	#break it ! 
 		add_stability = -0.05
@@ -11102,12 +11101,162 @@ country_event = {
 			limit = {
 				original_tag = FRA
 			}
-			add_ideas = extensive_conscription
-			add_ideas = FRA_death_before_surrender
 			declare_war_on = {
 				target = PREV
 				type = civil_war
 			}
+			add_ideas = extensive_conscription
+			add_ideas = partial_economic_mobilisation
+			add_ideas = FRA_death_before_surrender
+			hidden_effect = {
+				remove_ideas = FRA_disjointed_government
+				remove_ideas = FRA_disjointed_government2
+				remove_ideas = FRA_disjointed_government3
+			}
 		}
+	}
+}
+
+### Democratic France in Algeria - epilogue
+country_event = {
+	title = ww1_france.321.t
+	desc = ww1_france.321.d
+	id = ww1_france.321
+	picture = GFX_french_soldiers
+	is_triggered_only = yes
+	option = {
+		name = ww1_france.321.a
+		459 = {
+			add_manpower = 1450000
+		}
+		460 = {
+			add_manpower = 1200000
+		}
+		hidden_effect = {
+			16 = {
+				OWNER = {
+					country_event = {
+						id = ww1_france.322
+						days = 2
+					}
+				}
+			}
+		}
+	}
+}
+
+### State of France lose manpower because demorats go in africa
+country_event = {
+	title = ww1_france.322.t
+	desc = ww1_france.322.d
+	id = ww1_france.322
+	picture = GFX_french_soldiers
+	is_triggered_only = yes
+	option = {
+		name = ww1_france.322.a
+		16 = {
+			add_manpower = -1000000
+		}
+		20 = {
+			add_manpower = -1200000
+		}
+		29 = {
+			add_manpower = -450000
+		}
+	}
+}
+
+### Caillaux must leave, who will replace him ?
+country_event = {
+	title = ww1_france.323.t
+	desc = ww1_france.323.d
+	id = ww1_france.323
+	picture = GFX_french_soldiers
+	is_triggered_only = yes
+	option = {
+		name = ww1_france.323.a	#we must appoint a prime minister under a new president
+		country_event = {
+			id = ww1_france.79
+			days = 2
+		}
+		add_popularity = {
+			ideology = democratic
+			popularity = 0.2
+		}
+		add_ideas = FRA_gaston_doumergue
+		set_politics = {
+			ruling_party = democratic
+			elections_allowed = yes
+		}
+		clr_country_flag = FRA_parliament_dissolved
+	}
+	option = {
+		name = ww1_france.323.b	#we should reach french states generals
+		trigger = {
+			NFA = {
+				exists = no
+			}
+		}
+		add_war_support = 0.05
+		add_popularity = {
+			popularity = 0.2
+			ideology = neutrality
+		}
+		set_politics = {
+			ruling_party = neutrality
+			elections_allowed = no
+		}
+		NFA = {
+			FRA_philippe_petain = { 
+				set_nationality = FRA
+			}
+		}
+		FRA_philippe_petain = {
+			add_country_leader_role = {
+				promote_leader = yes
+				country_leader = {
+					ideology = oligarchism
+					traits = { verdun_lion generallissimo }
+				}
+			}
+		}
+		set_cosmetic_tag = FRA_alt_blue
+		set_party_name = {
+			ideology = neutrality
+			long_name = FRA_junta_fascist
+			name = FRA_junta_fascist
+		}
+		set_country_flag = FRA_parliament_dissolved
+	}
+	option = {
+		name = ww1_france.323.c	#we should reach young democrat officers
+		add_war_support = 0.05
+		set_politics = {
+			ruling_party = neutrality
+			elections_allowed = no
+		}
+		add_popularity = {
+			popularity = 0.2
+			ideology = neutrality
+		}
+		FRA_nicolas_saclois = {
+			add_country_leader_role = {
+				promote_leader = yes
+				country_leader = {
+					ideology = authoritarian_democracy
+					traits = { cornered_fox }
+				}
+			}
+		}
+		set_cosmetic_tag = FRA_classic_blue
+		set_party_name = {
+			ideology = neutrality
+			long_name = FRA_junta_fascist
+			name = FRA_junta_fascist
+		}
+	}
+	option = {
+		name = ww1_france.323.e	#we should reach germany and ask for help to regain control of France 
+		add_stability = -0.05
 	}
 }
