@@ -44,9 +44,6 @@ TUR_dangerous_to_stay_in_revolting_balkans = {
 		original_tag = TUR
 	}
 	enable = {
-		always = yes
-	}
-	enable = {
 		date < 1913.1.1
 		NOT = {
 			has_global_flag = great_war_ends
@@ -115,23 +112,23 @@ TUR_avoid_troops_movement_while_serbia_is_justifing_war = {
 		original_tag = TUR
 	}
 	enable = {
-		SER = {
-			focus_progress = {	## oh shit !
-				focus = SER_start_the_races_TUR
-				progress > 0.90
-			}
-		}
+		# SER = {
+		# 	focus_progress = {	## oh shit !
+		# 		focus = SER_start_the_races_TUR
+		# 		progress > 0.90
+		# 	}
+		# }
+		has_global_flag = balkan_league_success
 	}
 	abort = {
 		OR = {
 			date > 1913.1.1
-			has_war = yes
-			SER = {
-				focus_progress = {	## oh shit !
-					focus = SER_start_the_races_TUR
-					progress > 0.90
-				}
-			}
+			has_global_flag = kis_war
+			has_global_flag = kis_firstbalkan_war
+			has_war_with = SER
+			has_war_with = BUL
+			has_war_with = MNT
+			has_war_with = GRE
 		}
 	}
 	ai_strategy = {
@@ -153,6 +150,13 @@ TUR_avoid_troops_movement_while_serbia_is_justifing_war = {
 		type = front_unit_request
 		tag = GRE
 		value = -100
+	}
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = 0.40
+		states = { 184 200 451 756 757 788 849 }
+		subtract_fronts_from_need = yes
+		subtract_invasions_from_need = yes
 	}
 }
 
@@ -652,32 +656,32 @@ TUR_dont_protect_germany = {
 	}
 }
 
-#TUR_dont_protect_austria = {
-#	allowed = {
-#		always = yes
-#	}
-#	enable = {
-#		OR = {
-#			original_tag = TUR
-#			is_subject_of = TUR
-#		}
-#		is_in_faction_with = AUH
-#		NOT = {
-#			has_global_flag = great_war_ends
-#		}
-#	}
-#	abort_when_not_enabled = yes
-#	ai_strategy = {
-#		type = dont_defend_ally_borders
-#		id = AUH
-#		value = 2000
-#	}
-#	ai_strategy = {
-#		type = front_unit_request
-#		tag = AUH
-#		value = -2000
-#	}
-#}
+TUR_dont_protect_austria = {
+	allowed = {
+		always = yes
+	}
+	enable = {
+		OR = {
+			original_tag = TUR
+			is_subject_of = TUR
+		}
+		is_in_faction_with = AUH
+		NOT = {
+			has_global_flag = great_war_ends
+		}
+	}
+	abort_when_not_enabled = yes
+	ai_strategy = {
+		type = dont_defend_ally_borders
+		id = AUH
+		value = 2000
+	}
+	# ai_strategy = {
+	# 	type = front_unit_request
+	# 	tag = AUH
+	# 	value = -2000
+	# }
+}
 
 TUR_dont_protect_ally_if_enemy_at_the_border_GER = {
 	allowed = {
@@ -741,6 +745,49 @@ TUR_army_incompetence = {
 	}
 }
 
+TUR_garrison_libya_in_trablusgarp_war = {
+	allowed = {
+		tag = TUR
+	}
+	enable = {
+		OR = {
+			has_war_with = ITA
+			ITA = {
+				focus_progress = {
+					focus = ITA_war_with_ottoman
+					progress > 0.3
+				}
+			}
+			ITA = { is_justifying_wargoal_against = ROOT }
+		}
+		NOT = {
+			has_global_flag = italo_turkish_war_ends
+			has_global_flag = kis_war
+			surrender_progress > 0.10
+			has_global_flag = kis_firstbalkan_war
+		}
+	}
+	abort_when_not_enabled = yes
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = 0.15
+		states = { 448 450 661 663 }
+	}
+	ai_strategy = {
+		type = front_unit_request
+		tag = ITA
+		state_trigger = {
+			OR = {
+				state = 448
+				state = 450
+				state = 661
+				state = 663
+			}
+		}
+		value = 50
+	}
+}
+
 TUR_dont_garrison_dodecanese_in_trablusgarp_war = {
 	allowed = {
 		tag = TUR
@@ -759,28 +806,27 @@ TUR_dont_garrison_dodecanese_in_trablusgarp_war = {
 	abort_when_not_enabled = yes
 	ai_strategy = {
 		type = put_unit_buffers
-		states = {
-			164 899
-		}
-		ratio = -99999
-		subtract_fronts_from_need = no
+		ratio = 0
+		states = { 614 899 }
+	}
+	ai_strategy = {
+		type = front_unit_request
+		tag = ITA
+		state_trigger = { OR = { state = 614 state = 899 } }
+		value = -99999
 	}
 }
 
 TUR_dont_garrison_thessaloniki_in_bw1_war = {
 	allowed = {
-		tag = TUR
+		always = yes
 	}
 	enable = {
-		TUR = {
-			NOT = {
-				has_country_flag = TUR_must_won_bw1
-			}
-		}
 		OR = {
 			original_tag = TUR
 			is_subject_of = TUR
 		}
+		has_war_with = GRE
 		NOT = {
 			has_global_flag = kis_firstbalkanwar_victory
 			has_global_flag = kis_firstbalkanwar_lose
@@ -932,5 +978,128 @@ TUR_befriend_major_investors = {
 		id = AUH
 		target = improve_relation
 		value = 200
+	}
+}
+
+TUR_deal_with_exceptionnal_albanian_revolts = {
+	allowed = {
+		tag = TUR
+	}
+	enable = {
+		TUR = {
+			has_active_mission = enforce_martial_law_in_albania
+		}
+		44 = {
+			is_owned_and_controlled_by = ROOT
+		}
+	}
+	abort_when_not_enabled = yes
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = 0.3
+		states = {
+			44
+		}
+		subtract_invasions_from_need = no
+		subtract_fronts_from_need = no
+	}
+}
+
+TUR_deal_with_exceptionnal_albanian_revolts_growing = {
+	allowed = {
+		tag = TUR
+	}
+	enable = {
+		TUR = {
+			has_active_mission = reinforce_the_local_army
+		}
+		44 = {
+			is_owned_and_controlled_by = ROOT
+		}
+	}
+	abort_when_not_enabled = yes
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = 0.5
+		states = {
+			44
+		}
+		subtract_invasions_from_need = no
+		subtract_fronts_from_need = no
+	}
+}
+
+TUR_ignore_najran = {
+	allowed = {
+		always = yes
+	}
+	enable = {
+		tag = TUR
+		NOT = {
+			has_border_war_with = NAJ
+			has_war_with = NAJ
+			has_wargoal_against = NAJ
+		}
+	}
+	abort_when_not_enabled = yes
+	ai_strategy = {
+		type = ignore
+		id = NAJ
+		value = 99999
+	}
+	ai_strategy = {
+		type = front_unit_request
+		tag = NAJ
+		value = -99999
+	}
+	ai_strategy = {
+		type = invade
+		id = NAJ
+		value = -99999
+	}
+	ai_strategy = {
+		type = conquer
+		id = NAJ
+		value = -99999
+	}
+}
+
+TUR_ignore_jabal_shammar = {
+	allowed = {
+		original_tag = TUR
+	}
+	enable = {
+		country_exists = JBS
+		JBS = {
+			NOT = { is_subject_of = ROOT }
+		}
+	}
+	abort = {
+		OR = {
+			has_war_with = JBS
+			has_wargoal_against = JBS
+			has_global_flag = great_war_ends
+		}
+	}
+	abort_when_not_enabled = yes
+	ai_strategy = {
+		type = ignore
+		id = JBS
+		value = 99999
+	}
+	ai_strategy = {
+		type = front_unit_request
+		tag = JBS
+		value = -99999
+	}
+	ai_strategy = {
+		type = invade
+		id = JBS
+		value = -99999
+	}
+	ai_strategy = {
+		type = conquer
+		id = JBS
+		value = -99999
 	}
 }

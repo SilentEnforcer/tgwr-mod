@@ -135,11 +135,7 @@ country_event = {
 						remove_idea = RUS_threat_of_revolution2
 						add_idea = RUS_threat_of_revolution3
 					}
-				}
-				RUS_alexander_kerensky = {
-					remove_country_leader_trait = popular_figurehead
-					add_country_leader_trait = rus_knight_of_revolution
-				}
+				}			
 			}
 		}
 		else = {
@@ -180,6 +176,10 @@ country_event = {
 							ideology = authoritarian_democracy
 						}
 					}
+				}
+				RUS_alexander_kerensky = {
+					remove_country_leader_trait = popular_figurehead
+					add_country_leader_trait = rus_knight_of_revolution
 				}
 				set_party_name = {
 					ideology = neutrality
@@ -294,6 +294,7 @@ country_event = {
 			}
 		}
 		activate_mission = RUS_lvov_goverment
+		custom_effect_tooltip = lvov_reforms_tt
 		set_country_flag = georgy_lvov
 		ai_chance = {
 			factor = 100
@@ -353,9 +354,9 @@ country_event = {
 			}
 		}
 	}
-	mean_time_to_happen = {
-		days = 7
-	}
+	# mean_time_to_happen = {
+	# 	days = 7
+	# }
 	# REVOLUTION WILL BE SOON
 	option = {
 		name = rusrevolt.4.a
@@ -646,15 +647,17 @@ country_event = {
 			set_global_flag = russian_civil_war
 			if = {
 				limit = {
-					FRA = {
-						is_faction_leader = yes
-					}
-					RUS = {
-						is_in_faction_with = FRA
-					}
+					has_country_flag = entente_leader
 				}
-				FRA = {
-					remove_from_faction = RUS
+				clr_country_flag = entente_leader
+				random_other_country = {
+					limit = {
+						NOT = { tag = FRA }
+						is_in_faction_with = FRA
+						has_war_with = GER
+						is_major = yes
+					}
+					set_country_flag = entente_leader
 				}
 			}
 			every_state = {
@@ -968,11 +971,11 @@ country_event = {
 					id = ww1_russia.94
 					days = 98
 				}	
-				# #Drozdovsky's March
-				# country_event = {
-				# 	id = ww1_sra.1
-				# 	days = 181
-				# }
+				#Don Invasion
+				country_event = {
+					id = ww1_don.4
+					days = 60
+				}
 				#South Russian Army
 				# country_event = {
 				# 	id = ww1_sra.9
@@ -1316,6 +1319,7 @@ country_event = {
 							}
 						}
 					}
+					add_ideas = FIN_civil_war_aftermath
 				}
 				set_province_controller = 11056
 				set_province_controller = 6186
@@ -1439,6 +1443,12 @@ country_event = {
 				RUS = { add_to_faction = PREV }
 			}
 		}
+		hidden_effect = {
+			add_popularity = {
+				ideology = communism
+				popularity = -1.0
+			}
+		}
 	}
 	option = {
 		name  = rusrevolt.11.b
@@ -1513,6 +1523,7 @@ country_event = {
 							}
 						}
 					}
+					add_ideas = FIN_civil_war_aftermath
 				}
 				set_province_controller = 11056
 				set_province_controller = 6186
@@ -1610,6 +1621,12 @@ country_event = {
 				}
 				add_ideas = standing_alone
 				RUS = { add_to_faction = PREV }
+			}
+		}
+		hidden_effect = {
+			add_popularity = {
+				ideology = communism
+				popularity = -1.0
 			}
 		}
 		every_other_country = {
@@ -1788,7 +1805,19 @@ country_event = {
 	# }
 	immediate = {
 		hidden_effect = {
-			retire_character = RUS_matvei_sulkevich
+			137 = {
+				every_country = {
+					limit = {
+						has_war_with = ROOT
+						controls_state = PREV
+					}
+					CRI = { give_military_access = PREV }
+				}
+			}
+			RUS_matvei_sulkevich = {
+				set_character_name = CRI_maciej_sulkiewicz
+				set_nationality = CRI
+			}
 			CRI = {
 				transfer_state = 137
 				load_oob = "CRI_1918"
@@ -1843,6 +1872,14 @@ country_event = {
 	option = {
 		name = rusrevolt.14.a
 		add_to_faction = CRI
+		CRI = {
+			if = {
+				limit = {
+					has_character = CRI_noman_celebicihan
+				}
+				retire_character = CRI_noman_celebicihan
+			}
+		}
 		hidden_effect = {
 			CRI = { set_cosmetic_tag = SOV_puppet }
 			if = {
@@ -2138,8 +2175,10 @@ country_event = {
 		SOV = {
 			is_subject = no
 			has_government = communism
-			has_war_with = SIB
 			owns_state = 214
+			NOT = {
+				has_war_with = GER
+			}
 		}		
 	}
 	fire_only_once = yes
@@ -2345,10 +2384,6 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		tag = RSO
-		has_war_with = SOV
-		SIB = {
-			has_war_with = SOV		
-		}
 		NOT = { FRA = { has_country_flag = great_war_loser } }
 	}
 	mean_time_to_happen = { days = 60 }
@@ -2651,11 +2686,25 @@ country_event = {
 					long_name = CRI_regional_government
 					name = CRI_regional_government
 				}
+				every_possible_country = {
+					limit = {
+						has_character = RUS_matvei_sulkevich
+					}
+					RUS_matvei_sulkevich = {
+						set_character_name = CRI_maciej_sulkiewicz
+						set_nationality = CRI
+					}
+				}
 				if = {
 					limit = {
-						has_character = CRI_maciej_sulkiewicz
+						has_character = RUS_matvei_sulkevich
 					}
-					CRI_maciej_sulkiewicz = {					
+					RUS_matvei_sulkevich = {
+						add_country_leader_role = {
+							country_leader = {
+								ideology = authoritarian_democracy
+							}
+						}
 						promote_character = authoritarian_democracy
 					}
 				}
@@ -3011,5 +3060,61 @@ country_event = {
 	option = {
 		name = rusrevolt.32.a
 		set_cosmetic_tag = RUS_republic
+		add_stability = 0.05
+	}
+}
+
+# Solomon Krym in Crimea
+country_event = {
+	id = rusrevolt.33
+	title = rusrevolt.33.t
+	desc = rusrevolt.33.d
+	picture = GFX_report_event_generic_parliament
+	trigger = {
+		tag = CRI
+		has_country_leader = {
+			character = RUS_matvei_sulkevich
+		}
+		is_subject = no
+		OR = {
+			has_war = yes
+			has_idea = communist_influence
+		}
+		any_other_country = {
+			is_in_russian_civil_war = yes
+		}
+	}
+	fire_only_once = yes
+	mean_time_to_happen = { days = 60 }
+	option = {
+		name = event_generic_ok
+		promote_character = CRI_solomon_krym
+		hidden_effect = {
+			RUS_matvei_sulkevich = {
+				remove_country_leader_role = {
+					ideology = authoritarian_democracy
+				}
+			}
+		}
+		RUS_matvei_sulkevich = {
+			set_nationality = AZR
+		}
+		random_other_country = {
+			limit = {
+				is_faction_leader = yes
+				NOT = {
+					has_government = communism
+				}
+				has_war_with = SOV
+				is_in_russian_civil_war = yes
+			}
+			add_to_faction = ROOT
+			ROOT = {
+				add_to_war = {
+					targeted_alliance = PREV
+					enemy = SOV
+				}
+			}
+		}
 	}
 }
