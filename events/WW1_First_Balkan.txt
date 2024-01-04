@@ -4220,11 +4220,18 @@ country_event = {
 	title = ww1_firstbalkan.113.t
 	desc = ww1_firstbalkan.113.d
 	picture = GFX_report_event_bul_military_parade_vidin
-	major = yes
 	fire_only_once = yes
 	is_triggered_only = yes
 	option = {
 		name = ww1_firstbalkan.113.a	#no
+		trigger = {
+			NOT = {
+				has_game_rule = {
+					rule = first_balkan_war_outcome
+					option = TUR_FIRST_BALKAN_WAR_AVOIDED
+				}
+			}
+		}
 		FROM = {
 			country_event = {
 				id = ww1_firstbalkan.114
@@ -4233,12 +4240,26 @@ country_event = {
 		}
 		ai_chance = {
 			factor = 400
+			modifier = {
+				has_game_rule = {
+					rule = first_balkan_war_outcome
+					option = TUR_FIRST_BALKAN_WAR_AVOIDED
+				}
+				factor = 0
+			}
 		}
 	}
 	option = {
 		name = ww1_firstbalkan.113.b	#yes
 		trigger = {
-			is_debug = yes
+			OR = {
+				is_ai = yes
+				is_debug = yes
+				has_game_rule = {
+					rule = first_balkan_war_outcome
+					option = TUR_FIRST_BALKAN_WAR_AVOIDED
+				}
+			}
 		}
 		custom_effect_tooltip = TUR_dismantle_balkan_integrity
 		FROM = {
@@ -4252,6 +4273,13 @@ country_event = {
 			modifier = {
 				is_historical_focus_on = yes
 				factor = 0
+			}
+			modifier = {
+				has_game_rule = {
+					rule = first_balkan_war_outcome
+					option = TUR_FIRST_BALKAN_WAR_AVOIDED
+				}
+				factor = 9999
 			}
 		}
 	}
@@ -4327,106 +4355,58 @@ country_event = {
 	}
 	option = {
 		name = ww1_firstbalkan.115.a
-		if = {
+		set_global_flag = kis_firstbalkanwar_victory
+		every_country = {
 			limit = {
-				tag = TUR
+				OR = {
+					is_in_faction_with = BUL
+					is_in_faction_with = SER
+				}
 			}
-			hidden_effect = {
-				if = {
-					limit = {
-						NOT = {
-							country_exists = TSE
-						}
-					}
-					create_dynamic_country = {
-						original_tag = SER
-						set_politics = {
-							ruling_party = neutrality
-							elections_allowed = no
-						}
-						set_popularities = {
-							democratic = 30
-							neutrality = 60
-							fascism = 10
-							communism = 0
-						}
-						set_country_flag = turkish_concession
-						add_manpower = 30000
-						add_ideas = extensive_conscription
-						set_stability = 0.45
-						set_war_support = 0.15
-						transfer_state = 760
-						transfer_state = 761
-						transfer_state = 848
-						transfer_state = 870
-						transfer_state = 847
-						set_cosmetic_tag = TSE
-					}
-				}
-				if = {
-					NOT = {
-						country_exists = TGR
-					}
-					create_dynamic_country = {
-						original_tag = GRE
-						set_politics = {
-							ruling_party = neutrality
-							elections_allowed = no
-						}
-						set_popularities = {
-							democratic = 30
-							neutrality = 60
-							fascism = 10
-							communism = 0
-						}
-						set_country_flag = turkish_concession
-						add_manpower = 30000
-						add_ideas = extensive_conscription
-						set_stability = 0.45
-						set_war_support = 0.15
-						transfer_state = 758
-						transfer_state = 731
-						transfer_state = 826
-						set_cosmetic_tag = TGR
-					}
-				}
-				if = {
-					limit = {
-						NOT = {
-							country_exists = TBU
-						}
-					}
-					create_dynamic_country = {
-						original_tag = BUL
-						set_politics = {
-							ruling_party = neutrality
-							elections_allowed = no
-						}
-						set_popularities = {
-							democratic = 30
-							neutrality = 60
-							fascism = 10
-							communism = 0
-						}
-						set_country_flag = turkish_concession
-						add_manpower = 30000
-						add_ideas = extensive_conscription
-						set_stability = 0.45
-						set_war_support = 0.15
-						transfer_state = 759
-						transfer_state = 225
-						transfer_state = 788
-						transfer_state = 451
-						set_cosmetic_tag = TBU
-					}
-				}
+			set_country_flag = BW1_winner
+		}
+		hidden_effect = {
+			TUR = {
 				release_puppet = ALB
-				106 = {
-					add_core_of = MAC
-					transfer_state_to = MAC
+				ALB = {
+					promote_character = TUR_ahmet_izzet
+					add_popularity = {
+						ideology = neutrality
+						popularity = 0.10
+					}
 				}
-				203 = {
+				every_owned_state = {
+					limit = {
+						OR = {
+							is_core_of = ALB
+							is_core_of = SER
+							is_core_of = MNT
+							state = 758
+						}
+						NOT = {
+							is_core_of = TUR
+						}
+					}
+					transfer_state_to = ALB
+				}
+				every_owned_state = {
+					limit = {
+						OR = {
+							state = 106
+							state = 203
+							state = 731
+							state = 826
+							state = 345
+							state = 759
+							state = 225
+							state = 788
+							state = 184
+						}
+					}
+					transfer_state_to = MAC
 					add_core_of = MAC
+				}
+				826 = {
 					transfer_state_to = MAC
 				}
 				MAC = {
@@ -4443,42 +4423,79 @@ country_event = {
 					set_country_flag = turkish_concession
 					set_cosmetic_tag = MAC_ottoman
 				}
+				TUR = {
+					TUR_ahmet_izzet = {
+						set_nationality = ALB
+					}
+				}
 			}
-
 			TUR = {
 				set_autonomy = {
-					target = TSE
-					autonomous_state = autonomy_tgwr_ottoman_emirate
-				}
-				set_autonomy = {
-					target = TGR
-					autonomous_state = autonomy_tgwr_ottoman_emirate
-				}
-				set_autonomy = {
-					target = TBU
-					autonomous_state = autonomy_tgwr_ottoman_emirate
+					target = ALB
+					autonomous_state = autonomy_puppet
 				}
 				set_autonomy = {
 					target = MAC
-					autonomous_state = autonomy_tgwr_ottoman_emirate
+					autonomous_state = autonomy_puppet
 				}
 			}
 			every_state = {
 				limit = {
 					OWNER = {
-						OR = {
-							tag = TBU
-							tag = TSE
-							tag = TGR
-							tag = MAC
-						}
+						is_subject_of = TUR
+					}
+					OR = {
+						is_core_of = SER
+						is_core_of = BUL
+						is_core_of = GRE
+						is_core_of = MNT
+						is_core_of = MAC
+					}
+					NOT = {
+						state = 345 #solun
+						state = 871 #vlore
+						state = 44 #albania
 					}
 				}
 				set_demilitarized_zone = yes
 			}
-
-
+			transfer_units_fraction= {
+				target = MAC
+				size = 0
+				stockpile_ratio = 0.01
+				army_ratio = 0
+				navy_ratio = 0
+				air_ratio = 0
+			}
+			MAC = {
+				transfer_navy = {
+					target = TUR
+				}
+			}
+			if = {
+				limit = {
+					ALB = {
+						has_army_manpower = {
+							size < 15000
+						}
+					}
+				}
+				transfer_units_fraction= {
+					target = ALB
+					size = 0
+					stockpile_ratio = 0.015
+					army_ratio = 0.1
+					navy_ratio = 0
+					air_ratio = 0
+				}
+				ALB = {
+					transfer_navy = {
+						target = TUR
+					}
+				}
+			}
 		}
+
 
 	}
 }
