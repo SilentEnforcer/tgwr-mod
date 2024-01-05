@@ -9230,6 +9230,12 @@ country_event = {
 			has_country_flag = great_war_winner
 			has_global_flag = FRA_surrender_alone
 		}
+		NOT = {
+			has_global_flag = FRA_three_side_civil_war
+			has_country_flag = great_war_loser
+			has_country_flag = FRA_surrender_alone
+			has_global_flag = FRA_surrender_alone
+		}
 		has_war = no
 	}
 	mean_time_to_happen = {
@@ -10912,6 +10918,11 @@ country_event = {
 	id = ww1_france.318
 	picture = GFX_french_parliament
 	is_triggered_only = yes
+	immediate = {
+		hidden_effect = {
+			set_country_flag = NFA_coup_can_happen
+		}
+	}
 	option = {
 		name = ww1_france.318.a	#break it ! 
 		add_stability = -0.05
@@ -10966,75 +10977,106 @@ country_event = {
 					}
 				}
 			}
-			FRA_create_FRC = yes
-			FRC = {
-				FRA_jean_longuet = {
-					promote_character = yes
-				}
-				load_focus_tree = france_socialist_focus
-			}
-			every_owned_state = {
+			if = {
 				limit = {
-					OR = {
-						state = 15
-						state = 16
-						state = 30
-						state = 14
-						state = 785
-						state = 24
-						state = 29
-						state = 865
+					NOT = {
+						has_government = communism
 					}
-					is_controlled_by = FRA
 				}
-				transfer_state_to = FRC
-				create_unit = {
-					division = "division_template = \"Partisans\" start_experience_factor = 0.5"
-					owner = FRC
+				
+				FRA_create_FRC = yes
+				FRC = {
+					FRA_jean_longuet = {
+						promote_character = yes
+					}
+					load_focus_tree = france_socialist_focus
+				}
+				every_owned_state = {
+					limit = {
+						OR = {
+							state = 15
+							state = 16
+							state = 30
+							state = 14
+							state = 785
+							state = 24
+							state = 29
+							state = 865
+						}
+						is_controlled_by = FRA
+					}
+					transfer_state_to = FRC
+					create_unit = {
+						division = "division_template = \"Partisans\" start_experience_factor = 0.5"
+						owner = FRC
+					}
+				}
+				transfer_units_fraction = {
+					target = FRC
+					size = 0.30
+					keep_unit_leaders_trigger = {
+						NOT = {
+							has_id = 32005
+							has_id = 32008
+						}	
+						OR = {
+							has_id = 32009
+							has_trait = old_guard
+							has_trait = old_guard_navy
+							has_trait = trait_royalist
+						}
+					}
+				}
+			}
+			if = {
+				limit = {
+					NOT = {
+						has_government = fascism
+						has_government = neutrality
+					}
+				}
+				FRA_create_NFA = yes
+				NFA = {
+					FRA_ferdinand_foch = {
+						promote_character = yes
+					}
+					load_focus_tree = france_nationalist_focus
+				}
+				every_owned_state = {
+					limit = {
+						OR = {
+							state = 31
+							state = 22
+							state = 26
+							state = 25
+							state = 19
+							state = 23
+							state = 33
+						}
+						is_controlled_by = FRA
+					}
+					transfer_state_to = NFA
+					create_unit = {
+						division = "division_template = \"Partisans\" start_experience_factor = 0.5"
+						owner = NFA
+					}
+				}
+				set_cosmetic_tag = FRA_classic_blue
+				transfer_units_fraction = {
+					target = NFA
+					size = 0.45	#NFA has more soldiers
+					navy_ratio = 0.0 #but no navy
+					keep_unit_leaders_trigger = {
+						NOT = {
+							has_trait = old_guard
+							has_trait = old_guard_navy
+							has_trait = trait_royalist
+						}
+					}
 				}
 			}
 
-			FRA_create_NFA = yes
-			NFA = {
-				FRA_ferdinand_foch = {
-					promote_character = yes
-				}
-				load_focus_tree = france_nationalist_focus
-			}
-			every_owned_state = {
-				limit = {
-					OR = {
-						state = 31
-						state = 22
-						state = 26
-						state = 25
-						state = 19
-						state = 23
-						state = 33
-					}
-					is_controlled_by = FRA
-				}
-				transfer_state_to = NFA
-				create_unit = {
-					division = "division_template = \"Partisans\" start_experience_factor = 0.5"
-					owner = NFA
-				}
-			}
-			set_cosmetic_tag = FRA_classic_blue
-			transfer_units_fraction = {
-				target = NFA
-				size = 0.40	#NFA has more soldiers
-				navy_ratio = 0.0 #but no navy
-				keep_unit_leaders_trigger = {
-					NOT = {
-						has_trait = old_guard
-					}
-				}
-			}
-			transfer_units_fraction = {
-				target = FRC
-				size = 0.35
-			}
+
 			remove_ideas = FRA_interim_government
 			remove_ideas = idea_armistice
 			remove_ideas = FRA_military_disloyalty
@@ -11071,6 +11113,11 @@ country_event = {
 	}
 	option = {
 		name = ww1_france.319.b	# communist
+		trigger = {
+			FRC = {
+				exists = yes
+			}
+		}
 		if = {
 			limit = {
 				is_ai = no
@@ -11082,6 +11129,11 @@ country_event = {
 	}
 	option = {
 		name = ww1_france.319.c	# militarist
+		trigger = {
+			NFA = {
+				exists = yes
+			}
+		}
 		if = {
 			limit = {
 				is_ai = no
@@ -11719,5 +11771,69 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_france.332.a
+	}
+}
+
+### Military coup against republic
+country_event = {
+	title = ww1_france.333.t
+	desc = ww1_france.333.d
+	id = ww1_france.333
+	picture = GFX_petain
+	trigger = {
+		tag = FRA
+		has_country_flag = NFA_coup_can_happen
+		NOT = {
+			has_country_flag = NFA_coup_occured
+		}
+	}
+	immediate = {
+		hidden_effect = {
+			set_country_flag = NFA_coup_occured
+		}
+	}
+	fire_only_once = yes
+	option = {
+		name = ww1_france.333.b	#coup succeed
+		ai_chance = {
+			factor = 5 #seems low, but its very very high in fact, like factor = 150
+		}
+		set_country_flag = NFA_coup_succeed
+		add_stability = -0.1
+		hidden_effect = {
+			set_politics = {
+				ruling_party = neutrality
+				elections_allowed = no
+			}
+			set_cosmetic_tag = FRA_alt_blue
+			FRA_philippe_petain = {
+				add_country_leader_role = {
+					promote_leader = yes
+					country_leader = {
+						ideology = authoritarian_democracy
+						traits = { verdun_lion generallissimo }
+					}
+				}
+			}
+			add_popularity = {
+				ideology = neutrality
+				popularity = party_popularity@democratic
+			}
+			add_popularity = {
+				ideology = neutrality
+				popularity = party_popularity@fascism
+			}
+		}
+		retire_character = FRA_joseph_caillaux
+		add_manpower = -1
+	}
+	option = {
+		name = ww1_france.333.a	#coup failed
+		set_country_flag = NFA_coup_failed
+		ai_chance = {
+			factor = 100	
+		}
+		add_stability = -0.05
+		retire_character = FRA_philippe_petain
 	}
 }
