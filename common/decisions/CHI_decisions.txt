@@ -4291,16 +4291,16 @@ CHI_chinese_warlords = {
 				}
 				every_other_country = {
 					limit = {
-						OR = {
-							is_subject_of = PREV
-							AND = {
-								is_subject = yes
-								OVERLORD = {
-									is_subject_of = ROOT
-								}
-							}
-						}
+						is_subject_of = PREV
 						is_china_or_warlord = yes
+					}
+					if = {
+						limit = {
+							has_subject = KUM
+						}
+						annex_country = {
+							target = KUM
+						}
 					}
 					transfer_navy = {
 						target = PREV
@@ -4688,21 +4688,42 @@ CHI_chinese_warlords = {
 		on_map_mode = map_and_decisions_view
 		days_remove = 30
 		visible = {
-			is_china_or_warlord_no_tt = yes
-			controls_state = FROM
-			NOT = {
-				FROM = {
-					is_core_of = PREV
+			custom_trigger_tooltip = {
+				tooltip = is_china_or_warlord_tt
+				OR = {
+					NOT = { original_tag = CHI }
+					NOT = { original_tag = QIN }
+					has_country_flag = ready_to_unite_china
+					has_country_flag = reunited_china
 				}
+				is_china_or_warlord_no_tt = yes
 			}
-			OR = {
-				NOT = {
-					FROM = {
-						region = 145
+			controls_state = FROM
+			custom_trigger_tooltip = {
+				tooltip = chinese_core_state
+				FROM = {
+					any_country_with_core = {
+						is_china_or_warlord_no_tt = yes
+						is_major = no
+						NOT = {
+							tag = ROOT
+							tag = CHI
+							tag = QIN
+							has_country_flag = CHI_kuomintang_flag
+							has_country_flag = CHI_left_kuomintang_flag
+							has_country_flag = CHI_soviet_republic_flag
+							has_country_flag = long_march
+							has_cosmetic_tag = KMT_BEIPING
+							has_cosmetic_tag = KMT_WUHAN
+							has_cosmetic_tag = KMT_NANJING
+							has_cosmetic_tag = CPG
+							has_cosmetic_tag = QIN_government
+							has_government = communism
+							owns_state = 608
+							has_country_flag = reunited_china
+						} 
 					}
 				}
-				NOT = { tag = QIN }
-				# has_global_flag = triple_revolution
 			}
 		}
 		fire_only_once = no
@@ -4731,6 +4752,7 @@ CHI_chinese_warlords = {
 							owns_state = 608
 							has_country_flag = reunited_china
 						}
+						PREV = { is_core_of = PREV }
 					}
 					remove_state_core = PREV
 				}
@@ -6998,58 +7020,103 @@ crisis = {
 		}
 	}
 	CHI_militarist_plot = {
+		name = CHI_idea_militarist_plot
+		desc = CHI_idea_militarist_plot_desc
 		icon = generic_prepare_civil_war
-		days_mission_timeout = 60
+		days_mission_timeout = 315
 		activation = {
-			has_global_flag = chinese_warlord_crisis
-			has_global_flag = manchu_restoration
-			QIN = {
-				exists = no
+			tag = CHI
+			has_civil_war = no
+			has_idea = CHI_idea_militarist_plot
+			is_subject = no
+			NOT = {
+				has_country_flag = militarist_plot_fired
+				has_government = neutrality
+				has_government = fascism
+				has_completed_focus = CHI_suppress_monarchists
+				has_war_with = QIN
+				has_global_flag = national_protection_war
+				has_global_flag = warlord_era
 			}
-			has_global_flag = warlord_era
-			has_country_leader = {
-				character = CHI_duan_qirui
-				ruling_only = yes
+			OR = {
+				neutrality > 0.35
+				fascism > 0.10
 			}
-			has_country_flag = new_assembly
 		}
 		allowed = {
-			OR = {
-				original_tag = CHI
-				original_tag = QIN
-			}
+			tag = CHI
 		}
 		available = {
 			OR = {
-				has_global_flag = constitutional_protection_war
+				has_government = fascism
+				has_government = neutrality
+				is_subject = yes
+				NOT = { has_idea = CHI_idea_militarist_plot }
+				has_civil_war = yes
+				any_enemy_country = {
+					original_tag = CHI
+				}
+				AND = {
+					fascism < 0.35
+					neutrality < 0.10
+				}
 			}
 		}
-		visible = {
-			has_global_flag = chinese_warlord_crisis
-			has_global_flag = warlord_era
-			has_country_leader = {
-				character = CHI_duan_qirui
-				ruling_only = yes
-			}
-		}
-		fire_only_once = yes
+		fire_only_once = no
 		is_good = no
 		timeout_effect = {
-			CHI = {
-				effect_tooltip = {
-					declare_war_on = {
-						target = GXC
-						type = civil_war
-					}
-				}
-				hidden_effect = {
-					country_event = {
-						id = ww1_china.39
-						hours = 3
-					}
-					set_global_flag = constitutional_protection_war
+			set_country_flag = militarist_plot_fired
+			country_event = ww1_china.4
+		}
+	}
+	CHI_republican_plot = {
+		name = CHI_idea_republican_plot
+		desc = CHI_idea_republican_plot_desc
+		icon = revolt
+		days_mission_timeout = 315
+		activation = {
+			tag = CHI
+			has_civil_war = no
+			has_idea = CHI_idea_republican_plot
+			is_subject = no
+			NOT = {
+				has_country_flag = republican_plot_fired
+				has_government = democratic
+				has_government = communism
+				has_completed_focus = CHI_second_empire
+				has_war_with = QIN
+				has_global_flag = national_protection_war
+				has_global_flag = warlord_era
+			}
+			OR = {
+				democratic > 0.35
+				AND = {
+					has_global_flag = song_jiaoren_dead
+					democratic > 0.10
 				}
 			}
+		}
+		allowed = {
+			tag = CHI
+		}
+		available = {
+			OR = {
+				has_government = communism
+				has_government = democratic
+				is_subject = yes
+				NOT = { has_idea = CHI_idea_republican_plot }
+				has_civil_war = yes
+				any_enemy_country = {
+					original_tag = CHI
+				}
+				democratic < 0.10
+			}
+		}
+		fire_only_once = no
+		is_good = no
+		timeout_effect = {
+			set_country_flag = republican_plot_fired
+			country_event = ww1_china.3
 		}
 	}
 }
