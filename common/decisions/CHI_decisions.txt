@@ -3742,6 +3742,71 @@ CHI_chinese_warlords = {
 			}
 		}
 	}
+	CHI_unite_china_GAN = {
+		icon = generic_prepare_civil_war
+		allowed = {
+			is_china_or_warlord_no_tt = yes
+		}
+		visible = {
+			is_china_or_warlord_no_tt = yes
+			OR = {
+				has_country_flag = ready_to_unite_china
+				has_country_flag = reunited_china
+			}
+			FROM = {
+				exists = yes
+				NOT = { has_war_with = ROOT }
+			}
+		}
+		target_trigger = {
+			FROM = {
+				tag = GAN
+			}
+		}
+		war_with_on_remove = GAN
+		available = {
+			FROM = {
+				exists = yes
+			}
+			is_subject = no
+			is_neighbor_of = FROM
+			has_capitulated = no
+		}
+		cost = 75
+		days_remove = 10
+		fire_only_once = no
+		remove_effect = {
+			FROM = {
+				if = {
+					limit = {
+						is_in_faction_with = PREV
+					}
+					leave_faction = yes
+				}
+				country_event = ww1_china.31
+			}
+		}
+		ai_will_do = {
+			base = 0
+			modifier = {
+				add = 10
+				strength_ratio = {
+					tag = FROM
+					ratio > 1
+				}
+				FROM = {
+					all_country = {
+						is_major = yes
+						NOT = {
+							has_guaranteed = PREV
+							has_subject = PREV
+							is_in_faction_with = PREV
+						}
+					}
+				}
+			}
+		}
+	}
 	CHI_unite_china_SDC = {
 		icon = generic_prepare_civil_war
 		allowed = {
@@ -5562,6 +5627,168 @@ operations = {
 			}
 		}
 	}
+	CHI_annex_CER = {
+		icon = GFX_decision_generic_railway
+		allowed = {
+			is_china_or_warlord_no_tt = yes
+		}
+		target_trigger = {
+			FROM = {
+				original_tag = CER
+			}
+		}
+		visible = {
+			has_capitulated = no
+		}
+		available = {
+			has_civil_war = no
+			is_neighbor_of = FROM
+			NOT = {
+				has_war_with = FROM
+				has_idea = idea_armistice
+				has_idea = idea_army_restrictions
+				any_other_country = {
+					is_china_or_warlord = yes
+					has_war_with = ROOT
+				}
+			}
+			if = {
+				limit = {
+					has_focus_tree = china_focus
+				}
+				OR = {
+					has_completed_focus = CHI_second_empire
+					has_completed_focus = CHI_suppress_monarchists
+				}
+			}
+			if = {
+				limit = {
+					has_focus_tree = qing_focus
+				}
+				has_completed_focus = QIN_protect_the_dynasty
+				NOT = { has_completed_focus = QIN_foreign_loan }
+			}
+		}
+		cancel_trigger = {
+			OR = {
+				NOT = { is_neighbor_of = FROM }
+				has_war_with = FROM
+				FROM = { exists = no }
+			}
+		}
+		ai_will_do = {
+			base = 0
+			modifier = {
+				add = 1000
+				FROM = {
+					OR = {
+						is_subject = no
+						is_subject_of = ROOT
+					}
+				}
+			}
+			modifier = {
+				add = 1000
+				FROM = {
+					is_subject = yes
+					OVERLORD = {
+						OR = {
+							is_subject_of = ROOT
+							has_subject = ROOT
+						}
+					}
+				}
+			}
+			# modifier = {
+			# 	add = 1000
+			# 	FROM = {
+			# 		is_subject = yes
+			# 		OVERLORD = {
+			# 			OR = {
+			# 				has_civil_war = yes
+			# 				has_capitulated = yes
+			# 				AND = {
+			# 					OR = {
+			# 						original_tag = RUS
+			# 						original_tag = SOV
+			# 						has_civil_war = russian_civil_war
+			# 					}
+			# 				}
+			# 			}
+			# 		}
+			# 	}
+			# }
+			# modifier = {
+			# 	add = 1000
+			# 	FROM = {
+			# 		OR = {
+			# 			has_civil_war = yes
+			# 			has_government = communism
+			# 		}
+			# 	}
+			# }
+		}
+		fire_only_once = no
+		days_re_enable = 100
+		days_remove = 20
+		cancel_if_not_visible = yes
+		war_with_target_on_remove = yes
+		remove_effect = {
+			custom_effect_tooltip = CHI_annex_CER_tt
+			if = {
+				limit = {
+					FROM = {
+						is_subject = yes
+					}
+				}
+				if = {
+					limit = {
+						FROM = {
+							OR = {
+								is_subject_of = ROOT
+								OVERLORD = {
+									OR = {
+										is_subject_of = ROOT
+										has_subject = ROOT
+									}
+								}
+							}
+						}
+					}
+					annex_country = {
+						target = FROM
+						transfer_troops = yes
+					}
+				}
+				else = {
+					add_named_threat = {
+						name = ww1_china.187.t
+						threat = 2
+					}
+					FROM = {
+						OVERLORD = {
+							country_event = {
+								id = ww1_china.187
+							}
+						}
+					}
+				}
+			}
+			else = {
+				add_named_threat = {
+					name = ww1_china.187.t
+					threat = 2
+				}
+				FROM = {
+					OVERLORD = {
+						country_event = {
+							id = ww1_china.187
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 CHI_occupation_actions = { 
@@ -5895,155 +6122,6 @@ foreign_politics = {
 		}
 		ai_will_do = {
 			base = 10
-		}
-	}
-	CHI_annex_CER = {
-		icon = GFX_decision_generic_railway
-		allowed = {
-			is_china_or_warlord_no_tt = yes
-		}
-		target_trigger = {
-			FROM = {
-				original_tag = CER
-			}
-		}
-		visible = {
-			has_capitulated = no
-		}
-		available = {
-			has_civil_war = no
-			is_neighbor_of = FROM
-			NOT = {
-				has_war_with = FROM
-				has_idea = idea_armistice
-				has_idea = idea_army_restrictions
-				any_other_country = {
-					is_china_or_warlord = yes
-					has_war_with = ROOT
-				}
-			}
-			if = {
-				limit = {
-					has_focus_tree = china_focus
-				}
-				OR = {
-					has_completed_focus = CHI_second_empire
-					has_completed_focus = CHI_suppress_monarchists
-				}
-			}
-			if = {
-				limit = {
-					has_focus_tree = qing_focus
-				}
-				has_completed_focus = QIN_protect_the_dynasty
-				NOT = { has_completed_focus = QIN_foreign_loan }
-			}
-		}
-		cancel_trigger = {
-			OR = {
-				NOT = { is_neighbor_of = FROM }
-				has_war_with = FROM
-				FROM = { exists = no }
-			}
-		}
-		ai_will_do = {
-			base = 0
-			modifier = {
-				add = 1000
-				FROM = {
-					OR = {
-						is_subject = no
-						is_subject_of = ROOT
-					}
-				}
-			}
-			modifier = {
-				add = 1000
-				FROM = {
-					is_subject = yes
-					OVERLORD = {
-						OR = {
-							is_subject_of = ROOT
-							has_subject = ROOT
-						}
-					}
-				}
-			}
-			# modifier = {
-			# 	add = 1000
-			# 	FROM = {
-			# 		is_subject = yes
-			# 		OVERLORD = {
-			# 			OR = {
-			# 				has_civil_war = yes
-			# 				has_capitulated = yes
-			# 				AND = {
-			# 					OR = {
-			# 						original_tag = RUS
-			# 						original_tag = SOV
-			# 						has_civil_war = russian_civil_war
-			# 					}
-			# 				}
-			# 			}
-			# 		}
-			# 	}
-			# }
-			# modifier = {
-			# 	add = 1000
-			# 	FROM = {
-			# 		OR = {
-			# 			has_civil_war = yes
-			# 			has_government = communism
-			# 		}
-			# 	}
-			# }
-		}
-		fire_only_once = no
-		days_re_enable = 100
-		days_remove = 20
-		cancel_if_not_visible = yes
-		war_with_target_on_remove = yes
-		remove_effect = {
-			custom_effect_tooltip = CHI_annex_CER_tt
-			if = {
-				limit = {
-					FROM = {
-						is_subject = yes
-					}
-				}
-				if = {
-					limit = {
-						FROM = {
-							OR = {
-								is_subject_of = ROOT
-								OVERLORD = {
-									OR = {
-										is_subject_of = ROOT
-										has_subject = ROOT
-									}
-								}
-							}
-						}
-					}
-					annex_country = {
-						target = FROM
-						transfer_troops = yes
-					}
-				}
-				else = {
-					add_named_threat = {
-						name = ww1_china.187.t
-						threat = 2
-					}
-					FROM = {
-						OVERLORD = {
-							country_event = {
-								id = ww1_china.187
-							}
-						}
-					}
-				}
-			}
 		}
 	}
 }
@@ -6496,6 +6574,9 @@ CHI_national_revolution = {
 			FROM = {
 				tag = ZGP
 			}
+		}
+		ai_will_do = {
+			factor = 1000
 		}
 	}
 	CHI_join_northern_expedition = {
