@@ -78,7 +78,6 @@ country_event = {
 				}
 				# moved from .6
 				activate_mission = RUS_demobilizing_army_timer
-				add_ideas = RUS_demobilizing_army
 			}
 			every_country = {
 				limit = {
@@ -217,6 +216,11 @@ country_event = {
 	picture = GFX_report_event_generic_conference
 	fire_only_once = yes
 	is_triggered_only = yes
+	trigger = {
+		NOT = {
+			has_global_flag = compiegne_armistice
+		}
+	}
 	mean_time_to_happen = {
 		days = 1
 	}
@@ -336,6 +340,11 @@ country_event = {
 	picture = GFX_report_event_generic_conference
 	fire_only_once = yes
 	is_triggered_only = yes
+	trigger = {
+		NOT = {
+			has_global_flag = compiegne_armistice
+		}
+	}
 	# trigger = {
 	# 	tag = GER
 	# 	has_global_flag = brest_litovsk
@@ -661,6 +670,11 @@ country_event = {
 	picture = GFX_report_event_generic_conference
 	fire_only_once = yes
 	is_triggered_only = yes
+	trigger = {
+		NOT = {
+			has_global_flag = compiegne_armistice
+		}
+	}
 	mean_time_to_happen = {
 		days = 1
 	}
@@ -670,13 +684,11 @@ country_event = {
 			hidden_effect = {
 				if = {
 					limit = {
-						has_civil_war = yes
-					}
-					random_other_country = {
-						limit = {
-							original_tag = UKR
-							has_government = communism
+						UPR = {
+							exists = yes 
 						}
+					}
+					UPR = {
 						add_ideas = standing_alone	
 						set_rule = {
 							can_join_factions = no
@@ -721,23 +733,37 @@ country_event = {
 			every_other_country = {
 				limit = {
 					OR = {
-						original_tag = FROM
-						original_tag = ROOT
-						is_in_faction_with = FROM
-						is_in_faction_with = ROOT
-						is_subject_of = FROM
-						is_subject_of = ROOT
-						original_tag = GEO
-						original_tag = ARM
-						original_tag = AZR
-						is_in_russian_civil_war = yes
+						tag = SOV
+						AND = {
+							is_in_faction_with = SOV
+							NOT = {
+								tag = UPR
+							}
+						}
 					}
-					NOT = {
-						original_tag = UKR
-					}
-					has_war_with = PREV
 				}
-				white_peace = PREV
+				white_peace = UKR
+			}
+			UKR = {
+				leave_faction = yes
+			}
+			every_other_country = {
+				limit = {
+					OR = {
+						tag = GER
+						AND = {
+							is_in_faction_with = GER
+							has_war_with = UPR
+							NOT = {
+								tag = UKR
+							}
+						}
+					}
+				}
+				white_peace = UPR
+			}
+			GER = {
+				add_to_faction = UKR
 			}
 			give_military_access = ROOT
 			every_state = {
@@ -753,6 +779,18 @@ country_event = {
 				add_claim_by = PREV
 			}
 		}
+		# does not work, yet
+		# every_country = {
+		# 	limit = {
+		# 		AND = {
+		# 			NOT = {
+		# 				tag = UKR
+		# 			}
+		# 			has_war_with = UPR
+		# 		}
+		# 	}
+		# 	white_peace = UPR
+		# }
 		hidden_effect = {
 			UKR = {
 				remove_ideas = RUS_idea_armistice_cp
@@ -816,7 +854,6 @@ country_event = {
 						state = 204
 						state = 206
 						state = 209
-						state = 218
 						state = 913
 						state = 925
 					}
@@ -5332,10 +5369,13 @@ country_event = {
 						state = 233
 						state = 234
 						state = 579
+						state = 940
+						state = 941
 					}
 					is_owned_by = SOV
 				}
 				add_core_of = KUB
+				remove_core_of = SOV
 				every_country = {
 					limit = {
 						has_war_with = ROOT
@@ -5348,13 +5388,18 @@ country_event = {
 			KUB = {
 				load_oob = "KUB_1918"
 				add_ideas = RUS_russian_civil_war
+				load_focus_tree = white_guard_focus
 				inherit_technology = RUS
 				add_equipment_to_stockpile = {
 					type = infantry_equipment_0
 					amount = 2500
 					producer = RUS
 				}
-			}	
+			}
+			# country_event = {
+			# 	id = ww1_kub.1
+			# 	days = 4
+			# }
 			SOV = {
 				declare_war_on = {
 					target = KUB
@@ -5403,6 +5448,7 @@ country_event = {
 					is_owned_by = SOV
 				}
 				add_core_of = DON
+				remove_core_of = SOV
 				every_country = {
 					limit = {
 						has_war_with = ROOT
@@ -5415,22 +5461,38 @@ country_event = {
 			DON = {
 				load_oob = "DON_1918"
 				add_ideas = standing_alone
+				load_focus_tree = white_guard_focus
+				country_lock_all_division_template = yes
 				inherit_technology = RUS
 				add_equipment_to_stockpile = {
 					type = infantry_equipment
 					amount = 2500
 					producer = RUS
 				}
-				add_ideas = RUS_russian_civil_war
 			}
 			every_possible_country = {
 				limit = {
 					has_character = RUS_pyotr_krasnov
-					has_character = RUS_alexei_kaledin
 				}
 				RUS_pyotr_krasnov = {
-					remove_unit_leader_trait = hidden_sympathies
 					set_nationality = DON	
+					add_country_leader_role ={
+						promote_leader = yes
+						country_leader = {
+							ideology=stratocracy
+						}
+					}
+					add_country_leader_role ={
+						promote_leader = yes
+						country_leader = {
+							ideology=despotism
+						}
+					}
+				}
+			}
+			every_possible_country = {
+				limit = {
+					has_character = RUS_alexei_kaledin
 				}
 				RUS_alexei_kaledin = {
 					set_nationality = DON
@@ -6068,9 +6130,20 @@ news_event = {
 				set_global_flag = don_released_by_germany
 				RUS = {
 					RUS_pyotr_krasnov = {
-						remove_unit_leader_trait = hidden_sympathies
 						set_nationality = DON
 						promote_leader = yes
+						add_country_leader_role ={
+							promote_leader = yes
+							country_leader = {
+								ideology=stratocracy
+							}
+						}
+						add_country_leader_role ={
+							promote_leader = yes
+							country_leader = {
+								ideology=despotism
+							}
+						}
 					}
 					RUS_alexei_kaledin = {
 						set_nationality = DON
@@ -6122,6 +6195,8 @@ news_event = {
 						state = 233
 						state = 234
 						state = 579
+						state = 940
+						state = 941
 					}
 					OR = {
 						is_owned_by = RUS
@@ -6657,6 +6732,11 @@ country_event = {
 	picture = GFX_report_event_generic_conference
 	fire_only_once = yes
 	is_triggered_only = yes
+	trigger = {
+		NOT = {
+			has_global_flag = compiegne_armistice
+		}
+	}
 	mean_time_to_happen = {
 		days = 1
 	}
@@ -6913,18 +6993,6 @@ country_event = {
 			}
 			remove_ideas = RUS_idea_armistice_rus
 
-			#South Russian Army
-			country_event = {
-				id = ww1_sra.9
-				days = 60
-			}
-			SRA = {
-				country_event = {
-					id = ww1_sra.1
-					days = 90
-				}
-			}
-
 			# Army Demobilisation
 			country_event = {
 				id = ww1_russia.105
@@ -7104,23 +7172,17 @@ country_event = {
 	picture = GFX_report_event_generic_conference
 	is_triggered_only = yes
 	fire_only_once = yes
+	trigger = {
+		NOT = {
+			has_global_flag = compiegne_armistice
+		}
+	}
 	option = {
 		name = ww1_russia.104.a
 		hidden_effect = {
 			set_global_flag = brest_litovsk_finished
 			remove_ideas = RUS_idea_armistice_rus
 			remove_ideas = RUS_demobilizing_army
-			#South Russian Army
-			country_event = {
-				id = ww1_sra.9
-				days = 60
-			}
-			SRA = {
-				country_event = {
-					id = ww1_sra.1
-					days = 90
-				}
-			}
 			FROM = {
 				country_event = {
 					id = ww1_russia.114
@@ -7148,12 +7210,12 @@ country_event = {
 					active = no
 				}
 			}
-			UKR = {
-				country_event = {
-					id = ww1_ukraine.1
-					days = 30
-				}
-			}
+			# UKR = {
+			# 	country_event = {
+			# 		id = ww1_ukraine.1
+			# 		days = 30
+			# 	}
+			# }
 			if = {
 				limit = {
 					TUR = {
@@ -7303,6 +7365,13 @@ country_event = {
 					days = 365
 				}
 			}
+			if = {
+				limit = {
+					has_war = no
+					has_global_flag = great_war_ends
+				}
+				add_ideas = idea_armistice
+			}
 		}
 		diplomatic_relation = {
 			country = FROM
@@ -7376,7 +7445,10 @@ country_event = {
 	option = {
 		name = ww1_russia.105.a
 		hidden_effect = {
-			remove_ideas = RUS_demobilizing_army
+			remove_ideas = {
+				RUS_demobilizing_army
+			}
+			add_ideas = disarmed_nation
 			every_state = {
 				PREV = {
 					delete_unit = {						
@@ -7489,6 +7561,67 @@ country_event = {
 		hidden_effect = {
 			UKR = {
 				add_ideas = standing_alone	
+				# create_dynamic_country = {
+				# 	original_tag = UKR
+				# 	copy_tag = UKR
+				# 	set_cosmetic_tag = SOV_puppet
+				# 	transfer_state = 221
+				# 	transfer_state = 227
+				# 	transfer_state = 228
+				# 	add_idea = SOV_idea_red_guard
+				# 	PREV = {
+				# 		UKR_yevgenia_bosch = {
+				# 			set_nationality = PREV.PREV
+				# 		}
+				# 	}
+				# 	UKR_yevgenia_bosch = {
+				# 		promote_character = vanguardism
+				# 	}
+				# 	set_politics = {
+				# 		ruling_party = communism
+				# 		elections_allowed = no
+				# 	}
+				# 	add_popularity = {
+				# 		ideology = communism
+				# 		popularity = 1
+				# 	}
+				# 	set_party_name = {
+				# 		ideology = communism
+				# 		long_name = UKR_socialist_party_long
+				# 		name = UKR_socialist_party
+				# 	}
+				# 	add_ideas = standing_alone	
+				# 	set_country_flag = ukrainian_civil_war
+				# 	division_template = {
+				# 		name = "Brigada Milіtsiy"
+				# 		is_locked = yes
+				# 		division_names_group = SOV_INF_01
+				# 		template_counter = 69
+				# 		regiments = {
+				# 			militia = { x = 0 y = 0 }
+				# 			militia = { x = 0 y = 1 }
+				# 			militia = { x = 0 y = 2 }
+				# 			militia = { x = 1 y = 0 }
+				# 			militia = { x = 1 y = 1 }
+				# 		}
+				# 	}
+				# 	every_owned_state = {
+				# 		create_unit = {
+				# 			division = "division_template = \"Brigada Milіtsiy\" start_experience_factor = 0.1	start_equipment_factor = 0.6"
+				# 			owner = PREV
+				# 			count = 2
+				# 			allow_spawning_on_enemy_provs = yes
+				# 		}
+				# 	}
+				# 	add_ideas = standing_alone
+				# 	declare_war_on = {
+				# 		target = UKR
+				# 		type = civil_war
+				# 	}
+				# 	RUS = {
+				# 		add_to_faction = PREV
+				# 	}
+				# }
 				#Ukrainian People's Republic of Soviets
 				start_civil_war = {
 					ideology = communism
@@ -7501,6 +7634,7 @@ country_event = {
 						always = yes
 					}
 					set_cosmetic_tag = SOV_puppet
+					add_ideas = SOV_idea_red_guard
 					PREV = {
 						UKR_yevgenia_bosch = {
 							set_nationality = PREV.PREV
@@ -7567,6 +7701,9 @@ country_event = {
 		NOT = {
 			has_war_with = GER
 			has_government = communism
+		}
+		GER = {
+			NOT = { has_country_flag = great_war_loser }
 		}
 	}
 	option = {
@@ -7652,7 +7789,10 @@ country_event = {
 	fire_only_once = yes
 	option = {
 		name = ww1_russia.109.a
-		add_ideas = UKR_idea_bread_peace
+		swap_ideas = {
+			remove_idea = standing_alone	
+			add_idea = UKR_idea_bread_peace
+		}
 		FROM = { add_to_faction = ROOT }
 		hidden_effect = {
 			if = {
