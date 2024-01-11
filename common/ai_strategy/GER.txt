@@ -64,6 +64,70 @@ GER_dont_help_AUH_before_1915 = {
 	}
 }
 
+GER_dont_help_BUL = {
+	allowed = {
+		original_tag = GER
+	}
+	enable = {
+		is_in_faction_with = BUL
+	}
+	abort = {
+		BUL = { surrender_progress > 0.20 }	
+		has_war_with = BUL
+	}
+	ai_strategy = {
+		type = dont_defend_ally_borders
+		id = BUL
+		value = 1
+	}
+	ai_strategy = {
+		type = front_unit_request
+		country_trigger = {
+			original_tag = GRE
+			has_country_flag = GRE_national_defense_flag
+		}
+		value = -250
+	}
+	ai_strategy = {
+		type = front_unit_request
+		tag = GRE
+		value = -250
+	}
+}
+
+GER_dont_help_TUR = {
+	allowed = {
+		original_tag = GER
+	}
+	enable = {
+		is_in_faction_with = TUR
+	}
+	abort = {
+		TUR = { surrender_progress > 0.20 }	
+		has_war_with = TUR
+	}
+	ai_strategy = {
+		type = dont_defend_ally_borders
+		id = TUR
+		value = 1
+	}
+	ai_strategy = {
+		type = front_unit_request
+		strategic_region = 134
+		value = -500
+	}
+	ai_strategy = {
+		type = front_unit_request
+		strategic_region = 196
+		value = -500
+	}
+	ai_strategy = {
+		type = front_unit_request
+		strategic_region = 228
+		value = -500
+	}
+}
+
 # # Please kill Beligum in time
 GER_rush_on_BEL = {
 	allowed = {
@@ -114,17 +178,21 @@ GER_rush_on_BEL = {
 	}
 
 	ai_strategy = {
-		type = put_unit_buffers
-		ratio = 0.10
-		states = {
-			42
-			793
-			907
-			34
-			6
-			865
-			29
-		}
+		type = front_unit_request
+		tag = BEL
+		value = 500 #should be 6-8 divisions
+	}
+
+	ai_strategy = {
+		type = consider_weak
+		id = BEL
+		value = 200
+	}
+
+	ai_strategy = {
+		type = strategic_air_importance
+		id = 5 #Belgium
+		value = 40000 #value of stocked main front in active combat is usually around 35,000
 	}
 
 	ai_strategy = {
@@ -189,6 +257,36 @@ GER_slowy_beat_russia = {
 	}
 }
 
+GER_last_resort = {
+	allowed = {
+		original_tag = GER	
+	}
+	enable = {
+		original_tag = GER
+		has_war_with = FRA
+		has_idea = GER_idea_ludendorff_offensive
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = front_unit_request
+		tag = FRA
+		value = 50
+	}
+	
+
+	ai_strategy = {
+		type = front_control
+		tag = FRA
+		priority = 99999
+		ratio = 0.45
+		ordertype = front
+		execution_type = rush
+		execute_order = yes
+		manual_attack = yes
+	}
+}
+
 
 ########################
 #	AI secondary division management
@@ -200,23 +298,33 @@ GER_low_priority_on_serbia = {
 	}
 	enable = {
 		is_in_faction_with = AUH
-		SER = {
-			has_capitulated = no
-		}
 	}
 	abort = {
 		OR = {
-			SER = {
-				has_capitulated = yes
-			}
 			AUH = { surrender_progress > 0.20 }	
 			has_war_with = HUN
+			has_global_flag = great_war_ends
 		}
 	}
 	ai_strategy = {
 		type = front_unit_request
 		tag = SER
-		value = -100
+		value = -40
+	}
+	ai_strategy = {
+		type = front_unit_request
+		tag = MNT
+		value = -200
+	}
+	ai_strategy = {
+		type = front_unit_request
+		tag = ALB
+		value = -200
+	}
+	ai_strategy = {
+		type = front_unit_request
+		tag = MAC
+		value = -200
 	}
 }
 
@@ -300,38 +408,45 @@ GER_dont_help_TUR = {
 	}
 	enable = {
 		is_in_faction_with = TUR
+		has_global_flag = kis_war
+		TUR = {
+			surrender_progress < 0.10
+		}
+		OR = {
+			has_war_with = ROM
+			has_war_with = RUS
+			has_war_with = SOV
+		}
+		NOT = {
+			has_global_flag = great_war_ends
+		}
 	}
 	abort_when_not_enabled = yes
-	abort = {
-		TUR = { surrender_progress > 0.5 }	
-	}
 	ai_strategy = {
 		type = ignore
 		id = "TUR"			
-		value = 150 
+		value = 100 
 	}
 	ai_strategy = {
 		type = dont_defend_ally_borders
 		id = "TUR"			
-		value = 500 
+		value = 100 
 	}
 	ai_strategy = {
 		type = ignore
 		id = "JBS"			
-		value = 150 
+		value = 100 
 	}
 	ai_strategy = {
 		type = dont_defend_ally_borders
 		id = "JBS"			
-		value = 500 
+		value = 100 
 	}
 }
 
 #################
 # below non frontline rules
 #######
-
-
 
 GER_ignore_turnip_winter_effect = {
 	allowed = {
@@ -463,9 +578,14 @@ ignore_russian_front_brest_litovsk = {
 	}
 	enable = {
 		original_tag = GER
-		has_global_flag = brest_litovsk
+		OR = {
+			has_idea = RUS_idea_armistice_cp
+			has_global_flag = brest_litovsk
+			NOT = {
+				has_war_with = RUS
+			}
+		}
 		NOT = {
-			has_war_with = RUS
 			has_global_flag = great_war_ends
 		}
 	}
@@ -674,6 +794,54 @@ GER_unit_production = {
 
 }
 
+GER_invade_communist_britain_if_you_can = {
+	enable = {	
+		is_in_faction_with = GER
+		has_global_flag = great_war_ends
+		GER = {
+			naval_strength_ratio = {
+				tag = ENG 
+				  ratio > 0.5
+			  }
+		}	
+		NOT = {
+			has_war_with = RUS
+			has_war_with = FRA
+		}	
+	}
+	abort = { 
+		GER = {
+			naval_strength_ratio = {
+				tag = ENG 
+				  ratio < 0.4
+			  }
+		}	
+	}
+	ai_strategy = {
+        type = invasion_unit_request
+        country_trigger = { tag = ENG }
+        value = 500
+    }
+
+	ai_strategy = {
+		type = invade
+		id = ENG
+		value = 1000
+	}
+
+	
+	ai_strategy = {
+		type = consider_weak
+		id = ENG
+		value = 75
+	}
+	
+	ai_strategy = {
+		type = naval_invasion_supremacy_weight
+		value = 40
+	}
+
+}
 
 GER_early_template_design = {
 	enable = {	
@@ -712,7 +880,10 @@ GER_area_priority = {
 	enable = {
 		original_tag = GER
 	}
-	abort = { always = no }
+	abort = { 
+		
+		has_global_flag = great_war_ends
+	}
 	ai_strategy = {
 		type = area_priority
 		id = europe
@@ -760,7 +931,9 @@ axis_stay_away_from_the_royal_navy = {
 	enable = {
 		has_war_with = ENG
 		date < 1916.1.1
-		
+		NOT = {
+			has_global_flag = great_war_ends
+		}
 		OR = {
 			GER = {
 				naval_strength_ratio = {
@@ -787,6 +960,7 @@ axis_stay_away_from_the_royal_navy = {
 	}
 	abort = {
 		OR = {
+			has_global_flag = great_war_ends
 			date > 1916.1.1
 			NOT = { has_war_with = ENG }
 			AND = {
@@ -1019,7 +1193,6 @@ GER_ignore_colonies_when_ww1 = {
 		id = south_america
 		value = -2000
 	}
-
 	ai_strategy = {
 		type = front_unit_request
 		area = north_america
@@ -1030,6 +1203,19 @@ GER_ignore_colonies_when_ww1 = {
 		id = north_america
 		value = -2000
 	}
+
+	ai_strategy = {
+		type = front_unit_request
+		area = african_regions
+		value = -2000
+	}
+
+	ai_strategy = {
+		type = area_priority
+		id = african_regions
+		value = -2000
+	}
+	
 }
 
 # THIS IS NOT WORKING
