@@ -3941,6 +3941,7 @@ country_event = {
 		}
 		OR = {
 			owns_state = 598
+			owns_state = 606
 			owns_state = 613
 		}
 	}
@@ -3975,9 +3976,11 @@ country_event = {
 						owner = { is_china_or_warlord_no_tt = yes }
 						OR = {
 							state = 598
+							state = 606
 							state = 613
 						}
 					}
+					remove_core_of = ROOT
 					add_core_of = PREV
 					transfer_state_to = PREV
 				}
@@ -4054,14 +4057,14 @@ country_event = {
 				}
 				if = {
 					limit = {
-						has_army_size = { size < 20 }
+						has_army_size = { size < 12 }
 					}
 					capital_scope = {
 						create_unit = {
 							division = "division_template = \"Jiangxujun\"	start_experience_factor = 0.7	start_equipment_factor = 1"
 							owner = PREV
 							allow_spawning_on_enemy_provs = yes
-							count = 10
+							count = 7
 						}
 					}
 				}
@@ -4442,6 +4445,7 @@ country_event = {
 							state = 600
 						}
 					}
+					remove_core_of = ROOT
 					add_core_of = PREV
 					transfer_state_to = PREV
 				}
@@ -7127,22 +7131,6 @@ country_event = {
 	option = {
 		name = ww1_china.43.a
 	}
-	option = {
-		name = ww1_china.43.b
-		trigger = {
-			is_ai = no
-			ZHC = { is_ai = yes }
-		}
-		ZHC = { change_tag_from = PREV }
-	}
-	option = {
-		name = ww1_china.43.c
-		trigger = {
-			is_ai = no
-			FNG = { is_ai = yes }
-		}
-		FNG = { change_tag_from = PREV }
-	}
 }
 
 # END OF ZHILI-ANHUI WAR RESPONSE
@@ -7598,6 +7586,13 @@ country_event = {
 	immediate = {
 		hidden_effect = {
 			KMT = {
+				if = {
+					limit = {
+						owns_state = 599
+						NOT = { country_exists = GXC }
+					}
+					activate_decision = CHI_new_guangxi_clique
+				}
 				leave_faction = yes
 				create_dynamic_country = {
 					original_tag = GDC
@@ -7932,11 +7927,13 @@ country_event = {
 							OR = {
 								state = 329
 								state = 330
+								state = 607
 								state = 610
 								state = 611
 								state = 612
 								state = 621
 								state = 622
+								state = 891
 							}
 						}
 						transfer_state_to = GMJ
@@ -9862,26 +9859,31 @@ country_event = {
 	trigger = {
 		tag = YUN
 		OR = {
-			has_global_flag = northern_expedition
-			any_other_country = {
-				is_kuomintang_state = yes
-				has_country_flag = reunited_china
+			AND = {
+				NOT = {
+					has_completed_focus = CHI_cooperation_with_the_nationalists
+					has_cosmetic_tag = YUN_KMT
+				}
+				OR = {
+					has_global_flag = northern_expedition
+					any_other_country = {
+						is_kuomintang_state = yes
+						has_country_flag = reunited_china
+					}
+				}
 			}
-		}
-		NOT = {
-			has_completed_focus = CHI_cooperation_with_the_nationalists
-			has_cosmetic_tag = YUN_KMT
+			AND = {
+				any_enemy_country = {
+					is_kuomintang_state = yes
+				}
+				surrender_progress > 0.3
+			}
 		}
 	}
 	fire_only_once = yes
-	mean_time_to_happen = {
-		days = 70
-	}
+	mean_time_to_happen = { days = 0 }
 	option = {
 		name = ww1_china.67.a
-		effect_tooltip = {
-			promote_character = YUN_long_yun
-		}
 		hidden_effect = {
 			every_possible_country = {
 				limit = {
@@ -9899,28 +9901,40 @@ country_event = {
 				promote_character = authoritarian_democracy
 			}
 			set_cosmetic_tag = YUN_KMT
-			complete_national_focus = CHI_cooperation_with_the_nationalists
-			uncomplete_national_focus = {
-				focus = CHI_cooperation_with_the_communists
-				uncomplete_children = yes
-			}
-			uncomplete_national_focus = {
-				focus = CHI_opposition
-				uncomplete_children = yes
-			}
-			uncomplete_national_focus = {
-				focus = CHI_chinese_federalism
-			}
-			uncomplete_national_focus = {
-				focus = CHI_isolationism
-			}
-			uncomplete_national_focus = {
-				focus = CHI_fubinism
-			}
 			mark_focus_tree_layout_dirty = yes
+			every_enemy_country = {
+				limit = {
+					OR = {
+						is_kuomintang_state = yes
+						AND = {
+							is_subject = yes
+							OVERLORD = {
+								is_kuomintang_state = yes
+							}
+						}
+						AND = {
+							is_in_faction = yes
+							any_allied_country = {
+								is_kuomintang_state = yes
+							}
+						}
+					}
+				}
+				white_peace = ROOT
+			}
+			if = {
+				limit = { owns_state = 603 }
+				599 = {
+					owner = {
+						transfer_state = 603
+					}
+				}
+			}
 		}
-		ai_chance = {
-			factor = 100
+		effect_tooltip = {
+			YUN_long_yun = {
+				promote_character = authoritarian_democracy
+			}
 		}
 	}
 }
@@ -18149,36 +18163,118 @@ country_event = {
 
 # Zhao Ti defects!
 country_event = {
-	id = ww1_china.207
-	title = ww1_china.207.t
-	desc = ww1_china.207.d
+	id = ww1_china.206
+	title = ww1_china.206.t
+	desc = ww1_china.206.d
 	picture = GFX_report_event_chinese_soldiers
 	trigger = {
 		tag = ZHC
 		has_war_with = FNG
 		has_global_flag = zhao_ti
 		NOT = { has_global_flag = second_zhili_fengtian_war }
+		OR = {
+			owns_state = 607
+			owns_state = 891
+		}
+	}
+	fire_only_once = yes
+	option = {
+		name = ww1_china.206.a
+		FNG = {
+			hidden_effect = {
+				division_template = {
+					name = "Henanjun"
+					division_names_group = CHI_INF_02
+					regiments = {
+						infantry = { x = 0 y = 0 }
+						infantry = { x = 0 y = 1 }
+						infantry = { x = 0 y = 2 }
+						artillery_brigade = { x = 0 y = 3 }
+						infantry = { x = 1 y = 0 }
+						infantry = { x = 1 y = 1 }
+						infantry = { x = 1 y = 2 }
+						artillery_brigade = { x = 1 y = 3 }
+						infantry = { x = 2 y = 0 }
+						infantry = { x = 2 y = 1 }
+						infantry = { x = 2 y = 2 }
+						artillery_brigade = { x = 2 y = 3 }
+						infantry = { x = 3 y = 0 }
+						infantry = { x = 3 y = 1 }
+						infantry = { x = 3 y = 2 }
+						cavalry = { x = 4 y = 0 }
+						cavalry = { x = 4 y = 1 }
+						cavalry = { x = 4 y = 2 }
+					}
+					support = {
+						engineer = { x = 0 y = 0 }
+					}
+				}
+			}
+			607 = {
+				create_unit = {
+					division = "division_template = \"Henanjun\"	start_experience_factor = 0.4	start_equipment_factor = 1"
+					owner = PREV
+					allow_spawning_on_enemy_provs = yes
+					count = 1
+				}
+			}
+			897 = {
+				create_unit = {
+					division = "division_template = \"Henanjun\"	start_experience_factor = 0.4	start_equipment_factor = 1"
+					owner = PREV
+					allow_spawning_on_enemy_provs = yes
+					count = 1
+				}
+			}
+		}
+	}
+}
+
+# Lu Yongxiang takes Anhui leadership
+country_event = {
+	id = ww1_china.207
+	title = ww1_china.207.t
+	desc = ww1_china.207.d
+	picture = GFX_report_event_chinese_soldiers
+	trigger = {
+		tag = ANC
+		has_global_flag = zhili_anhui_war
+		has_war = no
+		NOT = { owns_state = 608 }
+		has_character = ANC_lu_yongxiang
+		OR = {
+			has_government = neutrality
+			has_government = fascism
+		}
 	}
 	fire_only_once = yes
 	option = {
 		name = ww1_china.207.a
-		FROM = {
-			if = {
-				limit = { is_faction_leader = no }
-				create_faction = anti_zhili_alliance
+		ANC_lu_yongxiang = {
+			add_country_leader_role = {
+				promote_leader = yes
+				country_leader = { ideology = despotism }
 			}
-			add_to_faction = ROOT
-		}
-		ai_chance = {
-			base = 100
-			modifier = {
-				add = -1000
-				FROM = { has_government = fascism }
-			}
-			modifier = {
-				add = -1000
-				has_government = communism
+			add_country_leader_role = {
+				promote_leader = yes
+				country_leader = { ideology = stratocracy }
 			}
 		}
+	}
+	option = {
+		name = ww1_china.43.b
+		trigger = {
+			is_ai = no
+			ZHC = { is_ai = yes }
+		}
+		ZHC = { change_tag_from = PREV }
+	}
+	option = {
+		name = ww1_china.43.c
+		trigger = {
+			is_ai = no
+			FNG = { is_ai = yes }
+		}
+		FNG = { change_tag_from = PREV }
 	}
 }
