@@ -7933,6 +7933,7 @@ country_event = {
 								state = 612
 								state = 621
 								state = 622
+								state = 890
 								state = 891
 							}
 						}
@@ -11838,8 +11839,18 @@ country_event = {
 	picture = GFX_report_event_chinese_officers
 	trigger = {
 		tag = FNG
-		has_global_flag = second_zhili_fengtian_war_end
-		has_character = FNG_guo_songling
+		owns_state = 608
+		OR = {
+			GMJ = {
+				has_war_with = ROOT
+				NOT = { has_government = communism }
+			}
+			any_enemy_country = {
+				is_kuomintang_state = yes
+				is_subject = no
+				NOT = { has_government = communism }
+			}
+		}
 	}
 	mean_time_to_happen = {
 		days = 70
@@ -11847,42 +11858,87 @@ country_event = {
 	fire_only_once = yes
 	option = {
 		name = ww1_china.102.a
+		trigger = {
+			JAP = {
+				is_neighbor_of_subject = yes
+				is_subject = no
+				NOT = {
+					has_government = communism
+					has_war_with = ROOT
+				}
+			}
+		}
 		add_political_power = 75
 		retire_character = FNG_guo_songling
 		remove_ideas = CHI_FNG_idea_regionalist_sentiment
-		if = {
-			limit = {
-				JAP = {
-					is_neighbor_of = ROOT
-					is_subject = no
-					NOT = {
-						has_government = communism
-						has_war_with = ROOT
-					}
-				}
-			}
-			add_ideas = CHI_FNG_idea_kwantung_army
-		}
+		add_ideas = CHI_FNG_idea_kwantung_army
 	}
 	option = {
 		name = ww1_china.102.b
 		add_political_power = -75
-		FNG_guo_songling = {
-			set_nationality = GMJ
-		}
 		remove_ideas = CHI_FNG_idea_regionalist_sentiment
-		if = {
-			limit = {
-				JAP = {
-					is_neighbor_of = ROOT
-					is_subject = no
-					NOT = {
-						has_government = communism
+		effect_tooltip = {
+			start_civil_war = {
+				ideology = democratic
+				size = 0.3
+			}
+		}
+		hidden_effect = {
+			start_civil_war = {
+				ideology = democratic
+				size = 0.3
+				keep_political_leader = yes
+				keep_political_party_members = yes
+				keep_unit_leaders_trigger = {
+					NOT = { has_trait = chinese_nationalist }
+				}
+				ROOT = {
+					FNG_guo_songling = {
+						set_nationality = PREV.PREV
+					}
+				}
+				FNG_guo_songling = {
+					add_country_leader_role = {
+						promote_leader = yes
+						country_leader = { ideology = authoritarian_democracy }
+					}
+					add_country_leader_role = {
+						promote_leader = yes
+						country_leader = { ideology = conservatism }
+					}
+					add_country_leader_role = {
+						promote_leader = yes
+						country_leader = { ideology = stratocracy }
+					}
+				}
+				random_other_country = {
+					limit = {
 						has_war_with = ROOT
+						OR = {
+							is_kuomintang_state = yes
+							tag = GMJ
+							is_subject = no
+						}
+					}
+					if = {
+						limit = { has_subject_autonomy_feature = yes }
+						set_autonomy = {
+							target = PREV
+							autonomy_state = autonomy_tgwr_regional_government
+							end_wars = no
+							end_civil_wars = no
+						}
+					}
+					else = {
+						set_autonomy = {
+							target = PREV
+							autonomy_state = autonomy_puppet
+							end_wars = no
+							end_civil_wars = no
+						}
 					}
 				}
 			}
-			add_ideas = CHI_FNG_idea_kwantung_army
 		}
 		ai_chance = {
 			factor = 0
@@ -17874,21 +17930,7 @@ country_event = {
 	title = ww1_china.198.t
 	desc = ww1_china.198.d
 	picture = GFX_report_event_chinese_soldiers
-	fire_only_once = yes
-	trigger = {
-		tag = FNG
-		is_subject = no
-		has_war = no
-		JNC = {
-			is_neighbor_of_subject = yes
-			is_subject = no
-		}
-		has_global_flag = warlord_era
-		has_global_flag = second_zhili_fengtian_war_end
-	}
-	mean_time_to_happen = {
-		days = 30
-	}
+	is_triggered_only = yes
 	option = {
 		name = ww1_china.198.a
 		custom_effect_tooltip = historical_tt
@@ -17907,11 +17949,6 @@ country_event = {
 				}
 			}
 		}
-	}
-	option = {
-		name = ww1_china.198.b
-		add_war_support = -0.05
-		ai_chance = { base = 0 }
 	}
 }
 
@@ -18276,5 +18313,136 @@ country_event = {
 			FNG = { is_ai = yes }
 		}
 		FNG = { change_tag_from = PREV }
+	}
+}
+
+# Jing Yuexiu joins Guominjun
+country_event = {
+	id = ww1_china.208
+	title = ww1_china.208.t
+	desc = ww1_china.208.d
+	picture = GFX_report_event_chinese_soldiers
+	fire_only_once = yes
+	trigger = {
+		tag = YLN
+		has_war = no
+		is_subject = no
+		GMJ = {
+			has_war = no
+			is_neighbor_of = ROOT
+			NOT = { has_government = communism }
+		}
+		NOT = {
+			has_country_flag = reunited_china
+			has_government = communism
+		}
+	}
+	mean_time_to_happen = {
+		days = 40
+	}
+	# option = {
+	# 	name = ww1_china.208.a
+	# 	custom_effect_tooltip = GAME_OVER_TT
+	# 	SHN_jing_yuexiu = {
+	# 		remove_country_leader_role = {
+	# 			ideology = despotism
+	# 		}
+	# 		remove_country_leader_role = {
+	# 			ideology = stratocracy
+	# 		}
+	# 		set_nationality = GMJ
+	# 	}
+	# 	every_owned_state = {
+	# 		add_core_of = GMJ
+	# 		transfer_state_to = GMJ
+	# 	}
+	# }
+	option = {
+		name = ww1_china.208.b
+		# trigger = { is_ai = no }
+		GMJ = {
+			if = {
+				limit = { has_subject_autonomy_feature = yes }
+				set_autonomy = {
+					target = ROOT
+					autonomy_state = autonomy_tgwr_regional_government
+				}
+			}
+			else = {
+				puppet = ROOT
+			}
+		}
+	}
+}
+
+# Wu Peifu takes chance
+country_event = {
+	id = ww1_china.209
+	title = ww1_china.209.t
+	desc = ww1_china.209.d
+	picture = GFX_report_event_chinese_soldiers
+	fire_only_once = yes
+	trigger = {
+		tag = ZHC
+		has_war = no
+		is_subject = no
+		GMJ = {
+			OR = {
+				owns_state = 607
+				owns_state = 890
+				owns_state = 891
+			}
+			has_war_with = FNG
+		}
+	}
+	mean_time_to_happen = {
+		days = 20
+	}
+	option = {
+		name = ww1_china.209.a
+		declare_war_on = {
+			target = GMJ
+			type = take_state_focus
+			generator = { 607 890 891 }
+		}
+	}
+	option = {
+		name = ww1_china.209.b
+		ai_chance = { base = 0 }
+		add_war_support = -0.05
+	}
+}
+
+# League of Five Provinces
+country_event = {
+	id = ww1_china.210
+	title = ww1_china.210.t
+	desc = ww1_china.210.d
+	picture = GFX_report_event_chinese_soldiers
+	fire_only_once = yes
+	trigger = {
+		tag = ZHE
+		has_war = no
+		is_subject = no
+		owns_state = 595
+		owns_state = 596
+		owns_state = 598
+		owns_state = 600
+		owns_state = 606
+		owns_state = 612
+		NOT = {
+			has_country_flag = reunited_china
+		}
+	}
+	mean_time_to_happen = {
+		days = 20
+	}
+	option = {
+		name = ww1_china.209.a
+		add_stability = 0.15
+		set_capital = {
+			state = 598
+		}
+		set_cosmetic_tag = LEF
 	}
 }
