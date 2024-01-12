@@ -1,12 +1,58 @@
 ﻿add_namespace = ww1_hejaz
 ###Arabian revolt
 country_event = {
-	title = ww1_hejaz.7.t
-	desc = ww1_hejaz.7.d
 	id = ww1_hejaz.7
-	picture = GFX_report_event_tur_turkish_soldiers
+	title = ww1_hejaz.7.t
+	picture = GFX_report_event_arab_revolt
+	desc = {
+		text =  ww1_hejaz.7.desc
+		trigger = {
+			NOT = {
+				ENG = { 
+					has_completed_focus = ENG_Lawrence_Of_Arabia 
+					has_war_with = ROOT
+				}
+			}
+		}
+	}
+	desc = {
+		text =  ww1_hejaz.7.desc_2
+		trigger = {
+			ENG = {
+				has_completed_focus = ENG_Lawrence_Of_Arabia
+				has_war_with = ROOT
+			}
+		}
+	}
 	fire_only_once = yes
-	is_triggered_only = yes
+	trigger = {
+		original_tag = TUR
+		OR = {	
+			has_completed_focus = TUR_total_integration_of_hejaz
+			ENG = {
+				has_completed_focus = ENG_Lawrence_Of_Arabia
+			}	
+		}
+		HJZ = {
+			OR = {
+				is_subject_of = TUR
+				AND = {
+					exists = no
+					any_state = {
+						is_core_of = HJZ
+						is_owned_by = ROOT
+					}
+				}				
+			}
+		}
+		NOT = {
+			has_global_flag = great_arabian_revolt
+		}
+		any_other_country = {
+			has_war_with = TUR
+			is_major = yes
+		}
+	}
 	immediate = {
 		set_global_flag = great_arabian_revolt
 		hidden_effect = {
@@ -23,48 +69,14 @@ country_event = {
 						limit = {
 							is_core_of = HJZ
 						}
-						HJZ = {
-							transfer_state = PREV
-						}
-						ROOT = {
-							add_state_claim = PREV
-						}
-					}
-				}
-			}
-			if = {
-				limit = {
-					owns_state = 878
-				}
-				HJZ = {
-					transfer_state = 878
-				}
-				add_state_claim = 878
-				else = {
-					random_owned_state = {
-						limit = {
-							is_core_of = HJZ
-						}
-						HJZ = {
-							transfer_state = PREV
-						}
-						ROOT = {
-							add_state_claim = PREV
-						}
+						transfer_state_to = HJZ
+						add_claim_by = ROOT
 					}
 				}
 			}
 			HJZ = {
-				leave_faction = yes
+				clear_all_relations = yes
 				load_oob = "HJZ_1910"
-				if = {
-					limit = {
-						is_subject = yes
-					}
-					OVERLORD = {
-						end_puppet = HJZ
-					}
-				}
 			}
 			if = {
 				limit = {
@@ -74,11 +86,7 @@ country_event = {
 					any_owned_state = {
 						is_core_of = ASR
 					}
-				}
-				ASR = {
-					load_oob = "ASR_1910"
-					set_country_flag = arab_revolt_member
-				}
+				}			
 				if = {
 					limit = {
 						owns_state = 747
@@ -101,6 +109,10 @@ country_event = {
 						}
 					}
 				}
+				ASR = {
+					load_oob = "ASR_1910"
+					set_country_flag = arab_revolt_member
+				}
 				if = {
 					limit = {
 						owns_state = 662
@@ -108,44 +120,33 @@ country_event = {
 							controls_state = 662
 						}
 					}
-					662 = { set_state_controller_to = HJZ }
+					662 = { set_state_controller_to = ASR }
 				}
 			}
 			if = {
 				limit = {
-					YEM = {
-						exists = no
+					293 = {
+						is_owned_by = ROOT
+						NOT = {
+							has_state_flag = TUR_autonomous_region
+							has_dynamic_modifier = { modifier = TUR_autonomous_region scope = TUR }
+							has_state_flag = TUR_autonomous_region_not_control
+						}
+					}	
+					NOT = {
+						country_exists = YEM
 					}
-					any_owned_state = {
-						is_core_of = YEM
-					}
+					
+				}
+				293 = {
+					transfer_state_to = YEM
+					add_claim_by = ROOT
 				}
 				YEM = {
+					clear_all_relations = yes
 					remove_ideas = standing_alone
 					load_oob = "YEM_1910"
 					set_country_flag = arab_revolt_member
-				}
-				if = {
-					limit = {
-						owns_state = 293
-					}
-					YEM = {
-						transfer_state = 293
-					}
-					add_state_claim = 293
-					else = {
-						random_owned_state = {
-							limit = {
-								is_core_of = YEM
-							}
-							YEM = {
-								transfer_state = PREV
-							}
-							ROOT = {
-								add_state_claim = PREV
-							}
-						}
-					}
 				}
 			}
 		}
@@ -179,6 +180,7 @@ country_event = {
 			}
 		}
 		news_event = ww1_hejaz.8
+		hidden_effect = { country_event = { id = ottoman.167 days = 5 } }
 	}
 	option = {
 		name = ww1_hejaz.7.b
@@ -209,7 +211,78 @@ country_event = {
 			}
 		}
 		news_event = ww1_hejaz.8
+		hidden_effect = { country_event = { id = ottoman.167 days = 5 } }
 		HJZ = { change_tag_from = ROOT }
+	}
+	option = {
+		name = ww1_hejaz.7.c
+		trigger = { is_ai = no }
+		declare_war_on = {
+			target = HJZ
+			type = annex_everything
+		}
+		if = {
+			limit = {
+				ASR = {
+					has_country_flag = arab_revolt_member
+				}
+			}
+			declare_war_on = {
+				target = ASR
+				type = annex_everything
+			}
+		}
+		if = {
+			limit = {
+				YEM = {
+					has_country_flag = arab_revolt_member
+				}
+			}
+			declare_war_on = {
+				target = YEM
+				type = annex_everything
+			}
+		}
+		news_event = ww1_hejaz.8
+		ASR = {
+			change_tag_from = ROOT
+		}
+		hidden_effect = { country_event = { id = ottoman.167 days = 5 } }
+		ai_chance = {
+			base = 0
+		}
+	}
+	option = {
+		name = ww1_hejaz.7.d
+		trigger = {
+			is_ai = no
+			YEM = {
+				has_country_flag = arab_revolt_member
+			}
+		}
+		declare_war_on = {
+			target = HJZ
+			type = annex_everything
+		}
+		if = {
+			limit = {
+				ASR = {
+					has_country_flag = arab_revolt_member
+				}
+			}
+			declare_war_on = {
+				target = ASR
+				type = annex_everything
+			}
+		}
+		news_event = ww1_hejaz.8
+		YEM = {
+			change_tag_from = ROOT
+		}
+		hidden_effect = { country_event = { id = ottoman.167 days = 5 } }
+		ai_chance = {
+			base = 0
+		}
 	}
 }
 
@@ -224,6 +297,20 @@ news_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_hejaz.8.a
+		
+		hidden_effect = {
+			if = {
+				limit = {
+					has_game_rule = {
+						rule = rule_superevent
+						option = DEFAULT
+					}
+					is_ai = no
+				}
+				set_country_flag = SE_Arab_revolt
+				play_song = "SE_Arab_revolt"
+			}
+		}
 		trigger = {
 			NOT = {
 				tag = TUR
@@ -232,6 +319,19 @@ news_event = {
 	}
 	option = {
 		name = ww1_hejaz.8.b
+		hidden_effect = {
+			if = {
+				limit = {
+					has_game_rule = {
+						rule = rule_superevent
+						option = DEFAULT
+					}
+					is_ai = no
+				}
+				set_country_flag = SE_Arab_revolt
+				play_song = "SE_Arab_revolt"
+			}
+		}
 		trigger = {
 			tag = TUR
 		}
@@ -283,6 +383,9 @@ country_event = {
 			}
 			any_owned_state = {
 				is_core_of = OMA
+			}
+			any_owned_state = {
+				is_core_of = MSC
 			}
 			# any_owned_state = {
 			# 	is_core_of = IRQ
@@ -410,6 +513,12 @@ country_event = {
 				is_core_of = QAT
 			}
 			transfer_state_to = QAT
+		}
+		every_owned_state = {
+			limit = {
+				is_core_of = MSC
+			}
+			transfer_state_to = MSC
 		}
 		every_owned_state = {
 			limit = {
@@ -729,6 +838,62 @@ country_event = {
 				relation = non_aggression_pact
 				active = yes
 			}
+		}
+	}
+}
+
+# Capital of Arabia
+country_event = {
+	id = ww1_hejaz.13
+	title = ww1_hejaz.13.t
+	desc = ww1_hejaz.13.desc
+	trigger = {
+		has_cosmetic_tag = HJZ_arabia
+		has_war = no
+		is_subject = no
+	}
+	mean_time_to_happen = {
+		days = 10
+	}
+	fire_only_once = yes
+	option = {
+		# Mecca
+		name = ww1_hejaz.13.a
+		trigger = { owns_state = 679 }
+		set_capital = {
+			state = 679
+		}
+	}
+	# option = {
+	# 	# Medina
+	# 	name = ww1_hejaz.13.b
+	# 	trigger = { owns_state = 878 }
+	# 	set_capital = {
+	# 		state = 878
+	# 	}
+	# }
+	option = {
+		# Jerusalem
+		name = ww1_hejaz.13.c
+		trigger = { owns_state = 454 }
+		set_capital = {
+			state = 454
+		}
+	}
+	option = {
+		# Damascus
+		name = ww1_hejaz.13.d
+		trigger = { owns_state = 554 }
+		set_capital = {
+			state = 554
+		}
+	}
+	option = {
+		# Baghdad
+		name = ww1_hejaz.13.e
+		trigger = { owns_state = 291 }
+		set_capital = {
+			state = 291
 		}
 	}
 }

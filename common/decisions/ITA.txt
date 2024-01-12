@@ -135,44 +135,44 @@ peace_deals = {
 		is_good = no
 	}
 
-	ITA_sue_for_peace_AUH = {	
-		icon = GFX_decision_eng_trade_unions_support	
-		allowed = {
-			tag = ITA
-		}
-		available = {
-			has_war_with = AUH
-			has_global_flag = brothers_war
-			surrender_progress > 0.1
-			OR = {
-				NOT = { has_global_flag = kis_war }
-				has_global_flag = interbellum
-			}
-		}
-		visible = {
-			has_war_with = AUH
-			has_global_flag = brothers_war
-			OR = {
-				NOT = { has_global_flag = kis_war }
-				has_global_flag = interbellum
-			}
-		}
-		fire_only_once = yes
-		ai_will_do = {
-			base = 0
-			modifier = {
-				add = 500
-				OR = {
-					surrender_progress > 0.3
-				}
-			}
-		}
-		complete_effect = {
-			AUH = { country_event = ww1_auh.28 }
-		}
-	}
+	# ITA_sue_for_peace_AUH = {	
+	# 	icon = GFX_decision_eng_trade_unions_support	
+	# 	allowed = {
+	# 		tag = ITA
+	# 	}
+	# 	available = {
+	# 		has_war_with = AUH
+	# 		has_global_flag = brothers_war
+	# 		surrender_progress > 0.1
+	# 		OR = {
+	# 			NOT = { has_global_flag = kis_war }
+	# 			has_global_flag = interbellum
+	# 		}
+	# 	}
+	# 	visible = {
+	# 		has_war_with = AUH
+	# 		has_global_flag = brothers_war
+	# 		OR = {
+	# 			NOT = { has_global_flag = kis_war }
+	# 			has_global_flag = interbellum
+	# 		}
+	# 	}
+	# 	fire_only_once = yes
+	# 	ai_will_do = {
+	# 		base = 0
+	# 		modifier = {
+	# 			add = 500
+	# 			OR = {
+	# 				surrender_progress > 0.3
+	# 			}
+	# 		}
+	# 	}
+	# 	complete_effect = {
+	# 		AUH = { country_event = ww1_auh.28 }
+	# 	}
+	# }
 }
-foreign_politics = {
+operations = {
 	ITA_claim_corsica = {
 		icon = GFX_decision_eng_trade_unions_demand
 		allowed = {
@@ -333,29 +333,6 @@ ITA_italian_civil_war_decisions = {
 		}
 		remove_effect = {
 			country_event = { id = garibaldi.8 }
-		}
-	}
-	ITS_remove_mafia = {
-		icon = GFX_decision_SWI_expand_covert_operations
-		allowed = {
-			original_tag = ITA
-		}
-		available = {
-			has_country_flag = ITA_monarchist_italy_flag
-			has_idea = ITA_idea_mafia
-		}
-		visible = {
-			has_country_flag = ITA_monarchist_italy_flag
-			has_idea = ITA_idea_mafia
-		}
-		cost = 100
-		fire_only_once = no
-		days_remove = 180
-		ai_will_do = {
-			factor = 10
-		}
-		remove_effect = {
-			remove_ideas = ITA_idea_mafia
 		}
 	}
 	ITA_civil_war_timer = {
@@ -921,7 +898,10 @@ interwar_decisions = {
 				has_active_mission = frankfurt_conference
 			}
 			ITA = {
-				owns_state = 871
+				OR = {
+					owns_state = 44
+					owns_state = 871
+				}
 				has_capitulated = no
 				NOT = {
 					has_country_flag = great_war_loser
@@ -935,7 +915,10 @@ interwar_decisions = {
 					is_subject = yes
 					has_capitulated = yes
 					has_war_with = ALB
-					NOT = { owns_state = 871 }
+					NOT = {
+						owns_state = 44
+						owns_state = 871
+					}
 					has_subject = ALB
 				}
 			}
@@ -944,13 +927,177 @@ interwar_decisions = {
 		is_good = no
 		timeout_effect = {
 			effect_tooltip = {
-				871 = { transfer_state_to = ALB }
+				every_state = {
+					limit = {
+						is_owned_by = ITA
+						is_core_of = ALB
+					}
+					transfer_state_to = ALB
+				}
 			}
 			hidden_effect = {
 				set_global_flag = valona_war_end
+				every_state = {
+					limit = {
+						is_core_of = ALB
+						is_demilitarized_zone = yes
+					}
+					set_demilitarized_zone = no
+				}
 				if = {
 					limit = { tag = ITA }
 					country_event = ww1_albania.20
+				}
+			}
+		}
+	}
+}
+
+ITA_italian_mafia_dec_cat = {
+	ITA_suppress_mafia_in_state = {
+		icon = GFX_decision_oppression
+		target_trigger = {
+			FROM = {
+				ITA_state_has_any_version_of_mafia_rising_modifier = yes
+			}
+		}
+		target_root_trigger = {
+			any_controlled_state = {
+				ITA_state_has_any_version_of_mafia_rising_modifier = yes
+			}
+			OR = {
+				NOT = { has_focus_tree = italian_focus }
+				has_country_flag = ITA_monarchist_italy_flag
+				has_completed_focus = ITA_fight_against_mafia
+			}
+		}
+		state_target = yes
+		on_map_mode = map_only
+
+		custom_cost_trigger = {
+			has_equipment = {
+				infantry_equipment > 499
+			}
+			has_manpower > 999
+			command_power > 24
+		}
+		custom_cost_text = decision_cost_ie_500_MP_500_CP_25
+
+		days_remove = 90
+
+		available = {
+			FROM = {
+				ITA_state_has_any_version_of_mafia_rising_modifier = yes
+			}
+		}
+
+		complete_effect = {
+			hidden_effect = {
+				add_equipment_to_stockpile = { 
+					type = infantry_equipment
+					amount = -500
+				}
+				add_manpower = -1000
+				add_command_power = -25
+			}
+		}
+
+		remove_effect = {
+			FROM = {
+				if = {
+					limit = {
+						has_dynamic_modifier = { modifier = ITA_mafia_on_the_rise }
+					}
+					remove_dynamic_modifier = { modifier = ITA_mafia_on_the_rise }
+				}
+				else = {
+					remove_dynamic_modifier = { modifier = ITA_mafia_on_the_rise_no_lar }
+				}
+			}
+		}
+
+		ai_will_do = {
+			base = 0.1
+		}
+	}
+	ITS_remove_mafia = {
+		icon = GFX_decision_SWI_expand_covert_operations
+		allowed = {
+			original_tag = ITA
+		}
+		available = {
+			has_country_flag = ITA_monarchist_italy_flag
+			has_idea = ITA_idea_mafia
+		}
+		visible = {
+			has_country_flag = ITA_monarchist_italy_flag
+			has_idea = ITA_idea_mafia
+		}
+		cost = 100
+		fire_only_once = no
+		days_remove = 180
+		ai_will_do = {
+			factor = 10
+		}
+		remove_effect = {
+			remove_ideas = ITA_idea_mafia
+		}
+	}
+	ITS_cooperate_mafia = {
+		name = ITA_cooperate_with_the_mafia
+		desc = ITA_cooperate_with_the_mafia_desc
+		icon = GFX_decision_SWI_expand_covert_operations
+		allowed = {
+			original_tag = ITA
+		}
+		available = {
+		}
+		visible = {
+			has_country_flag = ITA_monarchist_italy_flag
+			any_controlled_state = {
+				ITA_state_has_any_version_of_mafia_rising_modifier = yes
+			}
+		}
+		cancel_if_not_visible = yes
+		cost = 100
+		fire_only_once = no
+		days_remove = 180
+		ai_will_do = {
+			factor = 10
+		}
+		remove_effect = {
+			custom_effect_tooltip = ITA_cooperate_with_the_mafia_dm_tt
+			if = {
+				limit = {
+					has_dlc = "La Resistance"
+				}
+				effect_tooltip = {
+					remove_dynamic_modifier = { modifier = ITA_mafia_on_the_rise }
+					add_dynamic_modifier = { modifier = ITA_established_mafia }
+				}
+				hidden_effect = {
+					every_controlled_state = {
+						limit = {
+							has_dynamic_modifier = { modifier = ITA_mafia_on_the_rise }
+						}
+						remove_dynamic_modifier = { modifier = ITA_mafia_on_the_rise }
+						add_dynamic_modifier = { modifier = ITA_established_mafia }
+					}
+				}
+			}
+			else = {
+				effect_tooltip = {
+					remove_dynamic_modifier = { modifier = ITA_mafia_on_the_rise_no_lar }
+					add_dynamic_modifier = { modifier = ITA_established_mafia_no_lar }
+				}
+				hidden_effect = {
+					every_controlled_state = {
+						limit = {
+							has_dynamic_modifier = { modifier = ITA_mafia_on_the_rise_no_lar }
+						}
+						remove_dynamic_modifier = { modifier = ITA_mafia_on_the_rise_no_lar }
+						add_dynamic_modifier = { modifier = ITA_established_mafia_no_lar }
+					}
 				}
 			}
 		}
