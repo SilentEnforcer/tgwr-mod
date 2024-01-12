@@ -207,18 +207,11 @@ country_event = {
 					target = SOV
 					type = civil_war
 				}
-				add_ideas = {
-					disarmed_nation
-					RUS_russian_civil_war
-					SIB_fiscal_crisis
-					SIB_red_partisans
-					SIB_railroads_in_chaos
-					SIB_high_eser_influence 
-				}
 				set_faction_leader = yes
 				set_country_flag = czechoslovak_legion
 			}
 			CER = {
+				load_oob = "RUS_czechoslovak_corps"
 				transfer_state = 908
 				transfer_state = 909
 				remove_ideas = standing_alone
@@ -323,22 +316,22 @@ country_event = {
 					allow_spawning_on_enemy_provs = yes
 				}
 			}
-			408 = {
+			910 = {
 				create_unit = {
 					division = "name = \"8. Chekhoslovatskiy Polk\" division_template = \"Chekhoslovatskiy Polk\" start_experience_factor = 1"
-					owner = SIB
+					owner = CER
 					prioritize_location = 957
 					allow_spawning_on_enemy_provs = yes
 				}
 				create_unit = {
 					division = "name = \"1. Zapasnoy Chekhoslovatskiy Polk\" division_template = \"Chekhoslovatskiy Polk\" start_experience_factor = 1"
-					owner = SIB
+					owner = CER
 					prioritize_location = 957
 					allow_spawning_on_enemy_provs = yes
 				}
 				create_unit = {
 					division = "name = \"2. Zapasnoy Chekhoslovatskiy Polk\" division_template = \"Chekhoslovatskiy Polk\" start_experience_factor = 1"
-					owner = SIB
+					owner = CER
 					prioritize_location = 957
 					allow_spawning_on_enemy_provs = yes
 				}
@@ -382,6 +375,79 @@ country_event = {
 		}
 		trigger = {
 			is_ai = no
+		}
+	}
+}
+
+#Czechoslovak revolt - Horvat establishes Provisional Supreme Government of Russia
+country_event = {
+	id = ww1_rcw.23
+	title = ww1_rcw.23.t
+	desc = ww1_rcw.23.d
+	picture = ww1_russian_state_1
+
+	is_triggered_only = yes
+	immediate = {
+		hidden_effect = {
+			every_state = {
+				limit = {
+					is_owned_by = RUS
+					OR = {
+						state = 408
+						state = 409
+						state = 560
+						state = 637
+						state = 655
+					}
+				}
+				transfer_state_to = CER
+				add_core_of = CER
+			}
+			set_capital = {
+				state = 408
+			}
+			every_possible_country = {
+				limit = {
+					has_character = RUS_vasily_flug
+				}
+				RUS_vasily_flug = {
+					set_nationality = ROOT
+				}
+			}
+			set_cosmetic_tag = CER_provisional_russia
+			set_politics = {
+				ruling_party = neutrality
+ 				long_name = CER_cabinet_party
+				name = CER_cabinet_party
+				elections_allowed = no
+			}
+			hidden_effect = {
+				every_possible_country = {
+					limit = {
+						has_character = SIB_pyotr_derber
+					}
+					SIB_pyotr_derber = {
+						set_nationality = ROOT
+						promote_character = socialism
+					}
+				}
+				set_party_name = {
+					ideology = democratic
+					long_name = FER_democratic_party_long
+					name = FER_democratic_party
+				}
+				set_party_name = {
+					ideology = fascism
+					long_name = CER_cabinet_party
+					name = CER_cabinet_party
+				}
+			}
+		}
+	}
+	option = {
+		name = ww1_rcw.23.a
+		ai_chance = {
+			base = 100
 		}
 	}
 }
@@ -506,6 +572,10 @@ country_event = {
 			}
 			leave_faction = yes
 			white_peace = WML
+			WML = {
+				add_to_faction = AMU
+				add_ideas = RUS_russian_civil_war
+			}
 		}
 	}
 }
@@ -986,7 +1056,7 @@ country_event = {
 			}
 			set_variable = {
 				var = SIB_gold_reserve_var
-				value = -0.3
+				value = -0.29
 			}
 			add_dynamic_modifier = {
 				modifier = SIB_gold_reserve_dynamic_modifier
@@ -1176,7 +1246,7 @@ country_event = {
 		}
 	}
 }
-#Siberia demands submission (for cossacks)
+#Siberia demands submission (for autonomies)
 country_event = {
 	id = ww1_rcw.16
 	title = ww1_rcw.16.t
@@ -1186,13 +1256,60 @@ country_event = {
 	#we agree
 	option = {
 		name = ww1_rcw.16.a
-		effect_tooltip = { 
-			FROM = { puppet = ROOT }
-		}
+		FROM = { puppet = ROOT }
 		FROM = {
 			country_event = {
 				id = ww1_rcw.17
 				days = 1
+			}
+		}
+		if = {
+			limit = {
+				tag = CER
+				has_cosmetic_tag = CER_provisional_russia
+			}
+			set_cosmetic_tag =  CER_high_commission
+		}
+		hidden_effect = {
+			if = {
+				limit = {
+					tag = CER
+				}
+				set_politics = {
+					ruling_party = neutrality
+				}
+			}
+			if = {
+				limit = {
+					tag = ORE
+				}
+				set_politics = {
+					ruling_party = neutrality
+				}
+			}
+			if = {
+				limit = {
+					tag = UCH
+				}
+				set_politics = {
+					ruling_party = neutrality
+				}
+			}
+			if = {
+				limit = {
+					tag = URA
+				}
+				set_politics = {
+					ruling_party = neutrality
+				}
+			}
+			if = {
+				limit = {
+					tag = KAZ
+				}
+				set_politics = {
+					ruling_party = democratic
+				}
 			}
 		}
 		ai_chance = {
@@ -1223,16 +1340,10 @@ country_event = {
 	#great
 	option = {
 		name = ww1_rcw.17.a
-		ROOT = { puppet = FROM }
-		add_political_power = 25
-		if = {
-			limit = {
-				NOT = {
-					has_idea = SIB_local_autonomies
-				}
-			}
-			add_ideas = SIB_local_autonomies
+		effect_tooltip = { 
+			ROOT = { puppet = FROM }
 		}
+		add_political_power = 25
 		ai_chance = {
 			base = 100
 		}
@@ -1480,29 +1591,105 @@ country_event = {
            	}
 	}
 }
-#Integration of autonomies
+#Russian state wants to import our weapons
 country_event = {
-	id = ww1_rcw.23
-	title = ww1_rcw.23.t
-	desc = ww1_rcw.23.d
+	id = ww1_rcw.24
+	title = ww1_rcw.24.t
+	desc = ww1_rcw.24.d
 	picture = ww1_russian_state_1
 	fire_only_once = no
 	is_triggered_only = yes
 	option = {
-		name = ww1_rcw.23.a
-		FROM = {
-			puppet = ROOT
+		name = ww1_rcw.24.a
+		SIB = {
+			country_event = {
+				id = ww1_rcw.25
+				days = 1
+			}
 		}
 		ai_chance = {
 			base = 100
 		}
 	}
 	option = {
-		name = ww1_rcw.23.b
-		FROM = {
-		create_wargoal = {
-			type = annex_everything
-			target = ROOT
+		name = ww1_rcw.24.b
+		SIB = {
+			country_event = {
+				id = ww1_rcw.26
+				days = 1
+			}
+		}
+	}
+}
+#Successful lobbying for help
+country_event = {
+	id = ww1_rcw.25
+	title = ww1_rcw.25.t
+	desc = ww1_rcw.25.d
+	picture = ww1_russian_state_1
+	fire_only_once = no
+	is_triggered_only = yes
+	option = {
+		name = ww1_rcw.25.a
+		add_political_power = 10
+		if = {
+			limit = {
+				FROM = {
+					tag = ENG
+				}
+			}
+			set_country_flag = ENG_decided_to_arm_us
+		}
+		else_if = {
+			limit = {
+				FROM = {
+					tag = FRA
+				}
+			}
+			set_country_flag = FRA_decided_to_arm_us
+		}
+		else_if = {
+			limit = {
+				FROM = {
+					tag = JAP
+				}
+			}
+			set_country_flag = JAP_decided_to_arm_us
+		}
+		else_if = {
+			limit = {
+				FROM = {
+					tag = USA
+				}
+			}
+			set_country_flag = USA_decided_to_arm_us
+		}
+		else_if = {
+			limit = {
+				FROM = {
+					tag = GER
+				}
+			}
+			set_country_flag = GER_decided_to_arm_us
+		}
+		ai_chance = {
+			base = 100
+		}
+	}
+}
+#Failed negotiations of weapons import
+country_event = {
+	id = ww1_rcw.26
+	title = ww1_rcw.26.t
+	desc = ww1_rcw.26.d
+	picture = ww1_russian_state_1
+	fire_only_once = no
+	is_triggered_only = yes
+	option = {
+		name = ww1_rcw.26.a
+		add_political_power = -10
+		ai_chance = {
+			base = 100
 		}
 	}
 }
