@@ -4,7 +4,7 @@ RUS_civil_war = {
 		icon = GFX_decision_generic_reorganize_irregulars
 
 		allowed = {
-			original_tag = RUS
+			always = yes
 		}
 
 		available = {
@@ -136,5 +136,168 @@ RUS_civil_war = {
 	}
 }
 SIB_import_weapons = {
-	
+	SIB_buy_FROM_infantry_weapons = {
+		icon = generic_industry
+		allowed = {
+			original_tag = RUS
+		}
+		target_trigger = {
+			FROM = {
+				OR = {
+					tag = GER
+					tag = ENG
+					tag = FRA
+				}
+			}
+		}
+		cancel_trigger = {
+			NOT = {
+				has_variable = opda_lira
+			}
+		}
+		available = {
+			FROM = {
+				has_opinion = {
+					target = ROOT
+					value > 0
+				}
+			}
+			NOT = {
+				has_war_with = FROM
+			}
+			NOT = {
+				has_country_flag = has_active_purchase_contract
+			}
+			NOT = {
+				custom_trigger_tooltip = {
+					tooltip = TUR_OPDA_trigger_tooltip
+					NOT = {
+						has_variable = opda_lira
+					}
+				}
+			}
+			if = {
+				limit = {
+					has_war = yes
+					alliance_naval_strength_ratio > 1
+				}
+				any_other_country = {
+					OR = {
+						original_tag = FROM
+						is_in_faction_with = FROM
+					}
+					any_owned_state = {
+						is_in_home_area = yes
+					}
+					is_neighbor_of = TUR
+				}
+			}
+		}
+		cost = 10
+		fire_only_once = no
+		days_remove = 45
+		visible = {
+			FROM = {
+				exists = yes
+				NOT = {
+					has_country_flag = great_war_loser
+				}
+				OR = {
+					tag = GER
+					tag = ENG
+					AND = {
+						tag = FRA
+						TUR = { has_completed_focus = TUR_new_weapon_contracts }
+					}
+				}
+			}
+			has_variable = opda_lira
+			if = {
+				limit = {
+					has_focus_tree = kostantiniyye_focus_tree
+				}
+				has_completed_focus = TUR_purchase_guns
+			}
+			NOT = {
+				has_focus_tree = turkey_focus_tree
+				has_completed_focus = TUR_domestic_weapon_companies
+			}
+		}
+		complete_effect = {
+			set_country_flag = {
+				flag = has_active_purchase_contract
+				days = 45
+				value = 1
+			}
+			if = {
+				limit = {
+					FROM = {
+						tag = GER
+					}
+					ROOT = { has_completed_focus = TUR_german_ottoman_arms_deal }
+				}
+				TUR_add_debt_0295 = yes
+			}
+			else = {
+				TUR_add_debt_0590 = yes
+			}
+		}
+		remove_effect = {
+			if = {
+				limit = {
+					has_completed_focus = TUR_import_dependency
+				}
+				add_equipment_to_stockpile = {
+					type = infantry_equipment
+					amount = 7000
+					producer = FROM
+				}
+			}
+			else = {
+				add_equipment_to_stockpile = {
+					type = infantry_equipment
+					amount = 5000
+					producer = FROM
+				}
+			}
+		}
+		ai_will_do = {
+			base = 0.1
+			modifier = {
+				OR = {
+					num_of_civilian_factories < 5
+					stockpile_ratio = {
+						archetype = infantry_equipment
+						ratio > 1
+					}
+				}
+				factor = 0
+			}
+			modifier = {
+				has_global_flag = TUR_must_won_bw1
+				NOT = {
+					has_country_flag = BW1_winner
+					date > 1914.1.1
+				}
+				factor = 30
+			}
+			modifier = {
+				has_global_flag = TUR_must_won_bw1
+				NOT = {
+					has_country_flag = BW1_winner
+					date > 1914.1.1
+				}
+				stockpile_ratio = {
+					archetype = infantry_equipment
+					ratio < 1 
+				}
+				factor = 270
+			}
+			modifier = {
+				has_war = yes
+				factor = 10
+			}
+		}
+	}
+
 }
