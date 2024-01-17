@@ -13,6 +13,7 @@ country_event = {
 		every_other_country = {
 			limit = {
 				is_major = yes
+				NOT = { has_country_flag = great_war_loser }
 				is_in_array = {
 					array = global.league_of_nations
 					value = THIS
@@ -65,6 +66,14 @@ country_event = {
 						has_offensive_war = yes
 						has_added_tension_amount > 20
 						has_war_with = PREV
+						has_civil_war = yes
+						any_enemy_country = {
+							original_tag = PREV
+						}
+						has_country_leader_ideology = nazism
+						has_country_leader_ideology = gen_nazism
+						has_country_leader_ideology = fascism_ideology
+						has_country_leader_ideology = fundamentalism
 					}
 				}
 			}
@@ -87,6 +96,14 @@ country_event = {
 						has_offensive_war = yes
 						has_added_tension_amount > 20
 						has_war_with = PREV
+						has_civil_war = yes
+						any_enemy_country = {
+							original_tag = PREV
+						}
+						has_country_leader_ideology = nazism
+						has_country_leader_ideology = gen_nazism
+						has_country_leader_ideology = fascism_ideology
+						has_country_leader_ideology = fundamentalism
 					}
 				}
 			}
@@ -177,17 +194,16 @@ country_event = {
 	id = league_of_nations.6
 	title = league_of_nations.6.t
 	desc = league_of_nations.6.d
-	# trigger = {
-	# 	has_global_flag = versailles_treaty
-	# 	tag = FRA
-	# }
-	# fire_only_once = yes
-	# mean_time_to_happen = {
-	# 	days = 20
-	# }
 	is_triggered_only = yes
 	immediate = {
-		hidden_effect = { set_global_flag = league_of_nations }
+		hidden_effect = {
+			if = {
+				limit = {
+					NOT = { has_global_flag = league_of_nations }
+				}
+				set_global_flag = league_of_nations
+			}
+		}
 	}
 	option = {
 		name = league_of_nations.6.a
@@ -199,6 +215,64 @@ country_event = {
 				}
 				join_the_league_of_nations = yes
 			}
+			every_other_country = {
+				limit = {
+					# below list is historical
+					# no subject, cause it will be handled in other event
+					is_subject = no
+					# no civil war, of course
+					has_civil_war = no
+					NOT = {
+						any_enemy_country = {
+							original_tag = PREV
+						}
+					}
+					# no ww2 lovers
+					NOT = {
+						has_country_leader_ideology = nazism
+						has_country_leader_ideology = gen_nazism
+						has_country_leader_ideology = fascism_ideology
+						has_country_leader_ideology = fundamentalism
+					}
+					OR = {
+						# great war winner
+						AND = {
+							has_country_flag = great_war_winner
+						}
+						AND = {
+							is_china_or_warlord_no_tt = yes
+							owns_state = 608
+							OR = {
+								tag = QIN
+								tag = CHI
+								has_country_flag = reunited_china
+							}
+							NOT = { has_country_flag = great_war_loser }
+						}
+						# neutral countries
+						AND = {
+							OR = {
+								original_tag = HOL
+								original_tag = SWI
+								original_tag = NOR
+								original_tag = SWE
+								original_tag = SPR
+								original_tag = DEN
+							}
+							NOT = { has_country_flag = great_war_loser }
+						}
+						# special
+						AND = {
+							OR = {
+								original_tag = PER
+								original_tag = POL
+								original_tag = CZE
+							}
+						}
+					}
+				}
+				country_event = league_of_nations.6
+			}
 		}
 		ai_chance = {
 			base = 1
@@ -209,6 +283,7 @@ country_event = {
 		trigger = {
 			has_global_flag = league_of_nations
 		}
+		add_political_power = -75
 		ai_chance = {
 			base = 0
 			modifier = {

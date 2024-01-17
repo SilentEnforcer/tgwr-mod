@@ -473,6 +473,12 @@ GER_release_POL = {
 		}
 	}
 	hidden_effect = {
+		if = {
+			limit = {
+				GER = { has_idea = RUS_idea_armistice_cp }
+			}
+			POL = { add_ideas = RUS_idea_armistice_cp }
+		}
 		set_global_flag = poland_released
 		every_state = {
 			limit = {
@@ -509,9 +515,15 @@ GER_release_LIT = {
 					state = 784
 					state = 97
 					state = 773
+					# state = 946
 				}
 			}
-			remove_russian_cores = yes
+			if = {
+				limit = {
+					NOT = { is_core_of = BLR }
+				}
+				remove_russian_cores = yes
+			}
 			transfer_state_to = LIT
 		}
 		puppet = LIT
@@ -746,6 +758,12 @@ GER_release_LIT = {
 		}
 	}
 	hidden_effect = {
+		if = {
+			limit = {
+				GER = { has_idea = RUS_idea_armistice_cp }
+			}
+			LIT = { add_ideas = RUS_idea_armistice_cp }
+		}
 		set_global_flag = litva_released
 		every_state = {
 			limit = {
@@ -766,9 +784,14 @@ GER_release_UBD = {
 				}
 			}
 			OR = {
-				state = 13
-				state = 191
-				state = 12
+				is_core_of = EST
+				is_core_of = LAT
+			}
+			NOT = {
+				is_core_of = COU
+				state = 96
+				state = 945
+				state = 947
 			}
 		}
 		transfer_state_to = UBD
@@ -833,16 +856,24 @@ GER_release_UBD = {
 		}
 		every_state = {
 			limit = {
-				is_owned_by = UBD
 				OR = {
 					is_core_of = LAT
 					is_core_of = EST
 				}
 			}
 			add_core_of = UBD
-			remove_russian_cores = yes
+			if = {
+				limit = { region = 37 }
+				remove_russian_cores = yes
+			}
 		}
-	}	
+		if = {
+			limit = {
+				GER = { has_idea = RUS_idea_armistice_cp }
+			}
+			UBD = { add_ideas = RUS_idea_armistice_cp }
+		}
+	}
 }
 GER_release_COU = {
 	if = {
@@ -861,11 +892,36 @@ GER_release_COU = {
 						}
 					}
 				}
-				owns_state = 190
+				any_owned_state = {
+					is_core_of = COU
+				}
 			}
 		}
-		COU = {
-			transfer_state = 190
+		every_state = {
+			limit = {
+				is_core_of = COU
+			}
+			remove_russian_cores = yes
+			if = {
+				limit = {
+					owner = {
+						OR = {
+							tag = RUS
+							tag = SOV
+							tag = GER
+							AND = {
+								tag = LAT
+								OR = {
+									is_subject_of = RUS
+									is_subject_of = SOV
+									is_subject_of = GER
+								}
+							}
+						}
+					}
+				}
+				transfer_state_to = COU
+			}
 		}
 		puppet = COU
 		hidden_effect = {
@@ -892,10 +948,13 @@ GER_release_COU = {
 				}
 				set_country_flag = released_by_germany
 				inherit_technology = GER
-			}	
-			190 = {
-				remove_russian_cores = yes
-			}				
+			}
+			if = {
+				limit = {
+					GER = { has_idea = RUS_idea_armistice_cp }
+				}
+				COU = { add_ideas = RUS_idea_armistice_cp }
+			}
 		}		
 	}
 }
@@ -2335,15 +2394,25 @@ remove_russian_claims = {
 }
 
 remove_russian_cores = {
-	every_possible_country = {
-		limit = {
-			original_tag = RUS
-		}
+	effect_tooltip = {
 		if = {
 			limit = {
-				PREV = { is_core_of = PREV }
+				PREV = { is_core_of = RUS }
 			}
-			PREV = { remove_core_of = PREV }
+			PREV = { remove_core_of = RUS }
+		}
+	}
+	hidden_effect = {
+		every_possible_country = {
+			limit = {
+				original_tag = RUS
+			}
+			if = {
+				limit = {
+					PREV = { is_core_of = PREV }
+				}
+				PREV = { remove_core_of = PREV }
+			}
 		}
 	}
 }
@@ -2355,6 +2424,7 @@ clear_iskolata = {
 				OR = {
 					has_country_flag = LAT_iskolata
 					has_cosmetic_tag = LAT_iskolata
+					has_government = fascism #german puppet somehow
 				}
 			}
 		}
@@ -3321,5 +3391,73 @@ copy_autonomy_from_ROOT = {
 				puppet = PREV.PREV
 			}
 		}
+	}
+}
+
+set_up_sykes_picot_anizah_border = {
+	set_global_flag = set_up_sykes_picot_anizah_border
+	every_other_country = {
+		limit = {
+			owns_state = 554
+			NOT = {
+				is_subject_of = PREV
+				has_war_with = PREV
+			}
+		}
+		transfer_state = 831
+		831 = { remove_core_of = JBS add_core_of = SYR }
+	}
+	every_other_country = {
+		limit = {
+			owns_state = 455
+			NOT = {
+				is_subject_of = PREV
+				has_war_with = PREV
+			}
+		}
+		transfer_state = 832
+		832 = { remove_core_of = JBS add_core_of = SYR }
+	}
+	every_other_country = {
+		limit = {
+			owns_state = 291
+			NOT = {
+				is_subject_of = PREV
+				has_war_with = PREV
+			}
+		}
+		transfer_state = 675
+		675 = { remove_core_of = JBS add_core_of = IRQ }
+		transfer_state = 916
+		916 = { remove_core_of = JBS add_core_of = IRQ }
+		transfer_state = 917
+		917 = { remove_core_of = JBS add_core_of = IRQ }
+	}
+}
+
+delete_obsolete_russian_templates = {
+	delete_unit_template_and_units = {
+		division_template = "Pekhotnaya Diviziya"
+		disband = yes
+	}
+	delete_unit_template_and_units = {
+		division_template = "Sibirskaya Strelkovaya Diviziya"
+		disband = yes
+	}
+	delete_unit_template_and_units = {
+		division_template = "Pekhotnaya Brigada"
+		disband = yes
+	}
+	delete_unit_template_and_units = {
+		division_template = "Gvardeyskaya Kavaleriyskaya Diviziya"
+		disband = yes
+	}
+	delete_unit_template_and_units = {
+		division_template = "Kavaleriyskaya Diviziya"
+		disband = yes
+	}
+	delete_unit_template_and_units = {
+		division_template = "Kavaleriyskaya Brigada"
+		disband = yes
 	}
 }

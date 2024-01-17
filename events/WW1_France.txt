@@ -7372,7 +7372,7 @@ country_event = {
 					is_core_of = FRA
 					NOT = { state = 1 }
 				}
-				transfer_state_to = FRC
+				set_state_owner_to = FRC
 			}
 			every_enemy_country = {
 				white_peace = ROOT
@@ -7393,6 +7393,7 @@ country_event = {
 			set_capital = { state = 459 }
 			white_peace = FRC
 		}
+		mark_focus_tree_layout_dirty = yes
 	}
 }
 
@@ -8247,17 +8248,17 @@ country_event = {
 	is_triggered_only = yes
 	immediate = {
 		hidden_effect = {
-			if = {
-				limit = {
-					has_idea = FRA_military_disloyalty
-				}
-				remove_ideas = FRA_military_disloyalty
-				set_rule = {
-					
-				}
-			}
 			remove_french_presidents = yes
 			set_country_flag = FRA_parliament_dissolved
+			if = {
+				limit = {
+					has_subject = TUN
+				}
+				annex_country = {
+					target = TUN
+					transfer_troops = yes
+				}
+			}
 			# German backed social democratic interim government
 			if = {
 				limit = { has_government = communism }
@@ -8637,6 +8638,7 @@ country_event = {
 					limit = {
 						OR = {
 							state = 454
+							state = 455
 							state = 832
 							state = 856
 							state = 858
@@ -9184,6 +9186,7 @@ country_event = {
 	trigger = {
 		original_tag = FRA
 		has_war_with = GER
+		has_character = FRA_philippe_petain
 		NOT = {
 			has_government = communism
 		}
@@ -9209,7 +9212,7 @@ country_event = {
 	}
 }
 
-#if France win, democratic regime return
+#if France war end, democratic regime return
 country_event = {
 	id = ww1_france.276
 	title = ww1_france.276.t
@@ -9224,7 +9227,16 @@ country_event = {
 		}
 		has_country_flag = FRA_collapsing_front
 		has_global_flag = great_war_ends
-		has_country_flag = great_war_winner
+		OR = {
+			has_country_flag = great_war_winner
+			has_global_flag = FRA_surrender_alone
+		}
+		NOT = {
+			has_global_flag = FRA_three_side_civil_war
+			has_country_flag = great_war_loser
+			has_country_flag = FRA_surrender_alone
+			has_global_flag = FRA_surrender_alone
+		}
 		has_war = no
 	}
 	mean_time_to_happen = {
@@ -10104,7 +10116,7 @@ country_event = {
 	}
 }
 
-### strabourg region now must be laic and they refuse
+### sahel famine
 country_event = {
 	title = ww1_france.303.t
 	desc = ww1_france.303.d
@@ -10294,7 +10306,13 @@ country_event = {
 				}
 				every_enemy_country = {
 					limit = {
-						is_in_faction_with = GER
+						OR = {
+							is_in_faction_with = GER
+							has_country_flag = PER_gendarmerie_flag
+							original_tag = DAR
+							original_tag = IRE
+							original_tag = SAF
+						}
 					}
 					white_peace = PREV
 				}
@@ -10424,18 +10442,9 @@ country_event = {
 		add_ideas = FRA_interim_government
 		if = {
 			limit = {
-				OR = {
+				OR = {	#petain shouldnt be able to stay if losed ww1, so stick authoritarian caillaux to monarchy ONLY
 					has_country_leader_ideology = semi_constitutional_monarchy
 					has_country_leader_ideology = semi_constitutional_monarchy_reserve
-				}
-			}
-			add_country_leader_trait = ww_one_trauma
-		}
-		else_if = {
-			limit = {
-				OR = {
-					has_government = fascism
-					has_government = neutrality
 				}
 			}
 			FRA_joseph_caillaux = {
@@ -10452,6 +10461,7 @@ country_event = {
 			set_politics = {
 				ruling_party = neutrality
 			}
+			add_country_leader_trait = ww_one_trauma
 			if = {
 				limit = {
 					neutrality < 0.30
@@ -10466,13 +10476,18 @@ country_event = {
 				long_name = FRA_interim_government_party
 				name = FRA_interim_government_party
 			}
-		}
-		else = {
-			FRA_joseph_caillaux = {
-				promote_character = social_liberalism
-				add_country_leader_trait = fra_homme_de_la_defaite
+			else = {
+				set_politics = {
+					ruling_party = democratic
+				}
+				FRA_joseph_caillaux = {
+					promote_character = social_liberalism
+					add_country_leader_trait = fra_homme_de_la_defaite
+				}
+	
 			}
 		}
+
 		if = {
 			limit = { has_elections = yes }
 			suspend_elections = yes
@@ -10770,11 +10785,12 @@ country_event = {
 			idea = strikes_1
 			days = 80
 		}
-		set_power_balance = {
-			id = FRA_socialist_democratic_militarist
-			set_value = -0.05
-		}
+		set_country_flag = FRA_three_side_civil_war_trigger
 		hidden_effect = {
+			country_event = {
+				id = ww1_france.315
+				days = 14
+			}
 			country_event = {
 				id = ww1_france.318
 				days = 62
@@ -10789,28 +10805,13 @@ country_event = {
 	desc = ww1_france.315.d
 	id = ww1_france.315
 	picture = GFX_cheminots_strike
-	trigger = {
-		tag = FRA
-		has_power_balance = {
-			id = FRA_socialist_democratic_militarist
-		}
-		NOT = {
-			has_country_flag = FRA_paris_riot
-		}
-	}
-	mean_time_to_happen = {
-		days = 14
-	}
+	is_triggered_only = yes
 	option = {
 		name = ww1_france.315.a
 		set_country_flag = FRA_paris_riot
 		add_popularity = {
 			ideology = communism
 			popularity = 0.025
-		}
-		add_power_balance_value = {
-			id = FRA_socialist_democratic_militarist
-			value = -0.10
 		}
 		hidden_effect = {
 			country_event = {
@@ -10833,10 +10834,6 @@ country_event = {
 		add_popularity = {
 			ideology = communism
 			popularity = 0.05
-		}
-		add_power_balance_value = {
-			id = FRA_socialist_democratic_militarist
-			value = -0.15
 		}
 		hidden_effect = {
 			country_event = {
@@ -10869,10 +10866,6 @@ country_event = {
 			ideology = communism
 			popularity = 0.025
 		}
-		add_power_balance_value = {
-			id = FRA_socialist_democratic_militarist
-			value = -0.05
-		}
 	}
 	option = {
 		name = ww1_france.317.b	#extend the morgan loan
@@ -10889,10 +10882,6 @@ country_event = {
 			ideology = fascism
 			popularity = 0.025
 		}
-		add_power_balance_value = {
-			id = FRA_socialist_democratic_militarist
-			value = 0.10
-		}
 	}
 }
 
@@ -10904,9 +10893,8 @@ country_event = {
 	picture = GFX_french_parliament
 	is_triggered_only = yes
 	immediate = {
-		country_event = {
-			id = ww1_france.319
-			days = 30
+		hidden_effect = {
+			set_country_flag = NFA_coup_can_happen
 		}
 	}
 	option = {
@@ -10916,10 +10904,6 @@ country_event = {
 			ideology = fascism
 			popularity = 0.05
 		}
-		add_power_balance_value = {
-			id = FRA_socialist_democratic_militarist
-			value = 0.10
-		}
 
 	}
 	option = {
@@ -10927,10 +10911,6 @@ country_event = {
 		add_popularity = {
 			ideology = communism
 			popularity = 0.025
-		}
-		add_power_balance_value = {
-			id = FRA_socialist_democratic_militarist
-			value = -0.05
 		}
 	}
 }
@@ -10963,77 +10943,109 @@ country_event = {
 					}
 				}
 			}
-			FRA_create_FRC = yes
-			FRC = {
-				FRA_jean_longuet = {
-					promote_character = yes
+			if = {
+				limit = {
+					NOT = {
+						has_government = communism
+					}
+				}
+				
+				FRA_create_FRC = yes
+				FRC = {
+					FRA_jean_longuet = {
+						promote_character = yes
+					}
+					load_focus_tree = france_socialist_focus
+				}
+				every_owned_state = {
+					limit = {
+						OR = {
+							state = 15
+							state = 16
+							state = 30
+							state = 14
+							state = 785
+							state = 24
+							state = 29
+							state = 865
+						}
+						is_controlled_by = FRA
+					}
+					transfer_state_to = FRC
+					create_unit = {
+						division = "division_template = \"Partisans\" start_experience_factor = 0.5"
+						owner = FRC
+					}
+				}
+				transfer_units_fraction = {
+					target = FRC
+					size = 0.30
+					keep_unit_leaders_trigger = {
+						NOT = {
+							has_id = 32005
+							has_id = 32008
+						}	
+						OR = {
+							has_id = 32009
+							has_trait = old_guard
+							has_trait = old_guard_navy
+							has_trait = trait_royalist
+						}
+					}
 				}
 			}
-			every_owned_state = {
+			if = {
 				limit = {
-					OR = {
-						state = 15
-						state = 16
-						state = 30
-						state = 14
-						state = 23
+					NOT = {
+						has_government = fascism
+						has_government = neutrality
 					}
-					is_controlled_by = FRA
 				}
-				transfer_state_to = FRC
-				create_unit = {
-					division = "division_template = \"Partisans\" start_experience_factor = 0.5"
-					owner = FRC
+				FRA_create_NFA = yes
+				NFA = {
+					FRA_ferdinand_foch = {
+						promote_character = yes
+					}
+					load_focus_tree = france_nationalist_focus
+				}
+				every_owned_state = {
+					limit = {
+						OR = {
+							state = 31
+							state = 22
+							state = 26
+							state = 25
+							state = 19
+							state = 23
+							state = 33
+						}
+						is_controlled_by = FRA
+					}
+					transfer_state_to = NFA
+					create_unit = {
+						division = "division_template = \"Partisans\" start_experience_factor = 0.5"
+						owner = NFA
+					}
+				}
+				set_cosmetic_tag = FRA_classic_blue
+				transfer_units_fraction = {
+					target = NFA
+					size = 0.45	#NFA has more soldiers
+					navy_ratio = 0.0 #but no navy
+					keep_unit_leaders_trigger = {
+						NOT = {
+							has_trait = old_guard
+							has_trait = old_guard_navy
+							has_trait = trait_royalist
+						}
+					}
 				}
 			}
 
-			FRA_create_NFA = yes
-			NFA = {
-				FRA_ferdinand_foch = {
-					promote_character = yes
-				}
-			}
-			every_owned_state = {
-				limit = {
-					OR = {
-						state = 31
-						state = 22
-						state = 26
-						state = 865
-						state = 29
-						state = 735
-						state = 25
-						state = 19
-					}
-					is_controlled_by = FRA
-				}
-				transfer_state_to = NFA
-				create_unit = {
-					division = "division_template = \"Partisans\" start_experience_factor = 0.5"
-					owner = NFA
-				}
-			}
-			set_cosmetic_tag = FRA_classic_blue
-			transfer_units_fraction = {
-				target = NFA
-				size = 0.40	#NFA has more soldiers
-				navy_ratio = 0.0 #but no navy
-				keep_unit_leaders_trigger = {
-					NOT = {
-						has_trait = old_guard
-					}
-				}
-			}
-			transfer_units_fraction = {
-				target = FRC
-				size = 0.40
-			}
+
 			remove_ideas = FRA_interim_government
 			remove_ideas = idea_armistice
 			remove_ideas = FRA_military_disloyalty
-			remove_power_balance = {
-				id = FRA_socialist_democratic_militarist
-			}
 			every_owned_state = {
 				limit = {
 					is_on_continent = europe
@@ -11064,6 +11076,11 @@ country_event = {
 	}
 	option = {
 		name = ww1_france.319.b	# communist
+		trigger = {
+			FRC = {
+				exists = yes
+			}
+		}
 		if = {
 			limit = {
 				is_ai = no
@@ -11075,6 +11092,11 @@ country_event = {
 	}
 	option = {
 		name = ww1_france.319.c	# militarist
+		trigger = {
+			NFA = {
+				exists = yes
+			}
+		}
 		if = {
 			limit = {
 				is_ai = no
@@ -11100,12 +11122,1021 @@ country_event = {
 			limit = {
 				original_tag = FRA
 			}
-			add_ideas = extensive_conscription
-			add_ideas = FRA_death_before_surrender
 			declare_war_on = {
 				target = PREV
 				type = civil_war
 			}
+			add_ideas = extensive_conscription
+			add_ideas = partial_economic_mobilisation
+			add_ideas = FRA_death_before_surrender
+			hidden_effect = {
+				remove_ideas = FRA_disjointed_government
+				remove_ideas = FRA_disjointed_government2
+				remove_ideas = FRA_disjointed_government3
+			}
+		}
+	}
+}
+
+### Democratic France in Algeria - epilogue
+country_event = {
+	title = ww1_france.321.t
+	desc = ww1_france.321.d
+	id = ww1_france.321
+	picture = GFX_french_soldiers
+	is_triggered_only = yes
+	option = {
+		name = ww1_france.321.a
+		459 = {
+			add_manpower = 1450000
+		}
+		460 = {
+			add_manpower = 1200000
+		}
+		hidden_effect = {
+			16 = {
+				OWNER = {
+					country_event = {
+						id = ww1_france.322
+						days = 2
+					}
+				}
+			}
+		}
+	}
+}
+
+### State of France lose manpower because demorats go in africa
+country_event = {
+	title = ww1_france.322.t
+	desc = ww1_france.322.d
+	id = ww1_france.322
+	picture = GFX_french_soldiers
+	is_triggered_only = yes
+	option = {
+		name = ww1_france.322.a
+		16 = {
+			add_manpower = -1000000
+		}
+		20 = {
+			add_manpower = -1200000
+		}
+		29 = {
+			add_manpower = -450000
+		}
+	}
+}
+
+### Caillaux must leave, who will replace him ?
+country_event = {
+	title = ww1_france.323.t
+	desc = ww1_france.323.d
+	id = ww1_france.323
+	picture = GFX_french_soldiers
+	is_triggered_only = yes
+	option = {
+		name = ww1_france.323.a	#we must appoint a prime minister under a new president
+		ai_chance = {
+			factor = 50
+		}
+		country_event = {
+			id = ww1_france.79
+			days = 2
+		}
+		add_popularity = {
+			ideology = democratic
+			popularity = 0.2
+		}
+		add_ideas = FRA_gaston_doumergue
+		set_politics = {
+			ruling_party = democratic
+			elections_allowed = yes
+		}
+		clr_country_flag = FRA_parliament_dissolved
+	}
+	option = {
+		name = ww1_france.323.b	#we should reach french states generals
+		ai_chance = {
+			factor = 50
+		}
+		trigger = {
+			NFA = {
+				exists = no
+			}
+		}
+		add_war_support = 0.05
+		add_popularity = {
+			popularity = 0.2
+			ideology = neutrality
+		}
+		set_politics = {
+			ruling_party = neutrality
+			elections_allowed = no
+		}
+		NFA = {
+			FRA_philippe_petain = { 
+				set_nationality = FRA
+			}
+		}
+		FRA_philippe_petain = {
+			add_country_leader_role = {
+				promote_leader = yes
+				country_leader = {
+					ideology = oligarchism
+					traits = { verdun_lion generallissimo }
+				}
+			}
+		}
+		set_cosmetic_tag = FRA_alt_blue
+		set_party_name = {
+			ideology = neutrality
+			long_name = FRA_junta_fascist
+			name = FRA_junta_fascist
+		}
+		set_country_flag = FRA_parliament_dissolved
+	}
+	option = {
+		name = ww1_france.323.c	#we should reach young democrat officers
+		ai_chance = {
+			factor = 50
+		}
+		add_war_support = 0.05
+		set_politics = {
+			ruling_party = neutrality
+			elections_allowed = no
+		}
+		add_popularity = {
+			popularity = 0.2
+			ideology = neutrality
+		}
+		FRA_nicolas_saclois = {
+			add_country_leader_role = {
+				promote_leader = yes
+				country_leader = {
+					ideology = authoritarian_democracy
+					traits = { cornered_fox }
+				}
+			}
+		}
+		set_cosmetic_tag = FRA_classic_blue
+		set_party_name = {
+			ideology = neutrality
+			long_name = FRA_junta_fascist
+			name = FRA_junta_fascist
+		}
+	}
+	option = {
+		name = ww1_france.323.e	#we should reach germany and ask for help to regain control of France 
+		add_stability = -0.05
+		ai_chance = {
+			factor = 50
+		}
+		trigger = {
+			GER = {
+				has_country_flag = great_war_winner
+			}
+		}
+		GER = {
+			country_event = {
+				id = ww1_france.324
+				days = 3
+			}
+		}
+	}
+}
+
+### France ask german support to regain control of mainland
+country_event = {
+	title = ww1_france.324.t
+	desc = ww1_france.324.d
+	id = ww1_france.324
+	picture = GFX_french_soldiers
+	is_triggered_only = yes
+	option = {
+		name = ww1_france.324.a
+		#Yes, but France must change his regime to suit German alignement
+		FRA = {
+			country_event = {
+				id = ww1_france.325
+				days = 3
+			}
+		}
+		custom_effect_tooltip = needs_approval
+		effect_tooltip = {
+			GER = {
+				set_autonomy = {
+					target = FRA
+					autonomous_state = autonomy_tgwr_protectorate
+				}
+				FRA = {
+					create_country_leader = {
+						name = "Princess Victoria Louise of Prussia"
+						picture = "gfx/leaders/GER/GER_Victoria_Louise.png"
+						ideology = oligarchism
+						female = yes
+						traits = {
+							victoria_iii
+							foreign_leader
+							german_agent
+						}
+					}
+				}
+			}
+		}
+		ai_chance = {
+			factor = 150
+		}
+	}
+	option = {
+		name = ww1_france.324.b
+		#Yes, no condition
+		FRA = {
+			country_event = {
+				id = ww1_france.326
+				days = 3
+			}
+		}
+		ai_chance = {
+			factor = 100
+		}
+	}
+	option = {
+		name = ww1_france.324.c
+		FRA = {
+			country_event = {
+				id = ww1_france.328
+				days = 2
+			}
+		}
+		ai_chance = {
+			factor = 50
+		}
+		set_country_flag = GER_refused_to_liberate_FRA
+		#No
+	}
+}
+
+
+### Germany ask France to be aligned
+country_event = {
+	title = ww1_france.325.t
+	desc = ww1_france.325.d
+	id = ww1_france.325
+	picture = GFX_french_soldiers
+	is_triggered_only = yes
+	option = {
+		name = ww1_france.325.a
+		GER = {
+			country_event = {
+				id = ww1_france.327
+				days = 2
+			}
+		}
+		ai_chance = {
+			factor = 250
+		}
+	}
+	option = {
+		name = ww1_france.325.b
+		GER = {
+			country_event = {
+				id = ww1_france.329
+				days = 2
+			}
+		}
+		ai_chance = {
+			factor = 50
+		}
+		set_country_flag = FRA_refused_to_be_GER_puppet
+	}
+}
+
+### France accept deal
+country_event = {
+	title = ww1_france.327.t
+	desc = ww1_france.327.d
+	id = ww1_france.327
+	picture = GFX_french_soldiers
+	is_triggered_only = yes
+	option = {
+		name = ww1_france.327.a
+		GER = {
+			end_puppet = FRA
+			set_autonomy = {
+				target = FRA
+				autonomous_state = autonomy_dominion
+			}
+			hidden_effect = {
+				every_country = {
+					limit = {
+						original_tag = FRA
+					}
+					FRA_victoire = {
+						set_nationality = FRA
+					}
+				}
+			}
+			FRA = {
+				set_cosmetic_tag = FRP
+				if = {
+					limit = {
+						has_character = FRA_victoire
+					}
+					FRA_victoire = {
+						if = {
+							limit = {
+								is_country_leader = yes
+							}
+							promote_character = oligarchism
+						}
+						else = {
+							add_country_leader_role = {
+								promote_leader = yes
+								country_leader = {
+									ideology = oligarchism
+									traits = { victoria_iii foreign_leader german_agent }
+								}
+							}
+						}
+					}
+					else = {
+						create_country_leader = {
+							name = "Victoria Louise"
+							picture = "gfx/leaders/GER/GER_Victoria_Louise.png"
+							ideology = oligarchism
+							female = yes
+							traits = {
+								victoria_iii
+								foreign_leader
+								german_agent
+							}
+						}
+					}
+				}
+			}
+			set_party_name = {
+				ideology = neutrality
+				long_name = GER_neutrality_party
+				name = GER_neutrality_party
+			}
+		}
+		country_event = {
+			id = ww1_france.326
+			days = 2
+		}
+	}
+}
+
+
+### deal concluded !
+country_event = {
+	title = ww1_france.326.t
+	desc = ww1_france.326.d
+	id = ww1_france.326
+	picture = GFX_french_soldiers
+	is_triggered_only = yes
+	option = {
+		name = ww1_france.326.a
+		add_war_support = 0.15
+		add_stability = 0.15
+		create_wargoal = {
+			type = annex_everything
+			target = 16.OWNER
+		}
+		GER = {
+			add_to_faction = FRA
+		}
+		every_country = {
+			remove_ideas = idea_armistice
+		}
+		FRA = {
+			add_equipment_to_stockpile = {
+				type = convoy
+				producer = GER
+				amount = 100
+			}
+		}
+		hidden_effect = {
+			16 = {
+				OWNER = {
+					country_event = {
+						id = ww1_france.332
+						days = 1
+					}
+				}
+			}
+		}
+
+	}
+}
+
+
+### France refused german conditions, so its a fail
+country_event = {
+	title = ww1_france.329.t
+	desc = ww1_france.329.d
+	id = ww1_france.329
+	picture = GFX_french_soldiers
+	is_triggered_only = yes
+	option = {
+		name = ww1_france.329.a
+		FRA = {
+			country_event = {
+				id = ww1_france.328
+				days = 2
+			}
+		}
+	}
+}
+
+
+### deal failed !
+country_event = {
+	title = ww1_france.328.t
+	desc = ww1_france.328.d
+	id = ww1_france.328
+	picture = GFX_french_soldiers
+	is_triggered_only = yes
+	option = {
+		name = ww1_france.328.a
+	}
+}
+
+### War exhaustion for germany, war timeout
+country_event = {
+	title = ww1_france.330.t
+	desc = ww1_france.330.d
+	id = ww1_france.330
+	picture = GFX_french_soldiers
+	is_triggered_only = yes
+	option = {
+		clr_global_flag = FRA_GER_intervention_button_pushed
+		name = ww1_france.330.a
+		if = {
+			limit = {
+				tag = GER
+			}
+			random_country = {
+				limit = {
+					original_tag = BEL
+					NOT = {
+						is_in_faction_with = GER
+					}
+				}
+				annex_country = {
+					target = BEL
+					transfer_troops = yes
+				}
+				every_state = {
+					limit = {
+						OWNER = {
+							is_in_faction_with = GER
+						}
+						is_core_of = BEL
+					}
+					transfer_state_to = PREV
+				}
+				leave_faction = yes
+				set_capital = { state = 6 }
+			}
+			every_country = {
+				limit = {
+					OR = {
+						is_in_faction_with = FRC
+						is_in_faction_with = NFA
+					}
+					has_war_with = GER
+				}
+				every_state = {
+					limit = {
+						is_controlled_by = PREV
+						OR = {
+							is_core_of = LUX
+							is_core_of = FRA
+						}
+					}
+					if = {
+						limit = {
+							NFA = {
+								exists = yes
+							}
+						}
+						transfer_state_to = NFA
+					}
+					if = {
+						limit = {
+							FRC = {
+								exists = yes
+							}
+						}
+						transfer_state_to = FRC
+					}
+				}
+			}
+			every_country = {
+				limit = {
+					has_war_with = 16.OWNER
+					is_in_faction_with = GER
+				}
+				white_peace = 16.OWNER
+				white_peace = 6.OWNER
+				set_country_flag = failed_to_defeat_NFA_or_FRC_france
+			}
+		}
+	}
+}
+
+#End of French civil war three side civil war NFA FRC
+###########################
+country_event = {
+	id = ww1_france.331
+	title = ww1_france.24.t
+	desc = ww1_france.24.d
+	picture = GFX_report_event_generic_ruins
+	fire_only_once = no
+	is_triggered_only = yes
+	option = {
+		name = ww1_france.24.a
+		if = {
+			limit = {
+				tag = FRA
+			}
+			add_state_core = 459
+			set_capital = { state = 459 }
+			# to fix weird desert mechanism
+			if = {
+				limit = {
+					owns_state = 567
+				}
+				transfer_state = 515
+				transfer_state = 775
+			}
+		}
+		every_enemy_country = {
+			limit = {
+				OR = {
+					tag = NFA
+					tag = FRC
+					tag = FRA
+				}
+			}
+			every_controlled_state = {
+				limit = {
+					is_owned_by = ROOT
+					is_on_continent = europe
+				}
+				transfer_state_to = PREV
+			}
+		}
+		every_controlled_state = {
+			limit = {
+				NOT = {
+					is_owned_by = ROOT
+				}
+				is_on_continent = europe
+			}
+			transfer_state_to = OWNER
+		}
+		random_enemy_country = {
+			limit = {
+				original_tag = FRA
+			}
+			ROOT = {
+				every_owned_state = {
+					limit = {
+						is_on_continent = europe
+					}
+					transfer_state_to = PREV.PREV
+				}
+			}
+		}
+		every_enemy_country = {
+			limit = {
+				OR = {
+					tag = FRA
+					tag = FRC
+					tag = NFA
+				}
+			}
+			white_peace = ROOT
+		}
+		mark_focus_tree_layout_dirty = yes
+	}
+}
+
+
+### French state / Communist France agents spot the faction
+country_event = {
+	title = ww1_france.332.t
+	desc = ww1_france.332.d
+	id = ww1_france.332
+	picture = GFX_french_soldiers
+	is_triggered_only = yes
+	option = {
+		name = ww1_france.332.a
+	}
+}
+
+### Military coup against republic
+country_event = {
+	title = ww1_france.333.t
+	desc = ww1_france.333.d
+	id = ww1_france.333
+	picture = GFX_petain
+	trigger = {
+		tag = FRA
+		has_country_flag = NFA_coup_can_happen
+		NOT = {
+			has_country_flag = NFA_coup_occured
+		}
+	}
+	immediate = {
+		hidden_effect = {
+			set_country_flag = NFA_coup_occured
+		}
+	}
+	fire_only_once = yes
+	option = {
+		name = ww1_france.333.b	#coup succeed
+		ai_chance = {
+			factor = 5 #seems low, but its very very high in fact, like factor = 150
+		}
+		set_country_flag = NFA_coup_succeed
+		add_stability = -0.1
+		hidden_effect = {
+			set_politics = {
+				ruling_party = neutrality
+				elections_allowed = no
+			}
+			set_cosmetic_tag = FRA_alt_blue
+			FRA_philippe_petain = {
+				add_country_leader_role = {
+					promote_leader = yes
+					country_leader = {
+						ideology = authoritarian_democracy
+						traits = { verdun_lion generallissimo }
+					}
+				}
+			}
+			add_popularity = {
+				ideology = neutrality
+				popularity = party_popularity@democratic
+			}
+			add_popularity = {
+				ideology = neutrality
+				popularity = party_popularity@fascism
+			}
+		}
+		retire_character = FRA_joseph_caillaux
+		add_manpower = -1
+	}
+	option = {
+		name = ww1_france.333.a	#coup failed
+		set_country_flag = NFA_coup_failed
+		ai_chance = {
+			factor = 3	
+		}
+		add_stability = -0.05
+		retire_character = FRA_philippe_petain
+	}
+}
+
+### volta bani war in africa, 5 000 french soldiers kick asses of 20 000 africans
+country_event = {
+	title = ww1_france.334.t
+	desc = ww1_france.334.d
+	id = ww1_france.334
+	picture = GFX_report_event_african_soldiers
+	trigger = {
+		tag = FRA
+		date > 1915.11.22
+		OR = {
+			any_enemy_country = {
+				is_major = yes
+			}
+			has_country_flag = great_war_loser
+		}
+		556 = {
+			is_owned_and_controlled_by = FRA
+		}
+		NOT = {
+			has_global_flag = mali_insurrection
+		}
+	}
+	immediate = {
+		hidden_effect = {
+			set_global_flag = mali_insurrection
+		}
+	}
+	fire_only_once = yes
+	option = {
+		name = ww1_france.334.a	#We may send troops there
+		ai_chance = {
+			factor = 1000
+			modifier = {
+				is_historical_focus_on = yes
+				factor = 5000
+			}
+			modifier = {
+				OR = {
+					has_country_flag = great_war_loser
+					has_country_flag = FRA_surrender_alone
+				}
+				factor = 0
+			}
+		}
+		556 = {
+			add_dynamic_modifier = {
+				modifier = FRA_volta_bani_war
+				days = 740 
+			}
+		}
+	}
+	option = {
+		name = ww1_france.334.b	#we dont care lol
+		ai_chance = {
+			factor = 1
+			modifier = {
+				OR = {
+					has_country_flag = great_war_loser
+					has_country_flag = FRA_surrender_alone
+				}
+				factor = 5000
+			}
+		}
+		556 = {
+			add_dynamic_modifier = {
+				modifier = FRA_volta_insurrection
+				days = 740 
+			}
+		}
+		hidden_effect = {
+			country_event = {
+				id = ww1_france.335
+				days = 52
+			}
+		}
+	}
+}
+
+### volta bani insurrection if player choose to ignore them
+country_event = {
+	title = ww1_france.335.t
+	desc = ww1_france.335.d
+	id = ww1_france.335
+	picture = GFX_report_event_african_soldiers
+	is_triggered_only = yes
+	fire_only_once = yes
+	immediate = {
+		hidden_effect = {
+			if = {
+				limit = {
+					556 = {
+						OWNER = {
+							NOT = {
+								tag = MLI
+							}
+						}
+					}
+				}
+				OWNER = {
+					release = MLI
+				}
+			}
+			556 = {
+				add_core_of = MLI
+			}
+			news_event = ww1_france.336
+			MLI = {
+				add_ideas = MLI_disorganized_tribes
+				add_ideas = standing_alone
+				division_template = {
+					name = "Militia"
+					priority = 0
+					regiments = {
+						militia = {
+							x = 0
+							y = 0
+						}
+						militia = {
+							x = 0
+							y = 1
+						}
+						militia = {
+							x = 0
+							y = 2
+						}
+					}
+				}
+				556 = {
+					create_unit = {
+						division = "division_template = \"Militia\" start_experience_factor = 0 start_equipment_factor = 0.25"
+						owner = MLI
+					}
+					create_unit = {
+						division = "division_template = \"Militia\" start_experience_factor = 0 start_equipment_factor = 0.25"
+						owner = MLI
+					}
+					create_unit = {
+						division = "division_template = \"Militia\" start_experience_factor = 0 start_equipment_factor = 0.25"
+						owner = MLI
+					}
+					create_unit = {
+						division = "division_template = \"Militia\" start_experience_factor = 0 start_equipment_factor = 0.25"
+						owner = MLI
+					}
+					create_unit = {
+						division = "division_template = \"Militia\" start_experience_factor = 0 start_equipment_factor = 0.25"
+						owner = MLI
+					}
+					create_unit = {
+						division = "division_template = \"Militia\" start_experience_factor = 0 start_equipment_factor = 0.25"
+						owner = MLI
+					}
+					create_unit = {
+						division = "division_template = \"Militia\" start_experience_factor = 0 start_equipment_factor = 0.25"
+						owner = MLI
+					}
+					create_unit = {
+						division = "division_template = \"Militia\" start_experience_factor = 0 start_equipment_factor = 0.25"
+						owner = MLI
+					}
+					create_unit = {
+						division = "division_template = \"Militia\" start_experience_factor = 0 start_equipment_factor = 0.25"
+						owner = MLI
+					}
+					create_unit = {
+						division = "division_template = \"Militia\" start_experience_factor = 0 start_equipment_factor = 0.25"
+						owner = MLI
+					}
+					create_unit = {
+						division = "division_template = \"Militia\" start_experience_factor = 0 start_equipment_factor = 0.25"
+						owner = MLI
+					}
+					create_unit = {
+						division = "division_template = \"Militia\" start_experience_factor = 0 start_equipment_factor = 0.25"
+						owner = MLI
+					}
+				}
+				promote_character = MLI_dasa_marka
+			}
+		}
+	}
+	option = {
+		name = ww1_france.335.a	#its war !
+		declare_war_on = {
+			target = MLI
+			type = annex_everything
+		}
+	}
+	option = {
+		name = ww1_france.335.b	#huh no mali is too strong
+		add_stability = -0.05
+	}
+	option = {
+		name = ww1_france.335.c	#play as mali ! Aw ka to Mali la!
+		MLI = {
+			change_tag_from = ROOT
+		}
+		FRA = {
+			declare_war_on = {
+				target = MLI
+				type = annex_everything
+			}
+		}
+	}
+}
+
+### malian independance
+news_event = {
+	title = ww1_france.336.t
+	desc = ww1_france.336.d
+	id = ww1_france.336
+	picture = GFX_news_event_african_soldiers
+	is_triggered_only = yes
+	fire_for_sender = yes
+	fire_only_once = yes
+	immediate = {
+		set_global_flag = mali_freed
+	}
+	option = {
+		name = ww1_france.336.a
+	}
+}
+
+
+### riots degenerate into open fight with police forces
+country_event = {
+	title = ww1_france.337.t
+	desc = ww1_france.337.d
+	id = ww1_france.337
+	picture = GFX_champagne_riot
+	trigger = {
+		tag = FRA
+		date > 1914.3.12
+		NOT = {
+			has_country_flag = FRA_champagne_riot_strike_1
+		}
+	}
+	immediate = {
+		hidden_effect = {
+			set_country_flag = FRA_champagne_riot_strike_1
+		}
+	}
+	fire_only_once = yes
+	option = {
+		name = ww1_france.337.a	#stop the strikes at any cost !
+		ai_chance = {
+			factor = 50
+		}
+		add_stability = -0.02
+		add_manpower = -1
+		add_popularity = {
+			ideology = communism
+			popularity = 0.02
+		}
+		hidden_effect = {
+			country_event = {
+				id = ww1_france.338
+				days = 7
+			}
+		}
+	}
+	option = {
+		name = ww1_france.337.b	#We should avoid direct confrontation
+		ai_chance = {
+			factor = 50
+			modifier = {
+				is_historical_focus_on = yes
+				factor = 0
+			}
+		}
+		add_popularity = {
+			ideology = communism
+			popularity = 0.05
+		}
+	}
+}
+
+### anarchist Henri Cler died, massive riots
+country_event = {
+	title = ww1_france.338.t
+	desc = ww1_france.338.d
+	id = ww1_france.338
+	picture = GFX_france_1910_riots
+	is_triggered_only = yes
+	option = {
+		name = ww1_france.338.a	#Charge !
+		ai_chance = {
+			factor = 50
+		}
+		add_stability = -0.02
+		add_popularity = {
+			ideology = democratic
+			popularity = -0.02
+		}
+	}
+	option = {
+		name = ww1_france.338.b	#We cant risk to worsen the situation
+		ai_chance = {
+			factor = 50
+			modifier = {
+				is_historical_focus_on = yes
+				factor = 0
+			}
+		}
+		add_popularity = {
+			ideology = communism
+			popularity = 0.02
+		}
+	}
+}
+
+### Moussa ag Amastan visite in France "mission touareg"
+country_event = {
+	title = ww1_france.339.t
+	desc = ww1_france.339.d
+	id = ww1_france.339
+	picture = GFX_paris_1910
+	trigger = {
+		tag = FRA
+		date > 1911.9.9
+		NOT = {
+			has_country_flag = FRA_mission_touareg
+		}
+	}
+	immediate = {
+		set_country_flag = FRA_mission_touareg
+	}
+	mean_time_to_happen = { days = 0 }
+	option = {
+		name = ww1_france.339.a	#cool
+		add_stability = 0.02
+		every_owned_state = {
+			limit = {
+				is_core_of = ALG
+			}
+			add_compliance = 10
 		}
 	}
 }
