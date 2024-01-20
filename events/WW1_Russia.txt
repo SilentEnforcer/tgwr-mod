@@ -7844,3 +7844,371 @@ country_event = {
 		}
 	}
 }
+
+#each state vote to choose the new regime type
+country_event = {
+	id = ww1_russia.120
+	title = ww1_russia.120.t
+	desc = ww1_russia.120.d
+	picture = GFX_report_event_generic_conference
+	is_triggered_only = yes
+	
+	option = {
+		name = ww1_russia.120.a # propose a republic
+		ai_chance = {
+			factor = 100
+		}
+		219 = {
+			OWNER = {
+				add_to_variable = {
+					votes_for_republic = 1
+				}
+			}
+		}
+		set_country_flag = has_supported_republic
+	}
+	option = {
+		name = ww1_russia.120.b # propose a monarchy
+		ai_chance = {
+			factor = 0
+		}
+		219 = {
+			OWNER = {
+				add_to_variable = {
+					votes_for_tsardom = 1
+				}
+			}
+		}
+		set_country_flag = has_supported_tsardom
+	}
+}
+
+#results of the vote
+country_event = {
+	id = ww1_russia.121
+	title = ww1_russia.121.t
+	desc = ww1_russia.121.d
+	picture = GFX_report_event_generic_conference
+	is_triggered_only = yes
+	immediate = {
+		hidden_effect = {
+			if =  {
+				limit = {
+					owns_state = 219
+				}
+			}
+			every_country = {
+				limit = {
+					is_russian_tag = yes
+					NOT = {
+						has_country_flag = has_left_the_conference
+					}
+					NOT = {
+						has_country_flag = question_of_former_territories
+					}
+				}
+				set_country_flag = question_of_former_territories
+				country_event = {
+					id = ww1_russia.122
+					days = 6
+				}
+				country_event = {
+					id = ww1_russia.123
+					days = 22
+				}
+			}
+		}
+	}
+	option = {
+		name = RUS_republic_vote_on	#its a republic, and we accept it
+		trigger= {
+			check_variable = {
+				var = votes_for_republic
+				value = votes_for_tsardom
+				compare = greater_than_or_equals
+			}
+		}
+		ai_chance = {
+			factor = 100
+		}
+	}
+	option = {
+		name = we_cant_accept	#its a republic, and we refuse it !
+		trigger= {
+			check_variable = {
+				var = votes_for_republic
+				value = votes_for_tsardom
+				compare = greater_than_or_equals
+			}
+		}
+		set_country_flag = has_left_the_conference
+		219 = {
+			OWNER = {
+				country_event = {
+					id = ww1_russia.119
+					days = 2
+				}
+			}
+		}
+	}
+	option = {
+		name = RUS_tsardom_vote_on
+		trigger= {
+			check_variable = {
+				var = votes_for_tsardom
+				value = votes_for_republic
+				compare = greater_than
+			}
+		}
+		ai_chance = {
+			factor = 100
+		}
+	}
+	option = {
+		name = we_cant_accept
+		trigger= {
+			check_variable = {
+				var = votes_for_tsardom
+				value = votes_for_republic
+				compare = greater_than
+			}
+		}
+		set_country_flag = has_left_the_conference
+		219 = {
+			OWNER = {
+				country_event = {
+					id = ww1_russia.119
+					days = 2
+				}
+			}
+		}
+	}
+}
+
+#each state vote to choose what to do with former russian territories
+country_event = {
+	id = ww1_russia.122
+	title = ww1_russia.122.t
+	desc = ww1_russia.122.d
+	picture = GFX_report_event_generic_conference
+	is_triggered_only = yes
+	
+	option = {
+		name = ww1_russia.122.a #let them be
+		219 = {
+			OWNER = {
+				add_to_variable = {
+					vote_to_let_former_territories = 1
+				}
+			}
+		}
+		set_country_flag = has_supported_to_let_former_territories
+	}
+	option = {
+		name = ww1_russia.122.b #propose them autonomy
+		219 = {
+			OWNER = {
+				add_to_variable = {
+					vote_to_puppet_former_territories = 1
+				}
+			}
+		}
+		set_country_flag = has_supported_to_puppet_former_territories
+	}
+	option = {
+		name = ww1_russia.122.c #we should annex them all !
+		219 = {
+			OWNER = {
+				add_to_variable = {
+					vote_to_annex_former_territories = 1
+				}
+			}
+		}
+		set_country_flag = has_support_to_annex_former_territories 
+	}
+}
+
+#results of the vote for former territories
+country_event = {
+	id = ww1_russia.123
+	title = ww1_russia.121.t
+	desc = ww1_russia.121.d
+	picture = GFX_report_event_generic_conference
+	is_triggered_only = yes
+	option = {
+		name = RUS_let_them_won
+		trigger= {
+			check_variable = {
+				var = vote_to_let_former_territories
+				value = vote_to_puppet_former_territories
+				compare = greater_than_or_equals
+			}
+			check_variable = {
+				var = vote_to_let_former_territories
+				value = has_support_to_annex_former_territories
+				compare = greater_than_or_equals
+			}
+		}
+		ai_chance = {
+			factor = 100
+		}
+		219 = {
+			OWNER = {
+				country_event = {
+					id = ww1_russia.118
+					days = 2
+				}
+			}
+		}
+	}
+	option = {
+		name = we_cant_accept
+		trigger= {
+			check_variable = {
+				var = vote_to_let_former_territories
+				value = vote_to_puppet_former_territories
+				compare = greater_than_or_equals
+			}
+			check_variable = {
+				var = vote_to_let_former_territories
+				value = vote_to_annex_former_territories
+				compare = greater_than_or_equals
+			}
+		}
+		set_country_flag = has_left_the_conference
+		219 = {
+			OWNER = {
+				country_event = {
+					id = ww1_russia.119
+					days = 2
+				}
+			}
+		}
+	}
+	option = {
+		name = RUS_puppet_them_won
+		trigger= {
+			check_variable = {
+				var = vote_to_puppet_former_territories
+				value = vote_to_let_former_territories
+				compare = greater_than
+			}
+			check_variable = {
+				var = vote_to_puppet_former_territories
+				value = vote_to_annex_former_territories
+				compare = greater_than
+			}
+		}
+		ai_chance = {
+			factor = 100
+		}
+		219 = {
+			OWNER = {
+				country_event = {
+					id = ww1_russia.118
+					days = 2
+				}
+			}
+		}
+	}
+	option = {
+		name = we_cant_accept
+		trigger= {
+			check_variable = {
+				var = vote_to_puppet_former_territories
+				value = vote_to_let_former_territories
+				compare = greater_than
+			}
+			check_variable = {
+				var = vote_to_puppet_former_territories
+				value = vote_to_annex_former_territories
+				compare = greater_than
+			}
+		}
+		set_country_flag = has_left_the_conference
+		219 = {
+			OWNER = {
+				country_event = {
+					id = ww1_russia.119
+					days = 2
+				}
+			}
+		}
+	}
+	option = {
+		name = RUS_annex_them_won
+		trigger= {
+			check_variable = {
+				var = vote_to_annex_former_territories
+				value = vote_to_let_former_territories
+				compare = greater_than
+			}
+			check_variable = {
+				var = vote_to_annex_former_territories
+				value = vote_to_puppet_former_territories
+				compare = greater_than
+			}
+		}
+		ai_chance = {
+			factor = 100
+		}
+		219 = {
+			OWNER = {
+				country_event = {
+					id = ww1_russia.118
+					days = 2
+				}
+			}
+		}
+	}
+	option = {
+		name = we_cant_accept
+		trigger= {
+			check_variable = {
+				var = has_support_to_annex_former_territories
+				value = vote_to_let_former_territories
+				compare = greater_than
+			}
+			check_variable = {
+				var = has_support_to_annex_former_territories
+				value = vote_to_puppet_former_territories
+				compare = greater_than
+			}
+		}
+		set_country_flag = has_left_the_conference
+		219 = {
+			OWNER = {
+				country_event = {
+					id = ww1_russia.119
+					days = 2
+				}
+			}
+		}
+	}
+}
+
+#russia ask us to be an autonomy
+country_event = {
+	id = ww1_russia.124
+	title = ww1_russia.124.t
+	desc = ww1_russia.124.d
+	picture = GFX_report_event_generic_conference
+	is_triggered_only = yes
+	
+	option = {
+		name = ww1_russia.124.a #okay
+		FROM = {
+			set_autonomy = {
+				target = ROOT
+				autonomy_state = autonomy_dominion
+			}
+		}
+		set_cosmetic_tag = RUS_republic_democratic_no_name
+		ai_chance = {
+			factor = 100
+		}
+	}
+	option = {
+		name = ww1_russia.142.b # lol no
+	}
+}
