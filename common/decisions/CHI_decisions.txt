@@ -1244,13 +1244,7 @@ CHI_warlord_era = {
 		is_good = no
 		timeout_effect = {
 			set_global_flag = second_constitutional_protection_movement
-			effect_tooltip = {
-				GXC = {
-					start_civil_war = {
-						ideology = democratic
-					}
-				}
-			}
+			custom_effect_tooltip = second_constitutional_protection_movement_tt
 		}
 	}
 	CHI_yung_feng_incident = {
@@ -1737,12 +1731,12 @@ CHI_warlord_era = {
 			base = 0
 			modifier = {
 				add = 1000
-				surrender_progress > 0.3
+				surrender_progress > 0.5
 			}
 			modifier = {
 				add = 1000
 				has_war_with = ZHC
-				surrender_progress > 0.1
+				surrender_progress > 0.3
 			}
 		}
 		complete_effect = {
@@ -1889,7 +1883,35 @@ CHI_warlord_era = {
 			}
 		}
 		complete_effect = {
-			news_event = ww1_china.61
+			if = {
+				limit = {
+					is_faction_leader = yes
+				}
+				dismantle_faction = yes
+			}
+			every_enemy_country = {
+				limit = {
+					OR = {
+						has_country_flag = CHI_kuomintang_flag
+						is_kuomintang_state = yes
+						is_in_faction_with = KMT
+						is_subject_of = KMT
+					}
+				}
+				white_peace = ROOT
+			}
+			every_state = {
+				limit = {
+					is_owned_or_subject_trigger = yes
+					NOT = {
+						region = 155
+						state = 610
+						state = 612
+					}
+				}
+				transfer_state_to = KMT
+			}
+			# news_event = ww1_china.61
 		}
 	}
 	CHI_KMT_leadership = {
@@ -1911,6 +1933,10 @@ CHI_warlord_era = {
 				is_subject = yes
 				has_country_leader = {
 					character = CHI_chiang_kaishek
+					ruling_only = yes
+				}
+				has_country_leader = {
+					character = CHI_wang_jingwei
 					ruling_only = yes
 				}
 				NOT = { has_country_flag = CHI_kuomintang_flag }
@@ -2828,16 +2854,22 @@ CHI_chinese_warlords = {
 		allowed = {
 			original_tag = SHX
 		}
+		target_trigger = {
+			FROM = {
+				tag = GMJ
+				is_china_or_warlord_no_tt = yes
+				owns_state = 621
+			}
+		}
 		visible = {
+			is_subject = no
+			has_war = no
 		}
 		available = {
-			MEN = {
-				exists = yes
-			}
-			SHX = {
-				is_subject = no
-				NOT = {
-					owns_state = 621
+			FROM = {
+				OR = {
+					has_war_with = FNG
+					has_war_with = ZHC
 				}
 			}
 		}
@@ -2845,11 +2877,16 @@ CHI_chinese_warlords = {
 		days_remove = 10
 		fire_only_once = yes
 		remove_effect = {
-			add_state_core = 621
-			transfer_state = 621
+			declare_war_on = {
+				target = GMJ
+				type = take_state
+				generator = {
+					621
+				}
+			}
 		}
 		ai_will_do = {
-			factor = 100
+			factor = 1000
 		}
 	}
 	CHI_ZHE_attack_FNG = {
@@ -5010,14 +5047,14 @@ CHI_chinese_warlords = {
 				NOT = {
 					any_other_country = {
 						has_country_flag = CHI_kuomintang_flag
-						has_war_with = PREV
+						has_war_with = ROOT
 					}
 					any_other_country = {
 						is_china_or_warlord_no_tt = yes
 						is_subject_of = ROOT
 						any_other_country = {
 							has_country_flag = CHI_kuomintang_flag
-							has_war_with = PREV
+							has_war_with = ROOT
 						}
 					}
 				}
@@ -5268,82 +5305,87 @@ CHI_chinese_warlords = {
 			base = 0
 		}
 	}
-	CHI_FNG_annex_to_anguojun = {
-		icon = GFX_decision_eng_trade_unions_support
-		allowed = {
-			original_tag = FNG
-		}
-		visible = {
-			has_global_flag = national_pacification_army
-			is_faction_leader = yes
-			is_subject = no
-		}
-		available = {
-			FROM = { surrender_progress > 0.50 }
-		}
-		complete_effect = {
-			custom_effect_tooltip = agree_effect_tooltip
-			effect_tooltip = {
-				if = {
-					limit = {
-						NOT = { has_war_with = KMT }
-					}
-					add_to_war = {
-						targeted_alliance = FROM
-						enemy = KMT
-					}
-				}
-				if = {
-					limit = { has_subject = SDC }
-					SDC = {
-						annex_country = {
-							target = FROM
-							transfer_troops = yes
-						}
-					}
-				}
-				else = {
-					annex_country = {
-						target = FROM
-						transfer_troops = yes
-					}
-				}
-			}
-			custom_effect_tooltip = disagree_effect_tooltip
-			effect_tooltip = {
-				declare_war_on = {
-					target = FROM
-					type = annex_everything
-				}
-			}
-			hidden_effect = {
-				FROM = {
-					country_event = {
-						id = ww1_china.222
-						hours = 3
-					}
-				}
-			}
-		}
-		target_trigger = {
-			FROM = {
-				is_china_or_warlord_no_tt = yes
-				NOT = {
-					has_war_with = ROOT
-					is_subject_of = ROOT
-				}
-				is_subject = no
-				is_neighbor_of_subject = yes
-				any_enemy_country = {
-					has_country_flag = CHI_kuomintang_flag
-				}
-			}
-		}
-		fire_only_once = yes
-		ai_will_do = {
-			base = 1000
-		}
-	}
+	# CHI_FNG_annex_to_anguojun = {
+	# 	icon = GFX_decision_eng_trade_unions_support
+	# 	allowed = {
+	# 		original_tag = FNG
+	# 	}
+	# 	visible = {
+	# 		has_global_flag = national_pacification_army
+	# 		is_faction_leader = yes
+	# 		is_subject = no
+	# 	}
+	# 	available = {
+	# 		FROM = {
+	# 			OR = {
+	# 				surrender_progress > 0.50
+	# 				has_capitulated = yes
+	# 			}
+	# 		}
+	# 	}
+	# 	complete_effect = {
+	# 		custom_effect_tooltip = agree_effect_tooltip
+	# 		effect_tooltip = {
+	# 			if = {
+	# 				limit = {
+	# 					NOT = { has_war_with = KMT }
+	# 				}
+	# 				add_to_war = {
+	# 					targeted_alliance = FROM
+	# 					enemy = KMT
+	# 				}
+	# 			}
+	# 			if = {
+	# 				limit = { has_subject = SDC }
+	# 				SDC = {
+	# 					annex_country = {
+	# 						target = FROM
+	# 						transfer_troops = yes
+	# 					}
+	# 				}
+	# 			}
+	# 			else = {
+	# 				annex_country = {
+	# 					target = FROM
+	# 					transfer_troops = yes
+	# 				}
+	# 			}
+	# 		}
+	# 		custom_effect_tooltip = disagree_effect_tooltip
+	# 		effect_tooltip = {
+	# 			declare_war_on = {
+	# 				target = FROM
+	# 				type = annex_everything
+	# 			}
+	# 		}
+	# 		hidden_effect = {
+	# 			FROM = {
+	# 				country_event = {
+	# 					id = ww1_china.222
+	# 					hours = 3
+	# 				}
+	# 			}
+	# 		}
+	# 	}
+	# 	target_trigger = {
+	# 		FROM = {
+	# 			is_china_or_warlord_no_tt = yes
+	# 			NOT = {
+	# 				has_war_with = ROOT
+	# 				is_subject_of = ROOT
+	# 			}
+	# 			is_subject = no
+	# 			is_neighbor_of_subject = yes
+	# 			any_enemy_country = {
+	# 				has_country_flag = CHI_kuomintang_flag
+	# 			}
+	# 		}
+	# 	}
+	# 	fire_only_once = yes
+	# 	ai_will_do = {
+	# 		base = 1000
+	# 	}
+	# }
 }
 
 political_actions = {
@@ -6275,7 +6317,7 @@ operations = {
 				has_country_flag = CHI_ZGP_finish_KMT
 			}
 		}
-		days_remove = 45
+		days_remove = 120
 		remove_effect = {
 			declare_war_on = {
 				target = FROM
@@ -7120,7 +7162,7 @@ CHI_national_revolution = {
 				has_country_flag = CHI_KMT_finish_ZGP
 			}
 		}
-		days_remove = 45
+		days_remove = 120
 		remove_effect = {
 			declare_war_on = {
 				target = FROM
