@@ -5690,30 +5690,44 @@ country_event = {
 	}
 	mean_time_to_happen = { days = 0 }
 	immediate = {
-		set_country_flag = part_of_china
-
 		add_ideas = CHI_idea_warlord_neutrality
-		add_ideas = CHI_ineffective_bureaucracy_warlord
-		add_ideas = PRC_government_corruption
-		add_ideas = CHI_idea_inflation5
-		add_ideas = CHI_idea_army_corruption3
-		add_ideas = CHI_idea_illiteracy
-		add_ideas = CHI_idea_weak_industry
-		if = {
-			limit = { NOT = { has_idea = MAN_banditry } }
-			add_ideas = CHI_banditry
-		}
+		set_country_flag = part_of_china
 		if = {
 			limit = {
-				OR = {
-					num_of_factories > 4
-					tag = FNG
-					tag = GXC
-					tag = ANC
-					tag = ZHC
-				}
+				is_subject = yes
+				OVERLORD = { has_country_flag = part_of_china }
 			}
-			add_ideas = CHI_rampant_opiate_addiction
+			copy_warlord_problem = yes
+			add_ideas = CHI_ineffective_bureaucracy_warlord
+			add_ideas = PRC_government_corruption
+			add_ideas = CHI_idea_illiteracy
+			add_ideas = CHI_idea_weak_industry
+		}
+		else = {
+			add_ideas = CHI_ineffective_bureaucracy_warlord
+			add_ideas = PRC_government_corruption
+			add_ideas = CHI_idea_inflation5
+			add_ideas = CHI_idea_army_corruption3
+			add_ideas = CHI_idea_illiteracy
+			add_ideas = CHI_idea_weak_industry
+
+			if = {
+				limit = { NOT = { has_idea = MAN_banditry } }
+				add_ideas = CHI_banditry
+			}
+
+			if = {
+				limit = {
+					OR = {
+						num_of_factories > 4
+						tag = FNG
+						tag = GXC
+						tag = ANC
+						tag = ZHC
+					}
+				}
+				add_ideas = CHI_rampant_opiate_addiction
+			}
 		}
 	}
 }
@@ -10677,6 +10691,13 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_china.72.a
+		if = {
+			limit = { has_idea = CHI_idea_constitutional_movement }
+			swap_ideas = {
+				remove_idea = CHI_idea_constitutional_movement
+				add_idea = CHI_idea_nationalist_revolution
+			}
+		}
 		if = {
 			limit = {
 				NOT = {
@@ -16030,10 +16051,37 @@ country_event = {
 	id = ww1_china.157
 	title = ww1_china.157.t
 	desc = ww1_china.157.d
-	picture = GFX_report_event_china_infiltration
-	is_triggered_only = yes
+	picture = GFX_report_event_chinese_army_training
+	fire_only_once = yes
+	trigger = {
+		tag = FNG
+		owns_state = 608
+		has_global_flag = northern_expedition
+		is_subject = no
+		NOT = {
+			has_global_flag = northern_expedition_end
+			has_government = communism
+		}
+		any_other_country = {
+			is_china_or_warlord_no_tt = yes
+			has_country_flag = CHI_kuomintang_flag
+			OR = {
+				has_war_with = ROOT
+				has_war_with = ZHC
+				has_war_with = ANC
+				has_war_with = ZHE
+				has_war_with = JNC
+				any_other_country = {
+					is_china_or_warlord_no_tt = yes
+					is_subject_of = ROOT
+					has_war_with = PREV
+				}
+			}
+		}
+	}
 	option = {
 		name = ww1_china.157.a
+		set_global_flag = national_pacification_army
 		if = {
 			limit = {
 				is_faction_leader = yes
@@ -19395,5 +19443,96 @@ country_event = {
 			set_state_owner = 591
 		}
 		give_guarantee = FROM
+	}
+}
+
+# Anguojun annexes the other warlords
+country_event = {
+	id = ww1_china.222
+	title = ww1_china.222.t
+	desc = ww1_china.222.d
+	picture = GFX_report_event_chinese_soldiers_city_ruin
+	is_triggered_only = yes
+	option = {
+		name = ww1_china.222.a
+		custom_effect_tooltip = GAME_OVER_TT
+		FROM = {
+			if = {
+				limit = {
+					NOT = { has_war_with = KMT }
+				}
+				add_to_war = {
+					targeted_alliance = ROOT
+					enemy = KMT
+				}
+			}
+			every_owned_state = {
+				limit = {
+					is_controlled_by = KMT
+				}
+				set_state_owner_to = KMT
+			}
+			if = {
+				limit = {
+					SDC = {
+						is_subject_of = PREV
+						is_neighbor_of = ROOT
+					}
+				}
+				SDC = {
+					annex_country = {
+						target = ROOT
+						transfer_troops = yes
+					}
+					every_state = {
+						limit = { is_core_of = ROOT }
+						add_core_of = PREV
+					}
+					if = {
+						limit = {
+							is_ai = yes
+							ROOT = { is_ai = no }
+						}
+						change_tag_from = ROOT
+					}
+				}
+			}
+			else = {
+				annex_country = {
+					target = ROOT
+					transfer_troops = yes
+				}
+				every_state = {
+					limit = { is_core_of = ROOT }
+					add_core_of = PREV
+				}
+				if = {
+					limit = {
+						is_ai = yes
+						ROOT = { is_ai = no }
+					}
+					change_tag_from = ROOT
+				}
+			}
+		}
+	}
+	option = {
+		name = ww1_china.222.b
+		ai_chance = { base = 0 }
+		FROM = {
+			declare_war_on = {
+				target = ROOT
+				type = annex_everything
+			}
+			every_subject_country = {
+				limit = {
+					is_neighbor_of = ROOT
+				}
+				add_to_war = {
+					targeted_alliance = PREV
+					enemy = ROOT
+				}
+			}
+		}
 	}
 }
