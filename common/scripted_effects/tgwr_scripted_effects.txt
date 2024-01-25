@@ -515,11 +515,12 @@ GER_release_LIT = {
 					state = 784
 					state = 97
 					state = 773
+					# state = 946
 				}
 			}
 			if = {
 				limit = {
-					NOT = { state = 773 }
+					NOT = { is_core_of = BLR }
 				}
 				remove_russian_cores = yes
 			}
@@ -778,14 +779,17 @@ GER_release_UBD = {
 			OR = {
 				is_owned_by = RUS
 				is_owned_by = SOV
-				AND = {
-					is_owned_by = GER
-				}
+				is_owned_by = GER
 			}
 			OR = {
-				state = 13
-				state = 191
-				state = 12
+				is_core_of = EST
+				is_core_of = LAT
+			}
+			NOT = {
+				is_core_of = COU
+				state = 96
+				state = 945
+				state = 947
 			}
 		}
 		transfer_state_to = UBD
@@ -850,14 +854,16 @@ GER_release_UBD = {
 		}
 		every_state = {
 			limit = {
-				is_owned_by = UBD
 				OR = {
 					is_core_of = LAT
 					is_core_of = EST
 				}
 			}
 			add_core_of = UBD
-			remove_russian_cores = yes
+			if = {
+				limit = { region = 37 }
+				remove_russian_cores = yes
+			}
 		}
 		if = {
 			limit = {
@@ -865,67 +871,54 @@ GER_release_UBD = {
 			}
 			UBD = { add_ideas = RUS_idea_armistice_cp }
 		}
-	}	
+	}
 }
 GER_release_COU = {
-	if = {
+	every_state = {
 		limit = {
-			any_country = {
-				OR = {
-					tag = RUS
-					tag = SOV
-					tag = GER
-					AND = {
-						tag = LAT
-						OR = {
-							is_subject_of = RUS
-							is_subject_of = SOV
-							is_subject_of = GER
-						}
-					}
-				}
-				owns_state = 190
+			OR = {
+				is_owned_by = RUS
+				is_owned_by = SOV
+				is_owned_by = GER
 			}
+			is_core_of = COU
 		}
+		transfer_state_to = COU
+		remove_russian_claims = yes
+		remove_russian_cores = yes
+	}
+	puppet = COU
+	hidden_effect = {
+		set_global_flag = COU_released
 		COU = {
-			transfer_state = 190
-		}
-		puppet = COU
-		hidden_effect = {
-			set_global_flag = COU_released
-			COU = {
-				if = {
-					limit = {
-						GER = {
-							OR = {
-								has_government = neutrality
-								has_idea = GER_idea_wilhelm_ii
-							}
-						}
-					}	
-					set_politics = {
-						ruling_party = neutrality
-						elections_allowed = no
-					}
-					set_popularities = {
-						democratic = 25
-						communism = 22
-						neutrality = 53
-					}				
-				}
-				set_country_flag = released_by_germany
-				inherit_technology = GER
-			}	
-			190 = {
-				remove_russian_cores = yes
-			}
 			if = {
 				limit = {
-					GER = { has_idea = RUS_idea_armistice_cp }
+					GER = {
+						OR = {
+							has_government = neutrality
+							has_idea = GER_idea_wilhelm_ii
+						}
+					}
+				}	
+				set_politics = {
+					ruling_party = neutrality
+					elections_allowed = no
 				}
-				COU = { add_ideas = RUS_idea_armistice_cp }
+				set_popularities = {
+					democratic = 25
+					communism = 22
+					neutrality = 53
+				}				
 			}
-		}		
+			set_country_flag = released_by_germany
+			inherit_technology = GER
+		}
+		if = {
+			limit = {
+				GER = { has_idea = RUS_idea_armistice_cp }
+			}
+			COU = { add_ideas = RUS_idea_armistice_cp }
+		}
 	}
 }
 ITA_civil_war_idea_transfer = {
@@ -2364,15 +2357,25 @@ remove_russian_claims = {
 }
 
 remove_russian_cores = {
-	every_possible_country = {
-		limit = {
-			original_tag = RUS
-		}
+	effect_tooltip = {
 		if = {
 			limit = {
-				PREV = { is_core_of = PREV }
+				PREV = { is_core_of = RUS }
 			}
-			PREV = { remove_core_of = PREV }
+			PREV = { remove_core_of = RUS }
+		}
+	}
+	hidden_effect = {
+		every_possible_country = {
+			limit = {
+				original_tag = RUS
+			}
+			if = {
+				limit = {
+					PREV = { is_core_of = PREV }
+				}
+				PREV = { remove_core_of = PREV }
+			}
 		}
 	}
 }
@@ -2384,6 +2387,7 @@ clear_iskolata = {
 				OR = {
 					has_country_flag = LAT_iskolata
 					has_cosmetic_tag = LAT_iskolata
+					has_government = fascism #german puppet somehow
 				}
 			}
 		}
@@ -3418,5 +3422,92 @@ delete_obsolete_russian_templates = {
 	delete_unit_template_and_units = {
 		division_template = "Kavaleriyskaya Brigada"
 		disband = yes
+	}
+}
+
+GEO_withdraw_from_persia = {
+	# Withdraw from Persia
+	hidden_effect = {
+		if = {
+			limit = {
+				any_owned_state = { is_core_of = ASY }
+				NOT = {
+					country_exists = ASY
+					ASY = { has_country_flag = ASY_volunteers }
+				}
+				has_war_with = TUR
+			}
+			every_owned_state = {
+				limit = { is_core_of = ASY }
+				transfer_state_to = ASY
+				add_claim_by = TUR
+			}
+			ASY = {
+				set_country_flag = ASY_volunteers
+				set_cosmetic_tag = ASY_volunteers
+				add_to_war = {
+					targeted_alliance = ROOT
+					enemy = TUR
+				}
+				division_template = {
+					name = "Assyrian Volunteers"
+					regiments = {
+						irregular_infantry = { x = 0 y = 0 }
+						irregular_infantry = { x = 0 y = 1 }
+						irregular_infantry = { x = 0 y = 2 }
+					}
+				}
+				every_owned_state = {
+					create_unit = {
+						division = "name = \"Militia\" division_template = \"Assyrian Volunteers\" start_experience_factor = 0.8"
+						owner = PREV
+						allow_spawning_on_enemy_provs = yes
+					}
+				}
+				set_party_name = {
+					ideology = neutrality
+					long_name = ASY_volunteers
+					name = ASY_volunteers
+				}
+				give_military_access = ENG
+			}
+		}
+		# if = {
+		# 	limit = {
+		# 		ENG = {
+		# 			has_war_with = TUR
+		# 			any_owned_state = { is_core_of = PER }
+		# 		}
+		# 	}
+		# 	every_owned_state = {
+		# 		limit = {
+		# 			is_core_of = PER
+		# 			NOT = { region = 155 }
+		# 		}
+		# 		transfer_state_to = ENG
+		# 	}
+		# }
+		every_owned_state = {
+			limit = {
+				is_core_of = PER
+				NOT = { region = 155 }
+			}
+			if = {
+				limit = {
+					OR = {
+						state = 419
+						state = 877
+					}
+				}
+				828 = {
+					owner = {
+						set_state_owner = PREV.PREV
+					}
+				}
+			}
+			else = {
+				transfer_state_to = PER
+			}
+		}
 	}
 }
