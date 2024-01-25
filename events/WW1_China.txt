@@ -8873,7 +8873,7 @@ country_event = {
 	desc = ww1_china.57.d
 	picture = GFX_report_event_china_soviet_volunteers
 	trigger = {
-		date > 1919.6.1
+		date > 1919.1.1
 		is_china_or_warlord = yes
 		OR = {
 			country_exists = SOV
@@ -8992,6 +8992,7 @@ country_event = {
 		NOT = {
 			has_government = communism
 			has_global_flag = chinese_soviet_republic
+			has_idea = CHI_idea_united_front
 		}
 		owns_state = 600
 		any_owned_state = {
@@ -9013,7 +9014,14 @@ country_event = {
 				}
 				remove_ideas = CHI_idea_communist_movement
 			}
+			every_country = {
+				limit = {
+					has_idea = CHI_idea_united_front
+				}
+				remove_ideas = CHI_idea_united_front
+			}
 			PRC = {
+				add_state_core = 600
 				transfer_state = 600
 				set_country_flag = CHI_soviet_republic_flag
 				set_cosmetic_tag = CSR
@@ -10520,134 +10528,25 @@ country_event = {
 	title = ww1_china.70.t
 	desc = ww1_china.70.d
 	picture = GFX_report_event_chinese_army_training
-	is_triggered_only = yes
-	immediate = {
-		hidden_effect = {
-			if = {
-				limit = {
-					is_faction_leader = yes
-				}
-				set_faction_name = nanjing_government
-			}
-			set_cosmetic_tag = KMT_NANJING
-			add_state_core = 598
-			set_capital = {
-				state = 598
-			}
-			create_dynamic_country = {
-				original_tag = GDC
-				set_politics = {
-					ruling_party = democratic
-					elections_allowed = no
-				}
-				set_popularities = {
-					democratic = 70
-					neutrality = 0
-					fascism = 0
-					communism = 30
-				}
-				set_capital = {
-					state = 620
-				}
-				set_country_flag = CHI_left_kuomintang_flag
-				set_cosmetic_tag = KMT_WUHAN
-				reserve_dynamic_country = yes
-			}
-			CHI_wang_jingwei = {
-				set_nationality = WHN
-			}
-			every_owned_state = {
-				limit = {
-					OR = {
-						state = 602
-						state = 620
-					}
-				}
-				add_core_of = WHN
-				transfer_state_to = WHN
-			}
-			WHN = {
-				inherit_technology = PREV
-				set_party_name = {
-					ideology = democratic
-					long_name = CHI_left_kuomintang_party_long
-					name = CHI_left_kuomintang_party
-				}
-				set_party_name = {
-					ideology = communism
-					long_name = CHI_left_kuomintang_party_long
-					name = CHI_left_kuomintang_party
-				}
-				CHI_wang_jingwei = {
-					if = {
-						limit = { has_ideology = tridemism }
-						promote_character = tridemism
-					}
-					else = {
-						add_country_leader_role = {
-							promote_leader = yes
-							country_leader = {
-								ideology = tridemism
-								traits = { chinese_nationalist }
-							}
-						}
-					}
-					if = {
-						limit = { has_ideology = reformist_socialism }
-						promote_character = reformist_socialism
-					}
-					else = {
-						add_country_leader_role = {
-							promote_leader = yes
-							country_leader = {
-								ideology = reformist_socialism
-								traits = { chinese_nationalist }
-							}
-						}
-					}
-				}
-				set_rule = {
-					can_join_factions = no
-				}
-				diplomatic_relation = {
-					country = PREV
-					relation = military_access
-					active = yes
-				}
-				PREV = {
-					transfer_units_fraction = {
-						target = PREV
-						size = 0.4
-						navy_ratio = 0
-						keep_unit_leaders_trigger = {
-							always = yes
-						}
-					}
-					set_truce = {
-						target = PREV
-						days = 180
-					}
-					diplomatic_relation = {
-						country = PREV
-						relation = military_access
-						active = yes
-					}
-				}
-				every_other_country = {
-					limit = {
-						is_china_or_warlord = yes
-						NOT = { is_subject_of = PREV }
-					}
-					set_truce = {
-						target = PREV
-						days = 180
-					}
-				}
-			}
+	trigger = {
+		is_china_or_warlord_no_tt = yes
+		has_country_flag = CHI_kuomintang_flag
+		620 = { is_controlled_by_ROOT_or_ally = yes }
+		has_capitulated = no
+		NOT = {
+			has_cosmetic_tag = KMT_WUHAN
+			has_cosmetic_tag = KMT_NANJING
+			has_cosmetic_tag = KMT_BEIPING
 		}
 	}
+	fire_only_once = yes
 	option = {
 		name = ww1_china.70.a
+		set_global_flag = wuhan_government
+		set_country_flag = wuhan_government
+		transfer_state = 620
+		set_capital = { state = 620 }
+		set_cosmetic_tag = KMT_WUHAN
 	}
 }
 
@@ -10659,9 +10558,13 @@ country_event = {
 	picture = GFX_report_event_chinese_officers
 	trigger = {
 		has_country_flag = CHI_kuomintang_flag
-		any_country = {
-			has_country_flag = CHI_left_kuomintang_flag
+		any_other_country = {
+			has_country_flag = wuhan_government
+			NOT = {
+				has_war_with = ROOT
+			}
 		}
+		# for now
 		has_global_flag = northern_expedition_end
 	}
 	mean_time_to_happen = {
@@ -10672,36 +10575,26 @@ country_event = {
 		name = ww1_china.71.a
 		hidden_effect = {
 			set_global_flag = nanjing_wuhan_integration
-			WHN = {
-				every_unit_leader = {
-					set_nationality = KMT
-				}
-				CHI_wang_jingwei = {
+			HNC = {
+				every_character = {
 					set_nationality = KMT
 				}
 			}
 		}
-		if = {
-			limit = {
-				is_faction_leader = yes
-			}
-			set_faction_name = nationalist_government
-		}
-		set_cosmetic_tag = KMT_NANJING
 		every_state = {
 			limit = {
-				is_core_of = WHN
+				is_core_of = HNC
 			}
-			remove_core_of = WHN
+			remove_core_of = HNC
 		}
 		every_state = {
 			limit = {
-				is_claimed_by = WHN
+				is_claimed_by = HNC
 			}
-			remove_claim_by = WHN
+			remove_claim_by = HNC
 		}
 		annex_country = {
-			target = WHN
+			target = HNC
 			transfer_troops = yes
 		}
 	}
@@ -12364,21 +12257,47 @@ country_event = {
 	title = ww1_china.103.t
 	desc = ww1_china.103.d
 	picture = GFX_report_event_chinese_soldiers_fighting
-	# trigger = {
-	# 	has_country_leader = {
-	# 		character = CHI_chiang_kaishek
-	# 		ruling_only = yes
-	# 	}
-	# 	controls_state = 613
-	# 	has_global_flag = chinese_communist_party
-	# 	has_capitulated = no
-	# 	is_subject = no
-	# }
-	# fire_only_once = yes
-	is_triggered_only = yes
+	trigger = {
+		has_country_leader = {
+			character = CHI_chiang_kaishek
+			ruling_only = yes
+		}
+		613 = { is_controlled_by_ROOT_or_ally = yes }
+		has_global_flag = chinese_communist_party
+		OR = {
+			has_idea = CHI_idea_united_front
+			communism > 0.10
+		}
+		has_capitulated = no
+		is_subject = no
+		has_country_flag = wuhan_government
+	}
+	fire_only_once = yes
 	option = {
 		name = ww1_china.103.a
 		set_global_flag = shanghai_massacre
+		clr_country_flag = wuhan_government
+		set_country_flag = nanjing_government
+		set_cosmetic_tag = KMT_NANJING
+		598 = { set_state_owner_to = ROOT }
+		set_capital = { state = 598 }
+		CHI_wang_jingwei = {
+			set_nationality = HNC
+		}
+		HNC = {
+			hidden_effect = {
+				set_party_name = {
+					ideology = democratic
+					long_name = CHI_left_kuomintang_party
+					name = CHI_left_kuomintang_party
+				}
+				ROOT = { end_puppet = PREV }
+			}
+			set_country_flag = wuhan_government
+			set_cosmetic_tag = KMT_WUHAN
+			transfer_state = 620
+			set_capital = { state = 620 }
+		}
 		if = {
 			limit = {
 				has_idea = CHI_idea_communist_movement
@@ -12387,15 +12306,46 @@ country_event = {
 		}
 		if = {
 			limit = {
-				communism > 0.20
+				has_idea = CHI_idea_united_front
 			}
-			add_popularity = {
-				ideology = communism
-				popularity = -0.10
+			remove_ideas = CHI_idea_united_front
+		}
+		add_popularity = {
+			ideology = communism
+			popularity = -0.30
+		}
+		if = {
+			limit = {
+				NOT = {
+					any_other_country = {
+						has_country_leader = {
+							character = CHI_li_dazhao
+							ruling_only = yes
+						}
+					}
+				}
+			}
+			effect_tooltip = {
+				retire_character = CHI_li_dazhao
+			}
+			hidden_effect = {
+				every_possible_country = {
+					limit = {
+						has_character = CHI_li_dazhao
+					}
+					retire_character = CHI_li_dazhao
+				}
 			}
 		}
-		effect_tooltip = {
-			retire_character = CHI_li_dazhao
+		every_other_country = {
+			limit = {
+				is_major = yes
+				has_government = communism
+			}
+			add_opinion_modifier = {
+				target = ROOT
+				modifier = large_decrease
+			}
 		}
 		hidden_effect = {
 			set_party_name = {
@@ -12403,25 +12353,11 @@ country_event = {
 				long_name = CHI_left_kuomintang_party
 				name = CHI_left_kuomintang_party
 			}
-			every_possible_country = {
-				limit = {
-					has_character = CHI_li_dazhao
-				}
-				retire_character = CHI_li_dazhao
+			news_event = {
+				id = ww1_china.104
+				hours = 3
 			}
 		}
-		if = {
-			limit = {
-				country_exists = SOV
-			}
-			SOV = {
-				add_opinion_modifier = {
-					target = PREV
-					modifier = large_decrease
-				}
-			}
-		}
-		news_event = ww1_china.104
 	}
 }
 
@@ -14636,24 +14572,24 @@ country_event = {
 	option = {
 		name = ww1_china.128.a
 		hidden_effect = {
-			complete_national_focus = CHI_cooperation_with_the_nationalists
-			uncomplete_national_focus = {
-				focus = CHI_cooperation_with_the_communists
-				uncomplete_children = yes
-			}
-			uncomplete_national_focus = {
-				focus = CHI_opposition
-				uncomplete_children = yes
-			}
-			uncomplete_national_focus = {
-				focus = CHI_chinese_federalism
-			}
-			uncomplete_national_focus = {
-				focus = CHI_isolationism
-			}
-			uncomplete_national_focus = {
-				focus = CHI_fubinism
-			}
+			# complete_national_focus = CHI_cooperation_with_the_nationalists
+			# uncomplete_national_focus = {
+			# 	focus = CHI_cooperation_with_the_communists
+			# 	uncomplete_children = yes
+			# }
+			# uncomplete_national_focus = {
+			# 	focus = CHI_opposition
+			# 	uncomplete_children = yes
+			# }
+			# uncomplete_national_focus = {
+			# 	focus = CHI_chinese_federalism
+			# }
+			# uncomplete_national_focus = {
+			# 	focus = CHI_isolationism
+			# }
+			# uncomplete_national_focus = {
+			# 	focus = CHI_fubinism
+			# }
 			mark_focus_tree_layout_dirty = yes
 			every_country = {
 				limit = {
@@ -17645,19 +17581,58 @@ country_event = {
 			democratic = 40
 			neutrality = 60
 		}
+		KMT = {
+			add_to_faction = ROOT
+			effect_tooltip = {
+				puppet = ROOT
+			}
+			hidden_effect = {
+				ROOT = {
+					get_current_government_type = yes
+				}
+				if = {
+					limit = {
+						has_subject_autonomy_feature = yes
+					}
+					set_autonomy = {
+						target = ROOT
+						autonomy_state = autonomy_tgwr_regional_government
+						end_wars = no
+						end_civil_wars = no
+					}
+				}
+				else = {
+					set_autonomy = {
+						target = ROOT
+						autonomy_state = autonomy_puppet
+						end_wars = no
+						end_civil_wars = no
+					}
+				}
+				every_enemy_country = {
+					limit = {
+						NOT = {
+							has_war_with = ROOT
+						}
+					}
+					ROOT = {
+						add_to_war = {
+							targeted_alliance = KMT
+							enemy = PREV
+						}
+					}
+				}
+			}
+		}
 		if = {
 			limit = {
 				owns_state = 602
 			}
-			random_other_country = {
-				limit = {
-					owns_state = 620
+			620 = {
+				owner = {
+					set_state_controller = 602
 				}
-				transfer_state = 602
 			}
-		}
-		KMT = {
-			add_to_faction = ROOT
 		}
 	}
 }
@@ -19465,81 +19440,242 @@ country_event = {
 	}
 }
 
-# Anguojun annexes the other warlords
+# Chiang Kai-shek almost got killed
 country_event = {
 	id = ww1_china.222
 	title = ww1_china.222.t
 	desc = ww1_china.222.d
 	picture = GFX_report_event_chinese_soldiers_city_ruin
-	is_triggered_only = yes
-	option = {
-		name = ww1_china.222.a
-		custom_effect_tooltip = GAME_OVER_TT
-		FROM = {
-			if = {
-				limit = {
-					NOT = { has_war_with = KMT }
-				}
-				add_to_war = {
-					targeted_alliance = ROOT
-					enemy = KMT
-				}
-			}
-			every_owned_state = {
-				limit = {
-					is_controlled_by = KMT
-				}
-				set_state_owner_to = KMT
-			}
-			annex_country = {
-				target = ROOT
-				transfer_troops = yes
-			}
-			every_state = {
-				limit = { is_core_of = ROOT }
-				add_core_of = PREV
-			}
-			ROOT = {
-				if = {
-					limit = {
-						has_character = ZHC_sun_chuanfang
-					}
-					ZHC_sun_chuanfang = {
-						remove_country_leader_role = {
-							ideology = despotism
-						}
-						remove_country_leader_role = {
-							ideology = stratocracy
-						}
-						set_nationality = FROM
-					}
-				}
-			}
-			if = {
-				limit = {
-					is_ai = yes
-					ROOT = { is_ai = no }
-				}
-				change_tag_from = ROOT
+	trigger = {
+		is_china_or_warlord_no_tt = yes
+		has_country_flag = CHI_kuomintang_flag
+		has_character = CHI_chiang_kaishek
+		CHI_chiang_kaishek = {
+			OR = {
+				is_leading_army = yes
+				is_leading_army_group = yes
 			}
 		}
+		has_global_flag = northern_expedition
+		NOT = {
+			has_global_flag = northern_expedition_end
+		}
+		OR = {
+			has_war_with = ZHE
+			has_war_with = ZHC
+		}
+		any_state = {
+			OR = {
+				region = 144
+				region = 164
+			}
+			owner = { has_war_with = ROOT }
+			is_controlled_by_ROOT_or_ally = yes
+		}
+	}
+	fire_only_once = yes
+	option = {
+		name = ww1_china.222.a
+		add_war_support = -0.10
 	}
 	option = {
 		name = ww1_china.222.b
-		ai_chance = { base = 0 }
-		FROM = {
-			declare_war_on = {
-				target = ROOT
-				type = annex_everything
+		trigger = {
+			OR = {
+				surrender_progress > 0.10
+				NOT = {
+					has_country_leader = {
+						character = CHI_chiang_kaishek
+						ruling_only = yes
+					}
+				}
 			}
-			every_subject_country = {
+		}
+		add_war_support = -0.30
+		retire_character = CHI_chiang_kaishek
+		if = {
+			limit = {
+				has_government = neutrality
+			}
+			add_popularity = {
+				ideology = neutrality
+				popularity = -0.10
+			}
+			set_politics = {
+				ruling_party = democratic
+				elections_allowed = no
+			}
+		}
+		if = {
+			limit = {
+				OR = {
+					communism > 0.15
+					has_idea = CHI_idea_united_front
+				}
+			}
+			CHI_wang_jingwei = {
+				if = {
+					limit = {
+						has_ideology = tridemism
+					}
+					promote_character = tridemism
+				}
+				else = {
+					add_country_leader_role = {
+						promote_leader = yes
+						country_leader = {
+							ideology = tridemism
+						}
+					}
+				}
+				if = {
+					limit = {
+						has_ideology = reformist_socialism
+					}
+					promote_character = reformist_socialism
+				}
+				else = {
+					add_country_leader_role = {
+						promote_leader = yes
+						country_leader = {
+							ideology = reformist_socialism
+						}
+					}
+				}
+			}
+		}
+		else = {
+			CHI_hu_hanmin = {
+				if = {
+					limit = {
+						has_ideology = tridemism
+					}
+					promote_character = tridemism
+				}
+				else = {
+					add_country_leader_role = {
+						promote_leader = yes
+						country_leader = {
+							ideology = tridemism
+						}
+					}
+				}
+				if = {
+					limit = {
+						has_ideology = authoritarian_democracy
+					}
+					promote_character = authoritarian_democracy
+				}
+				else = {
+					add_country_leader_role = {
+						promote_leader = yes
+						country_leader = {
+							ideology = authoritarian_democracy
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+# End of Northern Expedition
+country_event = {
+	id = ww1_china.223
+	title = ww1_china.223.t
+	desc = ww1_china.223.d
+	picture = GFX_report_event_chinese_soldiers_city_ruin
+	trigger = {
+		is_china_or_warlord_no_tt = yes
+		has_country_flag = CHI_kuomintang_flag
+		has_global_flag = northern_expedition
+		NOT = {
+			has_global_flag = northern_expedition_end
+			any_enemy_country = {
+				is_china_or_warlord_no_tt = yes
+			}
+		}
+	}
+	fire_only_once = yes
+	option = {
+		name = ww1_china.223.a
+		if = {
+			limit = {
+				is_in_faction_with = GMJ
+			}
+			every_owned_state = {
 				limit = {
-					is_neighbor_of = ROOT
+					OR = {
+						state = 607
+						state = 890
+						state = 891
+					}
 				}
-				add_to_war = {
-					targeted_alliance = PREV
-					enemy = ROOT
+				transfer_state_to = GMJ
+			}
+		}
+		if = {
+			limit = {
+				is_in_faction_with = SHX
+			}
+			every_owned_state = {
+				limit = {
+					OR = {
+						state = 608
+						state = 609
+						state = 611
+						state = 614
+					}
 				}
+				transfer_state_to = SHX
+			}
+		}
+		if = {
+			limit = {
+				is_in_faction_with = GXC
+			}
+			every_owned_state = {
+				limit = {
+					region = 165
+				}
+				transfer_state_to = GXC
+			}
+		}
+		if = {
+			limit = {
+				owns_state = 598
+				has_country_leader = {
+					character = CHI_chiang_kaishek
+					ruling_only = yes
+				}
+			}
+			set_capital = {
+				state = 598
+			}
+			set_cosmetic_tag = KMT_NANJING
+		}
+		else = {
+			set_capital = {
+				state = 620
+			}
+			set_cosmetic_tag = KMT_WUHAN
+		}
+		every_other_country = {
+			limit = {
+				has_country_leader_with_trait = chinese_nationalist
+				NOT = {
+					is_in_faction_with = ROOT
+				}
+			}
+			ROOT = {
+				add_to_faction = PREV
+			}
+		}
+		hidden_effect = {
+			set_global_flag = northern_expedition_end
+			news_event = {
+				id = ww1_china.61
+				hours = 3
 			}
 		}
 	}
