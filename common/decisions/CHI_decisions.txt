@@ -1148,26 +1148,13 @@ CHI_warlord_era = {
 		}
 		available = {
 			
-			NOT = {
-				has_global_flag = second_zhili_fengtian_war
-			}
-			FNG = {
-				OR = {
-					has_global_flag = first_zhili_fengtian_war
-					has_war_with = ZHC
-				}
-			}
 		}
 		visible = {
 			NOT = {
 				has_global_flag = second_zhili_fengtian_war
+				has_global_flag = first_zhili_fengtian_war_end
 			}
-			FNG = {
-				OR = {
-					has_global_flag = first_zhili_fengtian_war
-					has_war_with = ZHC
-				}
-			}
+			has_war_with = FROM
 		}
 		target_trigger = {
 			FROM = {
@@ -1187,8 +1174,8 @@ CHI_warlord_era = {
 			}
 		}
 		complete_effect = {
-			ZHC = {
-				set_global_flag = first_zhili_fengtian_war_end
+			set_global_flag = first_zhili_fengtian_war_end
+			FROM = {
 				country_event = ww1_china.46
 			}
 		}
@@ -1470,6 +1457,89 @@ CHI_warlord_era = {
 		}
 	}
 	ZHC_sue_for_peace_FNG = {
+		name = sue_for_peace_FROM
+		icon = GFX_decision_eng_trade_unions_support
+		allowed = {
+			original_tag = ZHC
+		}
+		available = {
+			surrender_progress > 0.15
+		}
+		visible = {
+			NOT = { has_global_flag = first_zhili_fengtian_war_end }
+			has_war_with = FROM
+		}
+		target_trigger = {
+			FROM = {
+				tag = FNG
+			}
+		}
+		fire_only_once = yes
+		ai_will_do = {
+			base = 0
+			modifier = {
+				add = 1000
+				surrender_progress > 0.7
+			}
+		}
+		complete_effect = {
+			set_global_flag = first_zhili_fengtian_war_end
+			set_global_flag = zhili_defeated_early
+			every_owned_state = {
+				limit = { region = 143 }
+				transfer_state_to = FROM
+			}
+			if = {
+				limit = { country_exists = ANC }
+				every_owned_state = {
+					limit = {
+						region = 164
+						NOT = {
+							state = 606
+							state = 608
+						}
+					}
+					transfer_state_to = ANC
+				}
+			}
+			every_enemy_country = {
+				limit = {
+					OR = {
+						is_china_or_warlord_no_tt = yes
+						is_in_faction_with = FROM
+						is_subject_of = FROM
+					}
+				}
+				white_peace = ROOT
+			}
+			FROM = {
+				if = {
+					limit = { is_faction_leader = yes }
+					dismantle_faction = yes
+				}
+			}
+			set_capital = {
+				state = 620
+			}
+			ZHC_wu_peifu = {
+				add_country_leader_role = {
+					promote_leader = yes
+					country_leader = {
+						ideology = despotism
+						traits = { corrupted_bureaucrat japanophobia }
+					}
+				}	
+				add_country_leader_role = {
+					promote_leader = yes	
+					country_leader = {
+						ideology = stratocracy
+						traits = { corrupted_bureaucrat japanophobia }
+					}
+				}
+			}
+		}
+	}
+	ZHC_sue_for_peace_FNG_second = {
 		name = sue_for_peace_FROM
 		icon = GFX_decision_eng_trade_unions_support
 		allowed = {
@@ -2451,19 +2521,19 @@ CHI_chinese_warlords = {
 			original_tag = XSM
 		}
 		visible = {
+			is_subject = no
+			owns_state = 755
 		}
 		available = {
-			XSM = {
-				NOT = {
-					owns_state = 616
+			616 = {
+				owner = {
+					is_china_or_warlord_no_tt = yes
 				}
 			}
 		}
 		cost = 75
-		days_remove = 10
 		fire_only_once = yes
-		remove_effect = {
-			add_state_core = 616
+		complete_effect = {
 			transfer_state = 616
 		}
 		ai_will_do = {
@@ -6875,6 +6945,7 @@ CHI_national_revolution = {
 			OR = {
 				# Ready to crush them
 				has_global_flag = zhili_fengtian_fengyushang_war_end
+				has_global_flag = zhili_defeated_early
 				# Zhili divided
 				AND = {
 					country_exists = ZHC
