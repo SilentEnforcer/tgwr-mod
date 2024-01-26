@@ -2481,18 +2481,24 @@ CHI_chinese_warlords = {
 		}
 		visible = {
 			has_global_flag = warlord_era
-			MON = {
-				exists = yes
-			}
+			FROM = { is_neighbor_of_subject = yes }
 			owns_state = 608
 			NOT = {
-				has_war_with = MON
+				has_war_with = FROM
+				has_global_flag = outer_mongolia_revocation
 			}
+			is_subject = no
 		}
 		available = {
-			owns_state = 608
-			is_subject = no
+			608 = { is_owned_and_controlled_by = ROOT }
 			has_capitulated = no
+			has_civil_war = no
+			NOT = {
+				any_enemy_country = {
+					is_china_or_warlord = yes
+				}
+				has_country_flag = great_war_loser
+			}
 			RUS = {
 				OR = {
 					has_civil_war = yes
@@ -2504,9 +2510,10 @@ CHI_chinese_warlords = {
 						NOT = { ROOT = { has_country_flag = great_war_loser } }
 					}
 					has_capitulated = yes
+					NOT = { is_neighbor_of = FROM }
 				}
 			}
-			MON = {
+			FROM = {
 				exists = yes
 				is_neighbor_of = ROOT
 				NOT = {
@@ -2524,15 +2531,36 @@ CHI_chinese_warlords = {
 		}
 		cost = 75
 		days_remove = 40
-		fire_only_once = yes
+		fire_only_once = no
+		cancel_if_not_visible = yes
+		cancel_trigger = {
+			OR = {
+				NOT = {
+					608 = { is_owned_and_controlled_by = ROOT }
+				}
+				has_capitulated = yes
+				has_civil_war = yes
+				any_enemy_country = {
+					is_china_or_warlord = yes
+				}
+				has_war_with = FROM
+				has_country_flag = great_war_loser
+			}
+		}
 		remove_effect = {
+			set_global_flag = outer_mongolia_revocation
 			annex_country = {
-				target = MON
+				target = FROM
 				transfer_troops = no
 			}
-			annex_country = {
-				target = TAN
-				transfer_troops = no
+			if = {
+				limit = {
+					country_exists = TAN
+				}
+				annex_country = {
+					target = TAN
+					transfer_troops = no
+				}
 			}
 		}
 		target_trigger = {
@@ -2540,6 +2568,7 @@ CHI_chinese_warlords = {
 				tag = MON
 			}
 		}
+		war_with_target_on_remove = yes
 		war_with_on_remove = MON
 		war_with_on_remove = TAN
 		ai_will_do = {
@@ -2552,27 +2581,12 @@ CHI_chinese_warlords = {
 			is_china_or_warlord_no_tt = yes
 		}
 		visible = {
-			is_china_or_warlord_no_tt = yes
 			has_global_flag = warlord_era
 			is_subject = no
-			has_capitulated = no
-			TIB = {
-				is_neighbor_of = ROOT
-			}
-			NOT = { has_focus_tree = china_focus } #by focus
-		}
-		available = {
+			is_neighbor_of = FROM
 			NOT = {
-				has_country_flag = great_war_loser
-				has_idea = CHI_idea_government_divided
-			}
-			TIB = {
-				is_neighbor_of = ROOT
-				NOT = {
-					any_other_country = {
-						has_guaranteed = PREV
-					}
-				}
+				has_focus_tree = china_focus #by focus
+				has_global_flag = tibet_revocation
 			}
 			OR = {
 				tag = CHI
@@ -2580,10 +2594,34 @@ CHI_chinese_warlords = {
 				has_country_flag = reunited_china
 			}
 		}
+		available = {
+			has_war = no
+			has_capitulated = no
+			NOT = {
+				has_country_flag = great_war_loser
+				has_idea = CHI_idea_government_divided
+				any_other_country = {
+					has_guaranteed = FROM
+				}
+			}
+		}
 		cost = 75
 		days_remove = 10
-		fire_only_once = yes
+		fire_only_once = no
+		cancel_if_not_visible = yes
+		cancel_trigger = {
+			OR = {
+				has_war = yes
+				has_capitulated = yes
+				has_country_flag = great_war_loser
+				has_idea = CHI_idea_government_divided
+				any_other_country = {
+					has_guaranteed = FROM
+				}
+			}
+		}
 		remove_effect = {
+			set_global_flag = tibet_revocation
 			every_state = {
 				limit = {
 					is_core_of = TIB
@@ -2600,7 +2638,7 @@ CHI_chinese_warlords = {
 				tag = TIB
 			}
 		}
-		war_with_on_remove = TIB
+		war_with_target_on_remove = yes
 		ai_will_do = {
 			base = 10
 			modifier = {
