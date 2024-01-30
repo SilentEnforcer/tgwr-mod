@@ -675,104 +675,501 @@ SOV_combat_the_counter_revolution = {
 			}
 		}
 	}
-}
-SOV_decision_soviet_republics = {
-	SOV_mongol_peoples_republic = {
-		icon = GFX_decision_SOV_secure_the_administration
+	SOV_crush_VLN = {
+		icon = GFX_decision_generic_prepare_civil_war
+		allowed = {
+			original_tag = RUS 
+		}
+		visible = {
+			tag = SOV
+		}
+		target_trigger = {
+			FROM = {
+				tag = VLN
+			}
+		}
 		available = {
-			is_neighbor_of = FROM
 			OR = {
-				has_government = democratic
-				has_government = communism
+				is_neighbor_of = FROM
+				any_other_country = {
+					is_neighbor_of = FROM
+					OR = {
+						is_in_faction_with = ROOT
+						is_subject_of = ROOT
+					}
+				}
+			}
+			FROM = {
+				all_neighbor_country = {
+					NOT = { has_war_with = ROOT }
+				}
 			}
 		}
 		visible = {
-			has_completed_focus = SOV_soviet_republics
+			is_subject = no
 			FROM = {
-				has_country_leader = {
-					character = MON_roman_ungernsternberg
+				NOT = {
+					has_war_with = ROOT
+					has_war_together_with = ROOT
 				}
-				is_subject = no
 			}
+			NOT = { has_country_flag = SOV_sue_for_peace_VLN }
 		}
-		target_trigger = {
-			FROM = { tag = MON }
-		}
-		cost = 20
+		cost = 25
+		fire_only_once = no
 		ai_will_do = {
-			base = 10000
+			factor = 10
 			modifier = {
 				factor = 0
-				OR = {
-					date < 1922.2.16
-					FROM = {
-						is_in_faction = yes
-					}
-					any_country = {
-						AND = {
-							has_war_with = ROOT
+				surrender_progress > 0.2
+			}
+			modifier = {
+				factor = 0
+				FROM = {
+					is_in_faction = yes
+					NOT = { is_in_faction_with = ROOT }
+				}
+			}
+			modifier = {
+				factor = 0
+				FROM = {
+					is_subject = yes
+					NOT = { is_subject_of = ROOT }
+				}
+			}
+		}
+		complete_effect = {
+			if = {
+				limit = {
+					has_subject = FROM
+				}
+				if = {
+					limit = {
+						any_other_country = {
 							OR = {
-								is_major = yes
-								is_in_faction = yes
+								is_in_faction_with = ROOT
+								is_subject_of = ROOT
+							}
+							FROM = {
+								capital_scope = {
+									is_core_of = PREV.PREV
+								}
 							}
 						}
 					}
-					surrender_progress > 0.1
-				}
-			}
-		}
-		fire_only_once = yes
-		days_remove = 15
-		remove_effect  = {
-			if = {
-				limit = {
-					FROM = {
-						owns_state = 329
-					}
-					TAN = {
-						OR = {
-							exists = no
-							is_subject_of = ROOT
+					random_other_country = {
+						limit = {
+							OR = {
+								is_in_faction_with = ROOT
+								is_subject_of = ROOT
+							}
+							FROM = {
+								capital_scope = {
+									is_core_of = PREV.PREV
+								}
+							}
+						}
+						annex_country = {
+							target = FROM
 						}
 					}
 				}
-				FROM = {
-					release = TAN
+				else = {
+					annex_country = {
+						target = FROM
+					}
 				}
-				puppet = TAN
 			}
-			if = {
-				limit = {
-					FROM = {
-						is_in_faction = no
-						has_war = no
-						is_ai = yes
+			else = {
+				hidden_effect = {
+					if = {
+						limit = {
+							is_in_faction_with = FROM
+						}
+						FROM = { leave_faction = yes }
 					}
 				}
-				puppet = FROM
-				hidden_effect = {
-					FROM = {
-					    drop_cosmetic_tag = yes
-						retire_character = MON_roman_ungernsternberg
-						set_party_name = { 
-						    ideology = fascism 
-						    long_name = MON_fascism_party 
-						    name = MON_fascism_party 
-						}						
+				declare_war_on = {
+					target = FROM
+					type = puppet_wargoal_focus
+				}
+			}
+		}
+	}
+}
+SOV_decision_soviet_republics = {
+	SOV_soviet_stavrapol = {
+		icon = GFX_decision_SOV_secure_the_administration
+		available = {
+			has_completed_focus = SOV_soviet_republics
+			is_subject = no
+			has_government = communism
+		}
+		visible = {
+			NOT = { country_exists = STV }
+			owns_state = 235
+		}
+		cost = 5
+		ai_will_do = {
+			base = 200
+		}
+		fire_only_once = yes
+		complete_effect = {
+			create_dynamic_country = {
+				original_tag = RUS
+				copy_tag = SOV
+				add_political_power = 100
+				transfer_state = 235
+				load_focus_tree = empty_focus
+				country_lock_all_division_template = yes
+				SOV = {
+					puppet = PREV
+				}
+				set_politics = {
+					ruling_party = communism
+					long_name = SOV_communism_party_long
+					name = SOV_communism_party
+					elections_allowed = no
+				}
+				set_popularities = {
+					communism = 55
+					democratic = 45
+				}
+				set_party_name = {
+					ideology = democratic
+					long_name = RUS_democratic_party_SR_long
+					name = RUS_democratic_party_SR
+				}
+				set_country_flag = RUS_stavropol_tag
+				set_cosmetic_tag = STV_communism
+				add_ideas = SOV_idea_red_guard
+				set_country_flag = dont_trigger_political_event
+				create_country_leader = {
+					name = SOV_aleksandr_ponomarev
+					picture = GFX_Portrait_Soviet_Generic_land_2
+					ideology = vanguardism
+				}
+				division_template = {
+					name = "Krasnaya Gvardiya"
+					regiments = {
+						militia = { x = 0 y = 0 }
+						militia = { x = 0 y = 1 }
+						militia = { x = 1 y = 0 }
 					}
-					set_province_name = {
-						id = 4801
-						name = ULANBATOR_PROV
+				}
+				235 = {
+					create_unit = {
+						division = "division_template = \"Krasnaya Gvardiya\" start_experience_factor = 0.2" 
+						owner = PREV
+						allow_spawning_on_enemy_provs = yes
+						count = 2
 					}
-					RUS = {
-						retire_character = RUS_roman_ungern_sternberg
+				}
+				every_state = {
+					limit = {
+						is_claimed_by = PREV
+					}
+					remove_claim_by = PREV
+				}
+				every_state = {
+					limit = {
+						is_core_of = PREV
+						NOT = {
+							state = 235
+						}	
+					}
+					remove_core_of = PREV
+				}
+			}
+			235 = {
+				remove_core_of = SOV
+			}
+		}
+	}
+	SOV_soviet_terek = {
+		icon = GFX_decision_SOV_secure_the_administration
+		available = {
+			has_completed_focus = SOV_soviet_republics
+			is_subject = no
+			has_government = communism
+		}
+		visible = {
+			NOT = { country_exists = TER }
+			owns_state = 232
+		}
+		cost = 5
+		ai_will_do = {
+			base = 200
+		}
+		fire_only_once = yes
+		complete_effect = {
+			TER = {
+				transfer_state = 232
+				add_state_core = 232
+				SOV = {
+					puppet = PREV
+				}
+				retire_character = TER_mikhail_karaulov
+				set_politics = {
+					ruling_party = communism
+				}
+				set_popularities = {
+					communism = 33
+					democratic = 26
+					neutrality = 31
+					fascism = 10
+				}
+				add_ideas = SOV_idea_red_guard
+				set_country_flag = dont_trigger_political_event
+				load_focus_tree = empty_focus
+				add_ideas = SOV_idea_red_guard
+				country_lock_all_division_template = yes
+				division_template = {
+					name = "Krasnaya Gvardiya"
+					regiments = {
+						militia = { x = 0 y = 0 }
+						militia = { x = 0 y = 1 }
+						militia = { x = 1 y = 0 }
+					}
+				}
+				232 = {
+					create_unit = {
+						division = "division_template = \"Krasnaya Gvardiya\" start_experience_factor = 0.2" 
+						owner = PREV
+						allow_spawning_on_enemy_provs = yes
+						count = 4
+					}
+				}
+			}
+		}
+	}
+	SOV_soviet_black_sea = {
+		icon = GFX_decision_SOV_secure_the_administration
+		available = {
+			has_completed_focus = SOV_soviet_republics
+			is_subject = no
+			has_government = communism
+		}
+		visible = {
+			NOT = { country_exists = BSR }
+			OR = {
+				owns_state = 233
+				owns_state = 940
+			}	
+		}
+		cost = 5
+		ai_will_do = {
+			base = 200
+		}
+		fire_only_once = yes
+		complete_effect = {
+			every_state = {
+				limit = {
+					OWNER = { is_russian_tag = yes }
+					OR = {
+						state = 233
+						state = 940
+					}						
+				}	
+				transfer_state_to = BSR
+				add_core_of = BSR
+			}	
+			BSR = {
+				division_template = {
+					name = "Krasnaya Gvardiya"
+					regiments = {
+						militia = { x = 0 y = 0 }
+						militia = { x = 0 y = 1 }
+							militia = { x = 1 y = 0 }
+					}
+				}
+				940 = {
+					create_unit = {
+						division = "division_template = \"Krasnaya Gvardiya\" start_experience_factor = 0.2" 
+						owner = BSR
+						allow_spawning_on_enemy_provs = yes
+						count = 3
+					}
+				}
+			}
+			SOV = {
+				puppet = BSR
+				add_to_faction = BSR
+			}
+		}
+	}
+	SOV_soviet_kuban_black_sea = {
+		icon = GFX_decision_SOV_secure_the_administration
+		available = {
+			has_completed_focus = SOV_soviet_republics
+			is_subject = no
+			has_government = communism
+		}
+		target_trigger = {
+			FROM = {
+				tag = KUB
+				NOT = {
+					tag = BSR
+				}
+			}
+		}
+		visible = {
+			has_subject = KUB
+			has_subject = BSR
+		}
+		cost = 5
+		ai_will_do = {
+			base = 200
+		}
+		fire_only_once = yes
+		complete_effect = {
+			KUB = {
+				annex_country = {
+					target = BSR
+					transfer_troops = yes
+				}
+				every_state = {
+					limit = {
+						is_core_of = BSR
+					}
+					add_core_of = KUB
+					remove_core_of = BSR
+				}
+				set_cosmetic_tag = KUB_black_sea_communism
+			}
+		}
+	}	
+	SOV_soviet_north_caucasus = {
+		icon = GFX_decision_SOV_secure_the_administration
+		available = {
+			has_completed_focus = SOV_soviet_republics
+			is_subject = no
+			has_government = communism
+		}
+		target_trigger = {
+			FROM = {
+				tag = KUB
+				has_cosmetic_tag = KUB_black_sea_communism
+			}
+		}
+		cost = 5
+		ai_will_do = {
+			base = 200
+		}
+		fire_only_once = yes
+		complete_effect = {
+			KUB = {
+				annex_country = {
+					target = TER
+					transfer_troops = yes
+				}
+				if = {
+					limit = {
+						any_country = {
+							has_country_flag = RUS_stavropol_tag
+						}
+					}
+					annex_country = {
+						target = STV
+						transfer_troops = yes
 					}
 				}	
-				else = {
-					create_wargoal = {
-						target = FROM
-						type = puppet_wargoal_focus
+				set_cosmetic_tag = KUB_north_caucasus_communism
+				create_country_leader = {
+					name = SOV_abram_rubin
+					picture = "gfx/leaders/SOV/Portrait_Soviet_Generic_1.dds"
+					ideology = vanguardism
+				}
+				every_state = {
+					limit = {
+						OR = {
+							is_core_of = STV
+							is_core_of = TER				
+						}
+						NOT = {
+							is_core_of = KUB
+						}
 					}
+					add_core_of = KUB
+					remove_core_of = STV
+				}		
+			}
+			every_owned_state = {
+				limit = {
+					OR = {
+						state = 232
+						state = 235
+						state = 579
+						state = 233
+						state = 940
+						state = 234
+						state = 941
+					}
+				}
+				transfer_state_to = KUB
+				if = {
+					limit = {
+						NOT = {
+							is_core_of = KUB
+						}
+					}
+					add_core_of = KUB
+				}
+			}
+		}
+	}
+	SOV_annex_soviet_north_caucasus = {
+		icon = GFX_decision_SOV_secure_the_administration
+		available = {
+			is_subject = no
+			has_government = communism
+			OR = {
+				has_war = no
+				FROM = {
+					has_capitulated = yes
+				}
+			}		
+		}
+		target_trigger = {
+			FROM = {
+				tag = KUB
+				has_cosmetic_tag = KUB_north_caucasus_communism
+				is_subject_of = ROOT
+			}
+		}
+		cost = 5
+		ai_will_do = {
+			base = 200
+		}
+		fire_only_once = yes
+		complete_effect = {
+			FROM = {
+				every_state = {
+					limit = {
+						is_core_of = FROM
+						NOT = {
+							is_core_of = ROOT
+						}
+					}
+					add_core_of = ROOT
+				}				
+				every_state = {
+					limit = {
+						NOT = {
+							state = 234
+							state = 941
+							state = 579
+							state = 940
+						}
+					}
+					remove_core_of = PREV
+				}
+				drop_cosmetic_tag = yes
+			}
+			ROOT = {
+				annex_country = {
+					target = FROM
+					transfer_troops = yes
 				}
 			}
 		}
@@ -1196,213 +1593,6 @@ SOV_decision_soviet_republics = {
 			}
 		}
 	}
-	SOV_crush_VLN = {
-		icon = GFX_decision_generic_prepare_civil_war
-		allowed = {
-			original_tag = RUS 
-		}
-		visible = {
-			tag = SOV
-		}
-		target_trigger = {
-			FROM = {
-				tag = VLN
-			}
-		}
-		available = {
-			OR = {
-				is_neighbor_of = FROM
-				any_other_country = {
-					is_neighbor_of = FROM
-					OR = {
-						is_in_faction_with = ROOT
-						is_subject_of = ROOT
-					}
-				}
-			}
-			FROM = {
-				all_neighbor_country = {
-					NOT = { has_war_with = ROOT }
-				}
-			}
-		}
-		visible = {
-			is_subject = no
-			FROM = {
-				NOT = {
-					has_war_with = ROOT
-					has_war_together_with = ROOT
-				}
-			}
-			NOT = { has_country_flag = SOV_sue_for_peace_VLN }
-		}
-		cost = 25
-		fire_only_once = no
-		ai_will_do = {
-			factor = 10
-			modifier = {
-				factor = 0
-				surrender_progress > 0.2
-			}
-			modifier = {
-				factor = 0
-				FROM = {
-					is_in_faction = yes
-					NOT = { is_in_faction_with = ROOT }
-				}
-			}
-			modifier = {
-				factor = 0
-				FROM = {
-					is_subject = yes
-					NOT = { is_subject_of = ROOT }
-				}
-			}
-		}
-		complete_effect = {
-			if = {
-				limit = {
-					has_subject = FROM
-				}
-				if = {
-					limit = {
-						any_other_country = {
-							OR = {
-								is_in_faction_with = ROOT
-								is_subject_of = ROOT
-							}
-							FROM = {
-								capital_scope = {
-									is_core_of = PREV.PREV
-								}
-							}
-						}
-					}
-					random_other_country = {
-						limit = {
-							OR = {
-								is_in_faction_with = ROOT
-								is_subject_of = ROOT
-							}
-							FROM = {
-								capital_scope = {
-									is_core_of = PREV.PREV
-								}
-							}
-						}
-						annex_country = {
-							target = FROM
-						}
-					}
-				}
-				else = {
-					annex_country = {
-						target = FROM
-					}
-				}
-			}
-			else = {
-				hidden_effect = {
-					if = {
-						limit = {
-							is_in_faction_with = FROM
-						}
-						FROM = { leave_faction = yes }
-					}
-				}
-				declare_war_on = {
-					target = FROM
-					type = puppet_wargoal_focus
-				}
-			}
-		}
-	}
-	# SOV_soviet_turkestan = {
-	# 	icon = GFX_decision_SOV_secure_the_administration
-	# 	available = {
-	# 		has_completed_focus = SOV_soviet_republics
-	# 		is_subject = no
-	# 		TRK = {
-    #             has_capitulated = no
-	# 			has_civil_war = no
-	# 		}
-	# 		OR = {
-	# 			has_government = democratic
-	# 			has_government = communism
-	# 		}
-	# 	}
-	# 	target_trigger = {
-	# 		FROM = {
-	# 			tag = TRK
-	# 			is_subject = no
-	# 		}
-	# 	}
-	# 	cost = 25
-	# 	ai_will_do = {
-	# 		base = 200
-	# 		modifier = {
-	# 			factor = 0
-	# 			FROM = {
-	# 				NOT = {
-	# 					is_in_faction_with = ROOT
-	# 				}
-	# 				has_war = yes
-	# 			}
-				
-	# 		}
-	# 	}
-	# 	fire_only_once = yes
-	# 	complete_effect = {
-	# 		if = {
-	# 			limit = {
-	# 				NOT = { TRK = {	has_government = ROOT } }
-	# 				NOT = { TRK = { is_in_faction_with = ROOT } }
-	# 			}
-	# 			TRK = {
-	# 				start_civil_war = { 
-	# 					ideology = ROOT 
-	# 					size = 0.7
-	# 					states = { 
-    #  					    585 589 586
-    # 					}
-	# 					capital = 585
-	# 					keep_unit_leaders_trigger = {
-	# 						always = yes
-	# 					}
-	# 				}
-	# 				country_event = {id = ww1_turkestan.1}
-	# 			}
-	# 			random_country = {
-	# 				limit= {
-	# 					original_tag = TRK
-	# 					has_government = ROOT
-	# 				}
-	# 				ROOT = {
-	# 					puppet = {
-	# 						target = PREV
-	# 						end_civil_wars = no
-	# 						end_wars = no
-	# 					}
-	# 					declare_war_on = {
-	# 						target = TRK
-	# 						type = civil_war
-	# 					}
-	# 				}
-	# 			}
-	# 		}
-	# 		if = {
-	# 			limit = {
-	# 				OR = {
-	# 					TRK = { has_government = ROOT }
-	# 					TRK = { is_in_faction_with = ROOT }
-	# 				}
-	# 			}
-	# 			ROOT = {
-	# 				puppet = TRK
-	# 			}
-	# 		}
-	# 	}
-	# }
 	SOV_soviet_georgia = {
 		icon = GFX_decision_SOV_secure_the_administration
 		available = {
@@ -2176,8 +2366,13 @@ SOV_decision_soviet_republics = {
 			}
 			LIT = {
 				OR = {
-					is_subject_of = ROOT
-					exists = no
+					AND = {
+						NOT = {
+							has_cosmetic_tag = LITBEL
+						}
+						is_subject_of = ROOT
+					}				
+					exists = no			
 				}
 			}
 			BLR = {
@@ -2530,6 +2725,106 @@ SOV_decision_soviet_republics = {
 								allow_spawning_on_enemy_provs = yes
 							}
 						}
+					}
+				}
+			}
+		}
+	}
+	SOV_mongol_peoples_republic = {
+		icon = GFX_decision_SOV_secure_the_administration
+		available = {
+			is_neighbor_of = FROM
+			OR = {
+				has_government = democratic
+				has_government = communism
+			}
+		}
+		visible = {
+			has_completed_focus = SOV_soviet_republics
+			FROM = {
+				has_country_leader = {
+					character = MON_roman_ungernsternberg
+				}
+				is_subject = no
+			}
+		}
+		target_trigger = {
+			FROM = { tag = MON }
+		}
+		cost = 20
+		ai_will_do = {
+			base = 10000
+			modifier = {
+				factor = 0
+				OR = {
+					date < 1922.2.16
+					FROM = {
+						is_in_faction = yes
+					}
+					any_country = {
+						AND = {
+							has_war_with = ROOT
+							OR = {
+								is_major = yes
+								is_in_faction = yes
+							}
+						}
+					}
+					surrender_progress > 0.1
+				}
+			}
+		}
+		fire_only_once = yes
+		days_remove = 15
+		remove_effect  = {
+			if = {
+				limit = {
+					FROM = {
+						owns_state = 329
+					}
+					TAN = {
+						OR = {
+							exists = no
+							is_subject_of = ROOT
+						}
+					}
+				}
+				FROM = {
+					release = TAN
+				}
+				puppet = TAN
+			}
+			if = {
+				limit = {
+					FROM = {
+						is_in_faction = no
+						has_war = no
+						is_ai = yes
+					}
+				}
+				puppet = FROM
+				hidden_effect = {
+					FROM = {
+					    drop_cosmetic_tag = yes
+						retire_character = MON_roman_ungernsternberg
+						set_party_name = { 
+						    ideology = fascism 
+						    long_name = MON_fascism_party 
+						    name = MON_fascism_party 
+						}						
+					}
+					set_province_name = {
+						id = 4801
+						name = ULANBATOR_PROV
+					}
+					RUS = {
+						retire_character = RUS_roman_ungern_sternberg
+					}
+				}	
+				else = {
+					create_wargoal = {
+						target = FROM
+						type = puppet_wargoal_focus
 					}
 				}
 			}
