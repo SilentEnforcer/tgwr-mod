@@ -2,6 +2,7 @@ USA_congress = {
 	USA_small_lobby_effort = {
 		icon = generic_political_discourse
 		available = {
+			has_completed_focus = USA_commissionon_economy_and_efficiency
 			OR = {
 				check_variable = { senators_support < senators_total }
 				check_variable = { representatives_support < representatives_total }
@@ -38,19 +39,20 @@ USA_congress = {
 			USA_congress_small_support = yes
 		}
 	}
-	USA_medium_lobby_effort = {
+	USA_middle_lobby_effort = {
 		icon = generic_political_discourse
 		available = {
+		has_country_flag = USA_more_cce_flag
 			OR = {
 				check_variable = { senators_support < senators_total }
 				check_variable = { representatives_support < representatives_total }
 			}
 			not = {
-				has_decision = USA_small_lobby_effort
+				has_decision = USA_medium_lobby_effort
 			}
 			OR = {
-				political_power_daily > 0.75
-				has_political_power > 35
+				political_power_daily > 0.3
+				has_political_power > 10
 			}
 		}
 		cost = 0
@@ -69,262 +71,90 @@ USA_congress = {
 				factor = 0
 			}
 		}
-		days_remove = 45
 		modifier = {
-			political_power_gain = -0.75
+			political_power_gain = -0.5
 		}
+		days_remove = 30
 		remove_effect = {
 			USA_congress_medium_support = yes
 		}
 	}
-	### DONATES
-	USA_give_tax_break = {
-		icon = ger_mefo_bills
+	USA_sell_out_the_cce = {
+		icon = generic_political_discourse
 		available = {
-			has_government = democratic
+			has_country_flag = USA_more_cce_flag
+			OR = {
+				check_variable = { senators_support < senators_total }
+				check_variable = { representatives_support < representatives_total }
+			}
+			not = {
+				has_decision = USA_medium_lobby_effort
+			}
 		}
 		cost = 0
 		ai_will_do = {
-			factor = 1
+			factor = 10
 			modifier = {
-				has_stability > 0.5
+				congress_medium_support_trigger = yes
+				factor = 0.5
+			}
+			modifier = {
+				congress_low_support_trigger = yes
+				factor = 0.5
+			}
+			modifier = {
+				congress_high_support_trigger = yes
 				factor = 0
 			}
 		}
-		days_remove = 90
-		modifier = { consumer_goods_factor = 0.1 }
+		modifier = {
+			political_power_gain = 0.1
+		}
+		days_remove = 100
 		remove_effect = {
-			add_stability = 0.02
+		add_political_power = 50
+		USA_congress_small_opposition = yes
 		}
 	}
-	USA_amend_the_budget = {
-		icon = ger_mefo_bills
+	USA_cce_administrative_organization_reform_BUST  = {
+		icon = generic_ignite_civil_war
+		allowed = {
+			always = false
+		}
+
+		priority = 100
+		visible = {
+			original_tag = USA
+		}
 		available = {
-			has_idea = civilian_economy
-		}
-		visible = { has_government = democratic }
-		cost = 25
-		days_remove = 90
-		days_re_enable = 275
-		ai_will_do = {
-			factor = 1
-		}
-		modifier = { consumer_goods_factor = -0.15 }
-	}
-	USA_research_grants = {
-		icon = ger_mefo_bills
-		available = {
-			has_idea = civilian_economy
-		}
-		visible = { has_government = democratic }
-		cost = 25
-		days_remove = 90
-		days_re_enable = 275
-		ai_will_do = {
-			factor = 1
-		}
-		modifier = { research_speed_factor = 0.08 }
-	}
-	### INVESTMENTS
-	USA_invest_in_state_factory = {
-		icon = generic_construction
-		available = {
+		hidden_trigger = {
+			always	= false
+			}
 			custom_trigger_tooltip = {
-				tooltip = USA_congress_invest_in_state_factory_tt
-				any_owned_state = {
-					has_state_flag = USA_congress_build_factory
-					check_variable = { factory_goal = industrial_complex_level }
-				}
+				tooltip = firstcce.tt 
 			}
 		}
-		highlight_states = {
-			highlight_states_trigger = {
-				has_state_flag = USA_congress_build_factory
-			}
-		}
-		days_mission_timeout = 360
-		is_good = no
-		activation = {
-			any_owned_state = {
-				has_state_flag = USA_congress_build_factory
-			}
-		}
+		
+		fire_only_once = yes
+		is_good = yes
 		timeout_effect = {
-			random_owned_state = {
+			if = {
 				limit = {
-					has_state_flag = USA_congress_build_factory
+					congress_medium_support_trigger = yes 
 				}
-				clr_state_flag = USA_congress_build_factory
-				clear_variable = factory_goal
+				
+				add_ideas = USA_president_in_administrative_reorganization
+				USA_congress_large_opposition = yes
 			}
-			
-			USA_congress_small_opposition = yes 
-			clr_country_flag = USA_congress_investment
+			else = {
+				add_political_power = -20
+			}
 		}
+		days_mission_timeout = 70
 		complete_effect = {
-			random_owned_state = {
-				limit = {
-					has_state_flag = USA_congress_build_factory
-				}
-				clr_state_flag = USA_congress_build_factory
-				clear_variable = factory_goal
-			}
-			ROOT = {
-				USA_congress_medium_support = yes 
-				clr_country_flag = USA_congress_investment
-			}
-			
-		}
-	}
-	USA_invest_in_state_arms_factory = {
-		icon = generic_construction
-		available = {
-			custom_trigger_tooltip = {
-				tooltip = USA_congress_invest_in_state_arms_factory_tt
-				any_owned_state = {
-					has_state_flag = USA_congress_build_arms_factory
-					check_variable = { arms_factory_goal = arms_factory_level }
-				}
-			}
-		}
-		highlight_states = {
-			highlight_states_trigger = {
-				has_state_flag = USA_congress_build_arms_factory
-			}
-		}
-		days_mission_timeout = 360
-		is_good = no
-		activation = {
-			any_owned_state = {
-				has_state_flag = USA_congress_build_arms_factory
-			}
-		}
-		timeout_effect = {
-			random_owned_state = {
-				limit = {
-					has_state_flag = USA_congress_build_arms_factory
-				}
-				clr_state_flag = USA_congress_build_arms_factory
-				clear_variable = arms_factory_goal
-			}
-			
-			USA_congress_small_opposition = yes 
-			clr_country_flag = USA_congress_investment
-		}
-		complete_effect = {
-			random_owned_state = {
-				limit = {
-					has_state_flag = USA_congress_build_arms_factory
-				}
-				clr_state_flag = USA_congress_build_arms_factory
-				clear_variable = arms_factory_goal
-			}
-			ROOT = {
-				USA_congress_medium_support = yes 
-				clr_country_flag = USA_congress_investment
-			}
-			
-		}
-	}
-	USA_invest_in_state_dockyard = {
-		icon = generic_construction
-		available = {
-			custom_trigger_tooltip = {
-				tooltip = USA_congress_invest_in_dockyard_tooltip
-				any_owned_state = {
-					has_state_flag = USA_congress_build_dockyard
-					check_variable = { dockyard_goal = building_level@dockyard }
-				}
-			}
-		}
-		highlight_states = {
-			highlight_states_trigger = {
-				has_state_flag = USA_congress_build_dockyard
-			}
-		}
-		days_mission_timeout = 360
-		is_good = no
-		activation = {
-			any_owned_state = {
-				has_state_flag = USA_congress_build_dockyard
-			}
-		}
-		timeout_effect = {
-			random_owned_state = {
-				limit = {
-					has_state_flag = USA_congress_build_dockyard
-				}
-				clr_state_flag = USA_congress_build_dockyard
-				clear_variable = dockyard_goal
-			}
-			USA_congress_small_opposition = yes 
-			clr_country_flag = USA_congress_investment
-		}
-		complete_effect = {
-			random_owned_state = {
-				limit = {
-					has_state_flag = USA_congress_build_dockyard
-				}
-				clr_state_flag = USA_congress_build_dockyard
-				clear_variable = dockyard_goal
-			}
-			ROOT = {
-				USA_congress_medium_support = yes 
-				clr_country_flag = USA_congress_investment
-			}
-		}
-	}
-	USA_invest_in_state_infrastructure = {
-		icon = generic_construction
-		available = {
-			custom_trigger_tooltip = {
-				tooltip = USA_congress_invest_in_state_infrastructure_tt
-				any_owned_state = {
-					has_state_flag = USA_congress_build_infrastructure
-					check_variable = { infrastructure_goal = infrastructure_level }
-				}
-			}
-		}
-		highlight_states = {
-			highlight_states_trigger = {
-				has_state_flag = USA_congress_build_infrastructure
-			}
-		}
-		days_mission_timeout = 360
-		is_good = no
-		activation = {
-			any_owned_state = {
-				has_state_flag = USA_congress_build_infrastructure
-			}
-		}
-		timeout_effect = {
-			random_owned_state = {
-				limit = {
-					has_state_flag = USA_congress_build_infrastructure
-				}
-				clr_state_flag = USA_congress_build_infrastructure
-				clear_variable = infrastructure_goal
-			}
-			
-			USA_congress_small_opposition = yes 
-			clr_country_flag = USA_congress_investment
-		}
-		complete_effect = {
-			random_owned_state = {
-				limit = {
-					has_state_flag = USA_congress_build_infrastructure
-				}
-				clr_state_flag = USA_congress_build_infrastructure
-				clear_variable = infrastructure_goal
-			}
-			ROOT = {
-				USA_congress_medium_support = yes 
-				clr_country_flag = USA_congress_investment
-			}
-			
+			add_political_power = -20
 		}
 	}
 	### STATES
-	
-    }
+}
 
