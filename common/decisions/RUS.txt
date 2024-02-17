@@ -81,7 +81,7 @@ operations = {
 				set_border_war_data = {
 					attacker = 229
 					defender = 420
-					attacker_modifier = 0.35
+					attacker_modifier = 0.60
 					combat_width = 100
 				}
 				RUS = {
@@ -1506,34 +1506,96 @@ RUS_civil_war = {
 		icon = GFX_decision_SOV_place_hq
 
 		allowed = {
-			original_tag = RUS
+			is_russian_tag = yes
 		}
 
 		available = {
-			controls_state = 219
-			RUS = {
+			OR = {
+				tag = SIB
+				tag = SRA
+				tag = RSO
+				tag = CER
+				tag = FER
+			}
+			219 = {
+				is_owned_or_subject_trigger = yes
+			}
+			SOV = {
 				exists = no
 			}
-			has_war = no
+			#has_war = no
 		}
-		days_remove = 14
-		remove_effect = {
-			every_other_country = {
+		visible = {
+			is_subject = no
+			has_global_flag = russian_civil_war
+			NOT = {
+				has_country_leader_ideology = vanguardism
+				has_country_leader_ideology = marxism
+			}
+		}
+		days_remove = 70
+		complete_effect = {
+			set_variable = {
+				votes_for_republic = 0
+			}
+			set_variable = {
+				votes_for_tsardom = 0
+			}
+			set_variable = {
+				votes_for_dictatorship = 0
+			}
+			set_variable = {
+				vote_to_let_former_territories = 0
+			}
+			set_variable = {
+				vote_to_puppet_former_territories = 0
+			}
+			set_variable = {
+				has_support_to_annex_former_territories = 0
+			}
+			every_country = {
 				limit = {
-					OR = {
-						original_tag = RUS
-						is_russian_tag = yes
-					}
-
+					is_russian_tag = yes				
 					NOT = {
-						has_government = communism
+						is_subject_of = ROOT
+						has_country_leader_ideology = vanguardism
+						has_country_leader_ideology = marxism
 					}
+				}
+				if = {
+					limit = {
+						tag = SIB
+					}
+					remove_ideas = SIB_red_partisans
 				}
 				country_event = {
-					id = ww1_russia.117
+					id = ww1_russia.120
 					days = 1
 				}
+				hidden_effect = {
+					country_event = {
+						id = ww1_russia.121
+						days = 16
+					}
+				}
 			}
+		}
+		remove_effect = {
+			constituent_assembly_effect = yes
+			set_capital = {
+				state = 195
+			}
+		}
+	}
+	constituent_assembly_effect = {
+		visible = {
+			is_debug = yes
+		}
+		ai_will_do = {
+			factor = 0
+		}
+		complete_effect = {
+			constituent_assembly_effect = yes
 		}
 	}
 	RUS_white_terror = {	
@@ -2323,6 +2385,9 @@ GER_great_war = {
 			}
 		}
 		available = {
+			RUS = {
+				is_in_faction_with = AUH
+			}
 			SER = {
 				has_war_with = AUH
 			}
@@ -2440,7 +2505,7 @@ GER_great_war = {
 			}
 		}
 
-		days_mission_timeout = 4
+		days_mission_timeout = 30
 		fire_only_once = no
 		is_good = no
 
@@ -2450,31 +2515,8 @@ GER_great_war = {
 		}
 		timeout_effect = {
 			hidden_effect = {
-				if = {
-					limit = {
-						has_army_manpower = { size > 700000 }
-					}
-					disband_twenty_percent_units = yes
-				}
-				if = {
-					limit = {
-						has_army_manpower = { size < 700000 }
-					}
-					disband_twenty_percent_units = yes
-					disband_twenty_percent_units = yes
-				}
-				if = {
-					limit = {
-						has_army_manpower = { size < 250000 }
-					}
-					every_state = {
-						RUS = {
-							delete_unit = {
-								state = PREV
-							}
-						}
-					}
-				}
+				disband_fifty_percent_units = yes
+				country_event = ww1_political.4
 			}
 			custom_effect_tooltip = rus_demobilize_army_tt
 		}
@@ -2492,7 +2534,8 @@ GER_great_war = {
 		}
 		remove_effect = {
 			hidden_effect = {
-				disband_twenty_percent_units = yes
+				disband_fifty_percent_units = yes
+				country_event = ww1_political.4
 			}
 			custom_effect_tooltip = rus_demobilize_army_tt
 		}
