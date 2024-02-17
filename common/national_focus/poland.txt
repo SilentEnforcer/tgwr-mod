@@ -55,6 +55,9 @@ focus_tree = {
 			}
 			set_cosmetic_tag = POL_republic
 		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
+		}
 	}
 	focus = {
 		id = POL_establish_an_airport
@@ -1049,6 +1052,9 @@ focus_tree = {
 		ai_will_do = {
 			factor = 1000
 		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
+		}
 	}
 	focus = {
 		id = POL_old_borders
@@ -1067,6 +1073,9 @@ focus_tree = {
 		}
 		completion_reward = {
 			add_war_support = 0.1
+		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
 		}
 	}
 	focus = {
@@ -1117,6 +1126,9 @@ focus_tree = {
 					}
 				}
 			}
+		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
 		}
 	}
 	focus = {
@@ -1206,6 +1218,9 @@ focus_tree = {
 				}
 			}
 		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
+		}
 	}
 	focus = {
 		id = POL_minsk_offensive
@@ -1277,6 +1292,9 @@ focus_tree = {
 					}
 				}
 			}
+		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
 		}
 	}
 	focus = {
@@ -1375,6 +1393,241 @@ focus_tree = {
 				}
 			}
 		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
+		}
+	}
+	focus = {
+		id = POL_war_with_russia
+		icon = GFX_focus_attack_russia
+		cost = 20
+		prerequisite = {
+			focus = POL_claim_lithuania
+			focus = POL_minsk_offensive
+			focus = POL_kiev_offensive
+		}
+		relative_position_id = POL_minsk_offensive
+		x = 0
+		y = 1
+		available = {
+			is_subject = no
+			OR = {
+				is_neighbor_of = RUS
+				is_neighbor_of = SOV
+			}			
+			NOT = {
+				has_war_with = RUS
+				is_in_faction_with = RUS
+				has_war_with = SOV
+				is_in_faction_with = SOV
+			}
+			if = {
+				limit = {
+					OR = {
+						RUS = { has_government = communism }
+						SOV = { has_government = communism }
+					}
+				}
+				NOT = { has_government = communism }
+			}
+		}
+		bypass = {
+			OR = {
+				has_war_with = RUS
+				has_war_with = SOV
+			}
+		}
+		will_lead_to_war_with = RUS
+		will_lead_to_war_with = SOV
+		completion_reward = {
+			if = {
+				limit = {
+					is_in_faction = yes
+					is_faction_leader = no
+				}
+				leave_faction = yes
+			}
+			if = {
+				limit = {
+					is_neighbor_of = SOV
+				}
+				declare_war_on = {
+					target = SOV
+					type = take_claimed_state
+				}
+			}
+			if = {
+				limit = {
+					is_neighbor_of = RUS
+					NOT = {
+						is_neighbor_of = SOV
+					}
+				}
+				declare_war_on = {
+					target = RUS
+					type = take_claimed_state
+				}
+			}			
+			add_ideas = POL_idea_polish_reclamation
+			add_war_support = 0.25
+			every_state = {
+				limit = {
+					OR = {
+						state = 93
+						state = 94
+						state = 95
+						state = 773
+						state = 784
+						state = 808
+					}
+				}
+				add_core_of = PREV
+			}
+			every_other_country = {
+				limit = {
+					NOT = {
+						tag = SOV
+						is_in_faction_with = SOV
+						has_war_with = PREV
+					}
+					OR = {
+						owns_state = 97
+						owns_state = 773
+						owns_state = 766
+						owns_state = 784
+					}
+				}
+				every_owned_state = {
+					limit = {
+						OR = {
+							state = 97
+							state = 773
+							state = 766
+							#state = 784
+						}
+					}
+					transfer_state_to = PREV.PREV
+				}
+			}
+			hidden_effect = {
+				if = {
+					limit = {
+						has_army_size = {
+							size < 20
+						}
+					}
+					division_template = {
+						name = "Dywizja Strzelców Polskich"
+						division_names_group = POL_INF_01
+						regiments = {
+							infantry = { x = 0 y = 0 }
+							infantry = { x = 0 y = 1 }
+							infantry = { x = 0 y = 2 }
+							infantry = { x = 1 y = 0 }
+							infantry = { x = 1 y = 1 }
+							infantry = { x = 1 y = 2 }
+							infantry = { x = 2 y = 0 }
+							infantry = { x = 2 y = 1 }
+							infantry = { x = 2 y = 2 }
+						}
+						support = {
+							engineer = { x = 0 y = 0 }
+							recon = { x = 0 y = 1 }
+						}
+					}
+					capital_scope = {
+						create_unit = {
+							division = "division_template = \"Dywizja Strzelców Polskich\" start_experience_factor = 0.4" 
+							owner = ROOT
+							count = 10
+						}
+					}
+					if = {
+						limit = {
+							has_army_size = {
+								size < 20
+							}
+						}
+						capital_scope = {
+							create_unit = {
+								division = "division_template = \"Dywizja Strzelców Polskich\" start_experience_factor = 0.4" 
+								owner = ROOT
+								count = 15
+							}
+						}
+					}
+				}
+				if = {
+					limit = {
+						has_war_with = SOV
+					}
+					news_event = { id = ww1_soviet.17 hours = 3 }
+					set_global_flag = polish_soviet_war
+					add_ideas = idea_soviet_westward_offensive
+					every_other_country = {
+						limit = {
+							owns_state = 95
+							NOT = { 
+								has_war_with = ROOT
+								is_in_faction_with = SOV
+								original_tag = RUS has_country_flag = RUS_soviet_tag
+							}
+						}
+						ROOT = {
+							declare_war_on = {
+								type = take_claimed_state 
+								target = PREV 
+								generator = {
+									95
+								}
+							}
+						}
+					}
+					every_other_country = {
+						limit = {
+							controls_state = 808
+						}
+						if = {
+							limit = {
+								NOT = {
+									has_war_with = ROOT
+									is_in_faction_with = SOV
+									original_tag = RUS has_country_flag = RUS_soviet_tag
+								}
+							}
+							ROOT = {
+								transfer_state = 808
+							}
+						}
+					}
+					SOV = {
+						country_event = { id = ww1_soviet.16 }
+					}
+					FRA = {
+						if = {
+							limit = {
+								has_country_flag = great_war_winner
+								NOT = { has_government = communism }
+							}
+							set_rule = {
+								can_send_volunteers = yes
+							}
+							add_ai_strategy = {
+								id = PREV
+								type = send_volunteers_desire
+								value = 100
+							}
+						}
+					}
+				}
+			}
+		}
+		ai_will_do = {
+			base = 10
+		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
+		}
 	}
 	focus = {
 		id = POL_eastern_territories
@@ -1384,7 +1637,7 @@ focus_tree = {
 			focus = POL_minsk_offensive
 			focus = POL_kiev_offensive
 		}
-		relative_position_id = POL_minsk_offensive
+		relative_position_id = POL_war_with_russia
 		x = 1
 		y = 1
 		available = {
@@ -1417,6 +1670,9 @@ focus_tree = {
 		ai_will_do = {
 			base = 10
 		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
+		}
 	}
 	focus = {
 		id = POL_lithuanian_territories
@@ -1426,8 +1682,8 @@ focus_tree = {
 			focus = POL_claim_lithuania
 			focus = POL_minsk_offensive
 		}
-		relative_position_id = POL_claim_lithuania
-		x = 1
+		relative_position_id = POL_war_with_russia
+		x = -1
 		y = 1
 		available = {
 			is_subject = no
@@ -1453,9 +1709,8 @@ focus_tree = {
 		cost = 10
 		prerequisite = {
 			focus = POL_lithuanian_territories
-		}
-		prerequisite = {
 			focus = POL_eastern_territories
+			focus = POL_war_with_russia
 		}
 		relative_position_id = POL_lithuanian_territories
 		x = 1
@@ -1556,6 +1811,9 @@ focus_tree = {
 				popularity = 0.10
 			}
 		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
+		}
 	}
 	focus = {
 		id = POL_military_guided_democracy
@@ -1580,6 +1838,9 @@ focus_tree = {
 			}
 			add_stability = 0.05
 		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
+		}
 	}
 	focus = {
 		id = POL_silesia_referendum
@@ -1592,7 +1853,21 @@ focus_tree = {
 		y = 2
 		available = {
 			has_global_flag = versallies_treaty
-			is_subject = no
+			OR = {
+				is_subject = no
+				AND = {
+					is_subject = yes
+					OVERLORD = {
+						OR = {
+							has_country_flag = great_war_winner
+							AND = {
+								tag = SOV
+								NOT = { has_country_flag = great_war_loser }
+							}
+						}
+					}
+				}
+			}
 			owns_state = 87
 			GER = {
 				OR = {
@@ -1628,6 +1903,9 @@ focus_tree = {
 		ai_will_do = {
 			factor = 50
 		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
+		}
 	}
 	focus = {
 		id = POL_east_prussian_plebiscite
@@ -1641,7 +1919,21 @@ focus_tree = {
 		y = 0
 		available = {
 			has_global_flag = versallies_treaty
-			is_subject = no
+			OR = {
+				is_subject = no
+				AND = {
+					is_subject = yes
+					OVERLORD = {
+						OR = {
+							has_country_flag = great_war_winner
+							AND = {
+								tag = SOV
+								NOT = { has_country_flag = great_war_loser }
+							}
+						}
+					}
+				}
+			}
 			owns_state = 98
 			GER = {
 				OR = {
@@ -1677,9 +1969,55 @@ focus_tree = {
 						limit = {
 							state = 404
 						}
-						transfer_state_to = DNZ
+						404 = {
+							hidden_effect = {
+								remove_dynamic_modifier = {
+									modifier = international_city
+								}
+								set_demilitarized_zone = no
+							}
+							transfer_state_to = DNZ
+						}
 						ROOT = {
-							puppet = DNZ
+							if = {
+								limit = {
+									has_subject_autonomy_feature = yes
+								}
+								set_autonomy = {
+									target = DNZ
+									autonomy_state = autonomy_tgwr_protectorate
+								}
+								DNZ = { set_country_flag = protectorate }
+								else = {
+									puppet = DNZ
+									DNZ = { add_ideas = protectorate }
+								}
+							}
+						}
+						DNZ = {
+							set_politics = {
+								ruling_party = neutrality
+								elections_allowed = no
+							}
+							set_popularities = {
+								neutrality = 44
+								democratic = 30
+								communism = 16
+								fascism = 10
+							}
+							inherit_technology = GER
+							diplomatic_relation = {
+								country = GER
+								relation = non_aggression_pact
+								active = yes
+							}
+							every_enemy_country = {
+								white_peace = PREV
+							}
+							if = {
+								limit = { has_global_flag = league_of_nations }
+								join_the_league_of_nations = yes
+							}
 						}
 					}
 				}
@@ -1697,6 +2035,9 @@ focus_tree = {
 		}
 		ai_will_do = {
 			factor = 50
+		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
 		}
 	}
 	focus = {
@@ -1771,6 +2112,9 @@ focus_tree = {
 				popularity = -0.15
 			}
 			set_stability = 0.1
+		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
 		}
 	}
 	focus = {
@@ -1852,7 +2196,7 @@ focus_tree = {
 	}
 	focus = {
 		id = POL_polish_socialism
-		icon = GFX_goal_unknown
+		icon = GFX_focus_SWE_refuge_for_revolutionaries
 		cost = 10
 		prerequisite = {
 			focus = POL_socialist_victory
