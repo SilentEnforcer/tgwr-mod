@@ -79,7 +79,7 @@ RUS_civil_war = {
 			tag = SRA
 		}
 
-		cost = 25 
+		cost = 10
 
 		state_target = yes
 		targets = {
@@ -131,18 +131,15 @@ RUS_civil_war = {
 			264
 			926
 			955
+			238
 			## States excluded: Karelia, Ukraine, byelorussia, St. Petersburg && Moscow, Urals + Asia, baltics, poland, transcaucasia and Terek
 		}
-		on_map_mode = map_only
-		days_remove = 30
+		on_map_mode = map_and_decisions_view
+		days_remove = 10
 		visible = {
 			has_country_flag = vol_core_states
-			controls_state = FROM
 			FROM = {
-				OR = {
-					has_state_flag = volunteer_corable
-					has_state_flag = cossack_corable
-				}
+				is_controlled_by = ROOT
 				NOT = {
 					is_core_of = SRA
 				}
@@ -155,117 +152,6 @@ RUS_civil_war = {
 			FROM = {
 				add_core_of = SRA
 				transfer_state_to = SRA
-			}
-		}
-		ai_will_do = {
-			factor = 100
-		}
-	}
-	SRA_recruit_units = {
-		icon = GFX_decision_generic_reorganize_irregulars
-		allowed = {
-			tag = SRA
-		}
-		custom_cost_text = TUR_decision_cost_15commandpower
-		custom_cost_trigger = {
-			command_power > 14.99
-		}
-		state_target = yes
-		targets = {
-			940
-			233
-			234
-			579
-			137
-			235
-			236
-			590
-			217
-			265
-			245
-			238
-			218
-			222
-			240
-			220
-			260
-			401
-			239
-			257
-			258
-			223
-			224
-			242
-			205
-			246
-			210
-			209
-			925
-			251
-			249
-			399
-			400
-			397
-			250
-			255
-			256
-			252
-			254
-			253
-			248
-			247
-			351
-			263
-			214
-			264
-			926
-			955
-			## States excluded: Karelia, Ukraine, byelorussia, St. Petersburg && Moscow, Urals + Asia, baltics, poland, transcaucasia and Terek
-		}
-		on_map_mode = map_only
-		days_remove = 30
-		visible = {
-			has_completed_focus = VOL_open_up_mobilization
-			controls_state = FROM
-			FROM = {
-				OR = {
-					has_state_flag = volunteer_corable
-					has_state_flag = cossack_corable
-				}
-				OR = {
-					is_core_of = SRA
-					is_core_of = CRI
-				}
-			}
-		}
-		complete_effect = {
-			hidden_effect = {
-				add_command_power = -15
-			}
-		}
-		remove_effect = {
-			FROM = {
-				hidden_effect = {
-					if = {
-						limit = {
-							has_state_flag = cossack_corable
-						}
-						create_unit = {
-							division = "division_template = \"Pekhotnaya Diviziya\" start_experience_factor = 0.0 start_equipment_factor = 1"
-							owner = SRA
-							allow_spawning_on_enemy_provs = yes
-							count = 1
-						}
-					}
-					create_unit = {
-						division = "division_template = \"Pekhotnaya Diviziya\" start_experience_factor = 0.0 start_equipment_factor = 1"
-						owner = SRA
-						allow_spawning_on_enemy_provs = yes
-						count = 1
-					}
-					clr_state_flag = volunteer_corable
-					clr_state_flag = cossack_corable
-				}
 			}
 		}
 		ai_will_do = {
@@ -510,6 +396,72 @@ RUS_civil_war = {
 				}
 			}
 		}
+	}
+
+	SRA_integrate_white_states = {
+		icon = ger_military_buildup
+
+		allowed = {
+			tag = SRA
+		}
+		target_trigger = {
+			FROM = {
+				NOT = {
+					has_country_flag = SRA_asked_integration
+				}
+				OR = {
+					## dont care about them
+					tag = CRI
+					tag = MOU
+					tag = TER
+					tag = TRC
+				}
+				NOT = {
+					has_war_with = ROOT
+					has_government = communism
+				}
+				has_capitulated = no
+				exists = yes
+				is_subject = no
+			}
+		}
+		available = {
+			NOT = {
+				has_country_flag = SRA_asked_integration
+			}
+			NOT = {
+				has_country_flag = SRA_is_asking_integration
+			}
+		}
+		visible = {
+			has_country_flag = SRA_foreign_relation_decisions
+		}
+		days_remove = 30
+		complete_effect = {
+			set_country_flag = SRA_is_asking_integration
+		}
+		remove_effect = {
+			clr_country_flag = SRA_is_asking_integration
+			FROM = {
+				set_country_flag = SRA_is_asking_integration
+				set_country_flag = {
+					flag = must_accept
+					days = 30
+					value = 1
+				}
+				set_country_flag = {
+					flag = hostile_country_want_to_annex_on_denial
+					days = 30
+					value = 1
+				}
+				country_event = {
+					id = generic.20
+					days = 1
+				}
+			}
+		}
+		cost = 10
+	}
 	}
 
 	SRA_moscow_directive_phase_1 = {
@@ -1589,6 +1541,225 @@ SRA_army_reforms = {
 					ruling_only = yes
 				}
 			}
+		}
+	}
+}
+
+
+SRA_army_recruitement = {
+	SRA_recruit_units = {
+		icon = GFX_decision_generic_reorganize_irregulars
+		allowed = {
+			tag = SRA
+		}
+		cost = 5
+		state_target = yes
+		target_array = SRA.core_states
+		target_trigger = {
+			FROM = {
+				is_owned_by = ROOT
+			}
+		}
+		fire_only_once = yes
+		on_map_mode = map_only
+		days_remove = 0
+		visible = {
+			controls_state = FROM
+			FROM = {
+				is_core_of = ROOT
+			}
+			FROM = {
+				NOT = {
+					has_state_flag = SRA_has_mobilized
+				}
+			}
+		}
+		complete_effect = {
+			FROM = {
+				set_state_flag = SRA_has_mobilized 
+			}
+		}
+		remove_effect = {
+		
+			if = {
+				limit = {
+					NOT = {
+						has_template = "ASFR militsiya"
+					}
+				}
+				division_template = {
+					name = "ASFR militsiya"
+					division_names_group = RUS_GAR_01
+					is_locked = yes
+					regiments = {
+						infantry = { x = 0 y = 0 }
+						infantry = { x = 0 y = 1 }
+						infantry = { x = 1 y = 0 }
+					}
+					support = { 
+						artillery = { x = 0 y = 0 }
+						recon = { x = 0 y = 1 }
+						engineer = { x = 0 y = 2 }
+					}
+				}
+			}
+			FROM = {
+				custom_effect_tooltip = SRA_3_infantry_unit
+				hidden_effect = {
+					create_unit = {
+						division = "name = \"ASFR militsiya\" division_template = \"ASFR militsiya\" start_experience_factor = 0.6"
+						owner = ROOT
+						allow_spawning_on_enemy_provs = yes
+					}
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 100
+		}
+	}
+
+	SRA_recruit_caucasians = {
+		icon = GFX_decision_generic_cavalry
+		allowed = {
+			tag = SRA
+		}
+		cost = 5
+		state_target = yes
+		fire_only_once = yes
+		targets = {
+			579
+			232
+			565
+		}
+		on_map_mode = map_only
+		days_remove = 0
+		visible = {
+			controls_state = FROM
+			FROM = {
+				NOT = {
+					has_state_flag = SRA_has_mobilized_caucasians
+				}
+			}
+		}
+		complete_effect = {
+			FROM = {
+				set_state_flag = SRA_has_mobilized_caucasians
+			}
+		}
+		remove_effect = {
+		
+			if = {
+				limit = {
+					NOT = {
+						has_template = "ASFR caucasian cavalry"
+					}
+				}
+				division_template = {
+					name = "ASFR caucasian cavalry"
+					division_names_group = RUS_GAR_01
+					is_locked = yes
+					regiments = {
+						cavalry = { x = 0 y = 0 }
+						cavalry = { x = 0 y = 1 }
+						cavalry = { x = 0 y = 2 }
+						cavalry = { x = 1 y = 0 }
+						cavalry = { x = 1 y = 1 }
+						cavalry = { x = 1 y = 2 }
+					}
+				}
+			}
+			FROM = {
+				custom_effect_tooltip = SRA_6_cavalry_unit
+				hidden_effect = {
+					create_unit = {
+						division = "name = \"ASFR caucasian cavalry\" division_template = \"ASFR caucasian cavalry\" start_experience_factor = 0.6"
+						owner = ROOT
+						allow_spawning_on_enemy_provs = yes
+					}
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 100
+		}
+	}
+
+	SRA_recruit_cossacks = {
+		icon = GFX_decision_generic_cavalry
+		allowed = {
+			tag = SRA
+		}
+		cost = 5
+		state_target = yes
+		fire_only_once = yes
+		targets = {
+			579
+			232
+			565
+			234
+			941
+			218
+			238
+			245
+			265
+		}
+		on_map_mode = map_only
+		days_remove = 0
+		visible = {
+			controls_state = FROM
+			FROM = {
+				is_core_of = ROOT
+			}
+			FROM = {
+				NOT = {
+					has_state_flag = SRA_has_mobilized_cossacks
+				}
+			}
+		}
+		complete_effect = {
+			FROM = {
+				set_state_flag = SRA_has_mobilized_cossacks 
+			}
+		}
+		remove_effect = {
+		
+			if = {
+				limit = {
+					NOT = {
+						has_template = "ASFR cossacks"
+					}
+				}
+				division_template = {
+					name = "ASFR cossacks"
+					division_names_group = RUS_GAR_01
+					is_locked = yes
+					regiments = {
+						cavalry = { x = 0 y = 0 }
+						cavalry = { x = 0 y = 1 }
+						cavalry = { x = 1 y = 0 }
+						cavalry = { x = 1 y = 1 }
+					}
+					support = { 
+						artillery = { x = 0 y = 0 }
+						recon = { x = 0 y = 1 }
+						engineer = { x = 0 y = 2 }
+					}
+				}
+			}
+			FROM = {
+				custom_effect_tooltip = SRA_4_calvary_unit
+				hidden_effect = {
+					create_unit = {
+						division = "name = \"ASFR cossacks\" division_template = \"ASFR cossacks\" start_experience_factor = 0.6"
+						owner = ROOT
+						allow_spawning_on_enemy_provs = yes
+					}
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 100
 		}
 	}
 }
