@@ -2,6 +2,8 @@
 NDefines.NCareerProfile.MOD_STATISTICS_GROUP = "tgwr_career_profile"
 NDefines.NCareerProfile.MOD_STATISTICS_GROUP_NAME = "TGWR_CAREER_PROFILE"
 
+NDefines_Graphics.NFrontend.CAMERA_MIN_HEIGHT = 25.0
+
 NDefines.NGame.START_DATE = "1910.5.1.12"				
 NDefines.NGame.END_DATE = "1935.1.1.1"
 NDefines.NGame.HANDS_OFF_START_TAG = "BHU"
@@ -116,3 +118,6 @@ NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_AIR_EQUIPMENT = 1.5					-- Vanilla is 1 - 
 NDefines.NDiplomacy.EMBARGO_COST = 50 -- Vanilla is 100
 NDefines.NDiplomacy.EMBARGO_THREAT_THRESHOLD = -1 -- Vanilla is 30
 NDefines.NAI.EMBARGO_WORLD_TENSION_THREAT_DIVISOR = 0 -- Vanilla is 2.5
+
+-- Navy
+NDefines.NNavy.TRAINING_MAX_DAILY_COUNTRY_EXP = 1.0 -- Vanilla is 3.5
