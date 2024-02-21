@@ -293,10 +293,11 @@ country_event = {
 				support = {
 					engineer = { x = 0 y = 0 }
 				}
+				override_model = GER_infantry_3_entity
 			}
 			division_template = {
 				name = "Garde-Kavallerie-Division"
-				division_names_group = GER_MONMOB_01
+				division_names_group = GER_MONCAV_01
 				is_locked = yes
 				regiments = {
 					cavalry = { x = 0 y = 0 }
@@ -314,7 +315,7 @@ country_event = {
 				support = {
 					artillery = { x = 0 y = 0 }
 				}
-				priority = 2
+				override_model = GER_infantry_3_rider_entity
 			}
 		}
 		111 = {
@@ -356,14 +357,49 @@ country_event = {
 # Ostsee-Division Returns
 country_event = {
 	id = ww1_finland.8
-	hidden = yes
+	title = ww1_finland.8.t
+	desc = {
+		text = ww1_finland.8.d
+		trigger = {
+			has_global_flag = compiegne_armistice
+		}
+	}
+	desc = {
+		text = ww1_finland.8.d2
+		trigger = {
+			NOT = { has_global_flag = compiegne_armistice }
+			OR = {
+				FIN = { has_government = communism }
+				FIN = { has_capitulated = yes }
+				FIN = { has_war_with = ROOT }
+			}
+		}
+	}
+	desc = {
+		text = ww1_finland.8.d3
+		trigger = {
+			NOT = {
+				has_global_flag = compiegne_armistice
+				FIN = { has_government = communism }
+				FIN = { has_capitulated = yes }
+				FIN = { has_war_with = ROOT }
+			}
+			has_global_flag = great_war_ends
+			FIN = { has_civil_war = no }
+		}
+	}
 	trigger = {
 		tag = GER
 		has_global_flag = ostsee_division
 		OR = {
-			has_country_flag = great_war_loser
+			has_global_flag = compiegne_armistice
 			FIN = { has_government = communism }
 			FIN = { has_capitulated = yes }
+			FIN = { has_war_with = ROOT }
+			AND = {
+				has_global_flag = great_war_ends
+				FIN = { has_civil_war = no }
+			}
 		}
 	}
 	fire_only_once = yes
@@ -371,22 +407,36 @@ country_event = {
 		days = 0
 	}
 	immediate = {
-		every_possible_country = {
-			limit = {
-				has_character = GER_rudiger_von_der_goltz
+		hidden_effect = {
+			every_possible_country = {
+				limit = {
+					original_tag = FIN
+					has_template = "Ostsee-Division"
+				}
+				delete_unit_template_and_units = {
+					division_template = "Ostsee-Division"
+					disband = no
+				}
+				delete_unit_template_and_units = {
+					division_template = "Garde-Kavallerie-Division"
+					disband = no
+				}
+				if = {
+					limit = { has_character = GER_rudiger_von_der_goltz }
+					GER_rudiger_von_der_goltz = {
+						set_nationality = GER
+					}
+				}
+				remove_ideas = GER_idea_german_military_advisors
 			}
-			delete_unit_template_and_units = {
-				division_template = "Ostsee-Division"
-				disband = no
-			}
-			delete_unit_template_and_units = {
-				division_template = "Garde-Kavallerie-Division"
-				disband = no
-			}
+		}
+	}
+	option = {
+		name = ww1_finland.8.a
+		effect_tooltip = {
 			GER_rudiger_von_der_goltz = {
-				set_nationality = GER
+				set_nationality = ROOT
 			}
-			remove_ideas = GER_idea_german_military_advisors
 		}
 	}
 }
@@ -434,5 +484,32 @@ country_event = {
 				is_historical_focus_on = yes
 			}
 		}
+	}
+}
+
+# Socialist lost connection
+country_event = {
+	id = ww1_finland.10
+	title = ww1_finland.10.t
+	desc = ww1_finland.10.d
+	picture = GFX_report_event_generic_battle
+	trigger = {
+		original_tag = FIN
+		has_government = communism
+		any_enemy_country = {
+			original_tag = FIN
+		}
+		country_exists = SOV
+		NOT = {
+			controls_state = 146
+			has_idea = FIN_isolation
+		}
+	}
+	mean_time_to_happen = {
+		days = 0
+	}
+	option = {
+		name = ww1_finland.10.a
+		add_ideas = FIN_isolation
 	}
 }

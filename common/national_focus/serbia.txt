@@ -119,7 +119,7 @@ focus_tree = {
 		icon = GFX_focus_army_is_ready
 		cost = 5
 		available = {
-			is_puppet = no
+			is_subject = no
 		}
 		prerequisite = {
 			focus = SER_prepare_the_liberation
@@ -476,6 +476,7 @@ focus_tree = {
 			NOT = {
 				has_country_flag = SER_demonize_black_hand
 			}
+			has_country_flag = black_hand_formalized
 		}
 		completion_reward = {
 			create_intelligence_agency = {
@@ -484,7 +485,7 @@ focus_tree = {
 			}
 			create_operative_leader = {
 				name = "Mustafa Golubić"
-				GFX = "gfx/leaders/Europe/portrait_europe_generic_operative_male_27.png"
+				picture = "gfx/leaders/Europe/portrait_europe_generic_operative_male_27.png"
 				traits = {
 					operative_linguist
 				}
@@ -522,6 +523,12 @@ focus_tree = {
 					type = arms_factory
 					level = 1
 				}
+			}
+			if = {
+				limit = {
+					has_idea = civilian_economy
+				}
+				add_ideas = low_economic_mobilisation
 			}
 		}
 		search_filters = {
@@ -621,13 +628,8 @@ focus_tree = {
 		completion_reward = {
 			remove_ideas = SER_idea_grand_coalition
 			retire_country_leader = yes
-			create_country_leader = {
-				name = "Milovan Milovanović"
-				expire = "1935.1.1"
-				traits = {
-					great_compromiser
-				}
-				ideology = liberal_conservatism
+			SER_milovan_milovanovic = {
+				promote_character = liberal_conservatism
 			}
 		}
 		search_filters = {
@@ -645,6 +647,13 @@ focus_tree = {
 		relative_position_id = SER_coalition_collapse
 		prerequisite = {
 			focus = SER_coalition_collapse
+		}
+		bypass_if_unavailable = yes
+		available = {
+			has_country_leader = {
+				character = SER_milovan_milovanovic
+				ruling_only = yes
+			}
 		}
 		completion_reward = {
 			add_political_power = 120
@@ -797,45 +806,45 @@ focus_tree = {
 		}
 	}
 	#require Bulgaria to help with Albania, choose independent Macedonia or no effect
-	focus = {
-		id = SER_revise_the_treaty
-		icon = GFX_focus_FRA_motion_of_censure
-		cost = 5
-		prerequisite = {
-			focus = SER_independent_radical_victory
-		}
-		completion_reward = {
-			country_event = ww1_balkan.20
-		}
-		available = {
-			is_puppet = no
-			has_war = no
-		}
-		bypass = {
-			OR = {
-				NOT = {
-					all_owned_state = {
-						is_core_of = MAC
-					}
-				}
-				NOT = {
-					is_in_faction_with = BUL
-				}
-			}
-		}
-		search_filters = {
-			FOCUS_FILTER_POLITICAL
-		}
-		relative_position_id = SER_independent_radical_victory
-		x = 0
-		y = 1
-	}
+	# focus = {
+	# 	id = SER_revise_the_treaty
+	# 	icon = GFX_focus_FRA_motion_of_censure
+	# 	cost = 5
+	# 	prerequisite = {
+	# 		focus = SER_independent_radical_victory
+	# 	}
+	# 	completion_reward = {
+	# 		country_event = ww1_balkan.20
+	# 	}
+	# 	available = {
+	# 		is_puppet = no
+	# 		has_war = no
+	# 	}
+	# 	bypass = {
+	# 		OR = {
+	# 			NOT = {
+	# 				all_owned_state = {
+	# 					is_core_of = MAC
+	# 				}
+	# 			}
+	# 			NOT = {
+	# 				is_in_faction_with = BUL
+	# 			}
+	# 		}
+	# 	}
+	# 	search_filters = {
+	# 		FOCUS_FILTER_POLITICAL
+	# 	}
+	# 	relative_position_id = SER_independent_radical_victory
+	# 	x = 0
+	# 	y = 1
+	# }
 	focus = {
 		id = SER_moderate_path
 		icon = GFX_focus_generic_treaty
 		cost = 5
 		prerequisite = {
-			focus = SER_revise_the_treaty
+			focus = SER_independent_radical_victory
 		}
 		mutually_exclusive = {
 			focus = SER_Stojanovic_plan
@@ -846,12 +855,40 @@ focus_tree = {
 				days = 29
 			}
 		}
+		allow_branch = {
+			if = {
+				limit = {
+					has_game_rule = {
+						rule = obsolete_focus_branches_visibility
+						option = HIDE
+					}
+				}
+				NOT = {
+					has_completed_focus = SER_Stojanovic_plan
+					has_completed_focus = SER_radical_victory
+				}
+			}
+		}
+		offset = {
+			x = -3
+			y = 0
+			trigger = {
+				has_game_rule = {
+					rule = obsolete_focus_branches_visibility
+					option = HIDE
+				}
+				has_completed_focus = SER_moderate_path
+			}
+		}
 		completion_reward = {
 			add_stability = 0.05
+			hidden_effect = {
+				mark_focus_tree_layout_dirty = yes
+			}
 			custom_effect_tooltip = available_political_advisor
 			show_ideas_tooltip = SER_milorad_draskovic
 		}
-		relative_position_id = SER_revise_the_treaty
+		relative_position_id = SER_independent_radical_victory
 		x = 3
 		y = 1
 	}
@@ -861,6 +898,20 @@ focus_tree = {
 		cost = 5
 		prerequisite = {
 			focus = SER_moderate_path
+		}
+		available = {
+			NOT = {
+				has_country_leader = {
+					character = SER_ljubomir_stojanovic
+					ruling_only = yes
+				}
+			}
+			NOT = {
+				has_country_leader = {
+					character = SER_jasa_prodanovic
+					ruling_only = yes
+				}
+			}
 		}
 		completion_reward = {
 			remove_ideas = SER_idea_opposition_power_struggle
@@ -1038,7 +1089,7 @@ focus_tree = {
 		icon = GFX_goal_workers_rights
 		cost = 10
 		prerequisite = {
-			focus = SER_revise_the_treaty
+			focus = SER_independent_radical_victory
 		}
 		mutually_exclusive = {
 			focus = SER_moderate_path
@@ -1051,15 +1102,43 @@ focus_tree = {
 				has_completed_focus = SER_ties_to_dynasty
 			}
 		}
+		allow_branch = {
+			if = {
+				limit = {
+					has_game_rule = {
+						rule = obsolete_focus_branches_visibility
+						option = HIDE
+					}
+				}
+				NOT = {
+					has_completed_focus = SER_moderate_path
+					has_completed_focus = SER_radical_victory
+				}
+			}
+		}
+		offset = {
+			x = 3
+			y = 0
+			trigger = {
+				has_game_rule = {
+					rule = obsolete_focus_branches_visibility
+					option = HIDE
+				}
+				has_completed_focus = SER_Stojanovic_plan
+			}
+		}
 		completion_reward = {
 			add_popularity = {
 				ideology = democratic
 				popularity = 0.05
 			}
+			hidden_effect = {
+				mark_focus_tree_layout_dirty = yes
+			}
 			add_ideas = SER_idea_fragile_majority
 			# promote_character = SER_ljubomir_stojanovic
 		}
-		relative_position_id = SER_revise_the_treaty
+		relative_position_id = SER_independent_radical_victory
 		x = -3
 		y = 1
 	}
@@ -1773,11 +1852,9 @@ focus_tree = {
 				effect_tooltip = {
 					give_guarantee = MNT
 				}
-				hidden_effect = {
-					country_event = {
-						id = ww1_serbia.41
-						days = 2
-					}
+				country_event = {
+					id = ww1_serbia.41
+					days = 2
 				}
 			}
 		}
@@ -1893,6 +1970,9 @@ focus_tree = {
 				threat > 0.1
 			}
 		}
+		bypass = {
+			has_global_flag = balkan_league_success
+		}
 		completion_reward = {
 			add_war_support = 0.05
 		}
@@ -1978,6 +2058,7 @@ focus_tree = {
 		}
 		completion_reward = {
 			create_faction = balkan_league
+			set_country_flag = ahistorical_serbian_alliance
 			GRE = {
 				add_ai_strategy = {
 					type = alliance
@@ -2005,45 +2086,45 @@ focus_tree = {
 			FOCUS_FILTER_POLITICAL
 		}
 	}
-	focus = {
-		id = SER_start_the_races_TUR
-		icon = GFX_focus_remove_turk
-		cost = 5
-		relative_position_id = SER_formalize_the_alliance
-		prerequisite = {
-			focus = SER_formalize_the_alliance
-		}
-		completion_reward = {
-			unlock_decision_tooltip = attack_TUR
-			set_country_flag = ahistorical_serbian_alliance
-			760 = {
-				add_claim_by = ROOT
-			}
-			848 = {
-				add_claim_by = ROOT
-			}
-			106 = {
-				add_claim_by = ROOT
-			}
-			203 = {
-				add_claim_by = ROOT
-			}
-		}
-		available = {
-			NOT = {
-				has_idea = SER_idea_interim_government
-			}
-			can_declare_war_on = TUR
-		}
-		ai_will_do = {
-			factor = 1000
-		}
-		search_filters = {
-			FOCUS_FILTER_ANNEXATION
-		}
-		x = 0
-		y = 1
-	}
+	# focus = {
+	# 	id = SER_start_the_races_TUR
+	# 	icon = GFX_focus_remove_turk
+	# 	cost = 5
+	# 	relative_position_id = SER_formalize_the_alliance
+	# 	prerequisite = {
+	# 		focus = SER_formalize_the_alliance
+	# 	}
+	# 	completion_reward = {
+	# 		unlock_decision_tooltip = attack_TUR
+	# 		set_country_flag = ahistorical_serbian_alliance
+	# 		760 = {
+	# 			add_claim_by = ROOT
+	# 		}
+	# 		848 = {
+	# 			add_claim_by = ROOT
+	# 		}
+	# 		106 = {
+	# 			add_claim_by = ROOT
+	# 		}
+	# 		203 = {
+	# 			add_claim_by = ROOT
+	# 		}
+	# 	}
+	# 	available = {
+	# 		NOT = {
+	# 			has_idea = SER_idea_interim_government
+	# 		}
+	# 		can_declare_war_on = TUR
+	# 	}
+	# 	ai_will_do = {
+	# 		factor = 1000
+	# 	}
+	# 	search_filters = {
+	# 		FOCUS_FILTER_ANNEXATION
+	# 	}
+	# 	x = 0
+	# 	y = 1
+	# }
 	focus = {
 		id = SER_unexpected_opportunity
 		icon = GFX_focus_GER_bruderkrieg
@@ -2267,6 +2348,14 @@ focus_tree = {
 		}
 		completion_reward = {
 			add_political_power = 75
+			add_popularity = {
+				ideology = fascism
+				popularity = 0.02
+			}
+			add_popularity = {
+				ideology = neutrality
+				popularity = 0.02
+			}
 		}
 		search_filters = {
 			FOCUS_FILTER_INTERNAL_AFFAIRS
@@ -2377,12 +2466,12 @@ focus_tree = {
 		prerequisite = {
 			focus = SER_the_king_reign
 		}
-		available = {
-			has_country_leader = {
-				character = SER_dorde_obrenovic
-				ruling_only = yes
-			}
-		}
+		# available = {
+		# 	has_country_leader = {
+		# 		character = SER_dorde_obrenovic
+		# 		ruling_only = yes
+		# 	}
+		# }
 		completion_reward = {
 			remove_ideas = SER_idea_bloody_throne
 		}
@@ -2637,6 +2726,8 @@ focus_tree = {
 				ideology = fascism
 				popularity = -0.05
 			}
+			custom_effect_tooltip = SER_fighting_black_hand_tt
+			custom_effect_tooltip = escape_line
 			custom_effect_tooltip = available_political_advisor
 			show_ideas_tooltip = SER_vojislav_marinkovic
 			custom_effect_tooltip = escape_line
@@ -2664,6 +2755,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SER_sway_public_opinion
 		}
+		available = {
+			has_global_flag = kis_firstbalkanwar_victory
+		}
 		completion_reward = {
 			add_political_power = 75
 			unlock_decision_tooltip = SER_remove_military_governor_in_state
@@ -2679,9 +2773,15 @@ focus_tree = {
 		prerequisite = {
 			focus = SER_sway_public_opinion
 		}
+		bypass = {
+			has_completed_focus = SER_Solun_process
+		}
 		search_filters = {
 			FOCUS_FILTER_INTERNAL_AFFAIRS
 			FOCUS_FILTER_HISTORICAL
+		}
+		available = {
+			is_subject = no
 		}
 		completion_reward = {
 			custom_effect_tooltip = SER_mission_to_fight_black_hand
@@ -2708,7 +2808,7 @@ focus_tree = {
 			}
 		}
 		bypass = {
-			has_country_flag = SER_undermine_radicals_figures
+			has_completed_focus = SER_Solun_process
 		}
 		search_filters = {
 			FOCUS_FILTER_INTERNAL_AFFAIRS
@@ -2743,6 +2843,9 @@ focus_tree = {
 				add_idea = SER_idea_black_hand5
 			}
 		}
+		bypass = {
+			has_completed_focus = SER_Solun_process
+		}
 		prerequisite = {
 			focus = SER_demonize_black_hand
 		}
@@ -2757,6 +2860,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SER_utilize_the_bonds
 		}
+		bypass = {
+			has_completed_focus = SER_Solun_process
+		}
 		available = {
 			NOT = {
 				has_country_leader = {
@@ -2765,6 +2871,7 @@ focus_tree = {
 				}
 				has_completed_focus = SER_Solun_process
 			}
+			fascism < 0.02
 		}
 		completion_reward = {
 			remove_ideas = SER_idea_black_hand5
@@ -2780,9 +2887,6 @@ focus_tree = {
 					ruling_party = democratic
 				}
 			}
-		}
-		available = {
-			fascism < 0.02
 		}
 		prerequisite = {
 			focus = SER_ally_the_radicals
@@ -2869,7 +2973,7 @@ focus_tree = {
 						is_core_of = CRO
 						is_core_of = MAC
 						is_core_of = MNT
-						is_core_of = SLO
+						is_core_of = SLV
 					}
 				}
 				add_claim_by = SER
@@ -3468,7 +3572,7 @@ focus_tree = {
 		x = 2
 		y = 0
 		available = {
-			has_country_flag = grand_coalition_collapse
+			has_country_flag = SER_army_restoration_act_passed
 		}
 		completion_reward = {
 			add_ideas = SER_idea_serbian_general_staff
@@ -3918,17 +4022,11 @@ focus_tree = {
 		completion_reward = {
 			107 = {
 				add_extra_state_shared_building_slots = 2
-			}
-			107 = {
-				add_extra_state_shared_building_slots = 1
 				add_building_construction = {
 					type = infrastructure
 					level = 1
 					instant_build = yes
 				}
-			}
-			107 = {
-				add_extra_state_shared_building_slots = 1
 				add_building_construction = {
 					type = industrial_complex
 					level = 1
@@ -4170,7 +4268,7 @@ focus_tree = {
 				custom_effect_tooltip = available_designer
 				show_ideas_tooltip = SER_serbian_air_force
 			}
-			set_country_flag = SER_serbian_air_force_funded			
+			set_country_flag = SER_serbian_air_force_funded
 		}
 		search_filters = {
 			FOCUS_FILTER_RESEARCH
@@ -4310,7 +4408,6 @@ focus_tree = {
 				show_ideas_tooltip = SER_zastarva_arms
 			}
 			set_country_flag = SER_has_fund_zastarva
-			
 		}
 		search_filters = {
 			FOCUS_FILTER_INDUSTRY
@@ -4378,7 +4475,7 @@ focus_tree = {
 				add_victory_points = {
 					province = 11586
 					value = -15
-				}	
+				}
 			}
 			unlock_decision_category_tooltip = SER_war_preparations
 		}
@@ -4417,8 +4514,8 @@ focus_tree = {
 			}
 			MNT = {
 				country_event = {
-					id = ww1_serbia.54
-					days = 5
+					id = ww1_serbia.53
+					hours = 5
 				}
 			}
 		}
@@ -4570,7 +4667,7 @@ focus_tree = {
 		id = SER_treaty_with_Albania
 		icon = GFX_focus_generic_befriend_albania
 		cost = 1
-		x = 1
+		x = 0
 		y = 1
 		relative_position_id = SER_weapon_purchases
 		prerequisite = {
@@ -4595,16 +4692,6 @@ focus_tree = {
 							is_owned_by = PREV
 						}
 						remove_claim_by = ROOT
-					}
-					every_state = {
-						limit = {
-							OR = {
-								is_claimed_by = PREV
-								is_core_of = PREV
-							}
-							is_owned_by = ROOT
-						}
-						remove_claim_by = PREV
 					}
 				}
 			}
@@ -4642,14 +4729,58 @@ focus_tree = {
 		}
 	}
 	focus = {
+		id = SER_fortify_the_rivers
+		icon = GFX_goal_fortify_the_westwall
+		cost = 5
+		relative_position_id = SER_treaty_with_Albania
+		prerequisite = {
+			focus = SER_subsidize_war_industry
+		}
+		prerequisite = {
+			focus = SER_weapon_purchases
+		}
+		completion_reward = {
+			107 = {
+				add_building_construction = {
+					type = bunker
+					level = 1
+					instant_build = yes
+					province = {
+						id = 3956
+						id = 797
+						id = 3609
+						id = 11586
+						id = 11583
+					}
+				}
+			}
+			876 = {
+				add_building_construction = {
+					type = bunker
+					level = 1
+					instant_build = yes
+					province = {
+						id = 6634
+						id = 630
+					}
+				}
+			}
+		}
+		x = 2
+		y = 0
+	}
+	focus = {
 		id = SER_Nis_declaration
 		icon = GFX_focus_invite_yugoslavia
 		cost = 2
-		x = -1
+		x = 0
 		y = 1
 		relative_position_id = SER_treaty_with_Albania
 		prerequisite = {
 			focus = SER_treaty_with_Albania
+		}
+		prerequisite = {
+			focus = SER_fortify_the_rivers
 		}
 		available = {
 			NOT = {
@@ -4671,7 +4802,7 @@ focus_tree = {
 		id = SER_wartime_coalition
 		icon = GFX_focus_stabilize_democracy
 		cost = 2
-		x = 1
+		x = 2
 		y = 1
 		relative_position_id = SER_treaty_with_Albania
 		prerequisite = {
@@ -4686,6 +4817,9 @@ focus_tree = {
 			NOT = {
 				has_government = democratic
 			}
+		}
+		prerequisite = {
+			focus = SER_fortify_the_rivers
 		}
 		available_if_capitulated = yes
 		completion_reward = {
@@ -4704,7 +4838,7 @@ focus_tree = {
 		id = SER_greek_ammo
 		icon = GFX_goal_CAN_british_rifle_lease
 		cost = 4
-		x = 0
+		x = 1
 		y = 2
 		relative_position_id = SER_treaty_with_Albania
 		prerequisite = {
@@ -4717,7 +4851,6 @@ focus_tree = {
 			always = no			#temp
 		}
 		completion_reward = {
-			
 		}
 	}
 	focus = {
@@ -4879,8 +5012,12 @@ focus_tree = {
 		prerequisite = {
 			focus = SER_stabilize_the_exile_government
 		}
+		available_if_capitulated = yes
 		completion_reward = {
-			load_oob = "SER_solun"
+			hidden_effect = {
+				load_oob = "SER_solun"
+			}
+			custom_effect_tooltip = SER_solun_front_tt
 		}
 		x = 1
 		y = 1
@@ -4893,6 +5030,7 @@ focus_tree = {
 		prerequisite = {
 			focus = SER_join_Solun_front
 		}
+		available_if_capitulated = yes
 		completion_reward = {
 			country_event = ww1_serbia.55
 		}
@@ -4921,6 +5059,20 @@ focus_tree = {
 		relative_position_id = SER_lease_of_Corfu
 		prerequisite = {
 			focus = SER_lease_of_Corfu
+		}
+		available_if_capitulated = yes
+		available = {
+			NOT = {
+				has_global_flag = russian_civil_war
+				has_war_with = RUS
+			}
+			RUS = {
+				exists = yes
+				NOT = {
+					has_country_flag = great_war_loser
+					tag = SOV
+				}
+			}
 		}
 		completion_reward = {
 			SER_mihailo_zivkovic = {
@@ -4975,6 +5127,9 @@ focus_tree = {
 				popularity = -0.15
 			}
 		}
+		ai_will_do = {
+			base = 50
+		}
 		available_if_capitulated = yes
 		x = -1
 		y = 1
@@ -4991,7 +5146,11 @@ focus_tree = {
 		}
 		available_if_capitulated = yes
 		completion_reward = {
+			custom_effect_tooltip = SER_solun_process_tt
 			country_event = ww1_serbia.50
+		}
+		ai_will_do = {
+			base = 50
 		}
 	}
 	focus = {
@@ -5009,7 +5168,9 @@ focus_tree = {
 				ideology = democratic
 				popularity = -0.15
 			}
+			add_stability = 0.1
 		}
+		available_if_capitulated = yes
 		prerequisite = {
 			focus = SER_blame_black_hand
 			focus = SER_blame_regent
@@ -5034,6 +5195,13 @@ focus_tree = {
 			add_popularity = {
 				ideology = neutrality
 				popularity = -0.15
+			}
+		}
+		ai_will_do = {
+			factor = 5
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
 			}
 		}
 		x = 1
@@ -5113,7 +5281,9 @@ focus_tree = {
 				is_controlled_by = SER
 			}
 		}
-		bypass_if_unavailable = yes
+		bypass = {
+			has_country_flag = great_war_winner
+		}
 		completion_reward = {
 			unlock_decision_category_tooltip = SER_spark_the_uprisings
 		}
@@ -5131,6 +5301,9 @@ focus_tree = {
 				is_owned_by = AUH
 				is_controlled_by = SER
 			}
+		}
+		ai_will_do = {
+			factor = 500
 		}
 		bypass_if_unavailable = yes
 		completion_reward = {
@@ -5185,6 +5358,9 @@ focus_tree = {
 				}
 			}
 		}
+		ai_will_do = {
+			factor = 500
+		}
 		completion_reward = {
 			transfer_state = 764
 			transfer_state = 45
@@ -5198,7 +5374,7 @@ focus_tree = {
 		icon = GFX_TUR_liberal_victory
 		cost = 5
 		x = 22
-		y = 16
+		y = 15
 		prerequisite = {
 			focus = SER_obstruction_crisis
 			focus = SER_government_of_national_unity
@@ -5225,6 +5401,17 @@ focus_tree = {
 				has_completed_focus = SER_independent_radical_victory
 			}
 		}
+		offset = {
+			x = -2
+			y = 0
+			trigger = {
+				has_game_rule = {
+					rule = obsolete_focus_branches_visibility
+					option = HIDE
+				}
+				has_completed_focus = SER_moderate_path
+			}
+		}
 		available = {
 			has_country_flag = elections_1914
 		}
@@ -5241,17 +5428,8 @@ focus_tree = {
 				name = SER_democrat_party
 			}
 			remove_ideas = SER_idea_interim_government
-			hidden_effect = {
-				promote_character = SER_ljubomir_davidovic
-			}
-			effect_tooltip = {
-				create_country_leader = {
-					name = "Ljubomir Davidović"
-					ideology = social_liberalism
-					traits = {
-						teacher_politician
-					}
-				}
+			SER_ljubomir_davidovic = {
+				promote_character = social_liberalism
 			}
 		}
 	}
@@ -5479,6 +5657,10 @@ focus_tree = {
 				}
 			}
 		}
+		bypass = {
+			owns_state = 105
+			owns_state = 761
+		}
 		completion_reward = {
 			MNT = {
 				if = {
@@ -5514,6 +5696,12 @@ focus_tree = {
 				}
 				else = {
 					country_event = ww1_serbia.140
+				}
+			}
+			hidden_effect = {
+				country_event = {
+					id = ww1_serbia.56
+					days = 30
 				}
 			}
 		}
@@ -5575,10 +5763,9 @@ focus_tree = {
 				has_global_flag = kis_firstbalkanwar_lose
 				has_global_flag = kis_secondbalkanwar_lose
 			}
-			always = no #temp
+			always = no			#temp
 		}
 		completion_reward = {
-			
 		}
 	}
 	focus = {

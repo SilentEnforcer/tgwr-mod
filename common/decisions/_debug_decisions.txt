@@ -1,5 +1,25 @@
 debug_decisions = {
 
+	tonnage_decision_for_all = {
+		complete_effect = {
+			set_global_flag = tonnage_visible_for_all
+			every_country = {
+				calculate_navy_tons = yes
+				setup_authorized_tons = yes
+			}
+		}
+		available = {
+			is_ai = no
+			is_debug = yes
+		}
+		visible = {
+			always = yes
+		}
+
+		fire_only_once = no
+		cost = 0
+	}
+
 	calculate_max_divisions = {
 		available = {
 			is_ai = no
@@ -32,9 +52,53 @@ debug_decisions = {
 		cost = 0
 
 		complete_effect = {
-			set_global_flag = france_accepts_GER_capitulation
 			set_global_flag = GER_capitulation
-			activate_mission = compiegne_armistice_mission
+			hidden_effect = {
+				every_country = {
+					limit = {
+						is_in_faction_with = FRA
+						has_war_with = GER
+					}
+					set_country_flag = member_of_entente
+				}
+				every_other_country = {
+					limit = {
+						is_in_faction_with = GER		
+						has_war_with = FRA
+					}
+					set_country_flag = member_of_central_powers
+				}
+				every_other_country = {
+					limit = {
+						is_subject = no
+						NOT = {
+							is_in_faction_with = FRA
+							has_country_flag = member_of_entente
+							has_country_flag = member_of_central_powers
+							tag = SOV
+							is_in_faction_with = SOV
+							is_subject_of = SOV
+							any_country = {
+								original_tag = RUS
+								has_war_with = SOV
+							}
+						}
+						has_war_with = GER
+						OR = {
+							is_faction_leader = yes
+							is_in_faction = no
+						}
+					}
+					country_event =  ww1_centre_capitulation.12
+				}
+				add_named_threat = {
+					threat = -10
+					name = GER_capitulation
+				}
+			}
+			set_global_flag = france_accepts_GER_capitulation
+			
+			news_event = { id = ww1_centre_capitulation.2 }
 		}
 	}
 
@@ -52,17 +116,94 @@ debug_decisions = {
 		cost = 0
 
 		complete_effect = {
-			activate_mission = frankfurt_armistice_mission
 			set_global_flag = FRA_capitulation
+			hidden_effect = {
+				every_country = {
+					limit = {
+						OR = {
+							has_country_flag = entente_leader
+							any_allied_country = {
+								OR = {
+									has_country_flag = entente_leader
+									tag = FRA
+								}
+							}
+						}
+	
+						OR = {
+							has_war_with = GER
+							has_country_flag = FRA_surrender_alone
+						}
+					}
+					set_country_flag = member_of_entente
+				}
+				every_other_country = {
+					limit = {
+						is_in_faction_with = GER		
+						has_war_with = FRA
+					}
+					set_country_flag = member_of_central_powers
+				}
+				every_other_country = {
+					limit = {
+						is_subject = no
+						NOT = {
+							is_in_faction_with = GER
+							has_country_flag = member_of_entente
+							has_country_flag = member_of_central_powers
+							tag = SOV
+							AND = {
+								is_russian_tag = yes
+								has_war_with = SOV
+							}
+							AND = {
+								tag = SOV
+								any_country = {
+									is_russian_tag = yes
+									has_war_with = SOV
+								}
+							}
+							has_war_with = FRA
+							OR = {
+								is_faction_leader = yes
+								is_in_faction = no
+							}
+						}
+					}
+					country_event = ww1_entente_capitulation.14
+				}
+				add_named_threat = {
+					threat = -10
+					name = FRA_capitulation
+				}
+			}
 			set_global_flag = germany_accepts_FRA_capitulation
+			
+			news_event = { id = ww1_entente_capitulation.2 }
 		}
 	}
 
-	ww1_conference_now = {
+	make_france_surrender_alone_now = {
 		available = {
 			is_ai = no
 			is_debug = yes
-			has_global_flag = great_war_ends
+
+			FRA = {
+				has_civil_war = no
+				has_global_flag = kis_war
+				# surrender_progress > 0.10
+				NOT = {
+					has_global_flag = GER_capitulation
+					has_global_flag = FRA_capitulation
+				}
+			}
+
+			RUS = {
+				is_in_faction_with = FRA
+				surrender_progress < 0.25
+				has_war_with = GER
+				has_civil_war = no
+			}
 		}
 
 		visible = {
@@ -73,7 +214,89 @@ debug_decisions = {
 		cost = 0
 
 		complete_effect = {
-			conference_effect = yes
+			FRA = {
+				activate_decision = FRA_armistice
+			}
+		}
+	}
+
+	make_entente_honourable_peace_now = {
+		available = {
+			is_ai = no
+			is_debug = yes
+
+			any_country = {
+				has_war_with = GER
+				has_country_flag = entente_leader
+				has_global_flag = kis_war
+				NOT = {
+					has_global_flag = GER_capitulation
+					has_global_flag = FRA_capitulation
+					# russian revolution be like
+					has_idea = RUS_threat_of_revolution
+					has_idea = RUS_threat_of_revolution2
+					has_idea = RUS_threat_of_revolution3
+				}
+			}
+
+			RUS = {
+				is_in_faction_with = FRA
+				surrender_progress < 0.25
+				has_war_with = GER
+				has_civil_war = no
+			}
+		}
+
+		visible = {
+			always = yes
+		}
+
+		fire_only_once = no
+		cost = 0
+
+		complete_effect = {
+			random_country = {
+				limit = { has_country_flag = entente_leader }
+				activate_decision = FRA_armistice_ent
+			}
+		}
+	}
+
+	ww1_conference_now = {
+		available = {
+			is_ai = no
+			is_debug = yes
+		}
+
+		visible = {
+			OR = {
+				has_active_mission = frankfurt_conference
+				has_active_mission = versallies_conference
+			}
+		}
+
+		fire_only_once = no
+		cost = 0
+
+		complete_effect = {
+			if = {
+				limit = {
+					has_active_mission = frankfurt_conference
+				}
+				add_days_mission_timeout = {
+					mission = frankfurt_conference
+					days = -1000
+				}
+			}
+			if = {
+				limit = {
+					has_active_mission = versallies_conference
+				}
+				add_days_mission_timeout = {
+					mission = versallies_conference
+					days = -1000
+				}
+			}
 		}
 	}
 
@@ -632,6 +855,37 @@ debug_decisions = {
 		complete_effect = {
 			set_global_flag = russian_revolution
 			country_event = { id = rusrevolt.2 }
+		}
+	}
+
+	capitulate_em = {
+		available = {
+			is_ai = no
+			is_debug = yes
+		}
+		
+		target_trigger = {
+			FROM = {
+				OR = {
+					tag = ROOT
+					has_war_with = ROOT
+				}
+				has_capitulated = no
+			}
+		}
+
+		visible = {
+
+		}
+		
+
+		fire_only_once = no
+		cost = 0
+
+		complete_effect = {
+			FROM = {
+				force_capitulate = yes
+			}
 		}
 	}
 }

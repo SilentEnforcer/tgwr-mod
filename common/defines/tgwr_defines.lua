@@ -2,6 +2,8 @@
 NDefines.NCareerProfile.MOD_STATISTICS_GROUP = "tgwr_career_profile"
 NDefines.NCareerProfile.MOD_STATISTICS_GROUP_NAME = "TGWR_CAREER_PROFILE"
 
+NDefines_Graphics.NFrontend.CAMERA_MIN_HEIGHT = 25.0
+
 NDefines.NGame.START_DATE = "1910.5.1.12"				
 NDefines.NGame.END_DATE = "1935.1.1.1"
 NDefines.NGame.HANDS_OFF_START_TAG = "BHU"
@@ -106,10 +108,6 @@ NDefines_Graphics.NGraphics.POLITICAL_GRID_SMALL_BOX_LIMIT = 18              	--
 NDefines.NSupply.NAVAL_DISTANCE_FACTOR_FOR_REINFORCEMENT_SPEED = 0.12
 NDefines.NSupply.NAVAL_BASE_INITIAL_SUPPLY_FLOW = 5
 NDefines.NSupply.CAPITAL_SUPPLY_DOCKYARDS = 0.6
- 
-
-NDefines.NCountry.MAJOR_MIN_FACTORIES = 25	-- Vanilla is 35
-NDefines.NCountry.MIN_MAJOR_COUNTRIES = 8	-- Vanilla is 7, Eight countries; ENG, FRA, GER, RUS, AUH, ITA, USA, JAP
 
 NDefines.NCountry.MAX_BOMBING_WAR_SUPPORT_IMPACT = -0.1 -- Vanilla is -0.3, it is not ww2
 NDefines.NCountry.MAX_CONVOYS_BEING_RAIDED_WAR_SUPPORT_IMPACT = -0.3 -- Vanilla is -0.5, it is not ww2
@@ -120,3 +118,6 @@ NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_AIR_EQUIPMENT = 1.5					-- Vanilla is 1 - 
 NDefines.NDiplomacy.EMBARGO_COST = 50 -- Vanilla is 100
 NDefines.NDiplomacy.EMBARGO_THREAT_THRESHOLD = -1 -- Vanilla is 30
 NDefines.NAI.EMBARGO_WORLD_TENSION_THREAT_DIVISOR = 0 -- Vanilla is 2.5
+
+-- Navy
+NDefines.NNavy.TRAINING_MAX_DAILY_COUNTRY_EXP = 1.0 -- Vanilla is 3.5
