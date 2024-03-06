@@ -27,6 +27,205 @@ RUS_civil_war = {
 			add_ideas = SIB_czech_garrisons
 		}
 	}
+	SIB_looming_reactionary_revolt = {
+		icon = GFX_decision_revolt
+
+		allowed = {
+			always = yes
+		}
+
+		available = {
+			always = no
+		}
+
+		days_mission_timeout = 120
+		fire_only_once = yes
+		is_good = no
+
+		
+		activation = {
+			always = no #activates via event
+		}
+
+		timeout_effect = {
+			hidden_effect = {
+				if = {
+					limit = {
+						has_idea = SIB_strong_monarchist_opposition 
+					}
+					TBK = {
+						transfer_state = 516
+						transfer_state = 564
+						transfer_state = 566
+						transfer_state = 568
+						transfer_state = 574
+						transfer_state = 576
+						transfer_state = 644
+					}
+					563 = {
+						create_unit = {
+							division = "name = \"Belaya Gvardiya\" division_template = \"White Guard Corps\" start_experience_factor = 0.2 start_equipment_factor = 0.7"
+							owner = TBK
+							count = 8
+							allow_spawning_on_enemy_provs = yes
+						}
+					}
+					remove_ideas = SIB_strong_monarchist_opposition 
+				}
+				else_if = {
+					limit = {
+						has_idea = SIB_medium_monarchist_opposition 
+					}
+					TBK = {
+						transfer_state = 564
+						transfer_state = 566
+						transfer_state = 574
+						transfer_state = 644
+					}
+					563 = {
+						create_unit = {
+							division = "name = \"Belaya Gvardiya\" division_template = \"White Guard Corps\" start_experience_factor = 0.2 start_equipment_factor = 0.7"
+							owner = TBK
+							count = 4
+							allow_spawning_on_enemy_provs = yes
+						}
+					}
+					remove_ideas = SIB_medium_monarchist_opposition 
+				}
+				else_if = {
+					limit = {
+						has_idea = SIB_weak_monarchist_opposition 
+					}
+					TBK = {
+						transfer_state = 564
+					}
+					563 = {
+						create_unit = {
+							division = "name = \"Belaya Gvardiya\" division_template = \"White Guard Corps\" start_experience_factor = 0.2 start_equipment_factor = 0.7"
+							owner = TBK
+							count = 2
+							allow_spawning_on_enemy_provs = yes
+						}
+					}
+					remove_ideas = SIB_weak_monarchist_opposition 
+				}
+				TBK = {
+					declare_war_on = {
+						target = ROOT
+						type = civil_war
+					}	
+				}
+				every_state = {
+					limit = {
+						is_core_of = ROOT
+					}
+					add_core_of = TBK
+				}
+				
+			}
+			custom_effect_tooltip = siberia_reactionary_revolt_tt
+		}
+	}
+	RUS_purge_the_army = {
+		icon = GFX_decision_oppression
+		allowed = {
+			tag = SIB
+		}
+		cancel_trigger = {
+			NOT = {
+				has_active_mission = SIB_looming_reactionary_revolt
+			}
+		}
+		available = {
+			has_active_mission = SIB_looming_reactionary_revolt
+		}
+		cost = 30
+		fire_only_once = no
+		days_remove = 30
+		visible = {
+			has_active_mission = SIB_looming_reactionary_revolt
+			has_completed_focus = SIB_depolitization_of_the_army
+		}
+		modifier = {
+			training_time_factor = 0.25
+			stability_weekly = -0.004
+			war_support_weekly = -0.004
+			experience_gain_army_factor = -0.5
+		}
+		remove_effect = {
+			if = {
+				limit = {
+					has_idea = SIB_weak_monarchist_opposition 
+					OR = {
+						check_variable = { purge_progress = 3 }
+						check_variable = { purge_progress = 6 }
+						check_variable = { purge_progress = 9 }
+					}
+				}
+				remove_ideas = SIB_weak_monarchist_opposition
+				remove_mission = SIB_looming_reactionary_revolt
+				add_stability = 0.05
+				add_war_support = 0.05
+				add_political_power = 100
+			}
+			else_if = {
+				limit = {
+					has_idea = SIB_medium_monarchist_opposition
+					OR = {
+						check_variable = { purge_progress = 6 }
+					}
+				}
+				swap_ideas = {
+    					remove_idea = SIB_medium_monarchist_opposition 
+    					add_idea = SIB_weak_monarchist_opposition 
+				}
+				add_to_variable = {
+					var = purge_progress
+					value = 1
+					tooltip = purge_progresses_tt
+				}
+				add_days_mission_timeout = {
+					mission = SIB_looming_reactionary_revolt
+					days = 30
+				}
+			}
+			else_if = {
+				limit = {
+					has_idea = SIB_strong_monarchist_opposition
+					OR = {
+						check_variable = { purge_progress = 3 }
+					}
+				}
+				swap_ideas = {
+    					remove_idea = SIB_strong_monarchist_opposition 
+    					add_idea = SIB_medium_monarchist_opposition 
+				}
+				add_to_variable = {
+					var = purge_progress
+					value = 1
+					tooltip = purge_progresses_tt
+				}
+				add_days_mission_timeout = {
+					mission = SIB_looming_reactionary_revolt
+					days = 30
+				}
+			}
+			else = {
+				add_to_variable = {
+					var = purge_progress
+					value = 1
+					tooltip = purge_progresses_tt
+				}
+				add_days_mission_timeout = {
+					mission = SIB_looming_reactionary_revolt
+					days = 30
+				}
+			}
+		}
+		ai_will_do = {
+			base = 100
+		}
+	}
 	RUS_abolish_FROM_autonomy = {
 		icon = GFX_decision_oppression
 		allowed = {
@@ -300,13 +499,17 @@ SIB_import_weapons_category = {
 								has_country_flag = FRA_decided_to_arm_us
 								has_country_flag = USA_decided_to_arm_us
 								has_country_flag = GER_decided_to_arm_us
+								has_completed_focus = SIB_support_from_entente
 							}
 						}
 					}
 				}
 			}
 			has_dynamic_modifier = { modifier = SIB_gold_reserve_dynamic_modifier }
-			has_completed_focus = SIB_lobby_for_foreign_aid
+			OR = {
+				has_completed_focus = SIB_lobby_for_foreign_aid
+				has_completed_focus = SIB_support_from_entente
+			}
 		}
 		complete_effect = {
 			FROM = {
@@ -791,7 +994,51 @@ SIB_mobilize_volunteers_category = {
 					create_unit = {
 						division = "name = \"1-ya Uralskaya Diviziya\" division_template = \"Sibirskaya Pekhotnaya Diviziya\" start_experience_factor = 0.5 start_equipment_factor = 1"
 						owner = ROOT
+						allow_spawning_on_enemy_provs = yes  
 					}
+				}
+			}
+		}
+	}
+	SIB_volunteers_of_constituent_assembly = {
+		icon = GFX_decision_generic_prepare_civil_war
+		allowed = {
+			tag = SIB
+		}
+		available = {
+			controls_state = FROM
+		}
+		
+		visible = {
+			tag = SIB
+			controls_state = FROM
+			NOT = {
+				owns_state = FROM
+			}
+			has_completed_focus = SIB_volunteers_of_the_constituent_assembly
+		}
+	
+		cost = 5
+		
+		on_map_mode = map_only
+		state_target = yes
+		target_trigger = {
+			FROM = {
+				is_core_of = ROOT
+			}
+		}
+		
+		fire_only_once = yes
+		ai_will_do = {
+			factor = 100
+		}
+		
+		complete_effect = {
+			FROM = {
+				create_unit = {
+					division = "name = \"Diviziya Dobroboltsev\" division_template = \"Diviziya Dobrovoltsev\" start_experience_factor = 0 start_equipment_factor = 0.7"
+					owner = ROOT
+					allow_spawning_on_enemy_provs = yes
 				}
 			}
 		}
