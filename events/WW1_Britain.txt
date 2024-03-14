@@ -2113,6 +2113,31 @@ country_event = {
 				remove_idea = ENG_general_strike
 				add_idea = ENG_general_strike_cw
 			}
+			division_template = {
+				name = "White Guards"
+				priority = 0
+				division_names_group = ENG_DEM_01
+				regiments = {
+					militia = { x = 0 y = 0 }
+					militia = { x = 0 y = 1 }
+					militia = { x = 0 y = 2 }
+					militia = { x = 1 y = 0 }
+					militia = { x = 1 y = 1 }
+					militia = { x = 1 y = 2 }
+					militia = { x = 2 y = 0 }
+					militia = { x = 2 y = 1 }
+					militia = { x = 2 y = 2 }
+					militia = { x = 2 y = 3 }
+				}
+			}
+			random_controlled_state = {
+				prioritize = { 126 }
+				create_unit = {
+					division = "division_template = \"Red Guards\" start_experience_factor = 0.0"
+					owner = ROOT
+					count = 5
+				}
+			}
 			release_british_cw_territories = yes
 			every_other_country = {
 				limit = {
@@ -2933,11 +2958,8 @@ country_event = {
 			owns_or_subject_of = yes
 		}
 		ENG = {
-			OR = {
-				owns_state = 547
-				owns_state = 548
-				owns_state = 792
-				owns_state = 902
+			any_owned_state = {
+				region = 217
 			}
 			has_country_flag = great_war_loser
 		}
@@ -2958,16 +2980,26 @@ country_event = {
 					state = 902
 				}
 			}
-			transfer_state_to = ROOT
-		}
-		hidden_effect = {
 			if = {
 				limit = {
-					ENG = { has_subject = ZAN }
-					903 = { is_claimed_by = ROOT }
+					ROOT = { has_subject = TZN }
 				}
-				annex_country = {
-					target = ZAN
+				transfer_state_to = TZN
+			}
+			else = {
+				transfer_state_to = ROOT
+			}
+		}
+		if = {
+			limit = {
+				ENG = { has_subject = ZAN }
+				has_completed_focus = GER_claim_mittelafrika
+			}
+			546 = {
+				owner = {
+					annex_country = {
+						target = ZAN
+					}
 				}
 			}
 		}
@@ -4040,6 +4072,10 @@ country_event = {
 			}
 			has_country_flag = no_israel_madagascar
 		}
+		NOT = {
+			country_exists = PAL
+			country_exists = ISR
+		}
 	}
 	mean_time_to_happen = {
 		days = 35
@@ -4059,6 +4095,17 @@ country_event = {
 		every_owned_state = {
 			limit = {
 				OR = {
+					# state = 454
+					# state = 856
+					state = 858
+					# state = 453
+				}
+			}
+			transfer_state_to = PAL
+		}
+		every_owned_state = {
+			limit = {
+				OR = {
 					state = 454
 					state = 856
 					state = 858
@@ -4066,24 +4113,94 @@ country_event = {
 				}
 			}
 			transfer_state_to = ISR
-			add_core_of = ISR 
 		}
-		ISR = {
-			set_cosmetic_tag = ISR_dominion_under_britain
+		hidden_effect = {
+			PAL = {
+				get_current_government_type = yes
+			}
+			ISR = {
+				get_current_government_type = yes
+			}
 		}
 		if = {
 			limit = {
 				has_dlc = "Together for Victory"
 			}
-			ENG = {
+			set_autonomy = {
+				target = ISR
+				autonomous_state = autonomy_dominion
+				freedom_level = 0.2
+			}
+		}
+		else_if = {
+			limit = {
+				has_subject_autonomy_feature = yes
+			}
+			set_autonomy = {
+				target = ISR
+				autonomous_state = autonomy_tgwr_informal_protectorate
+				freedom_level = 0.2
+			}
+			ISR = { set_country_flag = protectorate }
+		}
+		else = {
+			puppet = ISR
+			ISR = { add_ideas = protectorate }
+		}
+		if = {
+			limit = {
+				country_exists = PAL
+			}
+			if = {
+				limit = {
+					has_dlc = "Together for Victory"
+				}
 				set_autonomy = {
-					target = ISR
+					target = PAL
 					autonomous_state = autonomy_dominion
 					freedom_level = 0.2
 				}
 			}
+			else_if = {
+				limit = {
+					has_subject_autonomy_feature = yes
+				}
+				set_autonomy = {
+					target = PAL
+					autonomous_state = autonomy_tgwr_informal_protectorate
+					freedom_level = 0.2
+				}
+				PAL = { set_country_flag = protectorate }
+			}
 			else = {
-				puppet = ISR
+				puppet = PAL
+				PAL = { add_ideas = protectorate }
+			}
+		}
+		hidden_effect = {
+			every_state = {
+				limit = {
+					OR = {
+						state = 454
+						state = 856
+						state = 858
+					}
+				}
+				add_core_of = ISR
+			}
+			ISR = {
+				restore_previous_government_type = yes
+				set_cosmetic_tag = ISR_dominion_under_britain
+				add_opinion_modifier = {
+					target = PAL
+					modifier = historical_rival
+				}
+			}
+			PAL = {
+				add_opinion_modifier = {
+					target = ISR
+					modifier = historical_rival
+				}
 			}
 		}
 		ai_chance = {
@@ -4097,7 +4214,19 @@ country_event = {
 	option = {
 		#Honour the Balfour Declaration (Play as Israel)
 		name = ww1_england.86.c
+		trigger = { is_ai = no }
 		add_political_power = -100
+		every_owned_state = {
+			limit = {
+				OR = {
+					# state = 454
+					# state = 856
+					state = 858
+					# state = 453
+				}
+			}
+			transfer_state_to = PAL
+		}
 		every_owned_state = {
 			limit = {
 				OR = {
@@ -4108,32 +4237,97 @@ country_event = {
 				}
 			}
 			transfer_state_to = ISR
-			add_core_of = ISR 
 		}
-		ISR = {
-			set_cosmetic_tag = ISR_dominion_under_britain
+		hidden_effect = {
+			PAL = {
+				get_current_government_type = yes
+			}
+			ISR = {
+				get_current_government_type = yes
+			}
 		}
 		if = {
 			limit = {
 				has_dlc = "Together for Victory"
 			}
-			ENG = {
+			set_autonomy = {
+				target = ISR
+				autonomous_state = autonomy_dominion
+				freedom_level = 0.2
+			}
+		}
+		else_if = {
+			limit = {
+				has_subject_autonomy_feature = yes
+			}
+			set_autonomy = {
+				target = ISR
+				autonomous_state = autonomy_tgwr_informal_protectorate
+				freedom_level = 0.2
+			}
+			ISR = { set_country_flag = protectorate }
+		}
+		else = {
+			puppet = ISR
+			ISR = { add_ideas = protectorate }
+		}
+		if = {
+			limit = {
+				country_exists = PAL
+			}
+			if = {
+				limit = {
+					has_dlc = "Together for Victory"
+				}
 				set_autonomy = {
-					target = ISR
+					target = PAL
 					autonomous_state = autonomy_dominion
 					freedom_level = 0.2
 				}
 			}
+			else_if = {
+				limit = {
+					has_subject_autonomy_feature = yes
+				}
+				set_autonomy = {
+					target = PAL
+					autonomous_state = autonomy_tgwr_informal_protectorate
+					freedom_level = 0.2
+				}
+				PAL = { set_country_flag = protectorate }
+			}
 			else = {
-				puppet = ISR
+				puppet = PAL
+				PAL = { add_ideas = protectorate }
 			}
 		}
-		ISR = {
-			change_tag_from = ROOT
+		hidden_effect = {
+			every_state = {
+				limit = {
+					OR = {
+						state = 454
+						state = 856
+						state = 858
+					}
+				}
+				add_core_of = ISR
+			}
+			ISR = {
+				restore_previous_government_type = yes
+				set_cosmetic_tag = ISR_dominion_under_britain
+				add_opinion_modifier = {
+					target = PAL
+					modifier = historical_rival
+				}
+			}
+			PAL = {
+				add_opinion_modifier = {
+					target = ISR
+					modifier = historical_rival
+				}
+			}
 		}
-		ai_chance = {
-			factor = 0
-		}
+		ISR = { change_tag_from = ROOT }
 	}
 }
 
@@ -4158,7 +4352,7 @@ country_event = {
 		add_political_power = -50
 		set_country_flag = no_israel_madagascar
 		ai_chance = {
-			factor = 0
+			factor = 100
 		}
 	}
 	option = {
@@ -4166,7 +4360,13 @@ country_event = {
 		name = ww1_england.87.b
 		ai_chance = {
 			factor = 100
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+			}
 		}
+		add_political_power = -100
+		543 = { transfer_state_to = ISR }
 		hidden_effect = {
 			543 = {
 				set_building_level = {
@@ -4186,11 +4386,9 @@ country_event = {
 					instant_build = yes
 				}
 			}
-		}
-		ISR = {
-			transfer_state = 543
-			add_state_core = 543
-			set_cosmetic_tag = ISR_dominion_under_britain
+			ISR = {
+				get_current_government_type = yes
+			}
 		}
 		if = {
 			limit = {
@@ -4201,17 +4399,38 @@ country_event = {
 				autonomous_state = autonomy_dominion
 				freedom_level = 0.2
 			}
-			else = {
-				puppet = ISR
+		}
+		else_if = {
+			limit = {
+				has_subject_autonomy_feature = yes
+			}
+			set_autonomy = {
+				target = ISR
+				autonomous_state = autonomy_tgwr_informal_protectorate
+				freedom_level = 0.2
+			}
+			ISR = { set_country_flag = protectorate }
+		}
+		else = {
+			puppet = ISR
+			ISR = { add_ideas = protectorate }
+		}
+		hidden_effect = {
+			543 = {
+				add_core_of = ISR
+			}
+			ISR = {
+				restore_previous_government_type = yes
+				set_cosmetic_tag = ISR_dominion_under_britain
 			}
 		}
 	}
 	option = {
 		#Madagaskar Plan! (play as Israel)
 		name = ww1_england.87.c
-		ai_chance = {
-			factor = 0
-		}
+		trigger = { is_ai = no }
+		add_political_power = -100
+		543 = { transfer_state_to = ISR }
 		hidden_effect = {
 			543 = {
 				set_building_level = {
@@ -4231,11 +4450,9 @@ country_event = {
 					instant_build = yes
 				}
 			}
-		}
-		ISR = {
-			transfer_state = 543
-			add_state_core = 543
-			set_cosmetic_tag = ISR_dominion_under_britain
+			ISR = {
+				get_current_government_type = yes
+			}
 		}
 		if = {
 			limit = {
@@ -4246,13 +4463,32 @@ country_event = {
 				autonomous_state = autonomy_dominion
 				freedom_level = 0.2
 			}
-			else = {
-				puppet = ISR
+		}
+		else_if = {
+			limit = {
+				has_subject_autonomy_feature = yes
+			}
+			set_autonomy = {
+				target = ISR
+				autonomous_state = autonomy_tgwr_informal_protectorate
+				freedom_level = 0.2
+			}
+			ISR = { set_country_flag = protectorate }
+		}
+		else = {
+			puppet = ISR
+			ISR = { add_ideas = protectorate }
+		}
+		hidden_effect = {
+			543 = {
+				add_core_of = ISR
+			}
+			ISR = {
+				restore_previous_government_type = yes
+				set_cosmetic_tag = ISR_dominion_under_britain
 			}
 		}
-		ISR = {
-			change_tag_from = ROOT
-		}
+		ISR = { change_tag_from = ROOT }
 	}
 }
 
@@ -5401,12 +5637,11 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		original_tag = ENG
-		has_unit_leader = 899
+		has_character = ENG_herbert_kitchener
 		has_war_together_with = RUS
 		NOT = {
 			has_country_leader = {
 				character = ENG_herbert_kitchener
-				ruling_only = yes
 			}
 			has_war_with = RUS
 		}
@@ -5420,10 +5655,7 @@ country_event = {
 		ai_chance = {
 			factor = 100
 		}
-		every_unit_leader = {
-			limit = {
-				has_id = 827
-			}
+		ENG_alfred_knox = {
 			set_nationality = RUS
 		}
 		if = {
@@ -7425,16 +7657,10 @@ country_event = {
 		}
 		add_manpower = 1000
 		SOV = {
-			every_unit_leader = {
-				limit = {
-					has_id = 85007
-				}
+			SOV_kliment_voroshilov = {
 				set_nationality = ROOT
 			}
-			every_unit_leader = {
-				limit = {
-					has_id = 85039
-				}
+			SOV_iosif_stalin = {
 				set_nationality = ROOT
 			}
 		}
@@ -7598,10 +7824,7 @@ country_event = {
 			factor = 49
 		}
 		RAJ = {
-			every_unit_leader = {
-				limit = {
-					has_id = 405
-				}
+			RAJ_havelock_hudson = {
 				set_nationality = ROOT
 			}
 		}
@@ -7640,10 +7863,7 @@ country_event = {
 			factor = 1
 		}
 		RAJ = {
-			every_unit_leader = {
-				limit = {
-					has_id = 405
-				}
+			RAJ_havelock_hudson = {
 				set_nationality = ROOT
 			}
 		}
@@ -7682,10 +7902,7 @@ country_event = {
 			factor = 40
 		}
 		RAJ = {
-			every_unit_leader = {
-				limit = {
-					has_id = 405
-				}
+			RAJ_havelock_hudson = {
 				set_nationality = ROOT
 			}
 		}
@@ -7724,10 +7941,7 @@ country_event = {
 			factor = 90
 		}
 		RAJ = {
-			every_unit_leader = {
-				limit = {
-					has_id = 405
-				}
+			RAJ_havelock_hudson = {
 				set_nationality = ROOT
 			}
 		}
@@ -7766,10 +7980,7 @@ country_event = {
 			factor = 10
 		}
 		RAJ = {
-			every_unit_leader = {
-				limit = {
-					has_id = 405
-				}
+			RAJ_havelock_hudson = {
 				set_nationality = ROOT
 			}
 		}
@@ -7807,10 +8018,7 @@ country_event = {
 			factor = 100
 		}
 		RAJ = {
-			every_unit_leader = {
-				limit = {
-					has_id = 405
-				}
+			RAJ_havelock_hudson = {
 				set_nationality = ROOT
 			}
 		}
