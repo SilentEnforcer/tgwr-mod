@@ -16,6 +16,7 @@ news_event = {
 		GER = {
 			controls_state = 6
 			controls_state = 34
+			controls_state = 906
 		}
 		has_global_flag = kis_war
 		NOT = {
@@ -33,6 +34,7 @@ news_event = {
 		trigger = {
 			has_war_with = GER
 			NOT = {
+				original_tag = GER
 				original_tag = ENG
 				original_tag = CAN
 				original_tag = AST
@@ -44,13 +46,17 @@ news_event = {
 	option = {
 		name = ww1_belgium.1.b
 		trigger = {
-			NOT = {
-				has_war_with = GER
+			OR = {
+				NOT = {
+					tag = GER
+					has_war_with = GER
+				}
 				AND = {
 					original_tag = USA
-					OR = {
+					NOT = {
 						has_government = communism
 						has_government = democratic
+						has_war_with = GER
 					}
 				}
 			}
@@ -137,16 +143,17 @@ country_event = {
 					id = ww1_belgium.7
 				}
 			}
+			check_democratic_civil_war_popularity = yes
 			start_civil_war = {
 				ideology = democratic
 				keep_political_leader = yes
 				keep_political_party_members = yes
-				size = 0.5
+				size = civil_war_size_var
 				drop_cosmetic_tag = yes
 				hidden_effect = {
-					BEL = {
+					PREV = {
 						BEL_albert_i = {
-							set_nationality = PREV
+							set_nationality = PREV.PREV
 						}
 					}
 					set_war_support = 1
@@ -745,26 +752,73 @@ country_event = {
 				}
 				set_cosmetic_tag = COG_belgium_in_exile
 				add_ideas = BEL_idea_albert_i
-				create_country_leader = {
-					name = "BEL_albert_i"
-					picture = "gfx/leaders/BEL/BEL_albert_general.png"
-					ideology = semi_constitutional_monarchy
-					traits = {
-						knight_king
+				set_country_flag = BEL_anti_GER_revolt
+				every_possible_country = {
+					limit = { has_character = BEL_albert_i }
+					BEL_albert_i = {
+						set_nationality = PREV.PREV
 					}
 				}
-				create_country_leader = {
-					name = "BEL_albert_i"
-					picture = "gfx/leaders/BEL/BEL_albert_general.png"
-					ideology = stratocracy
-					traits = {
-						knight_king
+				BEL_albert_i = {
+					set_portraits = {
+						civilian = {
+							large = "gfx/leaders/BEL/BEL_albert_general.png"
+						}
+					}
+					if = {
+						limit = {
+							has_ideology = stratocracy
+						}
+						promote_character = stratocracy
+						add_country_leader_trait = knight_king
+					}
+					else = {
+						add_country_leader_role = {
+							promote_leader = yes
+							country_leader = {
+								ideology = stratocracy
+								traits = { knight_king }
+							}
+						}
+					}
+					if = {
+						limit = {
+							has_ideology = semi_constitutional_monarchy
+						}
+						promote_character = semi_constitutional_monarchy
+						add_country_leader_trait = knight_king
+					}
+					else = {
+						add_country_leader_role = {
+							promote_leader = yes
+							country_leader = {
+								ideology = semi_constitutional_monarchy
+								traits = { knight_king }
+							}
+						}
 					}
 				}
-				create_country_leader = {
-					name = "BEL_felix_fuchs"
-					picture = "gfx/leaders/BEL/BEL_felix_fuchs.png"
-					ideology = classical_liberalism
+				every_possible_country = {
+					limit = { has_character = BEL_felix_fuchs }
+					BEL_felix_fuchs = {
+						set_nationality = PREV.PREV
+					}
+				}
+				BEL_felix_fuchs = {
+					if = {
+						limit = {
+							has_ideology = classical_liberalism
+						}
+						promote_character = classical_liberalism
+					}
+					else = {
+						add_country_leader_role = {
+							promote_leader = yes
+							country_leader = {
+								ideology = classical_liberalism
+							}
+						}
+					}
 				}
 				set_party_name = {
 					ideology = democratic
@@ -816,8 +870,8 @@ country_event = {
 			every_unit_leader = {
 				limit = {
 					OR = {
-						has_id = 1613
-						has_id = 1614
+						is_character = BEL_charles_tombeur
+						is_character = BEL_albert_lantonnois_van_rode
 					}
 				}
 				set_nationality = BLE
@@ -1425,18 +1479,14 @@ country_event = {
 			hidden_effect = {
 				set_cosmetic_tag = HOL_BAT
 				create_country_leader = {
-					name = "Pieter Jelles Troelstra"
+					name = HOL_pieter_jelles_troelstra
 					picture = "gfx/leaders/HOL/HOL_pieter_jelles_troelstra.png"
 					ideology = socialism
-					traits = {
-					}
 				}
 				create_country_leader = {
-					name = "Pieter Jelles Troelstra"
+					name = HOL_pieter_jelles_troelstra
 					picture = "gfx/leaders/HOL/HOL_pieter_jelles_troelstra.png"
 					ideology = reformist_socialism
-					traits = {
-					}
 				}
 				set_party_name = {
 					ideology = democratic
@@ -1693,6 +1743,8 @@ country_event = {
 				}
 			}
 			BEL = {
+				set_stability = 0.40
+				set_war_support = 0.10
 				set_popularities = {
 					democratic = 10
 					neutrality = 60

@@ -1,59 +1,4 @@
 GER_great_war = {
-	ROM_sue_for_peace_TUR = {
-		name = sue_for_peace_TUR
-		allowed = {
-			original_tag = ROM
-		}
-		available = {
-			has_war_with = TUR
-			surrender_progress > 0.4
-			
-			NOT = { 
-			    is_in_faction_with = GER 
-				has_war_together_with = GER
-				is_in_faction_with = FRA 
-				has_war_together_with = FRA
-			}
-		}
-		visible = {	
-			has_global_flag = kis_firstbalkan_war
-			NOT = { 
-			    is_in_faction_with = GER 
-				has_war_together_with = GER
-				is_in_faction_with = FRA 
-				has_war_together_with = FRA
-			}
-			NOT = { 
-				has_country_flag = BW1_winner 
-				has_global_flag = kis_firstbalkanwar_victory
-			}
-			has_war_with = TUR	
-		}
-		fire_only_once = yes
-		ai_will_do = {
-			factor = 400
-		}
-		complete_effect = {
-			set_global_flag = ROM_surrender_in_balkan_war
-			set_global_flag = TUR_is_winning_balkan_war
-			ROM = {
-				leave_faction = yes
-			}
-			every_country = {
-				limit = {
-					has_war_with = ROM
-				}
-				white_peace = ROM
-			}
-			TUR = {
-				puppet = ROM
-				set_autonomy = {
-					target = ROM
-					autonomy_state = autonomy_integrated_puppet
-				}
-			}	
-		}
-	}
 	ROM_great_war_intervention = {
 		allowed = {
 			original_tag = ROM
@@ -93,16 +38,9 @@ GER_great_war = {
 			has_global_flag = kis_war
 		}
 		fire_only_once = yes		
-		days_remove = 200
+		days_remove = 20
 		ai_will_do = {
 			base = 0
-			modifier = {
-				add = 100
-				SER = {
-					has_war_with = AUH
-					has_capitulated = yes
-				}
-			}
 			modifier = {
 				add = 100
 				AUH = { surrender_progress > 0.2 }
@@ -110,8 +48,13 @@ GER_great_war = {
 			modifier = {
 				add = 100
 				RUS = {
-					controls_state = 78
+					has_war_with = AUH
+					has_capitulated = no
+					NOT = {
+						tag = SOV
+					}	
 				}
+				has_russian_civil_war = no
 				date > 1916.7.1
 			}
 		}
@@ -128,43 +71,56 @@ GER_great_war = {
 			}
 		}
 		remove_effect = {
-			if = {
+			random_other_country = {
 				limit = {
-					FRA = { 
-						has_war_with = AUH 
-						is_faction_leader = yes
-					}
-				}
-				FRA = {
-					country_event = { id = generic.2 } 
-					add_ai_strategy = {
-						type = alliance
-						id = "ROM"
-						value = 200
-					}
-				}
-				else_if = {
-					limit = {
-						RUS = { 
-							is_faction_leader = yes
+					is_faction_leader = yes
+					OR = {
+						has_war_with = AUH
+						any_other_country = {
+							is_in_faction_with = PREV
+							has_war_with = AUH
 						}
 					}
-					RUS = {
-						country_event = { id = generic.2 } 
-						add_ai_strategy = {
-							type = alliance
-							id = "ROM"
-							value = 200
-						}
-					}
-					else = {
-						add_to_war = { 
-							targeted_alliance = RUS 
-							enemy = AUH
-						}	
-					}
 				}
+				add_to_faction = ROOT
 			}
+			# if = {
+			# 	limit = {
+			# 		FRA = { 
+			# 			has_war_with = AUH 
+			# 			is_faction_leader = yes
+			# 		}
+			# 	}
+			# 	FRA = {
+			# 		country_event = { id = generic.2 } 
+			# 		add_ai_strategy = {
+			# 			type = alliance
+			# 			id = "ROM"
+			# 			value = 200
+			# 		}
+			# 	}
+			# 	else_if = {
+			# 		limit = {
+			# 			RUS = { 
+			# 				is_faction_leader = yes
+			# 			}
+			# 		}
+			# 		RUS = {
+			# 			country_event = { id = generic.2 } 
+			# 			add_ai_strategy = {
+			# 				type = alliance
+			# 				id = "ROM"
+			# 				value = 200
+			# 			}
+			# 		}
+			# 		else = {
+			# 			add_to_war = { 
+			# 				targeted_alliance = RUS 
+			# 				enemy = AUH
+			# 			}	
+			# 		}
+			# 	}
+			# }
 		}
 	}
 	ROM_great_war_surrender = {
@@ -370,13 +326,28 @@ GER_great_war = {
 				add_claim_by = GER
 			}
 			GER = { remove_resource_rights = 46 }
+			remove_ideas = idea_armistice
 			remove_ideas = idea_army_restrictions
-			if = {
-				limit = {
-					is_ai = yes
-					num_divisions < 10
+			hidden_effect = {
+				every_state = {
+					ROOT = {
+						delete_unit = {
+							state = PREV
+						}
+					}
 				}
-                load_oob = "ROM_1910"
+				delete_unit_template_and_units = {
+					division_template = "Divizia de Infanterie"
+					disband = no
+				}
+				delete_unit_template_and_units = {
+					division_template = "Divizia de Cavalrie"
+					disband = no
+				}
+				if = {
+					limit = { num_divisions < 10 }
+					load_oob = "ROM_1918"
+				}
 			}
 		}
 		ai_will_do = {
@@ -555,7 +526,7 @@ peace_deals = {
 		}
 		visible = {
 			is_in_faction = no
-			has_war_with = HUN
+			has_war_with = FROM
 			is_subject = no
 			FROM = {
 				is_in_faction = no
@@ -584,6 +555,48 @@ peace_deals = {
 					}
 					surrender_progress > 0.35
 				}
+			}
+		}
+		complete_effect = {
+			FROM = { country_event = ww1_hungary.8 }
+		}
+	}
+	ROM_sue_for_peace_BUL = {
+		icon = GFX_decision_eng_trade_unions_support
+		allowed = {
+			tag = ROM
+		}
+		target_trigger = {
+			FROM = {
+				tag = BUL
+			}
+		}
+		available = {
+			surrender_progress > 0.1
+		}
+		visible = {
+			has_war_with = FROM
+			# is_subject = no
+			# is_in_faction = no
+			NOT = {
+				has_war_together_with = GER
+				has_war_together_with = FRA
+			}
+			FROM = {
+				is_subject = no
+				is_in_faction = no
+				NOT = {
+					has_war_together_with = GER
+					has_war_together_with = FRA
+				}
+			}
+		}
+		fire_only_once = yes
+		ai_will_do = {
+			factor = 1000
+			modifier = {
+				factor = 0
+				surrender_progress < 0.75
 			}
 		}
 		complete_effect = {

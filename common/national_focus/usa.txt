@@ -9,6 +9,7 @@ focus_tree = {
 	}
 	default = no
 	continuous_focus_position = { x = 4200 y = 960 }
+	initial_show_position = { focus = USA_reformist_progressivism }
 	focus = {
 		id = USA_reformist_progressivism
 		icon = GFX_goal_generic_intelligence_exchange
@@ -282,7 +283,7 @@ focus_tree = {
 			communism > 0.49
 		}
 		bypass = {
-		    has_cosmetic_tag = USA_socialist_color_only
+			has_cosmetic_tag = USA_socialist_color_only
 			OR = {
 				has_global_flag = USA_cw_triggered
 				has_country_flag = new_socialism
@@ -648,27 +649,41 @@ focus_tree = {
 			focus = USA_antitrust_act
 		}
 		x = 8
-		y = 7
+		y = 6
+		available = {
+			is_subject = no
+		}
 		completion_reward = {
 			unlock_decision_tooltip = USA_prohibition_act
 		}
 		search_filters = {
 			FOCUS_FILTER_HISTORICAL
 		}
-	}
-	focus = {
-		id = USA_rise_of_technocracy
-		icon = GFX_goal_generic_intelligence_exchange
-		cost = 10
-		prerequisite = {
-			focus = USA_antitrust_act
-		}
-		x = 9
-		y = 6
-		completion_reward = {
-			custom_effect_tooltip = USA_rise_of_technocracy_tt
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0
+				has_war = yes
+			}
+			modifier = {
+				factor = 0
+				date < 1919.12.1
+			}
 		}
 	}
+	# focus = {
+	# 	id = USA_rise_of_technocracy
+	# 	icon = GFX_goal_generic_intelligence_exchange
+	# 	cost = 10
+	# 	prerequisite = {
+	# 		focus = USA_antitrust_act
+	# 	}
+	# 	x = 9
+	# 	y = 6
+	# 	completion_reward = {
+	# 		custom_effect_tooltip = USA_rise_of_technocracy_tt
+	# 	}
+	# }
 	focus = {
 		id = USA_old_neutrality_act
 		icon = GFX_goal_generic_neutrality_focus
@@ -797,7 +812,14 @@ focus_tree = {
 		}
 		x = 11
 		y = 5
-		available = { threat > 0.6 }
+		available = {
+			OR = {
+				threat > 0.6
+				has_defensive_war = yes
+				has_war_support > 0.95
+				has_global_flag = zimmermann_telegram_received
+			}
+		}
 		completion_reward = {
 			remove_ideas = USA_idea_defender_of_the_american_sphere
 		}
@@ -808,8 +830,177 @@ focus_tree = {
 				OR = {
 					date > 1917.2.1
 					threat > 0.7
+					has_defensive_war = yes
+					has_global_flag = zimmermann_telegram_received
 				}
 			}
+		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
+		}
+	}
+	focus = {
+		id = USA_war_against_germany
+		icon = GFX_focus_attack_germany
+		cost = 5
+		prerequisite = {
+			focus = USA_do_not_stand_aside
+			focus = USA_place_under_the_sun
+		}
+		mutually_exclusive = {
+			focus = USA_war_against_france
+		}
+		relative_position_id = USA_do_not_stand_aside
+		x = -1
+		y = 1
+		available = {
+			GER = {
+				has_war =  yes
+			}
+			is_subject = no
+			has_civil_war = no
+			NOT = {
+				is_in_faction_with = GER
+				has_war_with = FRA
+				has_idea = idea_armistice
+				has_idea = idea_army_restrictions
+				has_global_flag = great_war_ends
+			}
+			has_opinion = {
+				target = GER
+				value < -60
+			}
+		}
+		will_lead_to_war_with = GER
+		bypass = {
+			has_war_with = GER
+		}
+		completion_reward = {
+			if = {
+				limit = {
+					FRA = {
+						has_war_with = GER
+						OR = {
+							has_government = USA
+							has_government = neutrality
+						}
+					}
+				}
+				USA = {
+					add_to_war = { 
+						targeted_alliance = FRA 
+						enemy = GER 
+						hostility_reason = topple_government
+					}	
+				}
+				if = {
+					limit = {
+						FRA = { is_faction_leader = yes }
+					}
+					FRA = { add_to_faction = ROOT }
+				}
+			}
+			else_if = {
+				limit = {
+					any_country = {
+						is_major = yes
+						has_war_with = GER
+						has_civil_war = no
+						has_capitulated = no					
+						OR = {
+							has_government = USA
+							has_government = neutrality
+						}
+					}
+				}
+				random_country = {
+					limit = {
+						is_major = yes
+						has_war_with = GER
+						has_civil_war = no
+						has_capitulated = no
+						OR = {
+							has_government = USA
+							has_government = neutrality
+						}	
+
+					}
+					USA = {
+						add_to_war = { 
+							targeted_alliance = PREV 
+							enemy = GER 
+							hostility_reason = topple_government
+						}	
+					}
+					if = {
+						limit = {
+							is_faction_leader = yes
+						}
+						add_to_faction = ROOT
+					}
+				}
+			}
+			else = {
+				create_wargoal = {
+					type = topple_government
+					target = GER
+				}
+				add_ai_strategy = {
+					type = declare_war
+					id = GER
+					value = 200
+				}
+			}
+		}
+		ai_will_do = {
+			base = 1
+			modifier = {
+				add = 1000
+				has_global_flag = zimmermann_telegram_received
+			}
+			modifier = {
+				add = 1000
+				GER = {
+					any_controlled_state = {
+						is_on_continent = north_america
+					}
+				}
+			}
+			modifier = {
+				add = 1000
+				OR = {
+					has_global_flag = brest_litovsk
+					has_global_flag = russian_civil_war
+					RUS = {
+						has_government = communism
+						NOT = {
+							has_war_with = FRA
+						}
+					}
+				}
+			}
+			modifier = {
+				add = -1000
+				has_government = democratic
+				GER = { has_government = democratic }
+			}
+			modifier = {
+				add = -1000
+				has_war_support < 0.30
+			}
+			modifier = {
+				add = -1000
+				has_stability < 0.30
+			}
+			modifier = {
+				factor = 0
+				OR = {
+					has_global_flag = great_war_ends
+					has_civil_war = yes
+					has_war_with = USB
+					has_war_with = CSA
+				}
+			}				
 		}
 		search_filters = {
 			FOCUS_FILTER_HISTORICAL
@@ -820,10 +1011,12 @@ focus_tree = {
 		icon = GFX_goal_generic_national_unity
 		cost = 10
 		prerequisite = {
-			focus = USA_do_not_stand_aside
+			focus = USA_war_against_germany
+			focus = USA_war_against_france
 		}
-		x = 11
-		y = 6
+		relative_position_id = USA_war_against_germany
+		x = 1
+		y = 1
 		available = {
 			is_subject = no
 			has_country_flag = great_war_winner
@@ -831,18 +1024,6 @@ focus_tree = {
 		}
 		completion_reward = {
 			add_ideas = home_of_the_free
-			#должно предоставить клеймы Армении, Польше. По окончанию войны участники получат дебафф.
-			ARM = {
-				add_state_core = 354
-				add_state_core = 353
-				add_state_core = 352
-				add_state_core = 826
-			}
-			POL = {
-				add_state_core = 85
-				add_state_core = 86
-				add_state_core = 762
-			}
 			every_country = {
 				limit = {
 					OR = {
@@ -851,8 +1032,8 @@ focus_tree = {
 					}
 					has_war = no
 					OR = {
-				        has_government = democratic	
-                     	has_government = neutrality
+						has_government = democratic	
+					 	has_government = neutrality
 					}	
 				}
 				add_timed_idea = { idea = USA_arms_reduction days = 480 }
@@ -1057,7 +1238,6 @@ focus_tree = {
 		completion_reward = {
 			create_faction = pan_american
 			set_rule = { can_create_factions = yes }
-			remove_ideas = USA_idea_defender_of_the_american_sphere
 			every_other_country = {
 				limit = { has_country_flag = monroe_doctrine }
 				add_ai_strategy = {
@@ -1079,19 +1259,21 @@ focus_tree = {
 			focus = USA_revision_of_the_military_budget
 		}
 		available = {
+			threat > 0.10
 			is_subject = no
 			NOT = { 
 				is_in_faction_with = SPR 
 				has_idea = idea_armistice
+				has_idea = idea_army_restrictions
 			}
+			country_exists = SPR
 			date > 1898.12.10
 		}
 		bypass = {
 			SPR = {
 				OR = {
-					exists = no 
-					has_war_with = USA
-					is_subject_of = USA
+					has_war_with = ROOT
+					is_subject_of = ROOT
 				}
 			}
 		}
@@ -1104,27 +1286,73 @@ focus_tree = {
 				target = SPR
 			}
 		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0
+				has_government = democratic
+			}
+			modifier = {
+				factor = 0
+				SPR = { has_war = no }
+			}
+		}
+	}
+	focus = {
+		id = USA_place_under_the_sun
+		icon = GFX_focus_generic_strike_at_democracy1
+		cost = 10
+		prerequisite = {
+			focus = USA_pan_american_alliance
+		}
+		x = 14
+		y = 5
+		available = {
+			is_subject = no
+			NOT = {
+				has_country_flag = great_war_loser
+			}
+		}
+		bypass = {
+			NOT = {
+				has_idea = USA_idea_defender_of_the_american_sphere
+				has_idea = USA_idea_defender_of_the_american_sphere2
+			}
+		}
+		completion_reward = {
+			remove_ideas = USA_idea_defender_of_the_american_sphere2
+		}
 	}
 	focus = {
 		id = USA_master_of_oceania
 		icon = GFX_focus_attack_australia
 		cost = 10
 		prerequisite = {
-			focus = USA_pan_american_alliance
+			focus = USA_place_under_the_sun
 		}
-		mutually_exclusive = {
-			focus = USA_pacific_focus
-		}
-		x = 13
-		y = 6
+		relative_position_id = USA_place_under_the_sun
+		x = -1
+		y = 2
 		available = {
+			threat > 0.10
 			is_subject = no
 			NOT = { 
 				is_in_faction_with = AST
 				is_in_faction_with = NZL
 				has_idea = idea_armistice
-			}	
+				has_idea = idea_army_restrictions
+			}
+			OR = {
+				country_exists = AST
+				country_exists = NZL
+			}
 		}
+		bypass = {
+			has_war_with = AST
+			has_war_with = NZL
+		}
+		will_lead_to_war_with = AST
+		will_lead_to_war_with = NZL
 		completion_reward = {
 			create_wargoal = {
 				type = puppet_wargoal_focus
@@ -1141,19 +1369,42 @@ focus_tree = {
 			add_state_claim = 734
 			add_state_claim = 634
 		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0
+				has_government = democratic
+			}
+			modifier = {
+				factor = 0
+				AST = { has_government = ROOT }
+			}
+			modifier = {
+				factor = 0
+				NZL = { has_government = ROOT }
+			}
+		}
 	}
 	focus = {
-		id = USA_place_under_the_sun
-		icon = GFX_focus_generic_strike_at_democracy1
+		id = USA_liberia_focus
+		icon = GFX_focus_generic_africa_liberation
 		cost = 10
 		prerequisite = {
-			focus = USA_pan_american_alliance
+			focus = USA_place_under_the_sun
 		}
-		x = 14
-		y = 5
+		relative_position_id = USA_place_under_the_sun
+		x = 0
+		y = 1
 		available = {
 			is_subject = no
-			LIB = { exists = yes is_subject = no }
+			LIB = {
+				exists = yes
+				is_subject = no
+				NOT = { has_war_with = ROOT }
+			}
+		}
+		bypass = {
+			has_subject = LIB
 		}
 		completion_reward = {
 			LIB = { country_event = { id = ww1_usa.107 } }
@@ -1164,34 +1415,185 @@ focus_tree = {
 		icon = GFX_focus_attack_japan
 		cost = 10
 		prerequisite = {
-			focus = USA_pan_american_alliance
+			focus = USA_place_under_the_sun
 		}
-		mutually_exclusive = {
-			focus = USA_master_of_oceania
-		}
-		x = 15
-		y = 6
+		relative_position_id = USA_place_under_the_sun
+		x = 1
+		y = 2
 		available = {
+			threat > 0.10
 			is_subject = no
 			NOT = { 
-				is_in_faction_with = JAP 
+				is_in_faction_with = JAP
 				has_idea = idea_armistice
-			}			
+				has_idea = idea_army_restrictions
+			}
 			JAP = {
+				exists = yes
 				NOT = {
-					exists = no 
-					has_war_with = USA
-					is_subject_of = USA
+					has_war_with = ROOT
+					is_subject_of = ROOT
 				}
 			}
 		}
-		bypass = { 
+		bypass = {
+			has_war_with = JAP
 		}
 		will_lead_to_war_with = JAP
 		completion_reward = {
 			create_wargoal = {
 				type = puppet_wargoal_focus
 				target = JAP
+			}
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0
+				has_government = democratic
+			}
+			modifier = {
+				factor = 0
+				JAP = { has_government = ROOT }
+			}
+		}
+	}
+	focus = {
+		# napoleon be like
+		id = USA_war_against_france
+		icon = GFX_focus_attack_france
+		cost = 5
+		prerequisite = {
+			focus = USA_do_not_stand_aside
+			focus = USA_place_under_the_sun
+		}
+		mutually_exclusive = {
+			focus = USA_war_against_germany
+		}
+		relative_position_id = USA_do_not_stand_aside
+		x = 1
+		y = 1
+		available = {
+			FRA = {
+				has_war =  yes
+			}
+			is_subject = no
+			has_civil_war = no
+			NOT = {
+				is_in_faction_with = FRA
+				has_war_with = GER
+				has_idea = idea_armistice
+				has_idea = idea_army_restrictions
+				has_global_flag = great_war_ends
+			}
+			has_opinion = {
+				target = FRA
+				value < -60
+			}
+		}
+		will_lead_to_war_with = FRA
+		bypass = {
+			has_war_with = FRA
+		}
+		completion_reward = {
+			if = {
+				limit = {
+					GER = {
+						has_war_with = FRA
+						OR = {
+							has_government = USA
+							has_government = neutrality
+							has_government = fascism #ludendorf
+						}
+					}
+				}
+				USA = {
+					add_to_war = { 
+						targeted_alliance = GER 
+						enemy = FRA 
+						hostility_reason = topple_government
+					}	
+				}
+				else_if = {
+					limit = {
+						any_country = {
+							is_major = yes
+							has_war_with = FRA
+							has_civil_war = no
+							has_capitulated = no					
+							OR = {
+								has_government = USA
+								has_government = neutrality
+							}
+						}
+					}
+					random_country = {
+						limit = {
+							is_major = yes
+							has_war_with = FRA
+							has_civil_war = no
+							has_capitulated = no
+							OR = {
+								has_government = USA
+								has_government = neutrality
+							}	
+
+						}
+						USA = {
+							add_to_war = { 
+								targeted_alliance = PREV 
+								enemy = FRA 
+								hostility_reason = topple_government
+							}	
+						}					
+					}
+					else = {
+						create_wargoal = {
+							type = topple_government
+							target = FRA
+						}
+						add_ai_strategy = {
+							type = declare_war
+							id = FRA
+							value = 200
+						}
+					}
+				}
+			}
+		}
+		ai_will_do = {
+			base = 0
+			modifier = {
+				add = 1000
+				has_government = democratic
+				FRA = {
+					any_other_country = {
+						is_major = yes
+						has_government = democratic
+						has_defensive_war_with = PREV
+					}
+					OR = {
+						has_government = communism
+						has_government = fascism
+					}
+				}
+			}
+			modifier = {
+				factor = 0
+				has_war_support < 0.30
+			}
+			modifier = {
+				factor = 0
+				has_stability < 0.30
+			}
+			modifier = {
+				factor = 0
+				OR = {
+					has_global_flag = great_war_ends
+					has_civil_war = yes
+					has_war_with = USB
+					has_war_with = CSA
+				}
 			}
 		}
 	}
@@ -1751,7 +2153,7 @@ focus_tree = {
 			}
 			if = {
 				limit = {
-					has_country_leader = { name = "Douglas MacArthur" ruling_only = yes }
+					has_country_leader = { character = USA_douglas_macarthur ruling_only = yes }
 				}
 				USA_woodrow_wilson = {
 					promote_character = authoritarian_democracy
@@ -1865,6 +2267,7 @@ focus_tree = {
 				has_war_with = ENG
 				has_war_with = CAN 
 				has_idea = idea_armistice
+				has_idea = idea_army_restrictions
 			}
 			has_army_manpower = { size > 500000 }
 		}
@@ -1924,6 +2327,7 @@ focus_tree = {
 			NOT = { 
 				is_in_faction_with = ENG 
 				has_idea = idea_armistice
+				has_idea = idea_army_restrictions
 			}
 			has_army_manpower = { size > 750000 }
 		}
@@ -1965,6 +2369,7 @@ focus_tree = {
 			NOT = { 
 				has_war_with = CAN 
 				has_idea = idea_armistice
+				has_idea = idea_army_restrictions
 			}
 			has_army_manpower = { size > 750000 }
 		}
@@ -2248,6 +2653,14 @@ focus_tree = {
 				country_event = ww1_usa.122
 			}
 		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+				has_government = democratic
+			}
+		}
 	}
 	focus = {
 		id = USA_limited_support_of_mexican_revolution
@@ -2408,6 +2821,7 @@ focus_tree = {
 				has_war_with = RUS 
 				has_country_flag = great_war_loser
 				has_idea = idea_armistice
+				has_idea = idea_army_restrictions
 			}	
 		}
 		completion_reward = {
@@ -2607,7 +3021,7 @@ focus_tree = {
 		y = 4
 		completion_reward = {
 			custom_effect_tooltip = available_theorist
-		    show_ideas_tooltip = USA_adna_r_chaffee
+			show_ideas_tooltip = USA_adna_r_chaffee
 			custom_effect_tooltip = available_chief_of_army
 			show_ideas_tooltip = USA_william_w_wotherspoon
 			custom_effect_tooltip = available_military_high_command
@@ -2705,7 +3119,7 @@ focus_tree = {
 				type = fighter_genius
 			}
 			add_equipment_to_stockpile = {
-				type = fighter_equipment_0
+				type = scout_plane_equipment_1
 				amount = 25
 				producer = USA
 			}
@@ -3051,6 +3465,7 @@ focus_tree = {
 			is_subject = no
 			NOT = {
 				has_idea = idea_armistice
+				has_idea = idea_army_restrictions
 			}
 		}
 		will_lead_to_war_with = SOV
