@@ -104,7 +104,6 @@ NDefines.NGraphics.VICTORY_POINT_MAP_ICON_TEXT_CUTOFF = {200, 350, 600}  	-- Van
 NDefines.NGraphics.VICTORY_POINTS_DISTANCE_CUTOFF = {300, 500, 1000} 		-- Vanilla is 300, 500, 1500
 
 NDefines_Graphics.NGraphics.POLITICAL_GRID_SMALL_BOX_LIMIT = 18              	-- Limit for gridbox in political view before it will be replaced with extended gridbox, Vanilla is 6
-NDefines_Graphics.MINIMUM_PROVINCE_SIZE_IN_PIXELS = 6 -- Vanilla is 8
 
 NDefines.NSupply.NAVAL_DISTANCE_FACTOR_FOR_REINFORCEMENT_SPEED = 0.12
 NDefines.NSupply.NAVAL_BASE_INITIAL_SUPPLY_FLOW = 5
