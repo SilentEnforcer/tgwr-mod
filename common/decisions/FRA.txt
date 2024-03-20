@@ -319,7 +319,6 @@ parliament_gui_decision_category = {
 					FRA = {
 						is_puppet = no
 						has_completed_focus = FRA_ww1_socialist_mentality
-						NOT = { has_completed_focus = FRA_ww1_form_peasant_council }
 					}
 				}
 				## BIG SFIO, but the parliament still fully democratic ruled
@@ -332,6 +331,22 @@ parliament_gui_decision_category = {
 				set_variable = { var = democrat_alliance value = 0 } ## socialist alliance
 				add_to_variable = { var = democrat_alliance value = SFIO }
 			}
+
+			if = {
+				limit = {
+					FRA = {
+						is_puppet = no
+						has_completed_focus = FRA_ww1_mention_de_censure
+					}
+				}
+				## BIG SFIO with radicals
+				add_to_variable = { var = SFIO value = radical_party }
+				set_variable = { var = radical_party value = 0 } 
+
+				set_variable = { var = democrat_alliance value = 0 } ## socialist alliance
+				add_to_variable = { var = democrat_alliance value = SFIO }
+			}
+			
 			##########################################################################
 			#
 			# MONARCHIST AND FASCIST PATHS
@@ -550,7 +565,7 @@ parliament_gui_decision_category = {
 					FRA = {
 						is_puppet = no
 						has_completed_focus = FRA_ww1_socialist_mentality
-						NOT = { has_completed_focus = FRA_ww1_form_peasant_council }
+						#NOT = { has_completed_focus = FRA_ww1_form_peasant_council }
 					}
 				}
 				## BIG SFIO, but the parliament still fully democratic ruled
@@ -770,6 +785,72 @@ parliament_gui_decision_category = {
 		}
 	}
 
+	FRA_SFIO_disposition = {
+		icon = GFX_decision_SOV_place_hq
+		desc = FRA_1910_disposition_desc
+		allowed = {
+			original_tag = FRA
+		}
+		activation = {
+			has_country_flag = FRA_SFIO_want_elections_now
+		}
+		available = {
+			hidden_trigger = {
+				AND = { 
+					original_tag = FRA
+					has_country_flag = FRA_SFIO_legislative_elections_done
+				}
+			}
+		}
+		visible = {
+			original_tag = FRA
+			NOT = { has_country_flag =  FRA_parliament_dissolved }
+			NOT = { has_country_flag =  FRA_SFIO_legislative_elections_done }
+		}
+		cancel_if_not_visible = yes
+		days_mission_timeout = 2
+		is_good = yes
+		fire_only_once = yes
+		timeout_effect = {
+			set_variable = { var = SFIO value = 411 } 
+			set_variable = { var = independent_socialist value = 0 } 
+			set_variable = { var = democratic_republican_alliance value = 0 }
+			set_variable = { var = radical_party value = 0 } 
+			set_variable = { var = independent_radicals value = 64 } 
+			set_variable = { var = republicain_federation value = 67 } 
+			set_variable = { var = popular_liberal_action value = 12 } 
+			set_variable = { var = nationalists value = 0 }
+			set_variable = { var = vacant value = 0 }
+			#new parties
+			set_variable = { var = conservatives value = 21 }
+			set_variable = { var = independent_republicans value = 20 }
+			set_variable = { var = seatNumbers value = 595 }
+
+			
+			set_variable = { parliament_seat_array^0 = SFIO }
+			set_variable = { parliament_seat_array^1 = independent_socialist }
+			set_variable = { parliament_seat_array^2 = democratic_republican_alliance }
+			set_variable = { parliament_seat_array^3 = radical_party }
+			set_variable = { parliament_seat_array^4 = independent_radicals }
+			set_variable = { parliament_seat_array^5 = republicain_federation }
+			set_variable = { parliament_seat_array^6 = conservatives } #new !
+			set_variable = { parliament_seat_array^7 = independent_republicans } #new
+			set_variable = { parliament_seat_array^8 = popular_liberal_action }
+			set_variable = { parliament_seat_array^9 = nationalists }
+			set_variable = { parliament_seat_array^10 = vacant }
+
+			#SFIO + socialists (var used for socialist path)
+			set_variable = { var = democrat_alliance value = 0 }
+			add_to_variable = { var = democrat_alliance value = SFIO } 
+			set_variable = { var = democrat_alliance_percent value = democrat_alliance } 
+			multiply_variable = { democrat_alliance_percent = 100 }
+			divide_variable = { democrat_alliance_percent = seatNumbers }
+			reload_parliament_gui = yes 
+			set_country_flag = FRA_SFIO_legislative_elections_done
+			set_country_flag = FRA_parliament_dissolved
+		}
+	}
+
 	# FRA_change_focus_tree = {
 	# 	icon = GFX_decision_SWI_dismiss_council
 	# 	allowed = {
@@ -823,7 +904,174 @@ parliament_gui_decision_category = {
 		fire_only_once = no
 		cost = 0
 	}
+}
+
+FRA_french_bop = {
 	
+	FRA_guesdists_get_soreleans = {
+		icon = GFX_decision_SWI_no_elected_president
+		allowed = {
+			original_tag = FRA
+		}
+		visible = {
+			has_power_balance = { id = FRA_anarchists_reformists }
+		}
+		remove_effect = {
+			effect_tooltip = {
+				add_stability = -0.05
+				add_power_balance_value = {
+					id = FRA_anarchists_reformists
+					value = -0.10
+				}
+			}
+			country_event = {
+				id = ww1_france.399
+				days = 1
+			}
+		}
+		days_remove = 7
+		fire_only_once = yes
+		cost = 25
+		ai_will_do = {
+			factor = 1000
+			modifier = {
+				has_country_flag = FRA_reformists_will_be_dominants
+				factor = 0
+			}
+		}
+	}
+
+	FRA_guesdists_support_blanquism = {
+		icon = GFX_decision_SWI_no_elected_president
+		allowed = {
+			original_tag = FRA
+		}
+		visible = {
+			has_power_balance = { id = FRA_anarchists_reformists }
+		}
+		remove_effect = {
+			add_power_balance_value = {
+				id = FRA_anarchists_reformists
+				value = -0.20
+			}
+		}
+		days_remove = 15
+		fire_only_once = yes
+		cost = 50
+		ai_will_do = {
+			factor = 1000
+			modifier = {
+				has_country_flag = FRA_reformists_will_be_dominants
+				factor = 0
+			}
+		}
+	}
+
+	FRA_guesdists_gather_support = {
+		icon = GFX_decision_SWI_no_elected_president
+		allowed = {
+			original_tag = FRA
+		}
+		visible = {
+			has_power_balance = { id = FRA_anarchists_reformists }
+		}
+		modifier = {
+			power_balance_daily = -0.0020
+		}
+		remove_effect = {
+			custom_effect_tooltip = back_in_60_days
+		}
+		days_remove = 80
+		days_re_enable = 60
+		fire_only_once = no
+		cost = 25
+		ai_will_do = {
+			factor = 1000
+			modifier = {
+				has_country_flag = FRA_reformists_will_be_dominants
+				factor = 0
+			}
+		}
+	}
+
+	FRA_allemanists_gather_support = {
+		icon = GFX_decision_SWI_no_elected_president
+		allowed = {
+			original_tag = FRA
+		}
+		visible = {
+			has_power_balance = { id = FRA_anarchists_reformists }
+		}
+		modifier = {
+			power_balance_daily = 0.0020
+		}
+		remove_effect = {
+			custom_effect_tooltip = back_in_60_days
+		}
+		days_remove = 80
+		days_re_enable = 60
+		fire_only_once = no
+		cost = 25
+		ai_will_do = {
+			factor = 1000
+			modifier = {
+				has_country_flag = FRA_anarchists_will_be_dominants
+				factor = 0
+			}
+		}
+	}
+
+	FRA_allemanists_cooperate_with_independant_socialists = {
+		icon = GFX_decision_SWI_no_elected_president
+		allowed = {
+			original_tag = FRA
+		}
+		visible = {
+			has_power_balance = { id = FRA_anarchists_reformists }
+		}
+		remove_effect = {
+			add_power_balance_value = {
+				id = FRA_anarchists_reformists
+				value = 0.15
+			}
+		}
+		days_remove = 15
+		fire_only_once = yes
+		cost = 50
+		ai_will_do = {
+			factor = 1000
+			modifier = {
+				has_country_flag = FRA_anarchists_will_be_dominants
+				factor = 0
+			}
+		}
+	}
+
+	FRA_allemanists_sponsor_radical_socialist_union = {
+		icon = GFX_decision_SWI_no_elected_president
+		allowed = {
+			original_tag = FRA
+		}
+		visible = {
+			has_power_balance = { id = FRA_anarchists_reformists }
+		}
+		remove_effect = {
+			add_power_balance_value = {
+				id = FRA_anarchists_reformists
+				value = 0.15
+			}
+		}
+		days_remove = 15
+		fire_only_once = yes
+		cost = 75
+		ai_will_do = {
+			factor = 1000
+			modifier = {
+				has_country_flag = FRA_anarchists_will_be_dominants
+				factor = 0
+			}
+		}
+	}
 }
 
 FRA_situation_in_morocco = {
