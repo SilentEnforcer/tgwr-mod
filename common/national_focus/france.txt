@@ -1303,6 +1303,17 @@ focus_tree = {
 			FOCUS_FILTER_INTERNAL_AFFAIRS
 		}
 		cost = 5
+		offset = {
+			x = 8
+			y = 0
+			trigger = {
+				has_game_rule = {
+					rule = obsolete_focus_branches_visibility
+					option = HIDE
+				}
+				has_completed_focus = FRA_ww1_the_social_democrat_compromise
+			}
+		}
 		x = 3
 		y = 1
 	}
@@ -1547,6 +1558,17 @@ focus_tree = {
 		search_filters = {
 			FOCUS_FILTER_INTERNAL_AFFAIRS
 		}
+		offset = {
+			x = 8
+			y = 0
+			trigger = {
+				has_game_rule = {
+					rule = obsolete_focus_branches_visibility
+					option = HIDE
+				}
+				has_completed_focus = FRA_ww1_the_social_democrat_compromise
+			}
+		}
 		cost = 5
 		x = 0
 		y = 1
@@ -1752,28 +1774,64 @@ focus_tree = {
 			}
 		}
 		completion_reward = {
-			random_list = {
-				50 = {
-					set_country_flag = FRA_anarchists_will_be_dominants
-				}
-				50 = {
-					set_country_flag = FRA_reformists_will_be_dominants
-				}
+			custom_effect_tooltip = FRA_ally_radicals
+			set_variable = {
+				var = democrat_alliance
+				value = 0
 			}
-			set_cosmetic_tag = FRA_socialism_not_commune
-			every_other_country = {
-				limit = {
-					is_subject_of = ROOT
-					OR = {
-						tag = ALG
-						tag = MOR
-						tag = TUN
-						tag = MLI
-						tag = IND
+			add_to_variable = {
+				var = democrat_alliance
+				value = SFIO
+			}
+			add_to_variable = {
+				var = democrat_alliance
+				value = independent_socialist
+			}
+			add_to_variable = {
+				var = democrat_alliance
+				value = democratic_republican_alliance
+			}
+			add_to_variable = {
+				var = democrat_alliance
+				value = radical_party
+			}
+			set_variable = {
+				var = democrat_alliance_percent
+				value = democrat_alliance
+			}
+			multiply_variable = {
+				democrat_alliance_percent = 100
+			}
+			divide_variable = {
+				democrat_alliance_percent = seatNumbers
+			}
+			reload_parliament_gui = yes
+		
+			hidden_effect = {
+				random_list = {
+					50 = {
+						set_country_flag = FRA_anarchists_will_be_dominants
+					}
+					50 = {
+						set_country_flag = FRA_reformists_will_be_dominants
 					}
 				}
-				set_cosmetic_tag = FRA_socialist_red_alone
+				set_cosmetic_tag = FRA_socialism_not_commune
+				every_other_country = {
+					limit = {
+						is_subject_of = ROOT
+						OR = {
+							tag = ALG
+							tag = MOR
+							tag = TUN
+							tag = MLI
+							tag = IND
+						}
+					}
+					set_cosmetic_tag = FRA_socialist_red_alone
+				}
 			}
+			
 			custom_effect_tooltip = FRA_mention_de_censure
 			custom_effect_tooltip = FRA_mention_de_censure_socialist
 			if = {
@@ -1791,31 +1849,20 @@ focus_tree = {
 				}
 			}
 			
-			set_politics = {
-				ruling_party = communism
-				elections_allowed = yes
-			}
-
+			
 			news_event = ww1_france.41
-			every_other_country = {
-				limit = {
-					is_guaranteed_by = ROOT
-					NOT = {
-						has_government = communism
-					}
-				}
-				diplomatic_relation = {
-					country = PREV
-					relation = guarantee
-					active = no
-				}
-			}
 			hidden_effect = {
 				country_event = {
 					id = ww1_france.398
 					days = 42
 				}
+				set_politics = {
+					ruling_party = communism
+					elections_allowed = yes
+				}
+				remove_french_presidents = yes
 			}
+			add_ideas = FRA_alexandre_millerand
 		}
 		ai_will_do = {
 			factor = 1000
@@ -1938,6 +1985,11 @@ focus_tree = {
 				id = FRA_anarchists_reformists
 				range = anarchists_high
 			}
+			NOT = {
+				has_country_leader = {
+					character = FRA_gouvernement_provisoire
+				}
+			}
 		}
 		mutually_exclusive = {
 			focus = FRA_reformists_dominant
@@ -1968,6 +2020,43 @@ focus_tree = {
 		}
 		cost = 5
 		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = FRA_enforce_state_atheism
+		icon = GFX_focus_ARG_state_atheism
+		relative_position_id = FRA_anarchists_dominant
+		prerequisite = {
+			focus = FRA_anarchists_dominant
+		}
+		available = {
+			has_government = communism
+			controls_state = 16
+		}
+		completion_reward = {
+			add_political_power = 75
+			add_popularity = {
+				ideology = neutrality
+				popularity = -0.1
+			}
+			16 = {
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = {
+					type = industrial_complex
+					level = 1
+					instant_build = yes
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 10
+		}
+		search_filters = {
+			FOCUS_FILTER_INTERNAL_AFFAIRS
+		}
+		cost = 5
+		x = -4
 		y = 1
 	}
 
@@ -2011,6 +2100,17 @@ focus_tree = {
 		}
 		available = {
 			has_government = communism
+			OR = {
+				has_idea = FRA_idea_union_sacree
+				ROOT = {
+					check_variable = {
+						democrat_alliance > 150
+					}
+					custom_trigger_tooltip = {
+						tooltip = FRA_150_seats
+					}
+				}
+			}
 		}
 		completion_reward = {
 			random_owned_controlled_state = {
@@ -2050,6 +2150,32 @@ focus_tree = {
 	}
 
 	focus = {
+		id = FRA_anticipated_elections
+		icon = GFX_focus_ARG_keep_it_in_the_party
+		relative_position_id = FRA_anarchists_dominant
+		prerequisite = {
+			focus = FRA_anarchists_dominant
+		}
+		available = {
+			has_government = communism
+		}
+		completion_reward = {
+			custom_effect_tooltip = FRA_anticipated_elections_tt
+			set_country_flag = FRA_SFIO_want_elections_now
+			custom_effect_tooltip = FRA_no_more_parliament_tt
+		}
+		ai_will_do = {
+			factor = 10
+		}
+		search_filters = {
+			FOCUS_FILTER_INTERNAL_AFFAIRS
+		}
+		cost = 5
+		x = -3
+		y = 2
+	}
+
+	focus = {
 		id = FRA_reformists_dominant
 		icon = GFX_goal_FRA_form_the_popular_labour_service
 		relative_position_id = FRA_ww1_mention_de_censure
@@ -2067,6 +2193,11 @@ focus_tree = {
 			is_power_balance_in_range = {
 				id = FRA_anarchists_reformists
 				range = reformists_high
+			}
+			NOT = {
+				has_country_leader = {
+					character = FRA_gouvernement_provisoire
+				}
 			}
 		}
 		completion_reward = {
@@ -2096,6 +2227,17 @@ focus_tree = {
 			focus = FRA_reformists_dominant
 		}
 		available = {
+			OR = {
+				has_idea = FRA_idea_union_sacree
+				ROOT = {
+					check_variable = {
+						democrat_alliance > 150
+					}
+					custom_trigger_tooltip = {
+						tooltip = FRA_150_seats
+					}
+				}
+			}
 		}
 		completion_reward = {
 			random_owned_controlled_state = {
@@ -2156,6 +2298,9 @@ focus_tree = {
 		available = {
 			has_government = communism
 		}
+		mutually_exclusive = {
+			focus = FRA_normalization_of_the_party
+		}
 		completion_reward = {
 			hidden_effect = {
 				set_politics = {
@@ -2193,7 +2338,34 @@ focus_tree = {
 				id = ww1_france.400
 				hours = 8
 			}
-			drop_cosmetic_tag = yes
+			hidden_effect = {
+				every_country = {
+					limit = {
+						is_subject_of = FRA
+						has_cosmetic_tag = FRA_socialist_red_alone
+					}
+					drop_cosmetic_tag = yes
+					if = {
+						limit = {
+							tag = IND
+						}
+						set_cosmetic_tag = IND_FRA
+					}
+					if = {
+						limit = {
+							tag = MOR
+						}
+						set_cosmetic_tag = MOR_FRA
+					}
+					if = {
+						limit = {
+							tag = TUN
+						}
+						set_cosmetic_tag = TUN_FRA
+					}
+				}
+				drop_cosmetic_tag = yes
+			}
 		}
 		ai_will_do = {
 			factor = 10
@@ -2202,7 +2374,86 @@ focus_tree = {
 			FOCUS_FILTER_INTERNAL_AFFAIRS
 		}
 		cost = 10
+		x = 4
+		y = 1
+	}
+
+	focus = {
+		id = FRA_normalization_of_the_party
+		icon = GFX_goal_ideology_syndicalist
+		relative_position_id = FRA_reformists_dominant
+		prerequisite = {
+			focus = FRA_reformists_dominant
+		}
+		available = {
+			has_government = communism
+		}
+		mutually_exclusive = {
+			focus = FRA_union_at_all_prices
+		}
+		completion_reward = {
+			add_stability = 0.05
+			add_political_power = 75
+
+		}
+		ai_will_do = {
+			factor = 5
+		}
+		search_filters = {
+			FOCUS_FILTER_INTERNAL_AFFAIRS
+		}
+		cost = 5
 		x = 2
+		y = 1
+	}
+
+	focus = {
+		id = FRA_support_the_effort_the_guerre
+		icon = GFX_goal_french_army
+		relative_position_id = FRA_normalization_of_the_party
+		prerequisite = {
+			focus = FRA_normalization_of_the_party
+			focus = FRA_union_at_all_prices
+		}
+		available = {
+			has_war = yes
+			OR = {
+				has_idea = FRA_idea_union_sacree
+				ROOT = {
+					check_variable = {
+						democrat_alliance > 250
+					}
+					custom_trigger_tooltip = {
+						tooltip = FRA_250_seats
+					}
+				}
+			}
+		}
+
+		completion_reward = {
+			if = {
+				limit = {
+					has_idea = FRA_idea_pacifist_strike
+				}
+				remove_ideas = FRA_idea_pacifist_strike
+			}
+			if = {
+				limit = {
+					has_idea = FRA_anti_war_sentiment
+				}
+				remove_ideas = FRA_anti_war_sentiment
+			}
+			add_war_support = 0.10
+			add_ideas = FRA_idea_ils_ne_passeront_pas
+		}
+		ai_will_do = {
+			factor = 5
+		}
+		search_filters = {
+			FOCUS_FILTER_INTERNAL_AFFAIRS
+		}
+		cost = 5
+		x = 1
 		y = 1
 	}
 
