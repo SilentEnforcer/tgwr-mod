@@ -877,7 +877,7 @@ operations = {
 	# 		activate_mission = JAP_invade_kiautschou_mission
 	# 	}
 	# }
-	JAP_invade_kiautschou_mission = {
+	JAP_invade_kiautschou_mission_activate = {
 		icon = GFX_decision_generic_operation
 		allowed = {
 			original_tag = JAP
@@ -888,16 +888,17 @@ operations = {
 				owns_state = 745
 			}
 		}
-		days_mission_timeout = 140
-		selectable_mission = yes
-		activation = {
-			tag = JAP
+		available = {
+			has_completed_focus = JAP_ww1_Siege_of_Tsingtao
 			FROM = {
-				has_war_with = ROOT
-				745 = { is_owned_and_controlled_by = PREV }
+				controls_state = 745
 			}
+		}
+		visible = {
+			has_capitulated = no
+			is_subject = no
+			has_war_with = FROM
 			872 = {
-				owns_or_subject_of = no
 				owner = {
 					NOT = {
 						has_war_with = ROOT
@@ -905,13 +906,13 @@ operations = {
 					}
 				}
 			}
-			hidden_trigger = {
-				NOT = { has_global_flag = kiautschou_mission_fired }
-				has_capitulated = no
-				is_subject = no
+			NOT = {
+				has_global_flag = kiautschou_mission_fired
 			}
 		}
-		available = {
+		days_remove = 70
+		cancel_if_not_visible = yes
+		cancel_trigger = {
 			OR = {
 				has_war = no
 				has_capitulated = yes
@@ -927,7 +928,7 @@ operations = {
 			}
 		}
 		fire_only_once = no
-		is_good = yes
+		cost = 75
 		ai_will_do = {
 			factor = 100
 			# need to secure the homeland
@@ -942,8 +943,13 @@ operations = {
 					size < 30
 				}
 			}
+			# no war
+			modifier = {
+				factor = 0
+				has_war_support < 0.30
+			}
 		}
-		timeout_effect = {
+		remove_effect = {
 			custom_effect_tooltip = JAP_invade_kiautschou_mission_tt
 			hidden_effect = {
 				set_global_flag = kiautschou_mission_fired
@@ -957,11 +963,16 @@ operations = {
 						872 = { owns_or_subject_of = no }
 					}
 					# Chinese reaction
-					872 = { owner = { country_event = ww1_kiautschou.3 }}
-					transfer_state = 872
+					872 = { owner = { country_event = ww1_kiautschou.3 } }
+
+					# first they control every provinces
+					FROM = { transfer_state = 872 }
+					set_state_owner = 872
 				}
 				# German reaction
-				FROM = { country_event = ww1_kiautschou.5 }
+				FROM = {
+					country_event = ww1_kiautschou.5
+				}
 				country_event = ww1_kiautschou.2
 			}
 		}
