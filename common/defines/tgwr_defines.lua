@@ -121,3 +121,5 @@ NDefines.NAI.EMBARGO_WORLD_TENSION_THREAT_DIVISOR = 0 -- Vanilla is 2.5
 
 -- Navy
 NDefines.NNavy.TRAINING_MAX_DAILY_COUNTRY_EXP = 1.0 -- Vanilla is 3.5
+
+NDefines.NAir.CARRIER_SIZE_STAT_INCREMENT = 4					-- Each Point of carrier_size state adds capacity for this many planes
