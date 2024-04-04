@@ -229,7 +229,7 @@ country_event = {
 	id = ww1_sra.6
 	picture = GFX_report_event_generic_battle
 	
-	fire_only_once = yes
+	fire_only_once = no
 	is_triggered_only = yes
 	
 	option = {
@@ -240,7 +240,19 @@ country_event = {
 			}
 			effect_tooltip = {
 				SRA = {
-					add_ideas = SRA_american_red_cross
+					add_timed_idea = {
+						idea = SRA_red_cross
+						days = 90
+					}
+					country_event = ww1_sra.13
+				}
+			}
+			hidden_effect = {
+				SRA = {
+					country_event = {
+						id = ww1_sra.13
+						days = 15
+					}
 				}
 			}
 		}
@@ -251,6 +263,19 @@ country_event = {
 			effect_tooltip = {
 				SRA = {
 					add_ideas = SRA_british_advisors
+					country_event = ww1_sra.40
+				}
+			}
+			set_country_flag = can_send_to_SRA
+			set_variable = {
+				lend_lease_ongoing = 0
+			} 
+			hidden_effect = {
+				SRA = {
+					country_event = {
+						id = ww1_sra.40
+						days = 25
+					}
 				}
 			}
 		}
@@ -258,13 +283,8 @@ country_event = {
 			limit =  {
 				tag = FRA
 			}
-			effect_tooltip = {
-				set_province_controller = 11670
-				set_province_controller = 3686
-			}
-		}
-		SRA = {
-			country_event = ww1_sra.13
+			set_country_flag = sra_accepted_helping
+			custom_effect_tooltip = SRA_prep_french_intervention_tt
 		}
 		ai_chance = { 
 			factor = 100 
@@ -674,6 +694,7 @@ country_event = {
 				}	
 			}
 			DON = {
+				remove_idea = DON_volunteer_army_idea
 				country_event = {
 					id = ww1_don.1
 					days = 3
@@ -759,7 +780,7 @@ country_event = {
 	}
 }
 
-#Support event
+#Support event USA
 country_event = {
 	id = ww1_sra.13
 	title = ww1_sra.13.t
@@ -769,29 +790,15 @@ country_event = {
 	option = {
 		name = ww1_sra.13.a
 		if = {
-			limit =  {
+			limit = {
 				FROM = {
 					tag = USA
 				}
 			}
-			add_ideas = SRA_american_red_cross
-		}
-		if = {
-			limit =  {
-				FROM = {
-					tag = ENG
-				}
+			add_timed_idea = {
+				idea = SRA_red_cross
+				days = 90
 			}
-			add_ideas = SRA_british_advisors
-			set_country_flag = vol_british_accepted
-		}
-		if = {
-			limit =  {
-				FROM = {
-					tag = FRA
-				}
-			}
-			set_country_flag = support_volunteers
 		}
 	}
 }
@@ -870,16 +877,19 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		tag = FRA
+		FRA = {
+			has_country_flag = sra_accepted_helping
+		}
 		GER = {
 			has_country_flag = great_war_loser
 		}
-		CRI = {
+		SRA = {
 			NOT = {
 				has_government = communism
 			}
 			is_puppet = no
+			exists = yes
 		}
-		has_country_flag = support_volunteers
 	}
 	mean_time_to_happen = {
 		days = 15
@@ -889,8 +899,12 @@ country_event = {
 		CRI = {
 			add_ideas = RUS_idea_allied_intervention
 		}
+		SRA = {
+			country_event = ww1_sra.38
+		}
 	}
 }
+
 
 # british military mission branch
 country_event = {
@@ -1266,7 +1280,6 @@ country_event = {
 			}
 			add_core_of = SRA
 		}
-		add_ideas = DON_alekseev_organization_1
 	}
 }
 
@@ -1375,5 +1388,148 @@ country_event = {
 	option = {
 		name = ww1_sra.34.a #ok
 		
+	}
+}
+
+#SRA puppeting you event
+country_event = {
+	id = ww1_sra.35
+	title = ww1_sra.35.t
+	desc = ww1_sra.35.d
+	picture = ww1_russian_state_1
+	is_triggered_only = yes
+	option = {
+		name = ww1_siberia.3.a
+		get_current_government_type = yes
+		FROM = { 
+			puppet = {
+   				target = ROOT
+   				end_wars = no
+				end_civil_wars = no
+			} 
+		}
+		restore_previous_government_type = yes
+		FROM = {
+			country_event = {
+				id = ww1_sra.36
+				random_hours = 24
+			}
+		}
+		ai_chance = {
+			base = 100
+		}
+	}
+	option = {
+		name = ww1_siberia.3.b
+		FROM = {
+			country_event = {
+				id = ww1_sra.37
+				random_hours = 24
+			}
+		}
+	}
+}
+#They recognize us
+country_event = {
+	id = ww1_sra.36
+	title = ww1_sra.36.t
+	desc = ww1_sra.36.d
+	picture = GFX_report_event_generic_peaceful_annexation
+	is_triggered_only = yes
+	#great
+	option = {
+		name = ww1_siberia.7.a
+		effect_tooltip = { 
+			ROOT = { puppet = FROM }
+		}
+		ai_chance = {
+			base = 100
+		}
+	}
+}
+#They refused to recognize us
+country_event = {
+	id = ww1_sra.37
+	title = ww1_sra.37.t
+	desc = ww1_sra.37.d
+	picture = GFX_report_event_soviet_soldiers
+	is_triggered_only = yes
+	#They will regret this
+	option = {
+		name = ww1_siberia.19.a
+		ROOT = {
+			declare_war_on = {
+				target = FROM
+				type = civil_war
+			}
+		}
+		ai_chance = {
+			base = 100
+		}
+	}
+}
+
+#sra fra support event
+country_event = {
+	id = ww1_sra.38
+	title = ww1_sra.38.t
+	desc = ww1_sra.38.d
+	picture = ww1_sra_35
+	is_triggered_only = yes
+	option = {
+		name = ww1_sra.38.a
+		if = {
+			limit =  {
+				FROM = {
+					tag = FRA
+				}
+			}
+			add_ideas = RUS_idea_allied_intervention
+			hidden_effect = {
+				country_event = {
+					id =  ww1_sra.39
+					days = 90
+				}
+			}
+		}
+	}
+}
+
+#sra fra troops withdraw
+country_event = {
+	id = ww1_sra.39
+	title = ww1_sra.39.t
+	desc = ww1_sra.39.d
+	picture = ww1_sra_39
+	is_triggered_only = yes
+	fire_only_once = yes
+	trigger = {
+		tag = SRA
+		has_idea = RUS_idea_allied_intervention
+	}
+	option = {
+		name = ww1_sra.39.a
+		remove_ideas = RUS_idea_allied_intervention
+	}
+}
+
+#sra uk support event
+country_event = {
+	id = ww1_sra.40
+	title = ww1_sra.40.t
+	desc = ww1_sra.40.d
+	picture = ww1_sra_40
+	is_triggered_only = yes
+	option = {
+		name = ww1_sra.40.a
+		if = {
+			limit =  {
+				FROM = {
+					tag = ENG
+				}
+			}
+			custom_effect_tooltip = sra_eng_lend_lease
+			set_country_flag = vol_british_accepted
+		}
 	}
 }
