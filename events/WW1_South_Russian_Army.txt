@@ -187,8 +187,12 @@ country_event = {
 	id = ww1_sra.4
 	picture = GFX_report_event_generic_battle
 	
+	trigger = {
+		has_country_flag = SRA_offensive_failed
+	}
+
 	fire_only_once = yes
-	is_triggered_only = yes
+	is_triggered_only = no
 	
 	option = {
 		name = ww1_sra.4.a	
@@ -229,7 +233,7 @@ country_event = {
 	id = ww1_sra.6
 	picture = GFX_report_event_generic_battle
 	
-	fire_only_once = yes
+	fire_only_once = no
 	is_triggered_only = yes
 	
 	option = {
@@ -240,7 +244,19 @@ country_event = {
 			}
 			effect_tooltip = {
 				SRA = {
-					add_ideas = SRA_american_red_cross
+					add_timed_idea = {
+						idea = SRA_red_cross
+						days = 90
+					}
+					country_event = ww1_sra.13
+				}
+			}
+			hidden_effect = {
+				SRA = {
+					country_event = {
+						id = ww1_sra.13
+						days = 15
+					}
 				}
 			}
 		}
@@ -251,6 +267,19 @@ country_event = {
 			effect_tooltip = {
 				SRA = {
 					add_ideas = SRA_british_advisors
+					country_event = ww1_sra.40
+				}
+			}
+			set_country_flag = can_send_to_SRA
+			set_variable = {
+				lend_lease_ongoing = 0
+			} 
+			hidden_effect = {
+				SRA = {
+					country_event = {
+						id = ww1_sra.40
+						days = 25
+					}
 				}
 			}
 		}
@@ -258,13 +287,8 @@ country_event = {
 			limit =  {
 				tag = FRA
 			}
-			effect_tooltip = {
-				set_province_controller = 11670
-				set_province_controller = 3686
-			}
-		}
-		SRA = {
-			country_event = ww1_sra.13
+			set_country_flag = sra_accepted_helping
+			custom_effect_tooltip = SRA_prep_french_intervention_tt
 		}
 		ai_chance = { 
 			factor = 100 
@@ -287,6 +311,7 @@ country_event = {
 	trigger = {
 		tag = SRA
 		has_capitulated = no
+		has_country_flag = SRA_offensive_failed
 		has_war_with = SOV
 		surrender_progress > 0.65 
 		RUS_anton_denikin = {
@@ -310,10 +335,6 @@ country_event = {
 				promote_character = oligarchism
 				promote_character = stratocracy
 			}		
-		}
-		set_politics = {
-			ruling_party = neutrality
-			elections_allowed = no
 		}
 		set_cosmetic_tag = SRA_wrangel
 	}
@@ -346,32 +367,16 @@ country_event = {
 	desc = ww1_sra.9.d
 	picture = GFX_report_event_soldiers_in_france
 	fire_only_once = yes
-	trigger = {
-		tag = DON 
-		NOT = {
-			controls_province = 3147
-		}
-	}
+	is_triggered_only = yes
 	immediate = {
 		hidden_effect = {
 			set_global_flag = RUS_SRA_spawned
-			every_state = {
-				limit = {
-					state = 941
-				}
+			941 = {
 				SRA = { add_state_core = PREV }
 			}
 			SRA = {
 				transfer_state = 941
-				change_tag_from = ROOT
-				activate_mission = SRA_first_kuban_campaign
 			}
-			#DSR = {
-			#	add_ideas = standing_alone
-			#}
-			#KUB = {
-			#	add_ideas = standing_alone
-			#}
 			SOV = {
 				send_equipment_fraction = {
 					value = 0.2
@@ -680,6 +685,7 @@ country_event = {
 				}	
 			}
 			DON = {
+				remove_idea = DON_volunteer_army_idea
 				country_event = {
 					id = ww1_don.1
 					days = 3
@@ -688,7 +694,13 @@ country_event = {
 		}
 	}
 	option = {
-		name = ww1_sra.9.a
+		name = ww1_sra.9.b
+		SRA = {
+			change_tag_from = DON
+		}
+	}
+	option = {
+		name = ww1_sra.9.b
 
 	}
 }
@@ -759,7 +771,7 @@ country_event = {
 	}
 }
 
-#Support event
+#Support event USA
 country_event = {
 	id = ww1_sra.13
 	title = ww1_sra.13.t
@@ -769,29 +781,15 @@ country_event = {
 	option = {
 		name = ww1_sra.13.a
 		if = {
-			limit =  {
+			limit = {
 				FROM = {
 					tag = USA
 				}
 			}
-			add_ideas = SRA_american_red_cross
-		}
-		if = {
-			limit =  {
-				FROM = {
-					tag = ENG
-				}
+			add_timed_idea = {
+				idea = SRA_red_cross
+				days = 90
 			}
-			add_ideas = SRA_british_advisors
-			set_country_flag = vol_british_accepted
-		}
-		if = {
-			limit =  {
-				FROM = {
-					tag = FRA
-				}
-			}
-			set_country_flag = support_volunteers
 		}
 	}
 }
@@ -833,7 +831,7 @@ country_event = {
 	}
 }
 
-# lend lease uk
+# SRA special Meeting
 country_event = {
 	id = ww1_sra.15
 	title = ww1_sra.15.t
@@ -842,7 +840,25 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_sra.15.a
-
+		add_political_power = 100
+		if = {
+			limit = {
+				has_character = RUS_lavr_kornilov
+			}
+			activate_advisor = RUS_lavr_kornilov
+		}
+		else = {
+			activate_advisor = RUS_anton_denikin
+		}
+		if = {
+			limit = {
+				has_idea = SRA_no_civ_government_1
+			}
+			swap_ideas = {
+				remove_idea = SRA_no_civ_government_1
+				add_idea = SRA_no_civ_government_2
+			}
+		}
 	}
 }
 
@@ -870,16 +886,19 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		tag = FRA
+		FRA = {
+			has_country_flag = sra_accepted_helping
+		}
 		GER = {
 			has_country_flag = great_war_loser
 		}
-		CRI = {
+		SRA = {
 			NOT = {
 				has_government = communism
 			}
 			is_puppet = no
+			exists = yes
 		}
-		has_country_flag = support_volunteers
 	}
 	mean_time_to_happen = {
 		days = 15
@@ -889,49 +908,36 @@ country_event = {
 		CRI = {
 			add_ideas = RUS_idea_allied_intervention
 		}
+		SRA = {
+			country_event = ww1_sra.38
+		}
 	}
 }
 
-# british military mission branch
+
 country_event = {
 	id = ww1_sra.18
-	title = ww1_sra.18.t
-	desc = ww1_sra.18.d
-	picture = ww1_sra_16
-	is_triggered_only = yes
-	hidden = yes
-	immediate = {
-		mark_focus_tree_layout_dirty = yes
+	title = ww1_sra.11.t
+	desc = ww1_sra.11.d
+	picture = ww1_sra_11
+	trigger = {
+		tag = SRA
+		has_character = RUS_lavr_kornilov
+		OR = {
+			has_active_mission = SRA_moscow_directive_absolute
+			has_active_mission = SRA_ufa_directive
+		}
 	}
+	fire_only_once = yes
+	is_triggered_only = no
 	option = {
-		name = ww1_sra.18.a
+		name = ww1_sra.11.a
+		retire_character = RUS_lavr_kornilov
+		RUS_anton_denikin = {
+			promote_leader = yes
+		}
 	}
 }
-
-#army reform mission branch
-# country_event = {
-# 	id = ww1_sra.19
-# 	title = ww1_sra.19.t
-# 	desc = ww1_sra.19.d
-# 	picture = ww1_sra_19
-# 	hidden = yes
-# 	fire_only_once = yes
-# 	trigger = {
-# 		tag = SRA
-# 		#has_completed_focus = SRA_rehabilitate_officers
-# 		has_completed_focus = SRA_ask_for_entente_intervention
-# 	}
-# 	mean_time_to_happen = {
-# 		days = 1
-# 	}
-# 	immediate = {
-# 		mark_focus_tree_layout_dirty = yes
-# 	}
-# 	option = {
-# 		name = ww1_sra.19.a
-
-# 	}
-# }
 
 country_event = {
 	id = ww1_sra.20
@@ -1179,13 +1185,6 @@ country_event = {
 			limit = { is_core_of = KUB }
 			add_core_of = SRA
 		}
-		hidden_effect = {
-			every_state = {
-				limit = { is_core_of = KUB }
-				remove_core_of = KUB
-			}
-		}
-		add_ideas = SRA_kuban_rada
 	}
 }
 
@@ -1266,7 +1265,6 @@ country_event = {
 			}
 			add_core_of = SRA
 		}
-		add_ideas = DON_alekseev_organization_1
 	}
 }
 
@@ -1375,5 +1373,370 @@ country_event = {
 	option = {
 		name = ww1_sra.34.a #ok
 		
+	}
+}
+
+#SRA puppeting you event
+country_event = {
+	id = ww1_sra.35
+	title = ww1_sra.35.t
+	desc = ww1_sra.35.d
+	picture = ww1_russian_state_1
+	is_triggered_only = yes
+	option = {
+		name = ww1_siberia.3.a
+		get_current_government_type = yes
+		FROM = { 
+			puppet = {
+   				target = ROOT
+   				end_wars = no
+				end_civil_wars = no
+			} 
+		}
+		restore_previous_government_type = yes
+		FROM = {
+			country_event = {
+				id = ww1_sra.36
+				random_hours = 24
+			}
+		}
+		ai_chance = {
+			base = 100
+		}
+	}
+	option = {
+		name = ww1_siberia.3.b
+		FROM = {
+			country_event = {
+				id = ww1_sra.37
+				random_hours = 24
+			}
+		}
+	}
+}
+#They recognize us
+country_event = {
+	id = ww1_sra.36
+	title = ww1_sra.36.t
+	desc = ww1_sra.36.d
+	picture = GFX_report_event_generic_peaceful_annexation
+	is_triggered_only = yes
+	#great
+	option = {
+		name = ww1_siberia.7.a
+		effect_tooltip = { 
+			ROOT = { puppet = FROM }
+		}
+		ai_chance = {
+			base = 100
+		}
+	}
+}
+#They refused to recognize us
+country_event = {
+	id = ww1_sra.37
+	title = ww1_sra.37.t
+	desc = ww1_sra.37.d
+	picture = GFX_report_event_soviet_soldiers
+	is_triggered_only = yes
+	#They will regret this
+	option = {
+		name = ww1_siberia.19.a
+		ROOT = {
+			declare_war_on = {
+				target = FROM
+				type = civil_war
+			}
+		}
+		ai_chance = {
+			base = 100
+		}
+	}
+}
+
+#sra fra support event
+country_event = {
+	id = ww1_sra.38
+	title = ww1_sra.38.t
+	desc = ww1_sra.38.d
+	picture = ww1_sra_35
+	is_triggered_only = yes
+	option = {
+		name = ww1_sra.38.a
+		if = {
+			limit =  {
+				FROM = {
+					tag = FRA
+				}
+			}
+			add_ideas = RUS_idea_allied_intervention
+			hidden_effect = {
+				country_event = {
+					id =  ww1_sra.39
+					days = 90
+				}
+			}
+		}
+	}
+}
+
+#sra fra troops withdraw
+country_event = {
+	id = ww1_sra.39
+	title = ww1_sra.39.t
+	desc = ww1_sra.39.d
+	picture = ww1_sra_39
+	is_triggered_only = yes
+	fire_only_once = yes
+	trigger = {
+		tag = SRA
+		has_idea = RUS_idea_allied_intervention
+	}
+	option = {
+		name = ww1_sra.39.a
+		remove_ideas = RUS_idea_allied_intervention
+	}
+}
+
+#sra uk support event
+country_event = {
+	id = ww1_sra.40
+	title = ww1_sra.40.t
+	desc = ww1_sra.40.d
+	picture = ww1_sra_40
+	is_triggered_only = yes
+	option = {
+		name = ww1_sra.40.a
+		if = {
+			limit =  {
+				FROM = {
+					tag = ENG
+				}
+			}
+			custom_effect_tooltip = sra_eng_lend_lease
+			set_country_flag = vol_british_accepted
+		}
+	}
+}
+#Ekaterinodar captured
+country_event = {
+	id = ww1_sra.41
+	title = ww1_sra.41.t
+	desc = ww1_sra.41.d
+	picture = ww1_sra_16
+	fire_only_once = yes
+	trigger = {
+		tag = SRA
+		controls_state = 234
+		NOT = {
+			has_country_flag = sra_annexed_kuban
+		}
+	}
+	option = {
+		name = ww1_sra.41.a
+		if = {
+			limit = {
+				NOT = {
+					has_country_flag = sra_no_rada
+				}
+			}
+			add_ideas = {
+				SRA_kuban_rada
+			}
+		}
+		add_ideas = {
+			SRA_no_civ_government_1
+			SRA_agrarian_question_idea_1
+		}
+		set_capital = {
+			state = 234
+			remember_old_capital = no
+		}
+		hidden_effect = {
+			set_state_owner = 234
+		}
+	}
+}
+
+#kuban rada sra alliance w/ trigger
+country_event = {
+	id = ww1_sra.42
+	title = ww1_sra.42.t
+	desc = ww1_sra.42.d
+	picture = ww1_sra_42
+	trigger = {
+		tag = SRA
+		KUB = {
+			is_puppet_of = SOV
+		}
+	}
+	is_triggered_only = no
+	fire_only_once = yes
+	mean_time_to_happen = {
+		days = 14
+	}
+	#yes
+	option = {
+		name = ww1_sra.42.a
+		every_state = {
+			limit = {
+				OR = {
+					state = 234
+					state = 579
+					state = 940
+					state = 233
+				}
+			}
+			add_core_of = SRA
+		}
+		every_possible_country = {
+			limit = {
+				has_character = KUB_viktor_pokrovsky
+			}
+			KUB_viktor_pokrovsky = {
+				set_nationality = SRA
+			}		
+		}
+		hidden_effect = {
+			division_template = {
+				name = "Kubinskaya militsiya"
+				#division_names_group = RUS_GAR_01
+				regiments = {
+					infantry = { x = 0 y = 0 }
+					infantry = { x = 0 y = 1 }
+					infantry = { x = 1 y = 0 }
+				}
+				support = { 
+					artillery = { x = 0 y = 0 }
+					recon = { x = 0 y = 1 }
+					engineer = { x = 0 y = 2 }
+				}
+			}
+			941 = {
+				create_unit = {
+					division = "name = \"Kubinskaya militsiya\" division_template = \"Kubinskaya militsiya\" start_experience_factor = 0.6"
+					owner = ROOT
+					allow_spawning_on_enemy_provs = yes
+				}
+			}
+		}
+		custom_effect_tooltip = sra_rada_when_established_tt
+		ai_chance = {
+			base = 100
+		}
+	}
+	#dumb choice
+	option = {
+		name = ww1_sra.42.b
+		hidden_effect = {
+			set_country_flag = sra_no_rada
+		}
+		declare_war_on = KUB
+		ai_chance = {
+			base = 0
+		}
+	}
+}
+
+#kuban rada sra alliance - kuban decision
+country_event = {
+	id = ww1_sra.43
+	title = ww1_sra.42.t
+	desc = ww1_sra.42.d
+	picture = ww1_sra_42
+	is_triggered_only = yes
+	fire_only_once = yes
+	#yes
+	option = {
+		name = ww1_sra.42.a
+		every_possible_country = {
+			limit = {
+				has_character = KUB_viktor_pokrovsky
+			}
+			KUB_viktor_pokrovsky = {
+				set_nationality = SRA
+			}		
+		}
+		if = {
+			limit = {
+				KUB = {
+					exists = yes
+					NOT = {
+						has_government = communism
+					}
+				}
+			}
+			hidden_effect = {
+				SRA = {
+					change_tag_from = KUB
+				}
+				set_country_flag = sra_annexed_kuban
+			}
+			annex_country = {
+				target = KUB
+				transfer_troops = yes
+			}
+			add_ideas = {
+				SRA_no_civ_government_1
+				SRA_agrarian_question_idea_1
+			}
+			set_capital = {
+				state = 234
+				remember_old_capital = no
+			}
+			hidden_effect = {
+				set_state_owner = 234
+			}
+		}
+		else = {
+			hidden_effect = {
+				division_template = {
+					name = "Kubinskaya militsiya"
+					#division_names_group = RUS_GAR_01
+					regiments = {
+						infantry = { x = 0 y = 0 }
+						infantry = { x = 0 y = 1 }
+						infantry = { x = 1 y = 0 }
+					}
+					support = { 
+						artillery = { x = 0 y = 0 }
+						recon = { x = 0 y = 1 }
+						engineer = { x = 0 y = 2 }
+					}
+				}
+				941 = {
+					create_unit = {
+						division = "name = \"Kubinskaya militsiya\" division_template = \"Kubinskaya militsiya\" start_experience_factor = 0.6"
+						owner = ROOT
+						allow_spawning_on_enemy_provs = yes
+					}
+				}
+			}
+		}
+		every_state = {
+			limit = {
+				OR = {
+					state = 234
+					state = 579
+					state = 940
+					state = 233
+				}
+			}
+			add_core_of = SRA
+		}
+		add_ideas = SRA_kuban_rada
+		ai_chance = {
+			base = 100
+		}
+	}
+	#dumb choice
+	option = {
+		name = ww1_sra.42.b
+		hidden_effect = {
+			set_country_flag = sra_no_rada
+		}
+		ai_chance = {
+			base = 0
+		}
 	}
 }
