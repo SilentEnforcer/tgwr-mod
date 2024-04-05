@@ -370,22 +370,12 @@ country_event = {
 	immediate = {
 		hidden_effect = {
 			set_global_flag = RUS_SRA_spawned
-			every_state = {
-				limit = {
-					state = 941
-				}
+			941 = {
 				SRA = { add_state_core = PREV }
 			}
 			SRA = {
 				transfer_state = 941
-				activate_mission = SRA_first_kuban_campaign
 			}
-			#DSR = {
-			#	add_ideas = standing_alone
-			#}
-			#KUB = {
-			#	add_ideas = standing_alone
-			#}
 			SOV = {
 				send_equipment_fraction = {
 					value = 0.2
@@ -840,7 +830,7 @@ country_event = {
 	}
 }
 
-# lend lease uk
+# SRA special Meeting
 country_event = {
 	id = ww1_sra.15
 	title = ww1_sra.15.t
@@ -849,7 +839,25 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_sra.15.a
-
+		add_political_power = 100
+		if = {
+			limit = {
+				has_character = RUS_lavr_kornilov
+			}
+			activate_advisor = RUS_lavr_kornilov
+		}
+		else = {
+			activate_advisor = RUS_anton_denikin
+		}
+		if = {
+			limit = {
+				has_idea = SRA_no_civ_government_1
+			}
+			swap_ideas = {
+				remove_idea = SRA_no_civ_government_1
+				add_idea = SRA_no_civ_government_2
+			}
+		}
 	}
 }
 
@@ -1193,13 +1201,6 @@ country_event = {
 			limit = { is_core_of = KUB }
 			add_core_of = SRA
 		}
-		hidden_effect = {
-			every_state = {
-				limit = { is_core_of = KUB }
-				remove_core_of = KUB
-			}
-		}
-		add_ideas = SRA_kuban_rada
 	}
 }
 
@@ -1530,6 +1531,228 @@ country_event = {
 			}
 			custom_effect_tooltip = sra_eng_lend_lease
 			set_country_flag = vol_british_accepted
+		}
+	}
+}
+#Ekaterinodar captured
+country_event = {
+	id = ww1_sra.41
+	title = ww1_sra.41.t
+	desc = ww1_sra.41.d
+	picture = ww1_sra_16
+	fire_only_once = yes
+	trigger = {
+		tag = SRA
+		controls_state = 234
+		NOT = {
+			has_country_flag = sra_annexed_kuban
+		}
+	}
+	option = {
+		name = ww1_sra.41.a
+		if = {
+			limit = {
+				NOT = {
+					has_country_flag = sra_no_rada
+				}
+			}
+			add_ideas = {
+				SRA_kuban_rada
+			}
+		}
+		add_ideas = {
+			SRA_no_civ_government_1
+			SRA_agrarian_question_idea_1
+		}
+		set_capital = {
+			state = 234
+			remember_old_capital = no
+		}
+		hidden_effect = {
+			set_state_owner = 234
+		}
+	}
+}
+
+#kuban rada sra alliance w/ trigger
+country_event = {
+	id = ww1_sra.42
+	title = ww1_sra.42.t
+	desc = ww1_sra.42.d
+	picture = ww1_sra_42
+	trigger = {
+		tag = SRA
+		KUB = {
+			is_puppet_of = SOV
+		}
+	}
+	is_triggered_only = no
+	fire_only_once = yes
+	mean_time_to_happen = {
+		days = 14
+	}
+	#yes
+	option = {
+		name = ww1_sra.42.a
+		every_state = {
+			limit = {
+				OR = {
+					state = 234
+					state = 579
+					state = 940
+					state = 233
+				}
+			}
+			add_core_of = SRA
+		}
+		every_possible_country = {
+			limit = {
+				has_character = KUB_viktor_pokrovsky
+			}
+			KUB_viktor_pokrovsky = {
+				set_nationality = SRA
+			}		
+		}
+		hidden_effect = {
+			division_template = {
+				name = "Kubinskaya militsiya"
+				#division_names_group = RUS_GAR_01
+				regiments = {
+					infantry = { x = 0 y = 0 }
+					infantry = { x = 0 y = 1 }
+					infantry = { x = 1 y = 0 }
+				}
+				support = { 
+					artillery = { x = 0 y = 0 }
+					recon = { x = 0 y = 1 }
+					engineer = { x = 0 y = 2 }
+				}
+			}
+			941 = {
+				create_unit = {
+					division = "name = \"Kubinskaya militsiya\" division_template = \"Kubinskaya militsiya\" start_experience_factor = 0.6"
+					owner = ROOT
+					allow_spawning_on_enemy_provs = yes
+				}
+			}
+		}
+		custom_effect_tooltip = sra_rada_when_established_tt
+		ai_chance = {
+			base = 100
+		}
+	}
+	#dumb choice
+	option = {
+		name = ww1_sra.42.b
+		hidden_effect = {
+			set_country_flag = sra_no_rada
+		}
+		declare_war_on = KUB
+		ai_chance = {
+			base = 0
+		}
+	}
+}
+
+#kuban rada sra alliance - kuban decision
+country_event = {
+	id = ww1_sra.43
+	title = ww1_sra.42.t
+	desc = ww1_sra.42.d
+	picture = ww1_sra_42
+	is_triggered_only = yes
+	fire_only_once = yes
+	#yes
+	option = {
+		name = ww1_sra.42.a
+		every_possible_country = {
+			limit = {
+				has_character = KUB_viktor_pokrovsky
+			}
+			KUB_viktor_pokrovsky = {
+				set_nationality = SRA
+			}		
+		}
+		if = {
+			limit = {
+				KUB = {
+					exists = yes
+					NOT = {
+						has_government = communism
+					}
+				}
+			}
+			hidden_effect = {
+				SRA = {
+					change_tag_from = KUB
+				}
+				set_country_flag = sra_annexed_kuban
+			}
+			annex_country = {
+				target = KUB
+				transfer_troops = yes
+			}
+			add_ideas = {
+				SRA_no_civ_government_1
+				SRA_agrarian_question_idea_1
+			}
+			set_capital = {
+				state = 234
+				remember_old_capital = no
+			}
+			hidden_effect = {
+				set_state_owner = 234
+			}
+		}
+		else = {
+			hidden_effect = {
+				division_template = {
+					name = "Kubinskaya militsiya"
+					#division_names_group = RUS_GAR_01
+					regiments = {
+						infantry = { x = 0 y = 0 }
+						infantry = { x = 0 y = 1 }
+						infantry = { x = 1 y = 0 }
+					}
+					support = { 
+						artillery = { x = 0 y = 0 }
+						recon = { x = 0 y = 1 }
+						engineer = { x = 0 y = 2 }
+					}
+				}
+				941 = {
+					create_unit = {
+						division = "name = \"Kubinskaya militsiya\" division_template = \"Kubinskaya militsiya\" start_experience_factor = 0.6"
+						owner = ROOT
+						allow_spawning_on_enemy_provs = yes
+					}
+				}
+			}
+		}
+		every_state = {
+			limit = {
+				OR = {
+					state = 234
+					state = 579
+					state = 940
+					state = 233
+				}
+			}
+			add_core_of = SRA
+		}
+		add_ideas = SRA_kuban_rada
+		ai_chance = {
+			base = 100
+		}
+	}
+	#dumb choice
+	option = {
+		name = ww1_sra.42.b
+		hidden_effect = {
+			set_country_flag = sra_no_rada
+		}
+		ai_chance = {
+			base = 0
 		}
 	}
 }
