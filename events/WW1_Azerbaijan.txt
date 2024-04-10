@@ -9,7 +9,7 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		tag = AZR
-		has_global_flag = russian_civil_war
+		has_global_flag = october_revolution
 		has_capitulated = no
 		NOT = {
 			is_subject_of = SOV
@@ -33,14 +33,14 @@ country_event = {
 				keep_unit_leaders_trigger = {
 					always = yes
 				}
-				keep_political_leader  = yes
+				keep_political_leader = yes
 				PREV = {
 					AZR_stepan_shaumianv = {
 						set_nationality = PREV.PREV
 					}
 				}
 				promote_character = AZR_stepan_shaumianv
-				add_country_leader_trait = standing_alone
+				add_ideas = standing_alone	
 				set_party_name = {
 					ideology = communism
 					long_name = BAK_communism_party
@@ -60,14 +60,18 @@ country_event = {
 				create_country_leader = {
 				 	name = BAK_neutrality_party
 				 	picture = "gfx/leaders/RUS/RUS_provisional_government.png"
+					traits = {
+						stout_defender
+					}
 				 	ideology = authoritarian_democracy
-					traits = { standing_alone }
 				}
 				create_country_leader = {
 				 	name = BAK_fascism_party
 				 	picture = "gfx/leaders/RUS/RUS_provisional_government.png"
+					traits = {
+						stout_defender
+					}
 				 	ideology = stratocracy
-					traits = { standing_alone }
 				}
 				add_popularity = {
 					ideology = fascism
@@ -79,16 +83,70 @@ country_event = {
 				}
 			}
 			set_state_controller = 229
-			BAK = { set_province_controller = 7661 }
-			if = {
-				limit = {
-					RUS = { has_war_with = SOV }
-				}
-				RUS = {
-					declare_war_on = {
-						target = BAK
-						type = puppet_wargoal_focus
+			BAK = { 
+				set_province_controller = 7661
+				# division_template = {
+				# 	name = "Dunsterforce"
+				# 	is_locked = yes
+				# 	division_names_group = SOV_INF_01
+				# 	template_counter = 69
+				# 	regiments = {
+				# 		infantry = { x = 0 y = 0 }
+				# 	}
+				# 	support = {
+				# 		engineer = { x = 0 y = 0 }
+				# 		artillery = { x = 0 y = 1 }
+				# 	}
+				# }
+				division_template = {
+					name = "Bakının Qırmızı Ordusu"
+					# is_locked = yes
+					division_names_group = AZR_INF_03
+					template_counter = 69
+					regiments = {
+						infantry = { x = 0 y = 0 }
+						infantry = { x = 0 y = 1 }
+						infantry = { x = 1 y = 0 }
 					}
+					support = {
+						artillery = { x = 0 y = 0 }
+					}
+				}
+				229 = {
+					# create_unit = {
+					# 	division = "name = \"Dunsterforce\" division_template = \"Dunsterforce\" start_experience_factor = 1"
+					# 	owner = BAK
+					# 	prioritize_location = 7661
+					# 	allow_spawning_on_enemy_provs = yes
+					# }
+					create_unit = {
+						division = "name = \"Piyada alayı Qırmızı Ordunun\" division_template = \"Bakının Qırmızı Ordusu\" start_experience_factor = 0"
+						owner = BAK
+						count = 4
+						prioritize_location = 7661
+						allow_spawning_on_enemy_provs = yes
+					}
+				}
+				add_equipment_to_stockpile = {
+					type = infantry_equipment
+					amount = 1000
+					producer = SOV
+				}
+				add_equipment_to_stockpile = {
+					type = artillery_equipment
+					amount = 25
+					producer = SOV
+				}
+				country_event = {
+					id = ww1_azerbaijan.2
+					days = 20
+					random_days = 10
+				}
+			}
+			TUR = {
+				country_event = {
+					id = ww1_ottoman.113
+					days = 10
 				}
 			}
 		}
@@ -125,24 +183,23 @@ country_event = {
 	title = ww1_azerbaijan.2.t
 	desc = ww1_azerbaijan.2.d
 	picture = GFX_report_event_soviet_soldiers
-	fire_only_once = yes
+	# fire_only_once = yes
+	is_triggered_only = yes
 	trigger = {
 		tag = BAK
 		has_civil_war = yes
 		is_subject = no
 		has_government = communism
 	}
-	mean_time_to_happen = { days = 30 }
+	# mean_time_to_happen = { days = 30 }
 	option = {
 		name = ww1_azerbaijan.2.a
-		if = {
+		every_other_country = {
 			limit = {
-				RUS = {
-					has_war_with = ROOT
-					NOT = { has_government = communism }
-				}
+				has_russian_civil_war = yes
+				has_war_with = ROOT
 			}
-			white_peace = RUS
+			white_peace = ROOT
 		}
 		set_politics = {
 			ruling_party = neutrality
@@ -150,7 +207,232 @@ country_event = {
 		}	
 		add_popularity = {
 			ideology = neutrality
-			popularity = -0.2
+			popularity = 0.2
+		}
+		division_template = {
+			name = "Bakı Ordusu"
+			# is_locked = yes
+			division_names_group = AZR_INF_03
+			template_counter = 69
+			regiments = {
+				infantry = { x = 0 y = 0 }
+				infantry = { x = 0 y = 1 }
+				infantry = { x = 1 y = 0 }
+			}
+			support = {
+				artillery = { x = 0 y = 0 }
+			}
+		}
+		
+		every_country_division = {
+			change_division_template = {
+				division_template = "Bakı Ordusu"
+			}
+		}
+		delete_unit_template_and_units = {
+			division_template = "Bakının Qırmızı Ordusu"
+		}
+		hidden_effect = {
+			if = {
+				limit = {
+					any_enemy_country = {
+						original_tag = AZR
+						is_subject = yes
+						OVERLORD = {
+							has_war_with = ROOT
+							any_enemy_country = {
+								original_tag = ENG
+								is_subject = no
+								is_in_faction = yes
+								has_capitulated = no
+								OR = {
+									has_subject = PER
+									any_owned_state = { is_core_of = PER }
+								}
+							}
+						}
+					}
+				}
+				country_event = {
+					id = ww1_azerbaijan.4
+					hours = 12
+				}
+			}
+		}
+	}
+}
+
+# Islamic Army arriving to help AZR
+country_event = {
+	id = ww1_azerbaijan.3
+	title = ww1_azerbaijan.3.t
+	desc = ww1_azerbaijan.3.d
+	picture = GFX_report_event_tur_turkish_soldiers
+	fire_only_once = yes
+	is_triggered_only = yes
+	immediate = {
+		hidden_effect = {
+			division_template = {
+				name = "Qafqaz İslam Ordusu"
+				# is_locked = yes
+				division_names_group = AZR_INF_02
+				regiments = {
+					infantry = { x = 0 y = 0 }
+					infantry = { x = 0 y = 1 }
+					infantry = { x = 0 y = 2 }
+					infantry = { x = 1 y = 0 }
+				}
+				support = {
+					engineer = { x = 0 y = 0 }
+					artillery = { x = 0 y = 1 }
+				}
+			}
+			229 = {
+				create_unit = {
+					division = "name = \"5-ci Qafqaz piyada diviziyasının\" division_template = \"Qafqaz İslam Ordusu\" start_experience_factor = 0.6"
+					owner = ROOT
+					prioritize_location = 7495
+					allow_spawning_on_enemy_provs = yes
+				}
+				create_unit = {
+					division = "name = \"15-ci piyada diviziyasının\" division_template = \"Qafqaz İslam Ordusu\" start_experience_factor = 0.6"
+					owner = ROOT
+					prioritize_location = 1536
+					allow_spawning_on_enemy_provs = yes
+				}
+			}
+			add_equipment_to_stockpile = {
+				type = infantry_equipment
+				amount = 1500
+				producer = FROM
+			}
+			add_equipment_to_stockpile = {
+				type = artillery_equipment
+				amount = 50
+				producer = FROM
+			}
+		}
+	}
+	option = {
+		name = ww1_azerbaijan.3.a
+		FROM = {
+			effect_tooltip = {
+				set_autonomy = {
+					target = ROOT
+					autonomous_state = autonomy_tgwr_informal_protectorate
+				}
+			}
+			hidden_effect = {
+				ROOT = {
+					set_country_flag = protectorate
+					get_current_government_type = yes
+					remove_ideas = standing_alone
+				}
+				set_autonomy = {
+					target = ROOT
+					autonomous_state = autonomy_tgwr_informal_protectorate
+					freedom_level = 0.6
+					end_wars = no
+					end_civil_wars = no
+				}
+				ROOT = { restore_previous_government_type = yes }
+			}
+		}
+	}
+}
+
+# Dunsterforce
+country_event = {
+	id = ww1_azerbaijan.4
+	title = ww1_azerbaijan.4.t
+	desc = ww1_azerbaijan.4.d
+	picture = GFX_report_event_tur_turkish_soldiers
+	is_triggered_only = yes
+	# fire_only_once = yes
+	# trigger = {
+	# 	tag = BAK
+	# 	has_civil_war = yes
+	# 	is_subject = no
+	# 	has_government = neutrality
+	# 	is_in_faction = no
+	# 	any_enemy_country = {
+	# 		original_tag = AZR
+	# 		is_subject = yes
+	# 		OVERLORD = {
+	# 			has_war_with = ROOT
+	# 			any_enemy_country = {
+	# 				original_tag = ENG
+	# 				is_subject = no
+	# 				is_in_faction = yes
+	# 				has_capitulated = no
+	# 				OR = {
+	# 					has_subject = PER
+	# 					any_owned_state = { is_core_of = PER }
+	# 				}
+	# 			}
+	# 		}
+	# 	}
+	# }
+	# mean_time_to_happen = { days = 0 }
+	option = {
+		name = ww1_azerbaijan.4.a
+		random_enemy_country = {
+			limit = {
+				original_tag = AZR
+				is_subject = yes
+			}
+			OVERLORD = {
+				random_enemy_country = {
+					limit = {
+						original_tag = ENG
+						is_subject = no
+						is_in_faction = yes
+						has_capitulated = no
+						OR = {
+							has_subject = PER
+							any_owned_state = { is_core_of = PER }
+						}
+					}
+					add_to_faction = ROOT
+					ROOT = {
+						division_template = {
+							name = "Dunsterforce"
+							is_locked = yes
+							template_counter = 69
+							regiments = {
+								infantry = { x = 0 y = 0 }
+							}
+							support = {
+								engineer = { x = 0 y = 0 }
+								artillery = { x = 0 y = 1 }
+							}
+						}
+						229 = {
+							create_unit = {
+								division = "name = \"Dunsterforce\" division_template = \"Dunsterforce\" start_experience_factor = 1"
+								owner = ROOT
+								prioritize_location = 7661
+								allow_spawning_on_enemy_provs = yes
+							}
+						}
+						add_equipment_to_stockpile = {
+							type = infantry_equipment
+							amount = 500
+							producer = PREV
+						}
+						add_equipment_to_stockpile = {
+							type = artillery_equipment
+							amount = 10
+							producer = PREV
+						}
+						add_equipment_to_stockpile = {
+							type = armored_car_equipment
+							amount = 4
+							producer = PREV
+						}
+					}
+				}
+			}
 		}
 	}
 }
