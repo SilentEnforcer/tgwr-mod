@@ -546,7 +546,7 @@ crisis = {
 	# 		GER = { has_war_with = RUS }
 	# 	}		
 	# 	timeout_effect = {
-	# 		GER = { country_event = { id = ww1_germany.25 } }
+	# 		GER = { country_event = { id = ww1_brest_litovsk.6 } }
 	# 	}		
 	# 	fire_only_once = yes
 	# 	days_mission_timeout = 210
@@ -602,7 +602,7 @@ SOV_combat_the_counter_revolution = {
 		target_trigger = {
 			FROM = { tag = CER }
 		}
-		cost = 20
+		cost = 5
 		ai_will_do = {
 			base = 10000
 		}
@@ -631,7 +631,7 @@ SOV_combat_the_counter_revolution = {
 		target_trigger = {
 			FROM = { tag = TRK }
 		}
-		cost = 20
+		cost = 5
 		ai_will_do = {
 			factor = 100
 		}
@@ -662,7 +662,7 @@ SOV_combat_the_counter_revolution = {
 		target_trigger = {
 			FROM = { is_cossack_tag = yes }
 		}
-		cost = 20
+		cost = 5
 		ai_will_do = {
 			factor = 100
 		}
@@ -801,67 +801,110 @@ SOV_combat_the_counter_revolution = {
 			}
 		}
 	}
-}
-SOV_decision_soviet_republics = {
 	SOV_soviet_stavrapol = {
 		icon = GFX_decision_SOV_secure_the_administration
-		available = {
-			has_completed_focus = SOV_soviet_republics
+		activation = {
+			has_completed_focus = SOV_combat_the_counter_revolution
 			is_subject = no
 			has_government = communism
-		}
-		visible = {
-			NOT = { country_exists = STV }
+			NOT = {
+				any_country = {
+					has_country_flag = RUS_stavropol_tag
+				}
+			}
 			owns_state = 235
 		}
-		cost = 5
+		available = {
+			OR = {
+				NOT = {
+					has_government = communism
+					owns_state = 235
+				}
+				is_subject = yes
+				any_other_country = {
+					has_country_flag = RUS_stavropol_tag
+				}
+			}		
+		}
+		is_good = yes
+		days_mission_timeout = 13
 		ai_will_do = {
 			base = 200
 		}
 		fire_only_once = yes
-		complete_effect = {
-			create_dynamic_country = {
-				original_tag = RUS
-				copy_tag = SOV
-				add_political_power = 100
-				transfer_state = 235
-				load_focus_tree = empty_focus
-				country_lock_all_division_template = yes
-				SOV = {
-					puppet = PREV
-				}
-				set_politics = {
-					ruling_party = communism
-					long_name = SOV_communism_party_long
-					name = SOV_communism_party
-					elections_allowed = no
-				}
-				set_popularities = {
-					communism = 55
-					democratic = 45
-				}
-				set_party_name = {
-					ideology = democratic
-					long_name = RUS_democratic_party_SR_long
-					name = RUS_democratic_party_SR
-				}
-				set_country_flag = RUS_stavropol_tag
-				set_cosmetic_tag = STV_communism
-				add_ideas = SOV_idea_red_guard
-				set_country_flag = dont_trigger_political_event
-				create_country_leader = {
-					name = SOV_aleksandr_ponomarev
-					picture = GFX_Portrait_Soviet_Generic_land_2
-					ideology = vanguardism
-				}
-				division_template = {
-					name = "Krasnaya Gvardiya"
-					regiments = {
-						militia = { x = 0 y = 0 }
-						militia = { x = 0 y = 1 }
-						militia = { x = 1 y = 0 }
+		timeout_effect = {
+			hidden_effect = {
+				create_dynamic_country = {
+					original_tag = RUS
+					copy_tag = SOV
+					add_political_power = 100
+					transfer_state = 235
+					load_focus_tree = empty_focus
+					country_lock_all_division_template = yes
+					ROOT = {
+						puppet = PREV
+					}
+					set_politics = {
+						ruling_party = communism
+						long_name = SOV_communism_party_long
+						name = SOV_communism_party
+						elections_allowed = no
+					}
+					set_popularities = {
+						communism = 55
+						democratic = 45
+					}
+					set_party_name = {
+						ideology = democratic
+						long_name = RUS_democratic_party_SR_long
+						name = RUS_democratic_party_SR
+					}
+					set_country_flag = RUS_stavropol_tag
+					set_cosmetic_tag = STV_communism
+					add_ideas = SOV_idea_red_guard
+					set_country_flag = dont_trigger_political_event
+					create_country_leader = {
+						name = SOV_aleksandr_ponomarev
+						picture = "gfx/leaders/SOV/SOV_Alexander_Ponomarev.png"
+						ideology = vanguardism
+					}
+					division_template = {
+						name = "Krasnaya Gvardiya"
+						regiments = {
+							militia = { x = 0 y = 0 }
+							militia = { x = 0 y = 1 }
+							militia = { x = 1 y = 0 }
+						}
+					}
+					235 = {
+						create_unit = {
+							division = "division_template = \"Krasnaya Gvardiya\" start_experience_factor = 0.2" 
+							owner = PREV
+							allow_spawning_on_enemy_provs = yes
+							count = 2
+						}
+					}
+					every_state = {
+						limit = {
+							is_claimed_by = PREV
+						}
+						remove_claim_by = PREV
+					}
+					every_state = {
+						limit = {
+							is_core_of = PREV
+							NOT = {
+								state = 235
+							}	
+						}
+						remove_core_of = PREV
 					}
 				}
+				235 = {
+					remove_core_of = SOV
+				}
+			}	
+			effect_tooltip = {
 				235 = {
 					create_unit = {
 						division = "division_template = \"Krasnaya Gvardiya\" start_experience_factor = 0.2" 
@@ -870,73 +913,228 @@ SOV_decision_soviet_republics = {
 						count = 2
 					}
 				}
-				every_state = {
-					limit = {
-						is_claimed_by = PREV
-					}
-					remove_claim_by = PREV
+			}	
+		}
+	}
+	# SOV_soviet_black_sea = {
+	# 	icon = GFX_decision_SOV_secure_the_administration
+	# 	activation = {
+	# 		has_completed_focus = SOV_combat_the_counter_revolution
+	# 		is_subject = no
+	# 		has_government = communism
+	# 		NOT = { country_exists = BSR }
+	# 		OR = {
+	# 			owns_state = 233
+	# 			owns_state = 940
+	# 		}
+	# 	}
+	# 	available = {
+	# 		OR = {
+	# 			NOT = {
+	# 				has_government = communism
+	# 				AND = {
+	# 					owns_state = 233
+	# 					owns_state = 940
+	# 				}
+	# 			}	
+	# 			is_subject = yes
+	# 			country_exists = BSR
+	# 		}
+			
+	# 	}
+	# 	is_good = yes
+	# 	days_mission_timeout = 13
+	# 	ai_will_do = {
+	# 		base = 200
+	# 	}
+	# 	fire_only_once = yes
+	# 	timeout_effect = {
+	# 		every_state = {
+	# 			limit = {
+	# 				OWNER = { is_russian_tag = yes }
+	# 				OR = {
+	# 					state = 233
+	# 					state = 940
+	# 				}						
+	# 			}	
+	# 			transfer_state_to = BSR
+	# 			add_core_of = BSR
+	# 		}	
+	# 		BSR = {
+	# 			division_template = {
+	# 				name = "Krasnaya Gvardiya"
+	# 				regiments = {
+	# 					militia = { x = 0 y = 0 }
+	# 					militia = { x = 0 y = 1 }
+	# 						militia = { x = 1 y = 0 }
+	# 				}
+	# 			}
+	# 			940 = {
+	# 				create_unit = {
+	# 					division = "division_template = \"Krasnaya Gvardiya\" start_experience_factor = 0.2" 
+	# 					owner = BSR
+	# 					allow_spawning_on_enemy_provs = yes
+	# 					count = 3
+	# 				}
+	# 			}
+	# 		}
+	# 		ROOT = {
+	# 			puppet = BSR
+	# 		}
+	# 	}
+	# }
+}
+SOV_decision_soviet_republics = {
+	SOV_soviet_amur = {
+		icon = GFX_decision_SOV_secure_the_administration
+		activation = {
+			has_completed_focus = SOV_soviet_republics
+			is_subject = no
+			has_government = communism
+			owns_state = 561
+			NOT = { country_exists = AMU }
+		}
+		available = {
+			OR = {
+				NOT = {
+					has_government = communism
+					owns_state = 561
 				}
-				every_state = {
-					limit = {
-						is_core_of = PREV
-						NOT = {
-							state = 235
-						}	
-					}
-					remove_core_of = PREV
+				is_subject = yes
+				country_exists = AMU
+			}			
+		}
+		ai_will_do = {
+			base = 200
+		}
+		is_good = yes
+		days_mission_timeout = 64
+		fire_only_once = yes
+		timeout_effect = {
+			AMU = {
+				transfer_state = 561
+				add_state_core = 561
+				ROOT = {
+					puppet = PREV
 				}
-			}
-			235 = {
-				remove_core_of = SOV
+				set_politics = {
+					ruling_party = communism
+				}
+				hidden_effect = {
+					set_popularities = {
+						neutrality = 20
+						democratic = 50
+						communism = 30
+					}
+					add_ideas = SOV_idea_red_guard
+					set_country_flag = dont_trigger_political_event
+					load_focus_tree = empty_focus
+					country_lock_all_division_template = yes
+					division_template = {
+						name = "Krasnaya Gvardiya"
+						regiments = {
+							militia = { x = 0 y = 0 }
+							militia = { x = 0 y = 1 }
+							militia = { x = 1 y = 0 }
+						}
+						priority = 0
+						is_locked = yes
+					}
+					division_template = {
+						name = "Matrosy amurskoy flotilii"
+						regiments = {
+							marine = { x = 0 y = 0 }
+							marine = { x = 0 y = 1 }
+						}
+						is_locked = yes
+					}			
+				}
+				capital_scope = {
+					create_unit = {
+						division = "name = \"Matrosy amurskoy flotilii\" division_template = \"Matrosy amurskoy flotilii\" start_experience_factor = 0.2 start_equipment_factor = 0.5"
+						owner = CONTROLLER
+					}
+					create_unit = {
+						division = "name = \"Krasnaya Gvardiya\" division_template = \"Krasnaya Gvardiya\" start_experience_factor = 0.1 start_equipment_factor = 0.5"
+						owner = CONTROLLER
+					}
+					create_unit = {
+						division = "name = \"Krasnaya Gvardiya\" division_template = \"Krasnaya Gvardiya\" start_experience_factor = 0.1 start_equipment_factor = 0.5"
+						owner = CONTROLLER
+					}
+					create_unit = {
+						division = "name = \"Krasnaya Gvardiya\" division_template = \"Krasnaya Gvardiya\" start_experience_factor = 0.1 start_equipment_factor = 0.5"
+						owner = CONTROLLER
+					}
+					create_unit = {
+						division = "name = \"Krasnaya Gvardiya\" division_template = \"Krasnaya Gvardiya\" start_experience_factor = 0.1 start_equipment_factor = 0.5"
+						owner = CONTROLLER
+					}
+					create_unit = {
+						division = "name = \"Krasnaya Gvardiya\" division_template = \"Krasnaya Gvardiya\" start_experience_factor = 0.1 start_equipment_factor = 0.5"
+						owner = CONTROLLER
+					}
+				}
 			}
 		}
 	}
 	SOV_soviet_terek = {
 		icon = GFX_decision_SOV_secure_the_administration
-		available = {
+		activation = {
 			has_completed_focus = SOV_soviet_republics
 			is_subject = no
 			has_government = communism
-		}
-		visible = {
 			NOT = { country_exists = TER }
 			owns_state = 232
 		}
-		cost = 5
+		available = {
+			OR = {
+				NOT = {			
+					has_government = communism
+					owns_state = 232
+				}			
+				is_subject = yes
+				country_exists = TER
+			}	
+		}
+		is_good = yes
+		days_mission_timeout = 47
 		ai_will_do = {
 			base = 200
 		}
 		fire_only_once = yes
-		complete_effect = {
+		remove_effect = {
 			TER = {
 				transfer_state = 232
 				add_state_core = 232
-				SOV = {
+				ROOT = {
 					puppet = PREV
 				}
-				retire_character = TER_mikhail_karaulov
-				set_politics = {
-					ruling_party = communism
-				}
-				set_popularities = {
-					communism = 33
-					democratic = 26
-					neutrality = 31
-					fascism = 10
-				}
-				add_ideas = SOV_idea_red_guard
-				set_country_flag = dont_trigger_political_event
-				load_focus_tree = empty_focus
-				add_ideas = SOV_idea_red_guard
-				country_lock_all_division_template = yes
-				division_template = {
-					name = "Krasnaya Gvardiya"
-					regiments = {
-						militia = { x = 0 y = 0 }
-						militia = { x = 0 y = 1 }
-						militia = { x = 1 y = 0 }
+				hidden_effect = {
+					retire_character = TER_mikhail_karaulov
+					set_politics = {
+						ruling_party = communism
 					}
-				}
+					set_popularities = {
+						communism = 33
+						democratic = 26
+						neutrality = 31
+						fascism = 10
+					}
+					add_ideas = SOV_idea_red_guard
+					set_country_flag = dont_trigger_political_event
+					load_focus_tree = empty_focus
+					add_ideas = SOV_idea_red_guard
+					country_lock_all_division_template = yes
+					division_template = {
+						name = "Krasnaya Gvardiya"
+						regiments = {
+							militia = { x = 0 y = 0 }
+							militia = { x = 0 y = 1 }
+							militia = { x = 1 y = 0 }
+						}
+					}
+				}			
 				232 = {
 					create_unit = {
 						division = "division_template = \"Krasnaya Gvardiya\" start_experience_factor = 0.2" 
@@ -945,61 +1143,6 @@ SOV_decision_soviet_republics = {
 						count = 4
 					}
 				}
-			}
-		}
-	}
-	SOV_soviet_black_sea = {
-		icon = GFX_decision_SOV_secure_the_administration
-		available = {
-			has_completed_focus = SOV_soviet_republics
-			is_subject = no
-			has_government = communism
-		}
-		visible = {
-			NOT = { country_exists = BSR }
-			OR = {
-				owns_state = 233
-				owns_state = 940
-			}	
-		}
-		cost = 5
-		ai_will_do = {
-			base = 200
-		}
-		fire_only_once = yes
-		complete_effect = {
-			every_state = {
-				limit = {
-					OWNER = { is_russian_tag = yes }
-					OR = {
-						state = 233
-						state = 940
-					}						
-				}	
-				transfer_state_to = BSR
-				add_core_of = BSR
-			}	
-			BSR = {
-				division_template = {
-					name = "Krasnaya Gvardiya"
-					regiments = {
-						militia = { x = 0 y = 0 }
-						militia = { x = 0 y = 1 }
-							militia = { x = 1 y = 0 }
-					}
-				}
-				940 = {
-					create_unit = {
-						division = "division_template = \"Krasnaya Gvardiya\" start_experience_factor = 0.2" 
-						owner = BSR
-						allow_spawning_on_enemy_provs = yes
-						count = 3
-					}
-				}
-			}
-			SOV = {
-				puppet = BSR
-				add_to_faction = BSR
 			}
 		}
 	}
@@ -1082,7 +1225,7 @@ SOV_decision_soviet_republics = {
 				set_cosmetic_tag = KUB_north_caucasus_communism
 				create_country_leader = {
 					name = SOV_abram_rubin
-					picture = "gfx/leaders/SOV/Portrait_Soviet_Generic_1.dds"
+					picture = "gfx/leaders/SOV/SOV_Abram_Rubin.png"
 					ideology = vanguardism
 				}
 				every_state = {
@@ -1192,6 +1335,9 @@ SOV_decision_soviet_republics = {
 				has_government = democratic
 				has_government = communism
 			}
+		}
+		visible = {
+			has_country_flag = czechoslovak_revolt
 		}
 		cost = 20
 		ai_will_do = {
@@ -1628,6 +1774,15 @@ SOV_decision_soviet_republics = {
 			FROM = {
 				tag = GEO
 				is_subject = no
+			}
+		}
+		visible = {
+			FROM = {
+				NOT = {
+					has_cosmetic_tag = GEO_TSCN_commissariat
+					has_cosmetic_tag = GEO_TSCN
+					has_cosmetic_tag = GEO_TSCN_communism
+				}
 			}
 		}
 		cost = 25
@@ -2557,6 +2712,9 @@ SOV_decision_soviet_republics = {
 				any_allied_country = {
 					is_neighbor_of = FROM
 				}
+				any_subject_country = {
+					is_neighbor_of = FROM
+				}
 				AND = {
 					137 = { is_controlled_by_ROOT_or_ally = yes }
 					955 = { is_controlled_by_ROOT_or_ally = yes }
@@ -2748,7 +2906,7 @@ SOV_decision_soviet_republics = {
 			has_completed_focus = SOV_soviet_republics
 			FROM = {
 				has_country_leader = {
-					character = MON_roman_ungernsternberg
+					character = RUS_roman_ungern_sternberg 
 				}
 				is_subject = no
 			}
@@ -2782,56 +2940,9 @@ SOV_decision_soviet_republics = {
 		fire_only_once = yes
 		days_remove = 15
 		remove_effect  = {
-			if = {
-				limit = {
-					FROM = {
-						owns_state = 329
-					}
-					TAN = {
-						OR = {
-							exists = no
-							is_subject_of = ROOT
-						}
-					}
-				}
-				FROM = {
-					release = TAN
-				}
-				puppet = TAN
-			}
-			if = {
-				limit = {
-					FROM = {
-						is_in_faction = no
-						has_war = no
-						is_ai = yes
-					}
-				}
-				puppet = FROM
-				hidden_effect = {
-					FROM = {
-					    drop_cosmetic_tag = yes
-						retire_character = MON_roman_ungernsternberg
-						set_party_name = { 
-						    ideology = fascism 
-						    long_name = MON_fascism_party 
-						    name = MON_fascism_party 
-						}						
-					}
-					set_province_name = {
-						id = 4801
-						name = ULANBATOR_PROV
-					}
-					RUS = {
-						retire_character = RUS_roman_ungern_sternberg
-					}
-				}	
-				else = {
-					create_wargoal = {
-						target = FROM
-						type = puppet_wargoal_focus
-					}
-				}
+			declare_war_on = {
+				target = MON
+				type = puppet_wargoal_focus
 			}
 		}
 	}

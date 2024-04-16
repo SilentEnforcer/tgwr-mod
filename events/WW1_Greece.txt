@@ -470,6 +470,9 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		tag = GRE
+		NOT = {
+			has_completed_focus = GRE_revoke_the_grecoserbian_treaty
+		}
 		is_subject = no
 		is_in_faction = no
 		has_civil_war = no
@@ -1437,28 +1440,43 @@ country_event = {
 	fire_only_once = yes
 	immediate = {
 		hidden_effect = {
-			every_owned_state = {
-				limit = {
-					is_core_of = GRE
-				}
-				add_core_of = ROOT
-			}
 			GRE = {
+				change_tag_from = THE 
+			}	
+			THE = {
 				every_character = {
-					set_nationality = ROOT
+					set_nationality = GRE
 				}
 				every_state = {
-					remove_core_of = PREV
+					remove_core_of = THE
 				}
 				every_state = {
-					remove_claim_by = PREV
+					remove_claim_by = THE
 				}
 				transfer_units_fraction= {
-					target = ROOT
+					target = THE
 					size = 1
 					keep_unit_leaders_trigger = {
 						always = no
 					}
+				}
+			}
+			FRA = {
+				add_to_faction = GRE
+			}
+			add_to_war = {
+				targeted_alliance = FRA
+				enemy = GER
+			}
+			if = {
+				limit = {
+					FRA = {
+						has_war_with = BUL
+					}
+				}
+				add_to_war = {
+					targeted_alliance = FRA
+					enemy = BUL
 				}
 			}
 			GRE_pavlos_kountouriotis = {
@@ -1471,8 +1489,12 @@ country_event = {
 					ideology = stratocracy
 				}
 			}
-			annex_country = { target = GRE transfer_troops = yes }
-			set_capital = { state = 898 }
+			GRE = {
+				set_politics = {
+					ruling_party = democratic
+				}
+				promote_character = GRE_eleftherios_venizelos
+			annex_country = { target = THE transfer_troops = yes }
 			set_party_name = {
 				ideology = fascism
 				long_name = GRE_epistratoi_party_long
@@ -1514,9 +1536,20 @@ country_event = {
 				remove_country_leader_role = {
 					ideology = semi_constitutional_monarchy
 				}
-			}		
-		}
+			}
+			remove_ideas = GRE_idea_constantine
+			remove_ideas = GRE_idea_national_schism
+			remove_ideas = GRE_idea_national_schism2
+			remove_ideas = GRE_idea_national_schism2b
+			remove_ideas = GRE_idea_national_schism4
+			deactivate_advisor = GRE_ioannis_metaxas
+			deactivate_advisor = GRE_victor_dousmanis
+			deactivate_advisor = GRE_sofoklis_dousmanis
+			deactivate_advisor = GRE_nikolaos_stratos
+			deactivate_advisor = GRE_dimitrios_gounaris
+		}		
 	}
+}
 	option = {
 		name = ww1_greece.50.a
 		add_stability = 0.15
@@ -2619,131 +2652,148 @@ news_event = {
 country_event = {
 	id = ww1_greece.85
 	title = ww1_greece.85.t
-	desc = ww1_greece.85.desc
+	desc = {
+		text = ww1_greece.85.desc
+		trigger = { original_tag = GRE }
+	}
+	desc = {
+		text = ww1_greece.85.desc_alt
+		trigger = { NOT = { original_tag = GRE } }
+	}
 	picture = GFX_report_event_northern_epirus
 	mean_time_to_happen = {
-		days = 7
-	}
-	immediate = {
-		set_country_flag = epirus_free
+		days = 2
 	}
 	trigger = {
-		tag = GRE
+		OR = {
+			original_tag = ALB
+		}
+			is_subject = no
+			if = {
+				limit = { has_civil_war = yes }
+				controls_state = 871
+			}
 		EPR = {
 			owns_state = 803
-			is_puppet = no
-		}
-		ALB = {
-			OR = {
-				owns_state = 44
-				owns_state = 871
-			}
-			is_puppet = no
+			is_subject = no
+			is_neighbor_of = ROOT
 		}
 		NOT = {
 			has_country_flag = GRE_EPR_ALB_war_trigger
-		}
-		NOT = {
 			has_country_flag = epirus_free
 		}
 	}
+	fire_only_once = yes
 	option = {
-		name = ww1_greece.84.a
-		set_country_flag = GRE_EPR_ALB_war_trigger
+		name = ww1_greece.85.a
+		trigger = { original_tag = GRE }
 		hidden_effect = {
+			set_country_flag = epirus_free
+			set_country_flag = GRE_EPR_ALB_war_trigger
+		}
+		effect_tooltip = {
 			ALB = {
-				division_template = {
-					name = "Milicitë Shqiptare"
-					regiments = {
-						infantry = {
-							x = 0
-							y = 0
-						}
-						infantry = {
-							x = 0
-							y = 1
-						}
-						infantry = {
-							x = 1
-							y = 0
-						}
-						infantry = {
-							x = 1
-							y = 1
-						}
-					}
+				declare_war_on = {
+					target = EPR
+					type = annex_everything
+				}
+			}
+		}
+	}
+	option = {
+		name = ww1_greece.85.b
+		trigger = { original_tag = ALB }
+		hidden_effect = {
+			set_country_flag = epirus_free
+			set_country_flag = GRE_EPR_ALB_war_trigger
+			add_manpower = 25000
+			division_template = {
+				name = "Milicitë"
+				division_names_group = ALB_DEM_01
+				regiments = {
+					militia = { x = 0 y = 0 }
+					militia = { x = 0 y = 1 }
+					militia = { x = 1 y = 0 }
+					militia = { x = 1 y = 1 }
 				}
 			}
 			871 = {
 				create_unit = {
-					division = "division_template = \"Milicitë Shqiptare\" start_experience_factor = 0.1"
-					owner = ALB
+					division = "division_template = \"Milicitë\" start_experience_factor = 0.1"
+					owner = ROOT
 					allow_spawning_on_enemy_provs = yes
 				}
 				create_unit = {
-					division = "division_template = \"Milicitë Shqiptare\" start_experience_factor = 0.1"
-					owner = ALB
+					division = "division_template = \"Milicitë\" start_experience_factor = 0.1"
+					owner = ROOT
 					allow_spawning_on_enemy_provs = yes
 				}
 			}
 			EPR = {
+				add_state_core = 803
+				add_manpower = 15000
 				division_template = {
-					name = "Milicitë Shqiptare"
+					name = "Politofylakí"
+					division_names_group = GRE_DEM_01
 					regiments = {
-						infantry = {
-							x = 0
-							y = 0
-						}
-						infantry = {
-							x = 0
-							y = 1
-						}
-						infantry = {
-							x = 1
-							y = 0
-						}
-						infantry = {
-							x = 1
-							y = 1
-						}
+						militia = { x = 0 y = 0 }
+						militia = { x = 0 y = 1 }
+						militia = { x = 1 y = 0 }
+						militia = { x = 1 y = 1 }
+					}
+				}
+				add_ideas = standing_alone
+			}
+			803 = {
+				create_unit = {
+					division = "division_template = \"Politofylakí\" start_experience_factor = 0.1"
+					owner = EPR
+					allow_spawning_on_enemy_provs = yes
+				}
+				create_unit = {
+					division = "division_template = \"Politofylakí\" start_experience_factor = 0.1"
+					owner = EPR
+					allow_spawning_on_enemy_provs = yes
+				}
+				create_unit = {
+					division = "division_template = \"Politofylakí\" start_experience_factor = 0.1"
+					owner = EPR
+					allow_spawning_on_enemy_provs = yes
+				}
+			}
+			every_possible_country = {
+				limit = {
+					original_tag = ALB
+					is_subject = no
+				}
+				declare_war_on = {
+					target = EPR
+					type = annex_everything
+				}
+				add_ideas = standing_alone
+			}
+			GRE = {
+				if = {
+					limit = {
+						exists = yes
+						NOT = { is_subject_of = ROOT }
+					}
+					country_event = {
+						id = ww1_greece.85
+						days = 1
 					}
 				}
 			}
-			803 = {
-				create_unit = {
-					division = "division_template = \"Milicitë Shqiptare\" start_experience_factor = 0.1"
-					owner = EPR
-					allow_spawning_on_enemy_provs = yes
-				}
-				create_unit = {
-					division = "division_template = \"Milicitë Shqiptare\" start_experience_factor = 0.1"
-					owner = EPR
-					allow_spawning_on_enemy_provs = yes
-				}
-				create_unit = {
-					division = "division_template = \"Milicitë Shqiptare\" start_experience_factor = 0.1"
-					owner = EPR
-					allow_spawning_on_enemy_provs = yes
+		}
+		effect_tooltip = {
+			ALB = {
+				declare_war_on = {
+					target = EPR
+					type = annex_everything
 				}
 			}
 		}
-		every_possible_country = {
-			limit = {
-				original_tag = ALB
-			}
-			add_manpower = 25000
-			declare_war_on = {
-				target = EPR
-				type = annex_everything
-			}
-		}
-		EPR = {
-			803 = {
-				add_core_of = EPR
-			}
-			add_manpower = 15000
-		}
-	}  
+	}
 }
 
 # Alexandros Schinas Died
@@ -3025,7 +3075,10 @@ country_event = {
 		NOT = {
 			has_country_flag = FRA_reaction_to_thessaloniki_front
 		}
-		controls_state = 345
+		GRE = {
+			owns_state = 731
+			has_completed_focus = GRE_establish_the_macedonian_front
+		}
 	}
 	mean_time_to_happen = {
 		days = 0
@@ -3043,16 +3096,6 @@ country_event = {
 		}
 		ai_chance = {
 			factor = 100
-		}
-	}
-	option = {
-		name = ww1_greece.92.b
-		ai_chance = {
-			factor = 20
-			modifier = {
-				is_historical_focus_on = yes
-				factor = 0
-			}
 		}
 	}
 }
@@ -4474,18 +4517,10 @@ country_event = {
 	option = {
 		name = ww1_greece.141.a
         GRE = {
-			if = {
-				limit = {
-					has_subject_autonomy_feature = yes
-				}
-				set_autonomy = {
-					target = BUL
-					autonomous_state = autonomy_tgwr_balkan_federal_subject
-					freedom_level = 0.5
-				}
-				else = {
-					puppet = BUL
-				}
+			set_autonomy = {
+				target = BUL
+				autonomous_state = autonomy_tgwr_balkan_federal_subject
+				freedom_level = 0.5
 			}
 		}
 		ai_chance = {
@@ -6193,6 +6228,22 @@ country_event = {
 		retire_character = GRE_spiridon_lambros
     }
 }
+###Death of Emmanouil Manousogiannakis
+country_event = {
+    id =  ww1_greece.201
+    title =  ww1_greece.201.t
+    desc =  ww1_greece.201.d
+    picture = GFX_report_event_manousogioannakis
+    trigger = {
+		original_tag = GRE
+		date > 1916.7.24
+	}
+	fire_only_once = yes
+	option = {
+        name = ww1_greece.201.a
+		retire_character = GRE_emmanouil_manousogiannakis
+    }
+}
 ###Death of Nikolaos Zorbas
 country_event = {
     id =  ww1_greece.202
@@ -7088,5 +7139,184 @@ news_event = {
 	fire_only_once = yes
 	option = {
 		name = ww1_greece.234.a
+	}
+}
+###Greece capture scuttled Ottoman navy
+country_event = {
+	id = ww1_greece.235
+	title = ww1_greece.235.t
+	desc = ww1_greece.235.d
+	picture = GFX_report_event_greek_ship
+	fire_only_once = yes
+    trigger = {
+		original_tag = GRE 
+		controls_province = 9805
+	}
+	option = {
+		name = ww1_greece.235.a
+			create_ship = {
+			type = ship_hull_light_1
+			equipment_variant = "Antalya Class"
+			creator = TUR
+			name = "Tatoi"
+		}
+		create_ship = {
+			type = ship_hull_light_1
+			equipment_variant = "Antalya Class"
+			creator = TUR
+			name = "Nikopolis"
+		}
+		TUR = {
+			destroy_ships = {
+				type = destroyer
+				count = 2
+			}
+		}
+	}
+}
+###War Reparation Ships from Austria
+country_event = {
+	id = ww1_greece.236
+	title = ww1_greece.236.t
+	desc = ww1_greece.236.d
+	picture = GFX_report_event_greek_destroyer
+	fire_only_once = yes
+    trigger = {
+		original_tag = GRE 
+		has_country_flag = great_war_winner
+		AUH = {
+			has_country_flag = great_war_loser
+		}
+	}
+	option = {
+		name = ww1_greece.236.a
+		create_ship = {
+			type = ship_hull_light_2
+			equipment_variant = "Fiume Class"
+			creator = AUH
+			name = "Kydonia"
+		}
+		create_ship = {
+			type = ship_hull_light_2
+			equipment_variant = "Fiume Class"
+			creator = AUH
+			name = "Kios"
+		}
+		create_ship = {
+			type = ship_hull_light_2
+			equipment_variant = "Fiume Class"
+			creator = AUH
+			name = "Kyzikos"
+		}
+		create_ship = {
+			type = ship_hull_light_2
+			equipment_variant = "Fiume Class"
+			creator = AUH
+			name = "Panormos"
+		}
+		create_ship = {
+			type = ship_hull_light_2
+			equipment_variant = "Fiume Class"
+			creator = AUH
+			name = "Pergamos"
+		}
+		create_ship = {
+			type = ship_hull_light_2
+			equipment_variant = "Fiume Class"
+			creator = AUH
+			name = "Proussa"
+		}
+		AUH = {
+			destroy_ships = {
+				type = destroyer
+				count = 6
+			}
+		}
+	}
+}
+###Northern Epirus news event
+news_event = {
+	id = ww1_greece.237
+	title = ww1_greece.237.t
+	desc = ww1_greece.237.desc
+	picture = GFX_news_event_northern_epirus
+	major = yes
+
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_greece.237.a
+	}
+}
+###Greece peaces out with Entente while in CP
+country_event = {
+	id = ww1_greece.238
+	title = ww1_greece.238.t
+	desc = ww1_greece.238.d
+	picture = GFX_report_event_noemvriana
+	fire_only_once = yes
+    trigger = {
+		original_tag = GRE 
+		is_in_faction_with = GER
+		has_global_flag = GER_capitulation
+		898 = {
+			is_controlled_by = GRE
+		}
+	}
+	option = {
+		##It's joever
+		name = ww1_greece.238.a
+		white_peace = FRA
+		leave_faction = yes
+		add_timed_idea = {
+			idea = GRE_entente_reparations
+			days = 1461
+		}
+		set_country_flag = great_war_loser
+		hidden_effect = {
+			every_state = {
+				limit = {
+					is_controlled_by = GRE
+					OR = {
+						is_claimed_by = GRE
+						is_core_of = GRE
+					}
+				}
+				transfer_state_to = GRE
+			}	
+		}
+		custom_effect_tooltip = GRE_transfer_state
+		
+	}
+	option = {
+		##War continues!
+		name = ww1_greece.238.b
+		add_stability = -0.5
+		leave_faction = yes
+		GER = {
+			add_ai_strategy = {
+				type = alliance
+				id = PREV
+				value = -1000
+			}
+		}
+		add_ai_strategy = {
+			type = alliance
+			id = GER
+			value = -1000
+		}
+		set_country_flag = refused_to_surrender
+		news_event = {
+			id = ww1_centre_capitulation.4
+		}
+		custom_effect_tooltip = GRE_continue_war
+		hidden_effect = {
+			every_country = {
+				limit = {
+					is_subject_of = ROOT
+				}
+				set_country_flag = refused_to_surrender
+			}
+		}
 	}
 }

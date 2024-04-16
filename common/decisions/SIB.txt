@@ -27,6 +27,260 @@ RUS_civil_war = {
 			add_ideas = SIB_czech_garrisons
 		}
 	}
+	SIB_looming_reactionary_revolt = {
+		icon = GFX_decision_revolt
+
+		allowed = {
+			always = yes
+		}
+
+		available = {
+			always = no
+		}
+
+		days_mission_timeout = 180
+		fire_only_once = yes
+		is_good = no
+
+		
+		activation = {
+			always = no #activates via event
+		}
+
+		timeout_effect = {
+			hidden_effect = {
+				if = {
+					limit = {
+						has_idea = SIB_strong_monarchist_opposition 
+					}
+					TBK = {
+						transfer_state = 516
+						transfer_state = 564
+						transfer_state = 566
+						transfer_state = 568
+						transfer_state = 574
+						transfer_state = 576
+						transfer_state = 644
+					}
+					563 = {
+						create_unit = {
+							division = "name = \"Belaya Gvardiya\" division_template = \"White Guard Corps\" start_experience_factor = 0.2 start_equipment_factor = 0.7"
+							owner = TBK
+							count = 8
+							allow_spawning_on_enemy_provs = yes
+						}
+					}
+					remove_ideas = SIB_strong_monarchist_opposition 
+				}
+				else_if = {
+					limit = {
+						has_idea = SIB_medium_monarchist_opposition 
+					}
+					TBK = {
+						transfer_state = 564
+						transfer_state = 566
+						transfer_state = 574
+						transfer_state = 644
+					}
+					563 = {
+						create_unit = {
+							division = "name = \"Belaya Gvardiya\" division_template = \"White Guard Corps\" start_experience_factor = 0.2 start_equipment_factor = 0.7"
+							owner = TBK
+							count = 4
+							allow_spawning_on_enemy_provs = yes
+						}
+					}
+					remove_ideas = SIB_medium_monarchist_opposition 
+				}
+				else_if = {
+					limit = {
+						has_idea = SIB_weak_monarchist_opposition 
+					}
+					TBK = {
+						transfer_state = 564
+					}
+					563 = {
+						create_unit = {
+							division = "name = \"Belaya Gvardiya\" division_template = \"White Guard Corps\" start_experience_factor = 0.2 start_equipment_factor = 0.7"
+							owner = TBK
+							count = 2
+							allow_spawning_on_enemy_provs = yes
+						}
+					}
+					remove_ideas = SIB_weak_monarchist_opposition 
+				}
+				TBK = {
+					declare_war_on = {
+						target = ROOT
+						type = civil_war
+					}	
+				}
+				every_state = {
+					limit = {
+						is_core_of = ROOT
+					}
+					add_core_of = TBK
+				}
+				
+			}
+			custom_effect_tooltip = siberia_reactionary_revolt_tt
+		}
+	}
+	RUS_purge_the_army = {
+		icon = GFX_decision_oppression
+		allowed = {
+			tag = SIB
+		}
+		cancel_trigger = {
+			NOT = {
+				has_active_mission = SIB_looming_reactionary_revolt
+			}
+		}
+		available = {
+			has_active_mission = SIB_looming_reactionary_revolt
+		}
+		cost = 30
+		fire_only_once = no
+		days_remove = 30
+		visible = {
+			has_active_mission = SIB_looming_reactionary_revolt
+			has_completed_focus = SIB_depolitization_of_the_army
+		}
+		modifier = {
+			training_time_factor = 0.25
+			stability_weekly = -0.004
+			war_support_weekly = -0.004
+			experience_gain_army_factor = -0.5
+		}
+		remove_effect = {
+			if = {
+				limit = {
+					has_idea = SIB_weak_monarchist_opposition 
+					OR = {
+						check_variable = { purge_progress = 3 }
+						check_variable = { purge_progress = 6 }
+						check_variable = { purge_progress = 9 }
+					}
+				}
+				remove_ideas = SIB_weak_monarchist_opposition
+				remove_mission = SIB_looming_reactionary_revolt
+				add_stability = 0.05
+				add_war_support = 0.05
+				add_political_power = 100
+			}
+			else_if = {
+				limit = {
+					has_idea = SIB_medium_monarchist_opposition
+					OR = {
+						check_variable = { purge_progress = 6 }
+					}
+				}
+				swap_ideas = {
+    					remove_idea = SIB_medium_monarchist_opposition 
+    					add_idea = SIB_weak_monarchist_opposition 
+				}
+				add_to_variable = {
+					var = purge_progress
+					value = 1
+					tooltip = purge_progresses_tt
+				}
+				add_days_mission_timeout = {
+					mission = SIB_looming_reactionary_revolt
+					days = 30
+				}
+			}
+			else_if = {
+				limit = {
+					has_idea = SIB_strong_monarchist_opposition
+					OR = {
+						check_variable = { purge_progress = 3 }
+					}
+				}
+				swap_ideas = {
+    					remove_idea = SIB_strong_monarchist_opposition 
+    					add_idea = SIB_medium_monarchist_opposition 
+				}
+				add_to_variable = {
+					var = purge_progress
+					value = 1
+					tooltip = purge_progresses_tt
+				}
+				add_days_mission_timeout = {
+					mission = SIB_looming_reactionary_revolt
+					days = 30
+				}
+			}
+			else = {
+				add_to_variable = {
+					var = purge_progress
+					value = 1
+					tooltip = purge_progresses_tt
+				}
+				add_days_mission_timeout = {
+					mission = SIB_looming_reactionary_revolt
+					days = 30
+				}
+			}
+		}
+		ai_will_do = {
+			base = 100
+		}
+	}
+	SIB_agrarian_reform = {
+		icon = GFX_decision_eng_trade_unions_support
+		allowed = {
+			tag = SIB
+		}
+		cancel_trigger = {
+			NOT = {
+				has_idea = SIB_red_partisans
+			}
+		}
+		available = {
+			has_idea = SIB_red_partisans
+		}
+		cost = 30
+		fire_only_once = no
+		days_remove = 30
+		visible = {
+			has_idea = SIB_red_partisans
+			has_completed_focus = SIB_legalize_black_partition
+		}
+		modifier = {
+			political_power_gain = -0.15
+			consumer_goods_factor = 0.2
+		}
+		remove_effect = {
+			if = {
+				limit = {
+					check_variable = { agrarian_reform_progress = 5 }
+				}
+				remove_ideas = SIB_red_partisans
+				add_stability = 0.15
+				add_political_power = 200
+			}
+			else = {
+				add_to_variable = {
+					var = agrarian_reform_progress
+					value = 1
+					tooltip = agrarian_reform_progresses_tt
+				}
+			}
+			if = {
+				limit = {
+					has_dynamic_modifier = { modifier = SIB_gold_reserve_dynamic_modifier }
+				}
+				add_to_variable = {
+					var = SIB_gold_reserve_var
+					value = 0.02
+					tooltip = SIB_add_02_to_var
+				}
+			}
+		}
+		ai_will_do = {
+			base = 100
+		}
+	}
 	RUS_abolish_FROM_autonomy = {
 		icon = GFX_decision_oppression
 		allowed = {
@@ -74,7 +328,7 @@ RUS_civil_war = {
 		}
 		remove_effect = {
 			FROM = {
-				country_event = ww1_rcw.22
+				country_event = ww1_siberia.13
 			}
 		}
 		ai_will_do = {
@@ -127,7 +381,7 @@ RUS_civil_war = {
 		}
 		remove_effect = {
 			FROM = {
-				country_event = ww1_rcw.22
+				country_event = ww1_siberia.13
 			}
 		}
 		ai_will_do = {
@@ -137,27 +391,41 @@ RUS_civil_war = {
 	RUS_demand_recognition_FROM = {
 		icon = GFX_decision_generic_army_support	
 		allowed = {
-			is_russian_tag = yes
+			tag = SIB
 		}
 		target_trigger ={
 			FROM = {
 				OR = {
 					tag = SRA
 					tag = RSO
-					AND = {
-						tag = DON
-						is_subject = no
-					}
+					tag = DON
+					tag = KUB
+					tag = NWA
+					tag = TRC
 				}	
 			}
 		}
 		visible = {
 			has_global_flag = russian_civil_war
-			has_completed_focus = SIB_demand_recognition_from_generals
+			OR = {
+				has_completed_focus = SIB_demand_recognition_from_generals
+				has_completed_focus = SIB_contact_the_white_forces
+				AND = {
+					has_completed_focus = SIB_finish_the_whites_off
+					FROM = {
+						tag = TRC
+						OR = {
+							has_government = democratic
+							has_government = neutrality
+						}
+					}
+				}
+			}
 		}
 		available = {		
 			FROM = { 
 				exists = yes
+				is_subject = no
 				NOT = {
 					has_war_with = ROOT
 				}
@@ -168,7 +436,160 @@ RUS_civil_war = {
 		days_remove = 10
 		remove_effect = {
 			FROM = {
-				country_event = ww1_rcw.27
+				country_event = ww1_siberia.17
+			}
+		}
+		fire_only_once = yes
+		ai_will_do = {
+			factor = 100
+		}
+	}
+	RUS_demand_vladivostok = {
+		icon = GFX_decision_generic_army_support	
+		allowed = {
+			tag = SIB
+		}
+		target_trigger ={
+			FROM = {
+				tag = CER	
+			}
+		}
+		visible = {
+			has_global_flag = russian_civil_war
+			has_completed_focus = SIB_demand_recognition_from_generals
+			FROM = { 
+				exists = yes
+				is_subject_of = ROOT
+				NOT = {
+					has_war_with = ROOT
+				}
+				owns_state = 408
+			}
+		}
+		
+		cost = 10
+		days_remove = 10
+		remove_effect = {
+			FROM = {
+				country_event = ww1_siberia.20
+			}
+		}
+		fire_only_once = yes
+		ai_will_do = {
+			factor = 100
+		}
+	}
+	RUS_attack_FROM = {
+		icon = GFX_decision_generic_ignite_civil_war	
+		allowed = {
+			tag = SIB
+		}
+		target_trigger ={
+			FROM = {
+				OR = {
+					tag = SRA
+					tag = RSO
+					tag = DON
+					tag = KUB
+					tag = NWA
+					tag = ORE
+					tag = UCH
+					tag = TBK
+					tag = AMU
+					tag = URA
+					tag = CER
+					tag = TER
+					tag = TRC
+				}	
+			}
+		}
+		visible = {
+			has_global_flag = russian_civil_war
+			has_completed_focus = SIB_finish_the_whites_off
+			FROM = { 
+				is_subject = no
+				NOT = {
+					has_war_with = ROOT
+				}
+				if = {
+					limit = {
+						tag = TRC
+					}
+					NOT = {
+						has_government = neutrality
+						has_government = democratic
+					}
+				}
+			}
+		}
+		available = {		
+			FROM = { 
+				is_subject = no
+				NOT = {
+					has_war_with = ROOT
+				}
+			}
+		}
+		
+		cost = 10
+		days_remove = 10
+		remove_effect = {
+			declare_war_on = {
+				target = FROM
+				type = civil_war
+			}
+		}
+		fire_only_once = yes
+		ai_will_do = {
+			factor = 100
+		}
+	}
+	RUS_invite_FROM_to_federation = {
+		icon = GFX_decision_eng_trade_unions_support	
+		allowed = {
+			tag = SIB
+		}
+		target_trigger ={
+			FROM = {
+				OR = {
+					original_tag = MOU
+					original_tag = GEO
+					original_tag = ARM
+					original_tag = AZR
+					original_tag = UKR
+					original_tag = BLR
+					original_tag = CRI
+					original_tag = TRK
+					original_tag = KAZ
+				}	
+			}
+		}
+		visible = {
+			has_global_flag = russian_civil_war
+			has_completed_focus = SIB_federative_republic
+			FROM = { 
+				is_subject = no
+				NOT = {
+					has_government = communism
+					has_war_with = ROOT
+				}
+			}
+		}
+		available = {		
+			FROM = { 
+				is_subject = no
+				NOT = {
+					has_war_with = ROOT
+					has_government = communism
+				}
+			}
+		}
+		
+		cost = 10
+		days_remove = 10
+		remove_effect = {
+			FROM = {
+				country_event = ww1_siberia.30
 			}
 		}
 		fire_only_once = yes
@@ -181,7 +602,7 @@ SIB_import_weapons_category = {
 	SIB_negotiate_import_with_FROM = {
 		icon = GFX_decision_hol_exchange_intelligence_data
 		allowed = {
-			original_tag = RUS
+			tag = SIB
 		}
 		target_trigger = {
 			FROM = {
@@ -267,18 +688,22 @@ SIB_import_weapons_category = {
 								has_country_flag = FRA_decided_to_arm_us
 								has_country_flag = USA_decided_to_arm_us
 								has_country_flag = GER_decided_to_arm_us
+								has_completed_focus = SIB_support_from_entente
 							}
 						}
 					}
 				}
 			}
 			has_dynamic_modifier = { modifier = SIB_gold_reserve_dynamic_modifier }
-			has_completed_focus = SIB_lobby_for_foreign_aid
+			OR = {
+				has_completed_focus = SIB_lobby_for_foreign_aid
+				has_completed_focus = SIB_support_from_entente
+			}
 		}
 		complete_effect = {
 			FROM = {
 				country_event = {
-					id = ww1_rcw.24
+					id = ww1_siberia.14
 					days = 1
 				}
 			}
@@ -290,7 +715,7 @@ SIB_import_weapons_category = {
 	SIB_buy_FROM_infantry_weapons = {
 		icon = generic_industry
 		allowed = {
-			original_tag = RUS
+			tag = SIB
 		}
 		target_trigger = {
 			FROM = {
@@ -310,6 +735,10 @@ SIB_import_weapons_category = {
 			}
 		}
 		available = {
+			check_variable = {
+    				SIB_gold_reserve_var < -0.04
+				tooltip = SIB_has_more_than_04
+			}
 			FROM = {
 				has_opinion = {
 					target = ROOT
@@ -405,7 +834,7 @@ SIB_import_weapons_category = {
 	SIB_buy_FROM_support_equipment = {
 		icon = GFX_decision_ger_military_buildup
 		allowed = {
-			original_tag = RUS
+			tag = SIB
 		}
 		target_trigger = {
 			FROM = {
@@ -425,6 +854,10 @@ SIB_import_weapons_category = {
 			}
 		}
 		available = {
+			check_variable = {
+    				SIB_gold_reserve_var < -0.04
+				tooltip = SIB_has_more_than_04
+			}
 			FROM = {
 				has_opinion = {
 					target = ROOT
@@ -520,7 +953,7 @@ SIB_import_weapons_category = {
 	SIB_buy_FROM_artillery_equipment = {
 		icon = GFX_decision_generic_artillery_icon
 		allowed = {
-			original_tag = RUS
+			tag = SIB
 		}
 		target_trigger = {
 			FROM = {
@@ -540,6 +973,10 @@ SIB_import_weapons_category = {
 			}
 		}
 		available = {
+			check_variable = {
+    				SIB_gold_reserve_var < -0.04
+				tooltip = SIB_has_more_than_04
+			}
 			FROM = {
 				has_opinion = {
 					target = ROOT
@@ -746,7 +1183,51 @@ SIB_mobilize_volunteers_category = {
 					create_unit = {
 						division = "name = \"1-ya Uralskaya Diviziya\" division_template = \"Sibirskaya Pekhotnaya Diviziya\" start_experience_factor = 0.5 start_equipment_factor = 1"
 						owner = ROOT
+						allow_spawning_on_enemy_provs = yes  
 					}
+				}
+			}
+		}
+	}
+	SIB_volunteers_of_constituent_assembly = {
+		icon = GFX_decision_generic_prepare_civil_war
+		allowed = {
+			tag = SIB
+		}
+		available = {
+			controls_state = FROM
+		}
+		
+		visible = {
+			tag = SIB
+			controls_state = FROM
+			NOT = {
+				owns_state = FROM
+			}
+			has_completed_focus = SIB_volunteers_of_the_constituent_assembly
+		}
+	
+		cost = 5
+		
+		on_map_mode = map_only
+		state_target = yes
+		target_trigger = {
+			FROM = {
+				is_core_of = ROOT
+			}
+		}
+		
+		fire_only_once = yes
+		ai_will_do = {
+			factor = 100
+		}
+		
+		complete_effect = {
+			FROM = {
+				create_unit = {
+					division = "name = \"Diviziya Dobroboltsev\" division_template = \"Diviziya Dobrovoltsev\" start_experience_factor = 0 start_equipment_factor = 0.7"
+					owner = ROOT
+					allow_spawning_on_enemy_provs = yes
 				}
 			}
 		}
