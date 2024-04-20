@@ -11,6 +11,7 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_morocco.1.a
+		custom_effect_tooltip = historical_tt
 		set_global_flag = agadir_crisis
 		effect_tooltip = {
 			FRA = {
@@ -20,11 +21,19 @@ country_event = {
 		hidden_effect = {
 			FRA = { country_event = { id = ww1_morocco.2 days = 2 } }
 		}
-		ai_chance = { base = 100 }
+		ai_chance = { 
+			base = 100 
+			modifier = {
+				has_game_rule = {
+					rule = moroccan_revolution
+					option = MOROCCAN_REVOLUTION_FIRED
+				}
+				factor = 0
+			}
+		}
 	}
 	option = {
 		name = ww1_morocco.1.b
-		set_global_flag = agadir_crisis
 		set_politics = {
 			ruling_party = democratic
 			elections_allowed = no
@@ -37,10 +46,69 @@ country_event = {
 				communism = 2
 			}
 		}
+		division_template = {
+			name = "Partisans"
+			regiments = {
+				irregular_infantry = {
+					x = 0
+					y = 0
+				}
+				irregular_infantry = {
+					x = 0
+					y = 1
+				}
+				irregular_infantry = {
+					x = 0
+					y = 2
+				}
+				irregular_infantry = {
+					x = 1
+					y = 0
+				}
+				irregular_infantry = {
+					x = 1
+					y = 1
+				}
+				irregular_infantry = {
+					x = 1
+					y = 2
+				}
+			}
+		}
+		diplomatic_relation = {
+			country = FRA
+			relation = military_access
+			active = no
+		}
+		FRA = {
+			diplomatic_relation = {
+				country = MOR
+				relation = military_access
+				active = no
+			}
+		}
+		set_global_flag = MOR_rebellion_against_FRA
+		461 = {
+			create_unit = {
+				division = "name = \"Partisans\" division_template = \"Partisans\" start_experience_factor = 0.25"
+				owner = MOR
+				count = 10
+			}
+		}
+		add_ideas = MOR_guerilla_warfare
 		remove_ideas = FRA_idea_moroccan_intervention
 		news_event = ww1_morocco.5
 		FRA = { country_event = { id = ww1_morocco.3 days = 2 } }
-		ai_chance = { base = 0 }
+		ai_chance = { 
+			base = 0
+			modifier = {
+				has_game_rule = {
+					rule = moroccan_revolution
+					option = MOROCCAN_REVOLUTION_FIRED
+				}
+				add = 500
+			}
+		}
 	}
 }
 
@@ -50,22 +118,31 @@ country_event = {
 	desc = ww1_morocco.2.d
 	id = ww1_morocco.2
 	picture = GFX_report_event_usa_destroyers
-
+	immediate = {
+		hidden_effect = {
+			set_global_flag = agadir_crisis
+			set_global_flag = {
+				flag = GER_reaction_time
+				days = 40
+				value = 1
+			}
+		}
+	}
 	is_triggered_only = yes
 	option = {
 		name = ww1_morocco.2.a
-		news_event = ww1_morocco.23
-		if = {
-			limit = { has_subject_autonomy_feature = yes }
-			MOR = { set_country_flag = protectorate }
-			set_autonomy = {
-				target = MOR
-				autonomy_state = autonomy_tgwr_protectorate
-			}
+		ai_chance = {
+			factor = 100
 		}
-		else = {
-			puppet = MOR
-			MOR = { add_ideas = protectorate }
+		custom_effect_tooltip = historical_tt
+		news_event = {
+			id = ww1_morocco.23
+			days = 3
+		}
+		MOR = { set_country_flag = protectorate }
+		set_autonomy = {
+			target = MOR
+			autonomy_state = autonomy_tgwr_protectorate
 		}
 		if = {
 			limit = {
@@ -83,6 +160,7 @@ country_event = {
 				}
 			}
 		}
+		
 		hidden_effect = {
 			every_owned_state = {
 				limit = { is_core_of = MOR }
@@ -103,10 +181,6 @@ country_event = {
 					}
 				}
 				promote_character = MOR_yusef_bin_hassan
-			}
-			news_event = {
-				id = ww1_morocco.4
-				hours = 3
 			}
 			create_dynamic_country = {
 				original_tag = MOR
@@ -148,6 +222,9 @@ country_event = {
 	option = {
 		name = ww1_morocco.2.b
 		add_war_support = -0.05
+		ai_chance = {
+			factor = 0
+		}
 		MOR = {
 			add_opinion_modifier = {
 				target = FRA
@@ -169,10 +246,6 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_morocco.3.a
-		create_wargoal = {
-			type = annex_everything
-			target = MOR
-		}
 		every_state = {
 			limit = {
 				is_core_of = MOR
@@ -185,7 +258,22 @@ country_event = {
 				}
 			}
 		}
+		create_wargoal = {
+			target = MOR
+			type = annex_everything	
+		}
+		set_global_flag = FRA_MOR_war
 		add_named_threat = { threat = 3 name = "ww1_morocco.3.t" }
+		ai_chance = {
+			factor = 1000
+		}
+	}
+	option = {
+		name = ww1_morocco.3.b
+		add_war_support = -0.05
+		ai_chance = {
+			factor = 0
+		}
 	}
 }
 
@@ -229,53 +317,113 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_morocco.6.a
-		news_event = ww1_morocco.7
 		ai_chance = { factor = 100 }
 	}
 }
 
-# Agadir Crisis
-news_event = {
-	id = ww1_morocco.7
-	title = ww1_morocco.7.t
-	desc = ww1_morocco.7.d
-	picture = EVENT_hoi4tgw_agadir_crisis
-
-	major = yes
-	is_triggered_only = yes
-
-	option = {
-		name = ww1_morocco.7.a
-		trigger = {
-			NOT = {
-				tag = FRA
-				tag = GER
-			}
-		}
-	}
-
-	option = {
-		name = ww1_morocco.7.b
-		trigger = {
-			OR = {
-				tag = FRA
-				tag = GER
-			}
-		}
-	}
-}
 
 # Agadir Crisis - Germany Demands Compensation
 #################################################
 country_event = {
 	title = ww1_morocco.8.t
-	desc = ww1_morocco.8.d
+	
 	id = ww1_morocco.8
 	picture = GFX_report_event_usa_destroyers
+	desc = {
+		text = ww1_morocco.8.d.forcongo
+		trigger = {
+			has_global_flag = agadir_german_demand_congo
+		}
+	}
+	desc = {
+		text = ww1_morocco.8.d.forsouthmorocco
+		trigger = {
+			has_global_flag = agadir_german_southern_morocco
+		}
+	}
+	desc = {
+		text = ww1_morocco.8.d.forfreemorocco
+		trigger = {
+			has_global_flag = agadir_german_free_morocco
+		}
+	}
 
 	is_triggered_only = yes
+	###############
+	# GERMANY WANT CONGO
+	#################################
 	option = {
 		name = ww1_morocco.8.a
+		add_political_power = -75
+		transfer_state = 769
+		GER = {
+			transfer_state = 815 
+			transfer_state = 814
+			transfer_state = 752
+			transfer_state = 772
+			country_event = {
+				id = ww1_morocco.10
+				days = 2
+			}
+		}
+		news_event = ww1_morocco.11
+		if = {
+			limit = { CMR = { exists = yes } }
+			CMR = {
+				transfer_state = 815 
+				transfer_state = 814
+				transfer_state = 752
+				transfer_state = 772
+			}
+		}
+		hidden_effect = {
+			add_state_claim = 815
+			add_state_claim = 814
+			add_state_claim = 772
+			add_state_claim = 752
+			CMR = {
+				add_state_core = 814
+		   		add_state_core = 815
+			}
+			CAR = {
+				add_state_core = 769
+			}
+		}
+		ai_chance = {
+			factor = 100 
+			modifier = {
+				GER = {
+					has_navy_size = {
+						size < 70
+					}
+				}
+				factor = 0.5
+			}
+			modifier = {
+				has_war_with = GER
+				factor = 0
+			}
+			modifier = {
+				factor = 0
+				has_game_rule = {
+					rule = ultimatum_on_agadir
+					option = WAR_ON_AGADIR
+				}
+			}
+		}
+		trigger = {
+			has_global_flag = agadir_german_demand_congo
+			NOT = {
+				has_global_flag = agadir_british_support_france
+			}
+		}
+	}
+	option = {
+		name = ww1_morocco.8.b
+		trigger = {
+			has_global_flag = agadir_german_demand_congo
+			has_global_flag = agadir_british_support_france
+		}
 		add_war_support = 0.05
 		transfer_state = 769
 		GER = {
@@ -319,18 +467,137 @@ country_event = {
 				has_war_with = GER
 				factor = 0
 			}
+			modifier = {
+				factor = 0
+				has_game_rule = {
+					rule = ultimatum_on_agadir
+					option = WAR_ON_AGADIR
+				}
+			}
 		}
 	}
+	###############
+	# GERMANY WANT SOUTH MOROCCO
+	#################################
 	option = {
-		name = ww1_morocco.8.b
-		GER = { country_event = { id = ww1_morocco.12 days = 2 } }
+		name = ww1_morocco.8.e
+		trigger = {
+			has_global_flag = agadir_german_southern_morocco
+		}
+		GER = {
+			add_stability = 0.05
+			transfer_state = 807
+			transfer_state = 783
+		}
+		add_political_power = -150
+		news_event = ww1_morocco.11
+		ai_chance = {
+			factor = 100 
+			modifier = {
+				GER = {
+					has_navy_size = {
+						size < 70
+					}
+				}
+				factor = 0.5
+			}
+			modifier = {
+				has_war_with = GER
+				factor = 0
+			}
+			modifier = {
+				factor = 0
+				has_game_rule = {
+					rule = ultimatum_on_agadir
+					option = WAR_ON_AGADIR
+				}
+			}
+		}
+	}
+	###############
+	# GERMANY WANT FREE MOROCCO
+	#################################
+	option = {
+		name = ww1_morocco.8.f
+		trigger = {
+			has_global_flag = agadir_german_free_morocco
+		}
+		set_autonomy = {
+			target = MOR
+			autonomous_state = autonomy_free
+		}
+		FRA = {
+			every_owned_state = {
+				limit = {
+					is_core_of = MOR
+				}
+				transfer_state_to = MOR
+			}
+		}
+		MOR = {
+			leave_faction = yes
+			drop_cosmetic_tag = yes
+			GER = { give_guarantee = PREV }
+		}
+		add_political_power = -75
+		news_event = ww1_morocco.11
+		hidden_effect = {
+			RMO = {
+				every_state = {
+					limit = {
+						is_core_of = PREV
+					}
+					remove_core_of = PREV
+				}
+			}
+		}
+		ai_chance = {
+			factor = 100 
+			modifier = {
+				GER = {
+					has_navy_size = {
+						size < 70
+					}
+				}
+				factor = 0.5
+			}
+			modifier = {
+				has_war_with = GER
+				factor = 0
+			}
+			modifier = {
+				factor = 0
+				has_game_rule = {
+					rule = ultimatum_on_agadir
+					option = WAR_ON_AGADIR
+				}
+			}
+		}
+	}
+
+	option = {
+		name = ww1_morocco.8.c
+		GER = { country_event = { id = ww1_morocco.12 days = 4 } }
 		news_event = ww1_morocco.14
 		ai_chance = {
 			factor = 10
 			modifier = {
 				is_historical_focus_on = yes
 				NOT = { has_war_with = GER }
+				NOT = {
+					has_game_rule = {
+						rule = ultimatum_on_agadir
+						option = WAR_ON_AGADIR
+					}
+				}
 				factor = 0
+			}
+			modifier = {
+				has_game_rule = {
+					rule = ultimatum_on_agadir
+					option = WAR_ON_AGADIR
+				}
+				factor = 1000
 			}
 		}
 	}
@@ -360,19 +627,10 @@ country_event = {
 			end_puppet = MOR
 		}
 		GER = {
-			if = {
-				limit = {
-					has_subject_autonomy_feature = yes
-				}
-				set_autonomy = {
-					target = MOR
-					autonomy_state = autonomy_tgwr_informal_protectorate
-				}
-				MOR = { set_country_flag = protectorate }
-			}
-			else = {
-				puppet = MOR
-				MOR = { add_ideas = protectorate }
+			MOR = { set_country_flag = protectorate }
+			set_autonomy = {
+				target = MOR
+				autonomy_state = autonomy_tgwr_informal_protectorate
 			}
 			hidden_effect = {
 				MOR = {
@@ -448,12 +706,6 @@ country_event = {
 	option = {
 		name = ww1_morocco.10.a		
 		set_global_flag = agadir_crisis_ends
-		effect_tooltip = {
-			GER = {
-				transfer_state = 815 
-				transfer_state = 814				
-			}
-		}	
 		ai_chance = { factor = 100 }
 	}
 }
@@ -462,16 +714,53 @@ country_event = {
 news_event = {
 	id = ww1_morocco.11
 	title = ww1_morocco.11.t
-	desc = ww1_morocco.11.d
 	picture = EVENT_hoi4tgw_agadir_crisis
+
+	desc = {
+		text = ww1_morocco.11.d.forcongo
+		trigger = {
+			has_global_flag = agadir_german_demand_congo
+		}
+	}
+	desc = {
+		text = ww1_morocco.11.d.forsouthmorocco
+		trigger = {
+			has_global_flag = agadir_german_southern_morocco
+		}
+	}
+	desc = {
+		text = ww1_morocco.11.d.forfreemorocco
+		trigger = {
+			has_global_flag = agadir_german_free_morocco
+		}
+	}
 
 	major = yes
 	is_triggered_only = yes
+	immediate = {
+		set_global_flag = agadir_crisis_ends
+	}
 
 	option = {
 		name = ww1_morocco.11.a
-		set_global_flag = agadir_crisis_ends
-		ai_chance = { factor = 100 }
+		trigger = {
+			NOT = {
+				tag = FRA
+				tag = GER
+			}
+		}
+	}
+	option = {
+		name = ww1_morocco.11.b
+		trigger = {
+			tag = GER
+		}
+	}
+	option = {
+		name = ww1_morocco.11.c
+		trigger = {
+			tag = FRA
+		}
 	}
 }
 
@@ -493,6 +782,40 @@ country_event = {
 		}
 		set_global_flag = agadir_crisis_ends
 		ai_chance = { factor = 100 }
+	}
+	option = {
+		name = ww1_morocco.12.b
+		add_stability = 0.05
+		add_war_support = -0.1
+		add_political_power = -150
+		set_global_flag = agadir_crisis_ends
+		country_event = {
+			id = ww1_morocco.15
+			days = 3
+		}
+		every_other_country = {
+			limit = {
+				OR = {
+					tag = SPR
+					tag = FRA
+					tag = ENG
+				}
+			}
+			country_event = {
+				id = ww1_morocco.27
+				days = 1
+			}
+		}
+		ai_chance = {
+			factor = 25
+			modifier = {
+				factor = 0
+				has_game_rule = {
+					rule = ultimatum_on_agadir
+					option = WAR_ON_AGADIR
+				}
+			}
+		}
 	}
 }
 
@@ -522,11 +845,33 @@ news_event = {
 
 	major = yes
 	is_triggered_only = yes
-
+	immediate = {
+		set_global_flag = agadir_crisis_ends
+	}
 	option = {
 		name = ww1_morocco.14.a
-		set_global_flag = agadir_crisis_ends
-		ai_chance = { factor = 100 }
+		trigger = {
+			tag = GER
+		}
+	}
+	option = {
+		name = ww1_morocco.14.b
+		trigger = {
+			OR = {
+				tag = FRA
+				is_in_faction_with = FRA
+			}
+		}
+	}
+	option = {
+		name = ww1_morocco.14.c
+		trigger = {
+			NOT = {
+				is_in_faction_with = FRA
+				tag = FRA
+				tag = GER
+			}
+		}
 	}
 }
 
@@ -540,8 +885,6 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_morocco.15.a
-		add_war_support = -0.1
-		add_political_power = -75
 		ai_chance = { factor = 100 }
 	}
 }
@@ -561,14 +904,6 @@ country_event = {
 			modifier = HOI4TGW_Opinion_diplomats_bonus
 		}
 	}
-	option = {
-		name = ww1_morocco.16.b
-		trigger = { tag = GER }
-		add_opinion_modifier = {
-			target = FROM
-			modifier = HOI4TGW_Opinion_diplomats_malus
-		}
-	}
 }
 
 # German financial crisis
@@ -577,16 +912,30 @@ country_event = {
 	title = ww1_morocco.17.t
 	desc = ww1_morocco.17.d
 	picture = GFX_report_event_gathering_protest
-	trigger = {
-		tag = GER
-		has_global_flag = agadir_crisis
-		has_completed_focus = GER_moroccan_crisis
-		has_active_mission = GER_agadir_crisis_opportunity
-	}
+	is_triggered_only = yes
 	fire_only_once = yes
 	option = {
 		name = ww1_morocco.17.a
 		add_ideas = GER_financial_crisis_of_agadir
+		if = {
+			limit = {
+				has_country_flag = GER_sms_panther_morocco
+			}
+			custom_effect_tooltip = GER_leave_in_one_month_or_crash
+			activate_mission = GER_retire_from_morocco
+			else = {
+				country_event = {
+					id = ww1_morocco.26
+					days = 3
+				}
+			}
+		}
+		
+		set_country_flag = {
+			flag = wait_25_days
+			days = 25
+			value = 1
+		}
 	}
 }
 
@@ -605,6 +954,280 @@ country_event = {
 		}
 	}
 }
+
+# Spainish Morocco
+country_event = {
+	id = ww1_morocco.20
+	title = ww1_morocco.20.t
+	desc = ww1_morocco.20.d
+	picture = GFX_report_event_spr_army_of_africa
+	is_triggered_only = yes
+	option = {
+		name = ww1_morocco.20.a
+		transfer_state = 290
+		transfer_state = 807
+		add_state_claim = 887
+	}
+}
+
+
+# Agadir Crisis
+news_event = {
+	id = ww1_morocco.23
+	title = ww1_morocco.23.t
+	desc = ww1_morocco.23.d
+	picture = EVENT_hoi4tgw_france_at_war
+
+	major = yes
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_morocco.23.a
+		trigger = {
+			tag = FRA
+		}
+	}
+
+	option = {
+		name = ww1_morocco.23.b
+		trigger = {
+			tag = GER
+		}
+		custom_effect_tooltip = GER_decisions_agadir
+		activate_mission = GER_agadir_crisis_opportunity
+	}
+	option = {
+		name = ww1_morocco.23.c
+		trigger = {
+			NOT = {
+				tag = GER
+				tag = FRA
+				tag = ENG
+				tag = SPR
+			}
+		}
+	}
+	option = {
+		name = ww1_morocco.23.e
+		trigger = {
+			tag = ENG
+		}
+	}
+	option = {
+		name = ww1_morocco.23.f
+		trigger = {
+			tag = SPR
+		}
+	}
+}
+
+# germany remove SMS panther
+country_event = {
+	id = ww1_morocco.24
+	title = ww1_morocco.24.t
+	desc = ww1_morocco.24.d
+	picture = GFX_report_event_usa_destroyers
+
+	major = no
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_morocco.24.a
+		trigger = {
+			tag = FRA
+		}
+	}
+	option = {
+		name = ww1_morocco.24.b
+		trigger = {
+			tag = ENG
+		}
+
+	}
+}
+
+# will british intervene ? 
+country_event = {
+	id = ww1_morocco.25
+	title = ww1_morocco.25.t
+	picture = GFX_report_event_usa_destroyers
+	desc = {
+		text = ww1_morocco.25.d.forcongo
+		trigger = {
+			has_global_flag = agadir_german_demand_congo
+		}
+	}
+	desc = {
+		text = ww1_morocco.25.d.forsouthmorocco
+		trigger = {
+			has_global_flag = agadir_german_southern_morocco
+		}
+	}
+	desc = {
+		text = ww1_morocco.25.d.forfreemorocco
+		trigger = {
+			has_global_flag = agadir_german_free_morocco
+		}
+	}
+	major = no
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_morocco.25.a
+		set_global_flag = agadir_british_support_france
+		FRA = {
+			country_event = {
+				id = ww1_morocco.16
+				days = 1
+			}
+		}
+		ai_chance = {
+			factor = 500
+		}
+	}
+	option = {
+		name = ww1_morocco.25.b #neutral
+		ai_chance = {
+			factor = 0
+		}
+	}
+}
+
+# What germany want ? 
+country_event = {
+	id = ww1_morocco.26
+	title = ww1_morocco.26.t
+	desc = ww1_morocco.26.d
+	picture = GFX_report_event_usa_destroyers
+
+	major = no
+	is_triggered_only = yes
+
+	option = {	#huh we want french congo - historical
+		name = ww1_morocco.26.a
+		custom_effect_tooltip = historical_tt
+		set_global_flag = agadir_german_demand_congo
+		ENG = {
+			country_event = {
+				id = ww1_morocco.25
+				days = 1
+			}
+		}
+		FRA = {
+			country_event = {
+				id = ww1_morocco.8
+				days = 14
+			}
+		}
+		ai_chance = {
+			factor = 10
+			modifier = {
+				is_historical_focus_on = yes
+				factor = 500
+			}
+		}
+	}
+	option = {
+		name = ww1_morocco.26.b #huh give us southern morocco
+		set_global_flag = agadir_german_southern_morocco
+		ENG = {
+			country_event = {
+				id = ww1_morocco.25
+				hours = 6
+			}
+		}
+		FRA = {
+			country_event = {
+				id = ww1_morocco.8
+				days = 14
+			}
+		}
+		ai_chance = {
+			factor = 10
+		}
+	}
+	option = {
+		name = ww1_morocco.26.c #morocco must be free
+		set_global_flag = agadir_german_free_morocco
+		ENG = {
+			country_event = {
+				id = ww1_morocco.25
+				hours = 6
+			}
+		}
+		FRA = {
+			country_event = {
+				id = ww1_morocco.8
+				days = 14
+			}
+		}
+		ai_chance = {
+			factor = 5
+		}
+	}
+	# option = {
+	# 	name = ww1_morocco.26.e #give us money
+	# 	ai_chance = {
+	# 		factor = 5
+	# 	}
+	# }
+	# option = {
+	# 	name = ww1_morocco.26.f #nothing, we are cucked
+	# 	ai_chance = {
+	# 		factor = 1
+	# 	}
+	# }
+}
+
+
+# the agadir crisis has been ignored by germany
+country_event = {
+	id = ww1_morocco.27
+	title = ww1_morocco.27.t
+	desc = ww1_morocco.27.d
+	picture = GFX_report_event_usa_destroyers
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_morocco.27.a
+	}
+}
+
+# germany is warned of French occupation of morocco
+country_event = {
+	id = ww1_morocco.28
+	title = ww1_morocco.28.t
+	desc = ww1_morocco.28.d
+	picture = GFX_report_event_usa_destroyers
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_morocco.28.a
+	}
+}
+
+# morocco rebellion defeated
+country_event = {
+	id = ww1_morocco.29
+	title = ww1_morocco.29.t
+	desc = ww1_morocco.29.d
+	picture = GFX_report_event_arab_revolt
+	is_triggered_only = yes
+
+	option = {
+		annex_country = {
+			target = MOR
+		}
+		country_event = {
+			id = ww1_morocco.2
+			days = 2
+		}
+		name = ww1_morocco.29.a
+	}
+}
+
+############################################################################################################################################
+
 
 # German Protectorate Interwar
 country_event = {
@@ -650,19 +1273,10 @@ country_event = {
 				transfer_state_to = MOR
 				add_core_of = MOR
 			}
-			if = {
-				limit = {
-					has_subject_autonomy_feature = yes
-				}
-				set_autonomy = {
-					target = MOR
-					autonomy_state = autonomy_tgwr_informal_protectorate
-				}
-				MOR = { set_country_flag = protectorate }
-			}
-			else = {
-				puppet = MOR
-				MOR = { add_ideas = protectorate }
+			MOR = { set_country_flag = protectorate }
+			set_autonomy = {
+				target = MOR
+				autonomy_state = autonomy_tgwr_informal_protectorate
 			}
 			hidden_effect = {
 				MOR = {
@@ -691,21 +1305,6 @@ country_event = {
 			add_resistance = 30
 		}
 		ai_chance = { factor = 0 }
-	}
-}
-
-# Spainish Morocco
-country_event = {
-	id = ww1_morocco.20
-	title = ww1_morocco.20.t
-	desc = ww1_morocco.20.d
-	picture = GFX_report_event_spr_army_of_africa
-	is_triggered_only = yes
-	option = {
-		name = ww1_morocco.20.a
-		transfer_state = 290
-		transfer_state = 807
-		add_state_claim = 887
 	}
 }
 
@@ -772,55 +1371,6 @@ country_event = {
 		name = ww1_morocco.22.b
 		give_guarantee = TGR
 		TGR = { give_military_access = ROOT }
-	}
-}
-
-# Agadir Crisis
-news_event = {
-	id = ww1_morocco.23
-	title = ww1_morocco.23.t
-	desc = ww1_morocco.23.d
-	picture = EVENT_hoi4tgw_france_at_war
-
-	major = no
-	is_triggered_only = yes
-
-	option = {
-		name = ww1_morocco.23.a
-		trigger = {
-			tag = FRA
-		}
-	}
-
-	option = {
-		name = ww1_morocco.23.b
-		trigger = {
-			tag = GER
-		}
-		custom_effect_tooltip = GER_decisions_agadir
-	}
-	option = {
-		name = ww1_morocco.23.c
-		trigger = {
-			NOT = {
-				tag = GER
-				tag = FRA
-				tag = ENG
-				tag = SPR
-			}
-		}
-	}
-	option = {
-		name = ww1_morocco.23.e
-		trigger = {
-			tag = ENG
-		}
-	}
-	option = {
-		name = ww1_morocco.23.f
-		trigger = {
-			tag = SPR
-		}
 	}
 }
 
