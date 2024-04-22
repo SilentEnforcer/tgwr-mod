@@ -496,14 +496,9 @@
 					}
 				}
 				release_puppet = HUN
-				if = {
-					limit = {
-						has_dlc = "Together for Victory"
-					}
-					set_autonomy = {
-						target = HUN
-						autonomous_state = autonomy_tgwr_crownland
-					}
+				set_autonomy = {
+					target = HUN
+					autonomous_state = autonomy_tgwr_crownland
 				}
 				HUN = {
 					set_politics = {
@@ -776,9 +771,9 @@
 			}
 			if = {
 				limit = {
+					tag = SOV
 					NOT = { has_global_flag = russian_civil_war_ends }
 					has_global_flag = russian_civil_war
-					is_russian_tag = yes
 					is_subject = no
 					OR = {
 						is_faction_leader = yes
@@ -793,9 +788,7 @@
 						}
 					}
 				}
-				ROOT = {
-					set_country_flag = russian_civil_war_winner
-				}
+				set_country_flag = russian_civil_war_winner
 				set_global_flag = russian_civil_war_ends
 				news_event = rusrevolt.19
 			}
@@ -1465,13 +1458,7 @@
 					original_tag = CAN
 					is_subject_of = ENG
 				}
-				if = {
-					limit = { has_dlc = "Together for Victory" }	
-					set_cosmetic_tag = CAN_UK
-					else = {
-						set_cosmetic_tag = CAN_ALY
-					}
-				}
+				set_cosmetic_tag = CAN_UK
 			}
 			if = {
 				limit = {
@@ -3078,13 +3065,7 @@
 					original_tag = CAN
 					is_subject_of = ENG
 				}
-				if = {
-					limit = { has_dlc = "Together for Victory" }	
-					set_cosmetic_tag = CAN_UK
-					else = {
-						set_cosmetic_tag = CAN_ALY
-					}
-				}
+				set_cosmetic_tag = CAN_UK
 			}
 			if = {
 				limit = {
@@ -4503,6 +4484,36 @@
 	}
 	on_startup = {
 		effect = {
+			#setting up basic famine state for everyone
+			every_country = {
+				limit = {
+					tag = AUH
+				}
+				set_variable = {
+					var = famine_manpower
+					value = -500
+				}
+				set_variable = {
+					var = famine_manpower_growth
+					value = -0.75
+				}
+				set_variable = {
+					var = famine_stability
+					value = -0.0003
+				}
+				set_variable = {
+					var = famine_war_support
+					value = -0.0015
+				}
+				set_variable = {
+					var = famine_army_org
+					value = -0.25
+				}
+				set_variable = {
+					var = famine_consumption_factor
+					value = 0.25
+				}
+			}
 			IND = {
 				every_owned_state = {
 					limit = {
@@ -5106,6 +5117,32 @@
 			}
 			if = {
 				limit = {
+					tag = UPR
+					NOT = {
+						has_country_flag = brest_litovsk_capture
+					}
+				}
+				UPR = {
+					set_country_flag = don_before_sra
+				}
+				UKR = {
+					annex_country= {
+						target = UPR
+					}
+				}
+			}
+			if = {
+				limit = {
+					tag = LAT
+					has_war_with = UBD
+				}
+				become_exiled_in = {
+					target = EST
+					legitimacy = 30
+				}
+			}
+			if = {
+				limit = {
 					tag = KUB
 					any_enemy_country = {
 						tag = SOV
@@ -5175,18 +5212,10 @@
 					white_peace = {
 						tag = ROOT
 					}
-					if = {
-						limit = {
-							has_subject_autonomy_feature = yes
-						}
-						set_autonomy = {
-							target = ROOT
-							autonomous_state = autonomy_tgwr_balkan_federal_subject
-							freedom_level = 0.5
-						}
-						else = {
-							puppet = ROOT
-						}
+					set_autonomy = {
+						target = ROOT
+						autonomous_state = autonomy_tgwr_balkan_federal_subject
+						freedom_level = 0.5
 					}
 				}
 			}
@@ -6303,6 +6332,109 @@
 					promote_character = FIN_kullervo_manner
 				}
 			}
+			if = {
+				limit = {
+					tag = MAC
+					has_war_with = SER
+				}
+				SER = {
+					annex_country = {
+						target = MAC
+						transfer_troops = no
+					}
+					country_event = ww1_serbia.60
+				}
+				if = {
+					limit = {
+						has_character = ALB_isa_boletini
+					}
+					ALB_isa_boletini = {
+						set_nationality = ALB
+					}
+				}
+				every_state = {
+					limit = {
+						is_core_of = MAC
+					}
+					remove_core_of = MAC
+				}
+			}
+			if = {
+				limit = {
+					tag = MON
+					has_country_leader = {
+						character = RUS_roman_ungern_sternberg
+						ruling_only = yes
+					}
+					has_war_with = SOV
+					SOV = {
+						has_government = communism
+					}
+				}
+				SOV = {
+					if = {
+						limit = {
+							MON = {
+								owns_state = 329
+							}
+							TAN = {
+								OR = {
+									exists = no
+									is_subject_of = MON
+								}
+							}
+						}
+						TAN = {
+							transfer_state = 329
+						}
+						puppet = TAN
+					}
+					if = {
+						limit = {
+							MON = {
+								is_in_faction = no
+								is_ai = yes
+							}
+						}
+						MON = {
+							transfer_state = 330
+							drop_cosmetic_tag = yes
+							retire_character = RUS_roman_ungern_sternberg
+							retire_character = RUS_boris_rezukhin
+							swap_ideas = {
+								remove_idea = MON_bogd_khan_sternberg
+								add_idea = MON_bogd_khan_MAN
+							}
+							if = {
+								limit = {
+									has_character = ALT_aleksandr_kaygorodov
+								}
+								ALT_aleksandr_kaygorodov = {
+									set_nationality = ALT
+									promote_character = yes
+								}
+							}
+							set_party_name = { 
+								ideology = fascism 
+								long_name = MON_fascism_party 
+								name = MON_fascism_party 
+							}						
+						}
+						set_province_name = {
+							id = 4801
+							name = ULANBATOR_PROV
+						}
+						SOV = {
+							set_autonomy = {
+								target = MON
+								autonomy_state = autonomy_satellite
+								freedom_level = 0.5
+								end_wars = yes
+							}
+						}
+					}	
+				}
+			}
 		}
 	}
 	on_civil_war_end = {
@@ -6701,6 +6833,12 @@
 						original_tag = TER
 					}
 					set_cosmetic_tag = TER_communism
+				}
+				if = {
+					limit = {
+						original_tag = TBK
+					}
+					set_cosmetic_tag = TBK_communism
 				}
 				if = {
 					limit = {
@@ -8343,6 +8481,37 @@
 					FROM = { remove_ideas = ITA_roman_question }
 				}
 			}
+			#Bulgaria get Solun
+			if = {
+				limit = {
+					FROM.FROM = {
+						state = 345
+					}
+					OR = {
+						BUL = {
+							is_ai = no
+						}
+						GRE = {
+							is_ai = no
+						}
+					}
+					has_global_flag = kis_firstbalkan_war
+					NOT = {
+						has_global_flag = kis_firstbalkanwar_victory
+					}
+				}
+				if = {
+					limit = {
+						ROOT = {
+							original_tag = BUL
+						}
+						FROM = {
+							original_tag = TUR
+						}
+					}
+					set_global_flag = bulgarian_solun
+				}
+			}
 			if = {
 				limit = {
 					tag = GER
@@ -8630,6 +8799,92 @@
 				remove_ideas = total_economic_bonus
 
 			}
+			# reserved if on_daily eats too much performance
+			if = {
+				limit = {
+					tag = SRA
+					has_country_flag = SRA_KUB_interactions
+					has_idea = SRA_kuban_rada_1
+				}
+				add_to_variable = { SRA_cossack_autonomy = 5 }
+				add_to_variable = { SRA_cossack_loyalty = -3 }
+				if = {
+					limit = {
+						check_variable = {SRA_cossack_loyalty < 0} 
+					}
+					set_variable = {
+						var = SRA_cossack_loyalty
+						value = 0
+					}
+				}
+				if = {
+					limit = {
+						check_variable = {SRA_cossack_autonomy > 100} 
+					}
+					set_variable = {
+						var = SRA_cossack_autonomy 
+						value = 100
+					}
+				}
+			}
+			if = {
+				limit = {
+					tag = SRA
+					has_country_flag = SRA_KUB_interactions
+					has_idea = SRA_kuban_rada_2
+				}
+				add_to_variable = { SRA_cossack_autonomy = 10 }
+				add_to_variable = { SRA_cossack_loyalty = -6 }
+				if = {
+					limit = {
+						check_variable = {SRA_cossack_loyalty < 0} 
+					}
+					set_variable = {
+						var = SRA_cossack_loyalty
+						value = 0
+					}
+				}
+				if = {
+					limit = {
+						check_variable = {SRA_cossack_autonomy > 100} 
+					}
+					set_variable = {
+						var = SRA_cossack_autonomy 
+						value = 100
+					}
+				}
+			}
+		}
+	}
+	on_daily = {
+		effect = {
+			#ferrari increase
+			# if = {
+			# 	limit = {
+			# 		has_country_flag = SRA_KUB_interactions
+			# 		has_idea = SRA_kuban_rada
+			# 	}
+			# 	add_to_variable = { SRA_cossack_autonomy = 2 }
+			# 	add_to_variable = { SRA_cossack_loyalty = -1 }
+			# 	if = {
+			# 		limit = {
+			# 			check_variable = {SRA_cossack_loyalty < 0} 
+			# 		}
+			# 		set_variable = {
+			# 			var = SRA_cossack_loyalty
+			# 			value = 0
+			# 		}
+			# 	}
+			# 	if = {
+			# 		limit = {
+			# 			check_variable = {SRA_cossack_autonomy < 100} 
+			# 		}
+			# 		set_variable = {
+			# 			var = SRA_cossack_autonomy 
+			# 			value = 100
+			# 		}
+			# 	}
+			# }	
 		}
 	}
 }
