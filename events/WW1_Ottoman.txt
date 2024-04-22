@@ -79,32 +79,37 @@ country_event = { #ottoman revolt test
 				transfer_state = var:occupied_state
 			}
 		}
-		else_if = {
-			limit = {
-				var:occupied_state = {
-					is_core_of = PREV
-				}
-				NOT = { country_exists = PREV }
-			}
+		else = {
 			every_possible_country = {
 				random_select_amount = 1
-				limit = { var:occupied_state = { is_core_of = PREV } }
-				transfer_state = var:occupied_state
 				set_temp_variable = { occupied_country = THIS }
-				set_temp_variable = { new_occupied_country = THIS }
-			}
-		}
-		else_if = {
-			limit = {
-				any_country_with_original_tag = {
-					original_tag_to_check = PREV
-					has_war_with = ROOT
+				limit = { var:occupied_state = { is_core_of = PREV } }
+				if = {
+					limit = { NOT = { country_exists = var:occupied_country } }
+					transfer_state = var:occupied_state
+					set_temp_variable = { new_occupied_country = THIS }
 				}
-			}
-			random_country_with_original_tag = {
-				original_tag_to_check = PREV
-				limit = { has_war_with = ROOT }
-				transfer_state = var:occupied_state
+				else_if = {
+					limit = {
+						country_exists = var:occupied_country
+						var:occupied_country = { has_war_with = var:occupier_country }
+					}
+					transfer_state = var:occupied_state
+				}
+				else_if = {
+					limit = {
+						any_country_with_original_tag = {
+							original_tag_to_check = var:occupied_country
+							NOT = { has_war_with = ROOT }
+						}
+					}
+					create_dynamic_country = {
+						original_tag = var:occupied_country
+						copy_tag = var:occupied_country
+						transfer_state = var:occupied_state
+						set_temp_variable = { new_occupied_country = THIS }
+					}
+				}
 			}
 		}
 
