@@ -1,5 +1,6 @@
 ﻿add_namespace = ww1_oman
 
+# Faisal bin Turki Dies!
 country_event = {
 	title = ww1_oman.1.t
 	desc = ww1_oman.1.d
@@ -20,27 +21,73 @@ country_event = {
 		promote_character = OMA_taimur_bin_feisal
 	}
 }
+
+# Demand Somali
 country_event = {
 	id = ww1_oman.2
-	title = "Oman demands Somalia"
+	title = ww1_oman.2.t
 	desc = ww1_oman.2.d
-	picture = GFX_news_event_omaait
+	picture = GFX_report_event_african_soldiers
 
 	is_triggered_only = yes
 	
 	option = {
-		name = "Ok, we surrender"
-		ai_chance = { factor = 100 }
-		OMA={
-			transfer_state = 880
-			transfer_state = 888
-			transfer_state = 889
+		trigger = {
+			NOT = {
+				has_war_with = FROM
+			}
+		}
+		name = ww1_oman.2.a
+		ai_chance = {
+			base = 50
+			modifier = {
+				factor = 0
+				has_opinion = {
+					target = FROM
+					value < 0
+				}
+				NOT = {
+					has_country_flag = great_war_loser
+					has_idea = idea_armistice
+					has_idea = idea_army_restrictions
+				}
+			}
+			modifier = {
+				factor = 0
+				strength_ratio = {
+					tag = FROM
+					ratio > 2
+				}
+				NOT = {
+					has_country_flag = great_war_loser
+					has_idea = idea_armistice
+					has_idea = idea_army_restrictions
+				}
+			}
+		}
+		every_owned_state = {
+			limit = {
+				OR = {
+					is_core_of = SOM
+					is_core_of = HBY
+					is_core_of = MJT
+					is_core_of = GLD
+				}
+			}
+			transfer_state_to = FROM
 		}
 	}
 	option = {
-		name = "We will never give up"
-		ai_chance = { factor = 100 }
-		OMA={
+		name = ww1_oman.2.b
+		trigger = {
+			NOT = {
+				has_country_flag = great_war_loser
+				has_idea = idea_armistice
+				has_idea = idea_army_restrictions
+			}
+		}
+		ai_chance = { base = 100 }
+		FROM = {
 			create_wargoal = {
 				target = ROOT
 				type = puppet_wargoal_focus
@@ -48,27 +95,57 @@ country_event = {
 		}
 	}
 }
+
+# Buy Zanzibar
 country_event = {
 	id = ww1_oman.3
-	title = "Oman Wants to buy Zanzibar"
+	title = ww1_oman.3.t
 	desc = ww1_oman.3.d
-	picture = GFX_news_event_omaait
+	picture = GFX_report_event_generic_sign_treaty1
 
 	is_triggered_only = yes
 	
 	option = {
-		name = "Ok, we surrender"
-		ai_chance = { factor = 100 }
-		OMA={
-			transfer_state = 903
-			puppet = ZAN
+		name = ww1_oman.3.a
+		ai_chance = {
+			base = 100
+			modifier = {
+				factor = 0
+				has_opinion = {
+					target = FROM
+					value < 0
+				}
+			}
 		}
-		add_ideas = OMA_Zanzibar_money
+		if = {
+			limit = {
+				has_subject = ZAN
+			}
+			ZAN = {
+				get_current_government_type = yes
+				FROM = {
+					set_autonomy = {
+						target = PREV
+						autonomy_state = autonomy_dominion
+					}
+				}
+				restore_previous_government_type = yes
+			}
+		}
+		else = {
+			FROM = {
+				transfer_state = 903
+			}
+		}
+		add_timed_idea = {
+			idea = MSC_Zanzibar_money
+			days = 70
+		}
 	}
 	option = {
-		name = "We will never give up"
-		ai_chance = { factor = 100 }
-		OMA={
+		name = ww1_oman.3.b
+		ai_chance = { base = 75 }
+		FROM = {
 			add_opinion_modifier = {
 				target = ROOT
 				modifier = large_decrease
@@ -76,8 +153,10 @@ country_event = {
 		}
 	}
 }
+
+# Oil Discovered, I think it is easter egg right?
 country_event = {
-	title = "Oil discovered in Oman"
+	title = ww1_oman.4.t
 	desc = ww1_oman.4.d
 	id = ww1_oman.4
 	picture = GFX_report_event_royal_parade
@@ -85,16 +164,32 @@ country_event = {
 	fire_only_once = yes
 	mean_time_to_happen = { days = 9 }
 	trigger = {
-		tag = OMA
+		OR = {
+			tag = MSC
+			tag = OMA
+		}
 		date > 1948.10.1
 	}
 	
 	option = {
-		name = "We're gonna be rich"
+		name = ww1_oman.4.a
 		set_country_flag = oil_discovered
+		every_owned_state = {
+			limit = {
+				OR = {
+					is_core_of = MSC
+					is_core_of = OMA
+				}
+			}
+			add_resource = {
+				type = oil
+				amount = 10
+			}
+		}
 	}
 }
 
+# Imamate
 country_event = {
 	id = ww1_oman.5
 	title = ww1_oman.5.t
@@ -115,6 +210,7 @@ country_event = {
 			remove_core_of = MSC
 			add_claim_by = MSC
 			add_core_of = OMA
+			start_resistance = yes
 			if = {
 				limit = { ROOT = { has_war = no } }
 				set_demilitarized_zone = yes
@@ -134,17 +230,11 @@ country_event = {
 	title = ww1_oman.6.t
 	desc = ww1_oman.6.d
 	picture = GFX_report_event_generic_sign_treaty1
-	
-	fire_only_once = yes
-	mean_time_to_happen = { days = 25 }
-	trigger = {
-		tag = MSC
-		owns_state = 882
-		date > 1920.9.1
-	}
+	is_triggered_only = yes
 	
 	option = {
 		name = ww1_oman.6.a
+		add_ideas = MSC_treaty_of_seeb_idea
 		882 = {
 			transfer_state_to = OMA
 			set_demilitarized_zone = no
