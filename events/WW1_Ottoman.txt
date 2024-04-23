@@ -6,15 +6,9 @@ add_namespace = ottoman_arabia
 
 country_event = { #ottoman revolt test
 	id = ottoman.0
-	title = ottoman.0.t
-	desc = ottoman.0.d
-	trigger = {
-		any_controlled_state = {
-			resistance > 84
-		}
-		tag = TUR
-	}
-	option = {
+	hidden = yes
+	is_triggered_only = yes
+	immediate = {
 		name = ottoman.0.a
 		random_controlled_state = {
 			limit = { resistance > 89 }
@@ -25,7 +19,13 @@ country_event = { #ottoman revolt test
 				set_resistance = 0
 			}
 			every_neighbor_state = {
-				add_resistance = 15
+				limit = {
+					controller = {
+						tag = var:occupier_country
+						NOT = { is_core_of = var:occupier_country }
+					}
+				}
+				add_resistance = 10
 			}
 		}
 		if = {
@@ -764,7 +764,237 @@ country_event = { #ottoman revolt test
 				set_temp_variable = { new_occupied_country = THIS }
 			}
 		}
-		else = {
+		if = {
+			limit = {
+				var:occupied_state = {
+					has_state_flag = TUR_romanian_state
+					is_core_of = ROM
+				}
+				NOT = { country_exists = ROM }
+			}
+			ROM = {
+				transfer_state = var:occupied_state
+				set_temp_variable = { occupied_country = THIS }
+				set_temp_variable = { new_occupied_country = THIS }
+			}
+		}
+		else_if = {
+			limit = {
+				var:occupied_state = {
+					has_state_flag = TUR_romanian_state
+					is_core_of = ROM
+				}
+				country_exists = ROM
+				ROM = { NOT = { has_war_with = ROOT } }
+			}
+			create_dynamic_country = {
+				original_tag = ROM
+				copy_tag = ROM
+				transfer_state = var:occupied_state
+				set_temp_variable = { occupied_country = THIS }
+				set_temp_variable = { new_occupied_country = THIS }
+				set_temp_variable = { allowed_party_neutrality = 1 }
+				set_temp_variable = { allowed_party_democratic = 1 }
+				set_temp_variable = { allowed_party_fascism = 1 }
+				set_temp_variable = { allowed_party_communism = 1 }
+				# do not change ideology of occupier country
+				var:occupier_country = {
+					remove_from_allowed_party = yes
+				}
+				if = {
+					# if occupied country exists and different than new country
+					# it is white peaced & subject of occupier. ignore its ideology as well
+					limit = { NOT = { check_variable = { new_occupied_country = occupied_country } } }
+					var:occupied_country = {
+						remove_from_allowed_party = yes
+					}
+				}
+				# change government if necesarry
+				random_list = {
+					allowed_party_democratic = {
+						set_popularities = {
+							democratic = 100
+						}
+						set_politics = { ruling_party = democratic elections_allowed = yes }
+					}
+					allowed_party_fascism = {
+						set_popularities = {
+							fascism = 100
+						}
+						set_politics = { ruling_party = fascism elections_allowed = no }
+					}
+					allowed_party_communism = {
+						set_popularities = {
+							communism = 100
+						}
+						set_politics = { ruling_party = communism elections_allowed = no }
+					}
+					allowed_party_neutrality = {
+						set_popularities = {
+							neutrality = 100
+						}
+						set_politics = { ruling_party = neutrality elections_allowed = no }
+					}
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				var:occupied_state = {
+					has_state_flag = TUR_romanian_state
+					is_core_of = ROM
+				}
+				any_country_with_original_tag = {
+					original_tag_to_check = ROM
+					has_war_with = ROOT
+				}
+			}
+			random_country_with_original_tag = {
+				original_tag_to_check = ROM
+				limit = { has_war_with = ROOT }
+				transfer_state = var:occupied_state
+				set_temp_variable = { new_occupied_country = THIS }
+			}
+		}
+		if = {
+			limit = {
+				var:occupied_state = {
+					has_state_flag = TUR_georgian_state
+					is_core_of = GEO
+				}
+				NOT = { country_exists = GEO }
+			}
+			GEO = {
+				transfer_state = var:occupied_state
+				set_temp_variable = { occupied_country = THIS }
+				set_temp_variable = { new_occupied_country = THIS }
+			}
+		}
+		else_if = {
+			limit = {
+				var:occupied_state = {
+					has_state_flag = TUR_georgian_state
+					is_core_of = GEO
+				}
+				country_exists = GEO
+				GEO = { NOT = { has_war_with = ROOT } }
+			}
+			create_dynamic_country = {
+				original_tag = GEO
+				copy_tag = GEO
+				transfer_state = var:occupied_state
+				set_temp_variable = { occupied_country = THIS }
+				set_temp_variable = { new_occupied_country = THIS }
+				set_temp_variable = { allowed_party_neutrality = 1 }
+				set_temp_variable = { allowed_party_democratic = 1 }
+				set_temp_variable = { allowed_party_fascism = 1 }
+				set_temp_variable = { allowed_party_communism = 1 }
+				# do not change ideology of occupier country
+				var:occupier_country = {
+					remove_fGEO_allowed_party = yes
+				}
+				if = {
+					# if occupied country exists and different than new country
+					# it is white peaced & subject of occupier. ignore its ideology as well
+					limit = { NOT = { check_variable = { new_occupied_country = occupied_country } } }
+					var:occupied_country = {
+						remove_fGEO_allowed_party = yes
+					}
+				}
+				# change government if necesarry
+				random_list = {
+					allowed_party_democratic = {
+						set_popularities = {
+							democratic = 100
+						}
+						set_politics = { ruling_party = democratic elections_allowed = yes }
+					}
+					allowed_party_fascism = {
+						set_popularities = {
+							fascism = 100
+						}
+						set_politics = { ruling_party = fascism elections_allowed = no }
+					}
+					allowed_party_communism = {
+						set_popularities = {
+							communism = 100
+						}
+						set_politics = { ruling_party = communism elections_allowed = no }
+					}
+					allowed_party_neutrality = {
+						set_popularities = {
+							neutrality = 100
+						}
+						set_politics = { ruling_party = neutrality elections_allowed = no }
+					}
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				var:occupied_state = {
+					has_state_flag = TUR_georgian_state
+					is_core_of = GEO
+				}
+				any_country_with_original_tag = {
+					original_tag_to_check = GEO
+					has_war_with = ROOT
+				}
+			}
+			random_country_with_original_tag = {
+				original_tag_to_check = GEO
+				limit = { has_war_with = ROOT }
+				transfer_state = var:occupied_state
+				set_temp_variable = { new_occupied_country = THIS }
+			}
+		}
+		if = {
+			limit = {
+				var:occupied_state = {
+					NOT = {
+						AND = {
+							has_state_flag = TUR_armenian_state
+							is_core_of = ARM
+						}
+						AND = {
+							has_state_flag = TUR_greek_state
+							is_core_of = GRE
+						}
+						AND = {
+							has_state_flag = TUR_southslav_state
+							OR = {
+								is_core_of = BUL
+								is_core_of = SER
+								is_core_of = MNT
+							}
+						}
+						AND = {
+							has_state_flag = TUR_albanian_state
+							is_core_of = ALB
+						}
+						AND = {
+							has_state_flag = TUR_assyrian_state
+							is_core_of = ASY
+						}
+						AND = {
+							has_state_flag = TUR_romanian_state
+							is_core_of = ROM
+						}
+						AND = {
+							has_state_flag = TUR_georgian_state
+							is_core_of = GEO
+						}
+						AND = {
+							has_state_flag = TUR_kurd_state
+							is_core_of = KUR
+						}
+						AND = {
+							has_state_flag = TUR_turkish_state
+							is_core_of = TUR
+						}
+					}
+				}
+			}
 			every_possible_country = {
 				random_select_amount = 1
 				set_temp_variable = { occupied_country = THIS }
