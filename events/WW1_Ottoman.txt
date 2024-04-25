@@ -20,10 +20,8 @@ country_event = { #ottoman revolt test
 			}
 			every_neighbor_state = {
 				limit = {
-					controller = {
-						tag = var:occupier_country
-						NOT = { is_core_of = var:occupier_country }
-					}
+					controller = { tag = var:occupier_country }
+					is_core_of = var:occupier_country
 				}
 				add_resistance = 10
 			}
@@ -891,14 +889,14 @@ country_event = { #ottoman revolt test
 				set_temp_variable = { allowed_party_communism = 1 }
 				# do not change ideology of occupier country
 				var:occupier_country = {
-					remove_fGEO_allowed_party = yes
+					remove_from_allowed_party = yes
 				}
 				if = {
 					# if occupied country exists and different than new country
 					# it is white peaced & subject of occupier. ignore its ideology as well
 					limit = { NOT = { check_variable = { new_occupied_country = occupied_country } } }
 					var:occupied_country = {
-						remove_fGEO_allowed_party = yes
+						remove_from_allowed_party = yes
 					}
 				}
 				# change government if necesarry
@@ -1089,8 +1087,9 @@ country_event = { #ottoman revolt test
 				}
 			}
 			clear_temp_array = checked_neighbours
-			var:occupied_state = {
+			every_controlled_state = {
 				limit = { 
+					state = var:occupied_state
 					occupied_country_tag = occupied_country 
 					impassable = no
 				}
@@ -2153,7 +2152,6 @@ country_event = {
 	}
 	option = {
 		name = ww1_ottoman.22.a
-		news_event = ottoman.5
 		set_country_flag = TUR_purge_radical_ittihadists
 		set_country_flag = TUR_purge_ittihadists
 		hidden_effect = {
@@ -2332,7 +2330,6 @@ country_event = {
 	}
 	option = {
 		name = ww1_ottoman.26.a
-		news_event = ottoman.5
 		hidden_effect = {
 			set_popularities = {
 				democratic = 5
@@ -2679,7 +2676,6 @@ country_event = {
 	}
 	option = {
 		name = ww1_ottoman.32.a
-		news_event = ottoman.5
 		every_unit_leader = {
 			limit = {
 				OR = {
@@ -2776,7 +2772,6 @@ country_event = {
 	}
 	option = {
 		name = ww1_ottoman.35.a
-		news_event = ottoman.5
 		every_unit_leader = {
 			limit = {
 				OR = {
@@ -5588,278 +5583,6 @@ country_event = {
 	option = {
 		name = ottomanasembly.1.b
 		add_ideas = tur_meclis_sultancilar
-		ai_chance = {
-			factor = 5
-		}
-	}
-}
-
-country_event = {
-	id = ottoman.1
-	title = ottoman.1.t
-	desc = ottoman.1.d
-	is_triggered_only = yes
-	hidden = yes
-	immediate = {
-		every_unit_leader = {
-			limit = {
-				has_character_flag = {
-					flag = TUR_banish_ittihadist_leader_flag
-					days > 180
-				}
-			}
-			clr_character_flag = TUR_banish_ittihadist_leader_flag
-		}
-	}
-}
-
-country_event = {
-	id = ottoman.2
-	is_triggered_only = yes
-	hidden = yes
-
-	immediate = {
-		random_list = {
-			30 = { # İttihatists secularize the army
-				activate_mission = TUR_secularize_the_army
-			}
-			30 = { # İttihatists ban Islamist newspapers
-				modifier = {
-					factor = 0
-					NOT = {
-						has_country_flag = TUR_volcan_enabled
-					}
-				}
-				activate_mission = TUR_ban_on_islamist_newspapers
-			}
-			100 = { # İttihatists crush the mutiny on the army
-				modifier = {
-					factor = 0
-					NOT = {
-						TUR = {
-							has_country_flag = TUR_yildiz_teskilati_staged_mutiny
-						}
-					}
-				}
-				activate_mission = TUR_crush_the_mutiny
-			}
-			30 = { # İttihatists holds parade in conservative villages
-				activate_mission = TUR_hold_parade_in_conservative_vilayets
-			}
-			30 = { # İttihatists forces şeyhülislam to support their policies
-				activate_mission = TUR_force_seyhulislam_to_support_our_policies
-			}
-			10 = { # İttihatists raids Yıldız Teşkilatı headquarters
-				activate_mission = TUR_raid_on_yildiz_teskilati_headquarters
-				modifier = {
-					factor = 0
-					NOT = {
-						has_completed_focus = TUR_revive_yildiz_teskilati
-					}
-				}
-			}
-		}
-	}
-}
-
-#Successful Yıldız Teşkilatı Coup
-country_event = {
-	id = ottoman.3
-	title = ottoman.3.t
-	desc = ottoman.3.d
-	is_triggered_only = yes
-	option = {
-		name = ottoman.3.a
-		if = {
-			limit = {
-				has_idea = TUR_government_without_majority
-			}
-			remove_ideas = TUR_government_without_majority
-		}
-		set_politics = {
-			ruling_party = neutrality
-			elections_allowed = no
-			name = TUR_sultanate_party
-			long_name = TUR_sultanate_party
-		}
-		if = {
-			limit = {
-				date < 1914.1.10
-			}
-			promote_character = TUR_mehmed_said
-		}
-		else = {
-			add_country_leader_role = {
-				character = TUR_said_halim
-				promote_leader = yes
-				country_leader = {
-					ideology = theocracy_ideology
-				 	traits = { TUR_conservative_politician grand_vizier }
-				}
-			}
-		}
-		TUR_remove_party_factionalism = yes
-		ai_chance = {
-			factor = 5
-		}
-	}
-}
-
-#Yıldız Teşkilatı Civil War
-country_event = {
-	id = ottoman.4
-	title = ottoman.4.t
-	desc = ottoman.4.d
-	picture = GFX_report_event_hareket_ordusu
-	is_triggered_only = yes
-	immediate = {
-		hidden_effect = {
-			set_division_force_allow_recruiting = {
-    			division_template = "Hamidiye Alayı"
-			}
-			start_civil_war = {
-				ideology = fascism
-				size = TUR_yildiz_teskilati_ittihadist_power
-				keep_unit_leaders_trigger = {
-					NOT = {
-						has_trait = trait_TUR_ittihadist_sympathies
-						has_trait = trait_TUR_ittihadist_radical_sympathies
-					}
-				}
-				set_popularities = {
-					democratic = 18
-					fascism = 64
-					communism = 0
-					neutrality = 18
-				}
-				set_politics = {
-					ruling_party = fascism
-					elections_allowed = no
-				}
-				keep_political_leader = yes
-				PREV = {
-					TUR_ismail_enver = {
-						set_nationality = PREV.PREV
-					}
-				}
-				TUR_ismail_enver = {
-					promote_character = despotism
-					set_character_name = TUR_ismail_enver_pasha
-					promote_leader = yes
-				}
-				add_ideas = standing_alone	
-				add_ideas = TUR_officers_struggle_harbiyeli_officers_org_1
-				add_ideas = TUR_ittihadist_academy_spirit_no_remove
-				add_ideas = TUR_harbiyeli_officers_extended_power_loyal
-				set_variable = { var = opda_lira value = TUR.opda_lira }
-				set_variable = { var = opda_consumer_goods value = TUR.opda_consumer_goods }
-				add_dynamic_modifier = { modifier = TUR_OPDA }
-				add_dynamic_modifier = { modifier = TUR_minorities }
-
-				load_focus_tree = { tree = ottoman_focus_tree keep_completed = no }
-				mark_focus_tree_layout_dirty = yes
-				unlock_national_focus = TUR_the_second_constitutional_era
-				unlock_national_focus = TUR_glory_to_the_action_army
-				unlock_national_focus = TUR_harbiyeli_officers
-				unlock_national_focus = TUR_reaffirm_the_loyalty_of_the_army
-				unlock_national_focus = TUR_elections_1912
-				unlock_national_focus = TUR_ittihat_ve_terakki_victory
-				unlock_national_focus = TUR_undermine_democracy
-				unlock_national_focus = TUR_three_pasha_government
-				set_country_flag = TUR_revolter_flag
-				set_cosmetic_tag = TUR_revolter
-				set_variable = { TUR_harbiyeli_officer_loyalty = 3 }
-				set_variable = { TUR_harbiyeli_officer_power = 4 }
-				random_owned_state = {
-					create_unit = {
-						division = "name = \"Van Hamidiye Alayı\" division_template = \"Hamidiye Alayı\" start_experience_factor = 0.3 start_equipment_factor = 0.94" owner = PREV
-					}
-					create_unit = {
-						division = "name = \"Erzurum Hamidiye Alayı\" division_template = \"Hamidiye Alayı\" start_experience_factor = 0.3 start_equipment_factor = 0.94" owner = PREV
-					}
-					create_unit = {
-						division = "name = \"Bitlis Hamidiye Alayı\" division_template = \"Hamidiye Alayı\" start_experience_factor = 0.3 start_equipment_factor = 0.94" owner = PREV
-					}
-					create_unit = {
-						division = "name = \"Muş Hamidiye Alayı\" division_template = \"Hamidiye Alayı\" start_experience_factor = 0.3 start_equipment_factor = 0.94" owner = PREV
-					}
-					create_unit = {
-						division = "name = \"Bingöl Hamidiye Alayı\" division_template = \"Hamidiye Alayı\" start_experience_factor = 0.3 start_equipment_factor = 0.94" owner = PREV
-					}
-					create_unit = {
-						division = "name = \"Sivas Hamidiye Alayı\" division_template = \"Hamidiye Alayı\" start_experience_factor = 0.3 start_equipment_factor = 0.94" owner = PREV
-					}
-					create_unit = {
-						division = "name = \"Mardin Hamidiye Alayı\" division_template = \"Hamidiye Alayı\" start_experience_factor = 0.3 start_equipment_factor = 0.94" owner = PREV
-					}
-					create_unit = {
-						division = "name = \"Urfa Hamidiye Alayı\" division_template = \"Hamidiye Alayı\" start_experience_factor = 0.3 start_equipment_factor = 0.94" owner = PREV
-					}
-					create_unit = {
-						division = "name = \"Hakkari Hamidiye Alayı\" division_template = \"Hamidiye Alayı\" start_experience_factor = 0.3 start_equipment_factor = 0.94" owner = PREV
-					}
-				}
-				add_ideas = standing_alone	
-			}
-			TUR = {
-				delete_unit_template_and_units = {
-					division_template = "Hamidiye Alayı"
-					disband = no
-				}
-			}
-		}
-		set_country_flag = TUR_hareket_ordusu_uprising
-	}
-	option = {
-		name = ww1_ottoman.4.a
-		every_unit_leader = {
-			limit = {
-				OR = {
-					has_trait = trait_TUR_ittihadist_sympathies
-					has_trait = trait_TUR_ittihadist_radical_sympathies
-				}
-			}
-			set_nationality = OTT
-		}
-		if = {
-			limit = {
-				has_idea = TUR_government_without_majority
-			}
-			remove_ideas = TUR_government_without_majority
-		}
-		if = {
-			limit = {
-				has_idea = TUR_ittihadist_plot
-			}
-			remove_ideas = TUR_ittihadist_plot
-		}
-		set_politics = {
-			ruling_party = neutrality
-			elections_allowed = no
-			name = TUR_sultanate_party
-			long_name = TUR_sultanate_party
-		}
-		if = {
-			limit = {
-				date < 1914.1.10
-			}
-			promote_character = TUR_mehmed_said
-		}
-		else = {
-			add_country_leader_role = {
-				character = TUR_said_halim
-				promote_leader = yes
-				country_leader = {
-					ideology = theocracy_ideology
-					traits = { TUR_conservative_politician grand_vizier }
-				}
-			}
-		}
-		TUR_remove_harbiyeli_officers = yes
-		TUR_remove_party_factionalism = yes
-		hidden_effect = {
-			news_event = { id = ottoman.5 hours = 8 }
-		}
 		ai_chance = {
 			factor = 5
 		}
