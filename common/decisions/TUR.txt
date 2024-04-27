@@ -685,6 +685,156 @@ GER_great_war = {
 }
 
 TUR_minority_decision = {
+	TUR_crush_the_karak_revolt = {
+		icon = GFX_decision_oppression
+		allowed = {
+			original_tag = TUR
+		}
+		cost = 15
+		state_target = yes
+		targets = { 554 }
+		on_map_mode = map_and_decisions_view
+		days_remove = 15
+		modifier = {
+			consumer_goods_factor = -0.05
+		}
+		visible = {
+			has_completed_focus = TUR_secure_power_in_arabia
+			controls_state = FROM
+			FROM = { has_dynamic_modifier = { modifier = TUR_arab_minority } }
+		}
+		available = {
+			divisions_in_state = {
+				type = infantry
+				size > 0
+				state = FROM
+			}
+		}
+		cancel_trigger = {
+            divisions_in_state = {
+				type = infantry
+				size < 1
+				state = FROM
+			}
+        }
+		complete_effect = {
+			FROM = {
+				custom_effect_tooltip = TUR_crush_the_karak_revolt_tt
+				add_to_variable = { TUR_ottoman_attrition = 0.2 }
+			}
+		}
+		remove_effect = {
+			FROM = {
+				custom_effect_tooltip = TUR_crush_the_karak_revolt_tt2
+				add_to_variable = { TUR_ottoman_attrition = -0.2 }
+				add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.05 }
+				add_to_variable = { TUR_ottoman_local_supplies_for_controller = 0.05 }
+				add_to_variable = { TUR_ottoman_state_stability_factor = 0.001 }
+				add_to_variable = { TUR_ottoman_state_war_support_factor = 0.001 }
+			}
+		}
+		cancel_effect = {
+            FROM = {
+				custom_effect_tooltip = TUR_crush_the_karak_revolt_tt3
+				add_to_variable = { TUR_ottoman_attrition = -0.2 }
+			}
+        }
+		ai_will_do = {
+			base = 100
+		}
+	}
+	TUR_truce_with_asir = {
+		icon = GFX_decision_generic_nationalism
+		allowed = {
+			original_tag = TUR
+		}
+		available = {
+			is_subject = no
+		}
+		visible = {
+			has_completed_focus = TUR_secure_power_in_arabia
+			controls_state = FROM
+			FROM = { has_dynamic_modifier = { modifier = TUR_arab_minority } }
+		}
+		cost = 20
+		fire_only_once = yes
+		state_target = yes
+		targets = { 662 }
+		on_map_mode = map_and_decisions_view
+		complete_effect = {
+			set_country_flag = TUR_truce_with_asir
+			clr_global_flag = asir_rebellion
+			FROM = {
+				custom_effect_tooltip = TUR_truce_with_asir_tt
+				add_to_variable = { TUR_ottoman_attrition = -0.7 }
+			}
+			add_political_power = -50
+			if = {
+				limit = {
+					has_government = neutrality
+				}
+				add_popularity = {
+					ideology = neutrality
+					popularity = -0.07
+				}
+			}
+			if = {
+				limit = {
+					has_government = fascism
+				}
+				add_popularity = {
+					ideology = fascism
+					popularity = -0.07
+				}
+			}
+			if = {
+				limit = {
+					has_government = democratic
+				}
+				add_popularity = {
+					ideology = democratic
+					popularity = -0.07
+				}
+			}
+			if = {
+				limit = {
+					has_government = communism
+				}
+				add_popularity = {
+					ideology = communism
+					popularity = -0.07
+				}
+			}
+		}
+		ai_will_do = {
+			base = 0
+			modifier = {
+				add = 1000
+				is_historical_focus_on = yes
+				OR = {
+					date > 1914.6.0
+					has_global_flag = great_war
+				}
+			}
+			modifier = {
+				factor = 0
+				NOT = {
+					is_historical_focus_on = yes
+				}
+				any_state = {
+					is_core_of = ASR
+					NOT = { has_dynamic_modifier = { modifier = TUR_arab_minority } }
+				}
+			}
+			modifier = {
+				add = 50
+				any_state = {
+					is_core_of = ASR
+					has_dynamic_modifier = { modifier = TUR_arab_minority }
+				}
+			}
+		}
+	}
 	TUR_settle_turks_in_thrace_decision = {
 		icon = GFX_decision_eng_blackshirt_march
 		allowed = {
@@ -16148,150 +16298,6 @@ TUR_minority_decision = {
 			}
 		}
 	}
-	TUR_truce_with_asir = {
-		icon = GFX_decision_generic_nationalism
-		allowed = {
-			original_tag = TUR
-		}
-		available = {
-			is_subject = no
-		}
-		visible = {
-			has_global_flag = asir_rebellion
-			ASR = {
-				exists = no
-			}
-			any_owned_state = {
-				is_core_of = ASR
-			}
-			has_active_mission = TUR_brewing_asir_rebellion
-		}
-		cost = 20
-		fire_only_once = yes
-		ai_will_do = {
-			base = 0
-			modifier = {
-				add = 1000
-				is_historical_focus_on = yes
-				any_other_country = {
-					is_major = yes
-					any_other_country = {
-						is_major = yes
-						has_war_with = PREV
-					}
-				}
-			}
-			modifier = {
-				factor = 0
-				any_state = {
-					NOT = {
-						is_historical_focus_on = yes
-					}
-					is_core_of = ASR
-					NOT = { has_dynamic_modifier = { modifier = TUR_arab_minority } }
-				}
-			}
-			modifier = {
-				add = 50
-				any_state = {
-					is_core_of = ASR
-					has_dynamic_modifier = { modifier = TUR_arab_minority }
-				}
-			}
-		}
-		complete_effect = {
-			set_country_flag = TUR_truce_with_asir
-			clr_global_flag = asir_rebellion
-			if = {
-				limit = {
-					747 = {
-						check_variable = { TUR_ottoman_resistance_target > 0 }
-					}
-				}
-				747 = {
-					add_to_variable = { TUR_ottoman_resistance_target = -0.1 }
-					custom_effect_tooltip = TUR_ottoman_arab_minority_modify_resistance_target_10_2
-				}
-			}
-			if = {
-				limit = {
-					662 = {
-						check_variable = { TUR_ottoman_resistance_target > 0 }
-					}
-				}
-				662 = {
-					add_to_variable = { TUR_ottoman_resistance_target = -0.1 }
-					custom_effect_tooltip = TUR_ottoman_arab_minority_modify_resistance_target_10_2
-				}
-			}
-			add_stability = 0.02
-			add_political_power = -50
-			if = {
-				limit = {
-					has_government = neutrality
-				}
-				add_popularity = {
-					ideology = neutrality
-					popularity = -0.1
-				}
-			}
-			if = {
-				limit = {
-					has_government = fascism
-				}
-				add_popularity = {
-					ideology = fascism
-					popularity = -0.1
-				}
-			}
-			if = {
-				limit = {
-					has_government = democratic
-				}
-				add_popularity = {
-					ideology = democratic
-					popularity = -0.1
-				}
-			}
-			if = {
-				limit = {
-					has_government = communism
-				}
-				add_popularity = {
-					ideology = communism
-					popularity = -0.1
-				}
-			}
-		}
-		ai_will_do = {
-			base = 0
-			modifier = {
-				add = 1000
-				is_historical_focus_on = yes
-				OR = {
-					date > 1914.6.0
-					has_global_flag = great_war
-				}
-			}
-			modifier = {
-				factor = 0
-				NOT = {
-					is_historical_focus_on = yes
-				}
-				any_state = {
-					is_core_of = ASR
-					NOT = { has_dynamic_modifier = { modifier = TUR_arab_minority } }
-				}
-			}
-			modifier = {
-				add = 50
-				any_state = {
-					is_core_of = ASR
-					has_dynamic_modifier = { modifier = TUR_arab_minority }
-				}
-			}
-		}
-	}
 	TUR_lift_the_armenian_reforms = {
 		icon = GFX_decision_generic_break_treaty
 		allowed = {
@@ -18980,7 +18986,7 @@ political_actions = {
 	}
 }
 
-TUR_libyanwar_decision = {
+TUR_call_for_the_trablusgarp_war_decisions = {
 	TUR_reach_out_to_senusiyya = {
 		icon = GFX_decision_TUR_ceasefire_with_libyans
 		allowed = {
@@ -19275,7 +19281,7 @@ TUR_libyanwar_decision = {
 	}
 }
 
-TUR_balkanwar_decision = {
+TUR_call_for_the_balkan_war_decisions = {
 	TUR_increased_garrison_albania = {
 		icon = generic_army_support
 		allowed = {
