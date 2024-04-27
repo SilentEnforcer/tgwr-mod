@@ -740,7 +740,7 @@ focus_tree = {
 	}
 	focus = {
 		id = GER_puppet_kingdoms
-		icon = GFX_goal_tfv_strengthen_commonwealth_ties
+		icon = GFX_focus_NOR_our_royal_claims
 		cost = 5
 		prerequisite = {
 			focus = GER_eastern_expansion
@@ -1066,7 +1066,7 @@ focus_tree = {
 	}
 	focus = {
 		id = GER_threaten_holland
-		icon = GFX_goal_generic_major_war
+		icon = GFX_focus_attack_netherlands
 		cost = 5
 		prerequisite = {
 			focus = GER_focus_on_true_enemy
@@ -1222,12 +1222,18 @@ focus_tree = {
 			NOT = { 
 				has_idea = idea_armistice
 			}
+			FRA = {
+				NOT = {
+					has_country_flag = great_war_loser
+					has_country_flag = FRA_surrender_alone
+				}
+			}
 			OR = {
 				threat > 0.5
 				date > 1914.1.1
 			}
 			has_army_manpower = {
-				size > 1800000
+				size > 1000000
 			}
 			NOT = {
 				has_global_flag = great_war_ends
@@ -1256,9 +1262,18 @@ focus_tree = {
 					17
 				}
 			}
+			add_ai_strategy = {
+				type = declare_war
+				id = FRA
+				value = 200
+			}
 		}
 		ai_will_do = {
 			factor = 1
+			modifier = {
+				factor = 100
+				date > 1915.1.1
+			}
 		}
 	}
 	focus = {
@@ -1658,7 +1673,7 @@ focus_tree = {
 	}
 	focus = {
 		id = GER_expand_staff
-		icon = GFX_goal_generic_position_armies
+		icon = GFX_focus_GER_army_officer
 		cost = 5
 		prerequisite = {
 			focus = GER_OHL_authority
@@ -1762,6 +1777,7 @@ focus_tree = {
 			show_ideas_tooltip = GER_paul_von_hindenburg
 			custom_effect_tooltip = available_political_advisor
 			show_ideas_tooltip = GER_erich_ludendorff
+			unlock_decision_tooltip = GER_ludendorff_offensive
 		}
 		ai_will_do = {
 			factor = 1
@@ -1866,6 +1882,7 @@ focus_tree = {
 					instant_build = yes
 				}
 			}
+			unlock_decision_category_tooltip = GER_fortifications
 		}
 		ai_will_do = {
 			factor = 1
@@ -1932,7 +1949,7 @@ focus_tree = {
 	}
 	focus = {
 		id = GER_constitutional_compromise
-		icon = GFX_focus_hol_the_foundations_of_defense
+		icon = GFX_focus_GER_reichstag
 		cost = 10
 		prerequisite = {
 			focus = GER_contain_kaiser
@@ -2382,17 +2399,7 @@ focus_tree = {
 					has_idea = GER_idea_abwehr
 				}
 				RUS = {
-					AND = {
-						NOT = {
-							has_idea = RUS_threat_of_revolution
-						}
-						NOT = {
-							has_idea = RUS_threat_of_revolution2
-						}
-						NOT = {
-							has_idea = RUS_threat_of_revolution3
-						}
-					}
+					has_threat_of_revolution = no
 				}
 			}
 		}
@@ -2776,24 +2783,36 @@ focus_tree = {
 			}
 		}
 		bypass = {
+			has_global_flag = brest_litovsk_finished
+			has_war_with = SOV
 		}
 		completion_reward = {
 			add_named_threat = {
 				threat = 10
 				name = GER_its_time_for_lenin_to_die
 			}
-			SOV = {
-				country_event = ww1_germany.59
+			effect_tooltip = {
+				SOV = {
+					retire_character = SOV_vladimir_lenin
+				}
+			}
+			hidden_effect = {
+				SOV = {
+					country_event = ww1_germany.59
+				}
+			}
+			create_wargoal = {
+				type = puppet_wargoal_focus
+				target = SOV
 			}
 			if = {
 				limit = {
-					NOT = {
-						has_war_with = SOV
-					}
+					has_non_aggression_pact_with = SOV
 				}
-				create_wargoal = {
-					type = puppet_wargoal_focus
-					target = SOV
+				diplomatic_relation = {
+					country = SOV
+					relation = non_aggression_pact
+					active = no
 				}
 			}
 		}
@@ -2878,10 +2897,8 @@ focus_tree = {
 		available = {
 			is_subject = no
 			has_war = no
-			has_global_flag = agadir_crisis
 			NOT = {
 				has_country_flag = great_war_loser
-				has_global_flag = agadir_crisis_ends
 			}
 		}
 		bypass = {
@@ -2891,19 +2908,21 @@ focus_tree = {
 			}
 		}
 		completion_reward = {
-			add_named_threat = {
-				threat = 5
-				name = GER_moroccan_crisis
-			}
+			# add_named_threat = {
+			# 	threat = 5
+			# 	name = GER_moroccan_crisis
+			# }
 			add_state_claim = 461
 			add_state_claim = 462
 			add_state_claim = 108
-			FRA = {
-				country_event = {
-					id = ww1_morocco.6
-					days = 2
-				}
-			}
+			add_state_claim = 887
+			add_war_support = 0.05
+			# FRA = {
+			# 	country_event = {
+			# 		id = ww1_morocco.6
+			# 		days = 2
+			# 	}
+			# }
 			if = {
 				limit = {
 					has_game_rule = {
@@ -3103,23 +3122,15 @@ focus_tree = {
 				}
 			}
 			puppet = OST
-			every_unit_leader = {
-				limit = {
-					has_id = 19141
-				}
+			GER_maximilian_von_spee = {
 				set_nationality = OST
 			}
 			custom_effect_tooltip = rhodesian_divisions
 			hidden_effect = {
-				if = {
-					limit = {
-						has_dlc = "Together for Victory"
-					}
-					set_autonomy = {
-						target = OST
-						autonomous_state = autonomy_colony
-						freedom_level = 0.35
-					}
+				set_autonomy = {
+					target = OST
+					autonomous_state = autonomy_colony
+					freedom_level = 0.35
 				}
 			}
 			hidden_effect = {
@@ -3330,15 +3341,38 @@ focus_tree = {
 							democratic = 10
 							neutrality = 90
 						}
-						create_country_leader = {
-							name = "Wilhelm Filchner"
-							picture = "gfx/leaders/GER/GER_wilhelm_filchener.png"
-							
-							ideology = oligarchism
-							traits = {
-								german_agent
-								
+						every_possible_country = {
+							limit = {
+								has_character = OST_wilhelm_filchner
 							}
+							OST_wilhelm_filchner = { set_nationality = OST }
+						}
+						OST_wilhelm_filchner = {
+							if = {
+								limit = {
+									has_ideology = oligarchism
+								}
+								promote_character = oligarchism
+							}
+							else = {
+								add_country_leader_role = {
+									promote_leader = yes
+									country_leader = {
+										ideology = oligarchism
+										traits = { german_agent }
+									}
+								}
+							}
+						}
+						set_party_name = {
+							ideology = neutrality
+							long_name = OST_LGC_party
+							name = OST_LGC_party
+						}
+						set_party_name = {
+							ideology = fascism
+							long_name = OST_LGC_party
+							name = OST_LGC_party
 						}
 						set_cosmetic_tag = OST_LGC
 						give_military_access = ROOT
@@ -3491,18 +3525,10 @@ focus_tree = {
 					}
 					transfer_state_to = CMR
 				}
-				if = {
-					limit = {
-						has_dlc = "Together for Victory"
-					}
-					set_autonomy = {
-						target = CMR
-						autonomous_state = autonomy_colony
-						freedom_level = 0.1
-					}
-					else = {
-						puppet = CMR
-					}
+				set_autonomy = {
+					target = CMR
+					autonomous_state = autonomy_colony
+					freedom_level = 0.1
 				}
 				hidden_effect = {					
 					CMR = {
@@ -3536,18 +3562,10 @@ focus_tree = {
 					}
 					transfer_state_to = TOG
 				}
-				if = {
-					limit = {
-						has_dlc = "Together for Victory"
-					}
-					set_autonomy = {
-						target = TOG
-						autonomous_state = autonomy_colony
-						freedom_level = 0.25
-					}
-					else = {
-						puppet = TOG
-					}
+				set_autonomy = {
+					target = TOG
+					autonomous_state = autonomy_colony
+					freedom_level = 0.25
 				}
 				hidden_effect = {
 					TOG = {
@@ -3601,6 +3619,7 @@ focus_tree = {
 						state = 547
 						state = 792
 						state = 548
+						state = 902
 						state = 903
 					}
 				}
@@ -3610,6 +3629,7 @@ focus_tree = {
 				add_state_claim = 547
 				add_state_claim = 792
 				add_state_claim = 548
+				add_state_claim = 902
 				add_state_claim = 903
 				custom_effect_tooltip = rhodesian_divisions
 			}
@@ -3621,18 +3641,10 @@ focus_tree = {
 					set_nationality = TZN
 				}
 			}	
-			if = {
-				limit = {
-					has_dlc = "Together for Victory"
-				}
-				set_autonomy = {
-					target = TZN
-					autonomous_state = autonomy_colony
-					freedom_level = 0.35
-				}
-				else = {
-					puppet = TZN
-				}
+			set_autonomy = {
+				target = TZN
+				autonomous_state = autonomy_colony
+				freedom_level = 0.35
 			}
 			hidden_effect = {					
 				TZN = {
@@ -3755,18 +3767,10 @@ focus_tree = {
 			NMB = {
 				add_state_core = 789
 			}
-			if = {
-				limit = {
-					has_dlc = "Together for Victory"
-				}
-				set_autonomy = {
-					target = NMB
-					autonomous_state = autonomy_colony
-					freedom_level = 0.35
-				}
-				else = {
-					puppet = NMB
-				}
+			set_autonomy = {
+				target = NMB
+				autonomous_state = autonomy_colony
+				freedom_level = 0.35
 			}
 			hidden_effect = {					
 				NMB = {
@@ -3872,28 +3876,14 @@ focus_tree = {
 			every_state = {
 				limit = {
 					OR = {
-						state = 752
-						state = 772
-						state = 295
-						state = 538
-						state = 718
-						state = 771
-						state = 770
-						state = 789
-						state = 548
-						state = 776
-						state = 297
-						state = 814
-						state = 815
-						state = 774
-						state = 660
-						state = 274
-						state = 558
-						state = 769
 						state = 268
+						state = 776
 						state = 902
-						state = 903 #Zanzibar
-						#state = 540 #not here
+						state = 660
+						state = 769
+						region = 62
+						region = 184
+						region = 227
 					}
 				}
 				add_claim_by = ROOT
@@ -4219,6 +4209,7 @@ focus_tree = {
 		x = 1
 		y = 1
 		relative_position_id = GER_investing_in_sudwestafrika
+		bypass_if_unavailable = yes
 		available = {
 			OR = {
 				has_full_control_of_state = 546
@@ -4295,21 +4286,119 @@ focus_tree = {
 		y = 1
 		relative_position_id = GER_colonial_protectorates
 		available = {
-			has_full_control_of_state = 546
-			has_full_control_of_state = 541
-			any_country = {
-				has_full_control_of_state = 771
-				has_war_with = ROOT
+			OR = {
+				any_owned_state = {
+					is_on_continent = africa
+				}
+				any_subject_country = {
+					capital_scope = {
+						is_on_continent = africa
+					}
+				}
+			}
+			NOT = {
+				has_country_flag = great_war_loser
 			}
 		}
 		completion_reward = {
-			771 = {
-				add_compliance = -35
-				add_resistance = 35
+			add_state_claim = 770
+			add_state_claim = 771
+			add_state_claim = 274
+			add_state_claim = 558
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	focus = {
+		id = GER_claim_madagaskar
+		icon = GFX_goal_generic_construct_naval_dockyard
+		cost = 10
+		relative_position_id = GER_way_through_rhodesia
+		prerequisite = {
+			focus = GER_way_through_rhodesia
+		}
+		x = -1
+		y = 1
+		available = {
+			has_war_with = FRA
+			OR = {
+				any_owned_state = {
+					is_on_continent = africa
+				}
+				any_subject_country = {
+					capital_scope = {
+						is_on_continent = africa
+					}
+				}
+			}
+			NOT = {
+				has_country_flag = great_war_loser
+			}
+		}
+		completion_reward = {
+			every_state = {
+				limit = {
+					OR = {
+						state = 709
+						region = 85
+						region = 102
+						region = 181
+					}
+					NOT = {
+						is_claimed_by = ROOT
+					}
+				}
+				add_claim_by = ROOT
 			}
 		}
 		ai_will_do = {
 			factor = 1
+		}
+	}
+	focus = {
+		id = GER_claim_mozambique
+		icon = GFX_focus_generic_attack_portugal
+		cost = 10
+		relative_position_id = GER_claim_madagaskar
+		prerequisite = {
+			focus = GER_claim_madagaskar
+		}
+		x = 0
+		y = 1
+		available = {
+			has_war_with = POR
+			OR = {
+				any_owned_state = {
+					is_on_continent = africa
+				}
+				any_subject_country = {
+					capital_scope = {
+						is_on_continent = africa
+					}
+				}
+			}
+			NOT = {
+				has_country_flag = great_war_loser
+			}
+		}
+		completion_reward = {
+			every_state = {
+				limit = {
+					OR = {
+						state = 545
+						region = 185
+						region = 224
+					}
+					NOT = {
+						is_claimed_by = ROOT
+					}
+				}
+				add_claim_by = ROOT
+			}
+		}
+		ai_will_do = {
+			factor = 0
 		}
 	}
 	focus = {
@@ -4949,42 +5038,33 @@ focus_tree = {
 				ENG = {
 					if = {
 						limit = {
-							has_war_with = PREV
+							has_war_with = ROOT
 						}
 						if = {
 							limit = {
-								has_dlc = "La Resistance"
+								is_ai = no
 							}
 							if = {
 								limit = {
 									OR = {
-										AND = {
-											has_completed_focus = ENG_room_40
-											is_ai = yes
-										}
-										has_intelligence_agency = yes
+										has_completed_focus = ENG_room_40
+										has_done_agency_upgrade = upgrade_decryption_boost
 									}
 								}
 								country_event = ww1_england.9
-							}
-						}
+							}					
+						}	
 						else = {
-							if = {
-								limit = {
-									has_completed_focus = ENG_room_40
-								}
-								country_event = ww1_england.9
-							}
-						}
+							country_event = ww1_england.9
+						}			
 					}
 				}
-			}
+			}		
 		}
 		ai_will_do = {
 			base = 0
 			modifier = {
 				date > 1916.12.1
-				is_historical_focus_on = yes
 				add = 100
 			}
 		}
@@ -5118,55 +5198,27 @@ focus_tree = {
 				threat = 2
 				name = GER_ostasien
 			}
-			if = {
+			every_state = {
 				limit = {
-					OST = {
-						is_subject_of = ROOT
+					OR = {
+						state = 753
+						state = 669
+						state = 634
+						state = 638
+						state = 639
+						state = 334
+						is_core_of = VIN
+						is_core_of = LAO
+						is_core_of = CAM
+						is_core_of = MAL
+						is_core_of = SRW
+						is_core_of = BRN
+						state = 896
+						state = 721
+						state = 645
 					}
 				}
-				OST = {
-					add_state_claim = 753
-					add_state_claim = 669
-					add_state_claim = 634
-					add_state_claim = 638					#Guam
-					add_state_claim = 639					#Gilbert
-					add_state_claim = 333					#Borneo
-					add_state_claim = 334
-					add_state_claim = 336					#Malaya
-					#					add_state_claim = 286 #Indochina #Indochina now gets puppeted through post-war event chain
-					#					add_state_claim = 741
-					#					add_state_claim = 670
-					#					add_state_claim = 671
-					#					add_state_claim = 819
-					#					add_state_claim = 820
-					add_state_claim = 721					#Portuguese Timor
-					add_state_claim = 645					#Iwo Jima
-				}
-			}
-			if = {
-				limit = {
-					NOT = {
-						OST = {
-							is_subject_of = ROOT
-						}
-					}
-				}
-				add_state_claim = 753
-				add_state_claim = 669
-				add_state_claim = 634
-				add_state_claim = 638				#Guam
-				add_state_claim = 639				#Gilbert
-				add_state_claim = 333				#Borneo
-				add_state_claim = 334
-				add_state_claim = 336				#Malaya
-				#				add_state_claim = 286 #Indochina #Indochina now gets puppeted through post-war event chain
-				#				add_state_claim = 741
-				#				add_state_claim = 670
-				#				add_state_claim = 671
-				#				add_state_claim = 819
-				#				add_state_claim = 820
-				add_state_claim = 721				#Portuguese Timor
-				add_state_claim = 645				#Iwo Jima
+				add_claim_by = ROOT
 			}
 		}
 		ai_will_do = {
@@ -5396,6 +5448,7 @@ focus_tree = {
 				add_state_claim = 717
 				add_state_claim = 746
 				add_state_claim = 872
+				add_state_claim = 983
 			}
 			# German claim on South China
 			add_state_claim = 591
@@ -5689,7 +5742,7 @@ focus_tree = {
 		}
 		completion_reward = {
 			set_global_flag = holy_roman_empire
-			set_cosmetic_tag = GER_HRE_focus
+			set_cosmetic_tag = GER_HRE
 			add_ideas = {
 				GER_victors_of_wwi
 			}
@@ -5969,7 +6022,7 @@ focus_tree = {
 	}
 	focus = {
 		id = GER_recognize_hungarian_sovereignty
-		icon = GFX_goal_generic_dangerous_deal
+		icon = GFX_focus_HUN_rise
 		cost = 10
 		prerequisite = {
 			focus = GER_german_cisleithania
@@ -6303,7 +6356,7 @@ focus_tree = {
 		cost = 5
 		prerequisite = {
 			focus = GER_rise_of_evil
-			focus = GER_kaiserreich
+			# focus = GER_kaiserreich
 		}
 		x = 2
 		y = 1
@@ -6385,6 +6438,17 @@ focus_tree = {
 				has_completed_focus = GER_backstab
 			}
 		}
+		offset = {
+			x = -9
+			y = 0
+			trigger = {
+				has_game_rule = {
+					rule = obsolete_focus_branches_visibility
+					option = HIDE
+				}
+				has_completed_focus = GER_marxism_on_the_rise
+			}
+		}
 		ai_will_do = {
 			factor = 100
 		}
@@ -6441,7 +6505,7 @@ focus_tree = {
 	}
 	focus = {
 		id = GER_resist_to_occupation
-		icon = GFX_goal_generic_propaganda
+		icon = GFX_focus_socialist_worker
 		cost = 20
 		prerequisite = {
 			focus = GER_rise_of_evil
@@ -6484,7 +6548,7 @@ focus_tree = {
 	}
 	focus = {
 		id = GER_deutsche_arbeiterpartei
-		icon = GFX_focus_generic_self_management
+		icon = GFX_focus_fascist_revanchism
 		cost = 10
 		prerequisite = {
 			focus = GER_resist_to_occupation
@@ -6548,7 +6612,7 @@ focus_tree = {
 	}
 	focus = {
 		id = GER_beer_hall_putsch
-		icon = GFX_focus_fascist_revanchism
+		icon = GFX_focus_generic_fascist_troops
 		cost = 10
 		prerequisite = {
 			focus = GER_deutsche_arbeiterpartei
@@ -6713,7 +6777,7 @@ focus_tree = {
 	}
 	focus = {
 		id = GER_schutzstaffeln
-		icon = GFX_focus_generic_fascist_troops
+		icon = GFX_focus_jihad
 		cost = 10
 		prerequisite = {
 			focus = GER_sturmabteilung
@@ -6826,157 +6890,167 @@ focus_tree = {
 		}
 		completion_reward = {
 			add_stability = 0.1
-			random_owned_controlled_state = {
+			if = {
 				limit = {
-					free_building_slots = {
-						building = arms_factory
-						size > 1
-						include_locked = yes
-					}
-					is_in_home_area = yes
+					has_active_mission = interwar_recovery_removal
 				}
-				remove_building = {
-					type = arms_factory
-					level = 1
-				}
-				add_building_construction = {
-					type = industrial_complex
-					level = 1
-					instant_build = yes
+				add_days_mission_timeout = {
+					mission = interwar_recovery_removal
+					days = -70
 				}
 			}
-			random_owned_controlled_state = {
-				limit = {
-					free_building_slots = {
-						building = arms_factory
-						size > 1
-						include_locked = yes
-					}
-					is_in_home_area = yes
-				}
-				remove_building = {
-					type = arms_factory
-					level = 1
-				}
-				add_building_construction = {
-					type = industrial_complex
-					level = 1
-					instant_build = yes
-				}
-			}
-			random_owned_controlled_state = {
-				limit = {
-					free_building_slots = {
-						building = arms_factory
-						size > 1
-						include_locked = yes
-					}
-					is_in_home_area = yes
-				}
-				remove_building = {
-					type = arms_factory
-					level = 1
-				}
-				add_building_construction = {
-					type = industrial_complex
-					level = 1
-					instant_build = yes
-				}
-			}
-			random_owned_controlled_state = {
-				limit = {
-					free_building_slots = {
-						building = arms_factory
-						size > 1
-						include_locked = yes
-					}
-					is_in_home_area = yes
-				}
-				remove_building = {
-					type = arms_factory
-					level = 1
-				}
-				add_building_construction = {
-					type = industrial_complex
-					level = 1
-					instant_build = yes
-				}
-			}
-			random_owned_controlled_state = {
-				limit = {
-					free_building_slots = {
-						building = arms_factory
-						size > 1
-						include_locked = yes
-					}
-					is_in_home_area = yes
-				}
-				remove_building = {
-					type = arms_factory
-					level = 1
-				}
-				add_building_construction = {
-					type = industrial_complex
-					level = 1
-					instant_build = yes
-				}
-				add_extra_state_shared_building_slots = 1
-				add_building_construction = {
-					type = industrial_complex
-					level = 1
-					instant_build = yes
-				}
-			}
-			random_owned_controlled_state = {
-				limit = {
-					free_building_slots = {
-						building = arms_factory
-						size > 1
-						include_locked = yes
-					}
-					is_in_home_area = yes
-				}
-				remove_building = {
-					type = arms_factory
-					level = 1
-				}
-				add_building_construction = {
-					type = industrial_complex
-					level = 1
-					instant_build = yes
-				}
-				add_extra_state_shared_building_slots = 1
-				add_building_construction = {
-					type = industrial_complex
-					level = 1
-					instant_build = yes
-				}
-			}
-			random_owned_controlled_state = {
-				limit = {
-					free_building_slots = {
-						building = arms_factory
-						size > 1
-						include_locked = yes
-					}
-					is_in_home_area = yes
-				}
-				remove_building = {
-					type = arms_factory
-					level = 1
-				}
-				add_building_construction = {
-					type = industrial_complex
-					level = 1
-					instant_build = yes
-				}
-				add_extra_state_shared_building_slots = 1
-				add_building_construction = {
-					type = industrial_complex
-					level = 1
-					instant_build = yes
-				}
-			}
+			# generic event
+			# random_owned_controlled_state = {
+			# 	limit = {
+			# 		free_building_slots = {
+			# 			building = arms_factory
+			# 			size > 1
+			# 			include_locked = yes
+			# 		}
+			# 		is_in_home_area = yes
+			# 	}
+			# 	remove_building = {
+			# 		type = arms_factory
+			# 		level = 1
+			# 	}
+			# 	add_building_construction = {
+			# 		type = industrial_complex
+			# 		level = 1
+			# 		instant_build = yes
+			# 	}
+			# }
+			# random_owned_controlled_state = {
+			# 	limit = {
+			# 		free_building_slots = {
+			# 			building = arms_factory
+			# 			size > 1
+			# 			include_locked = yes
+			# 		}
+			# 		is_in_home_area = yes
+			# 	}
+			# 	remove_building = {
+			# 		type = arms_factory
+			# 		level = 1
+			# 	}
+			# 	add_building_construction = {
+			# 		type = industrial_complex
+			# 		level = 1
+			# 		instant_build = yes
+			# 	}
+			# }
+			# random_owned_controlled_state = {
+			# 	limit = {
+			# 		free_building_slots = {
+			# 			building = arms_factory
+			# 			size > 1
+			# 			include_locked = yes
+			# 		}
+			# 		is_in_home_area = yes
+			# 	}
+			# 	remove_building = {
+			# 		type = arms_factory
+			# 		level = 1
+			# 	}
+			# 	add_building_construction = {
+			# 		type = industrial_complex
+			# 		level = 1
+			# 		instant_build = yes
+			# 	}
+			# }
+			# random_owned_controlled_state = {
+			# 	limit = {
+			# 		free_building_slots = {
+			# 			building = arms_factory
+			# 			size > 1
+			# 			include_locked = yes
+			# 		}
+			# 		is_in_home_area = yes
+			# 	}
+			# 	remove_building = {
+			# 		type = arms_factory
+			# 		level = 1
+			# 	}
+			# 	add_building_construction = {
+			# 		type = industrial_complex
+			# 		level = 1
+			# 		instant_build = yes
+			# 	}
+			# }
+			# random_owned_controlled_state = {
+			# 	limit = {
+			# 		free_building_slots = {
+			# 			building = arms_factory
+			# 			size > 1
+			# 			include_locked = yes
+			# 		}
+			# 		is_in_home_area = yes
+			# 	}
+			# 	remove_building = {
+			# 		type = arms_factory
+			# 		level = 1
+			# 	}
+			# 	add_building_construction = {
+			# 		type = industrial_complex
+			# 		level = 1
+			# 		instant_build = yes
+			# 	}
+			# 	add_extra_state_shared_building_slots = 1
+			# 	add_building_construction = {
+			# 		type = industrial_complex
+			# 		level = 1
+			# 		instant_build = yes
+			# 	}
+			# }
+			# random_owned_controlled_state = {
+			# 	limit = {
+			# 		free_building_slots = {
+			# 			building = arms_factory
+			# 			size > 1
+			# 			include_locked = yes
+			# 		}
+			# 		is_in_home_area = yes
+			# 	}
+			# 	remove_building = {
+			# 		type = arms_factory
+			# 		level = 1
+			# 	}
+			# 	add_building_construction = {
+			# 		type = industrial_complex
+			# 		level = 1
+			# 		instant_build = yes
+			# 	}
+			# 	add_extra_state_shared_building_slots = 1
+			# 	add_building_construction = {
+			# 		type = industrial_complex
+			# 		level = 1
+			# 		instant_build = yes
+			# 	}
+			# }
+			# random_owned_controlled_state = {
+			# 	limit = {
+			# 		free_building_slots = {
+			# 			building = arms_factory
+			# 			size > 1
+			# 			include_locked = yes
+			# 		}
+			# 		is_in_home_area = yes
+			# 	}
+			# 	remove_building = {
+			# 		type = arms_factory
+			# 		level = 1
+			# 	}
+			# 	add_building_construction = {
+			# 		type = industrial_complex
+			# 		level = 1
+			# 		instant_build = yes
+			# 	}
+			# 	add_extra_state_shared_building_slots = 1
+			# 	add_building_construction = {
+			# 		type = industrial_complex
+			# 		level = 1
+			# 		instant_build = yes
+			# 	}
+			# }
 		}
 		ai_will_do = {
 			factor = 10
@@ -7004,8 +7078,8 @@ focus_tree = {
 	}
 	focus = {
 		id = GER_two_kaisers
-		icon = GFX_focus_ger_revive_kaiserreich
-		cost = 10
+		icon = GFX_focus_ger_return_of_the_kaiser
+		cost = 20
 		prerequisite = {
 			focus = GER_economic_reform
 		}
@@ -7035,8 +7109,8 @@ focus_tree = {
 	}
 	focus = {
 		id = GER_long_live_sacred_germany
-		icon = GFX_goal_generic_demand_territory
-		cost = 10
+		icon = GFX_focus_ger_revive_kaiserreich
+		cost = 20
 		prerequisite = {
 			focus = GER_representative_reform
 			focus = GER_two_kaisers
@@ -7059,7 +7133,7 @@ focus_tree = {
 	focus = {
 		id = GER_abolish_dictatorships
 		icon =  GFX_focus_generic_military_dictatorship
-		cost = 10
+		cost = 15
 		prerequisite = {
 			focus = GER_reichstag_crisis
 		}
@@ -7080,7 +7154,7 @@ focus_tree = {
 				}
 				set_politics = {
 					ruling_party = neutrality
-					elections_allowed = no
+					elections_allowed = yes
 				}
 				add_popularity = {
 					ideology = fascism
@@ -7170,8 +7244,8 @@ focus_tree = {
 	}
 	focus = {
 		id = GER_representative_reform
-		icon = GFX_focus_generic_self_management
-		cost = 10
+		icon = GFX_focus_stabilize_democracy
+		cost = 20
 		prerequisite = {
 			focus = GER_economic_reform
 		}
@@ -7257,7 +7331,7 @@ focus_tree = {
 	}
 	focus = {
 		id = GER_mass_mobilization
-		icon = GFX_goal_generic_axis_build_infantry
+		icon = GFX_focus_SOV_builder_of_the_red_army
 		cost = 10
 		prerequisite = {
 			focus = GER_marxism_on_the_rise
@@ -7405,7 +7479,7 @@ focus_tree = {
 	}
 	focus = {
 		id = GER_atlantic_class
-		icon = GFX_focus_dreadnought
+		icon = GFX_focus_dreadnought_GER
 		cost = 10
 		prerequisite = {
 			focus = GER_atlantic_shipyard
@@ -7903,7 +7977,7 @@ focus_tree = {
 	}
 	focus = {
 		id = GER_cooperate_with_eastern_communists
-		icon = GFX_focus_generic_join_comintern
+		icon = GFX_focus_SOV_the_path_of_marxism_leninism
 		cost = 10
 		prerequisite = {
 			focus = GER_rote_front
@@ -7998,7 +8072,7 @@ focus_tree = {
 	}
 	focus = {
 		id = GER_true_communism
-		icon = GFX_goal_generic_dangerous_deal
+		icon = GFX_focus_red_flag
 		cost = 10
 		prerequisite = {
 			focus = GER_rote_front
@@ -8407,7 +8481,7 @@ focus_tree = {
 	}
 	focus = {
 		id = GER_austrian_commune
-		icon = GFX_goal_generic_military_deal
+		icon = GFX_focus_soviet_congress
 		cost = 10
 		prerequisite = {
 			focus = GER_cooperate_with_eastern_communists
@@ -8530,7 +8604,7 @@ focus_tree = {
 	}
 	focus = {
 		id = GER_soviet_military_cooperation
-		icon = GFX_goal_generic_army_doctrines
+		icon = GFX_focus_generic_train_red
 		cost = 10
 		prerequisite = {
 			focus = GER_cooperate_with_eastern_communists
@@ -8636,7 +8710,7 @@ focus_tree = {
 	}
 	focus = {
 		id = GER_third_internationale
-		icon = GFX_focus_ger_great_red_menace
+		icon = GFX_focus_SOV_international_union_of_soviet_republics
 		cost = 10
 		prerequisite = {
 			focus = GER_true_communism
@@ -8683,7 +8757,7 @@ focus_tree = {
 	}
 	focus = {
 		id = GER_czech_commune
-		icon = GFX_goal_generic_political_pressure
+		icon = GFX_focus_generic_join_comintern
 		cost = 10
 		prerequisite = {
 			focus = GER_austrian_commune
@@ -8871,9 +8945,9 @@ focus_tree = {
 			focus = GER_civil_defense
 			focus = GER_zeppelin_company
 		}
-		x = 1
-		y = 1
-		relative_position_id = GER_european_legion
+		x = 2
+		y = 2
+		relative_position_id = GER_zeppelin_company
 		completion_reward = {
 			add_tech_bonus = {
 				name = GER_army_inovations
@@ -8881,6 +8955,17 @@ focus_tree = {
 				uses = 2
 				category = motorized_equipment
 				category = armor
+			}
+		}
+		offset = {
+			x = -1
+			y = -1
+			trigger = {
+				has_game_rule = {
+					rule = obsolete_focus_branches_visibility
+					option = HIDE
+				}
+				has_completed_focus = GER_weltpolitik
 			}
 		}
 	}
@@ -9039,10 +9124,43 @@ focus_tree = {
 		id = GER_Vaterlandische_industrialisierung
 		icon = GFX_goal_generic_construct_civ_factory
 		cost = 10
-		x = 22
-		y = 10
+		x = 37
+		y = 0
+		# offset = {
+		# 	x = -4
+		# 	y = 0
+		# 	trigger = {
+		# 		has_game_rule = {
+		# 			rule = obsolete_focus_branches_visibility
+		# 			option = HIDE
+		# 		}
+		# 		has_completed_focus = GER_contain_kaiser
+		# 	}
+		# }
+		# offset = {
+		# 	x = -6
+		# 	y = 0
+		# 	trigger = {
+		# 		has_game_rule = {
+		# 			rule = obsolete_focus_branches_visibility
+		# 			option = HIDE
+		# 		}
+		# 		has_completed_focus = GER_weltpolitik
+		# 	}
+		# }
 		offset = {
-			x = -4
+			x = 3
+			y = 0
+			trigger = {
+				has_game_rule = {
+					rule = obsolete_focus_branches_visibility
+					option = HIDE
+				}
+				has_completed_focus = GER_backstab
+			}
+		}
+		offset = {
+			x = -8
 			y = 0
 			trigger = {
 				has_game_rule = {
@@ -9064,14 +9182,25 @@ focus_tree = {
 			}
 		}
 		offset = {
-			x = 3
+			x = -5
 			y = 0
 			trigger = {
 				has_game_rule = {
 					rule = obsolete_focus_branches_visibility
 					option = HIDE
 				}
-				has_completed_focus = GER_backstab
+				has_completed_focus = GER_moroccan_crisis
+			}
+		}
+		offset = {
+			x = -7
+			y = 0
+			trigger = {
+				has_game_rule = {
+					rule = obsolete_focus_branches_visibility
+					option = HIDE
+				}
+				has_completed_focus = GER_turn_to_asia
 			}
 		}
 		available_if_capitulated = yes
@@ -9119,6 +9248,7 @@ focus_tree = {
 				}
 				add_extra_state_shared_building_slots = 1
 			}
+			unlock_decision_tooltip = GER_delay_famine_mission
 		}
 		ai_will_do = {
 			factor = 6
