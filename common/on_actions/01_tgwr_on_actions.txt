@@ -4425,11 +4425,6 @@
 					OVERLORD = {
 						is_league_of_nations_member = yes
 					}
-					# Protectorate won't join
-					NOT = {
-						has_country_flag = protectorate
-						has_idea = protectorate
-					}
 					# Puppets won't join
 					NOT = {
 						has_autonomy_state = autonomy_tgwr_protectorate
@@ -5861,7 +5856,17 @@
 					}
 				}
 				CHI = {
-					country_event = ww1_china.155
+					if = {
+						limit = {
+							has_cosmetic_tag = CHI_hongxian_empire
+						}
+						country_event = ww1_china.155
+					}
+					else = {
+						set_global_flag = hongxian_failed
+						country_event = ww1_china.38
+						unlock_national_focus = CHI_beiyang_meditator
+					}
 				}
 			}
 			if = {
@@ -5876,7 +5881,7 @@
 				}
 				NPA = {
 					country_event = ww1_china.154
-					change_tag_from = NPA
+					change_tag_from = PREV
 				}
 			}
 			if = {
@@ -6448,6 +6453,20 @@
 					}	
 				}
 			}
+			if = {
+				limit = {
+					original_tag = LBA
+					has_war_with = ITA
+					ITA = {
+						has_war_with = TUR
+					}
+					has_global_flag = italo_turkish_war
+					NOT = {
+						has_global_flag = italo_turkish_war_ends
+					}
+				}
+				white_peace = ITA
+			}
 		}
 	}
 	on_civil_war_end = {
@@ -6718,7 +6737,6 @@
 							has_cosmetic_tag = RUS_eser
 							has_cosmetic_tag = SOV
 							has_cosmetic_tag = SOV_union
-							has_cosmetic_tag = SOV_federation
 							has_cosmetic_tag = SRA
 							has_cosmetic_tag = SRA_government 
 							has_cosmetic_tag = SRA_wrangel
@@ -6768,10 +6786,23 @@
 					}			
 					if = {
 						limit = {
-							has_cosmetic_tag = RUS_state
-							has_country_flag = POLITCENTRE										
+							has_cosmetic_tag = RUS_state																	
 						}
-						set_cosmetic_tag = POLITCENTRE
+						if = {
+							limit = {
+								has_country_flag = POLITCENTRE
+							}
+							set_cosmetic_tag = POLITCENTRE
+							else_if = {
+								limit = {
+									has_country_flag = SIB_KOM_unification
+								}						
+								set_cosmetic_tag = RUS_state_communism
+								else = {
+									set_cosmetic_tag = SIB_communism
+								}
+							}
+						}				
 					}				
 				}
 				if = {
@@ -7443,11 +7474,21 @@
 									character = RUS_mikhail_ii
 									ruling_only  = no 
 								}
+								has_country_leader  = {
+									character = RUS_nikolai_nikolaevich_romanov
+									ruling_only  = no 
+								}
 							}
 						}
 						set_cosmetic_tag = RUS
-						else = {
-							set_cosmetic_tag = RUS_republic
+						else_if = {
+							limit = {
+								has_country_flag = RUS_federation
+							}
+							set_cosmetic_tag = RUS_federation
+							else = {
+								set_cosmetic_tag = RUS_republic
+							}					
 						}	
 					}					
 				}
@@ -7464,19 +7505,29 @@
 					}	
 					if = {
 						limit = {
-							has_cosmetic_tag = POLITCENTRE
 							NOT = {
-								has_government = democratic
-							}									
+								has_cosmetic_tag = RUS_socialism
+							}
+							OR = {
+								AND = {
+									has_cosmetic_tag = POLITCENTRE
+									NOT = {
+										has_government = democratic
+									}
+								}
+								has_cosmetic_tag = RUS_state_communism
+								AND = {
+									has_cosmetic_tag = SIB_communism
+									has_country_flag = RUS_state
+								}
+							}																
 						}
 						set_cosmetic_tag = RUS_state
-					}				
-					if = {
-						limit = {
-							has_cosmetic_tag = SIB_communism							
+						else_if = {
+							limit = { has_cosmetic_tag = SIB_communism }
+							set_cosmetic_tag = SIB
 						}
-						set_cosmetic_tag = SIB
-					}			
+					}
 				}
 				if = {
 					limit = {
@@ -7861,6 +7912,15 @@
 					}
 					set_cosmetic_tag = PRI_rozanov
 				}
+				if = {
+					limit = {
+						original_tag = SAF
+						NOT = {
+							has_cosmetic_tag = SAF_CAP					
+						}
+					}
+					set_cosmetic_tag = SAF_fascism 
+				}
 			}
 			if = {
 				limit = {
@@ -7874,6 +7934,7 @@
 							has_cosmetic_tag = FRA_proto_fascism
 							has_cosmetic_tag = BUL_neutrality
 							has_cosmetic_tag = JAP_fascism_color
+							has_cosmetic_tag = SAF_fascism
 						}
 					}
 					drop_cosmetic_tag = yes
