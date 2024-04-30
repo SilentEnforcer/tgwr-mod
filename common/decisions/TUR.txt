@@ -702,7 +702,10 @@ TUR_minority_decision = {
 		visible = {
 			has_completed_focus = TUR_secure_power_in_arabia
 			controls_state = FROM
-			FROM = { has_dynamic_modifier = { modifier = TUR_arab_minority } }
+			FROM = {
+				has_dynamic_modifier = { modifier = TUR_arab_minority }
+				NOT = { has_state_flag = TUR_increased_conscription_in_karak }
+			}
 		}
 		available = {
 			divisions_in_state = {
@@ -732,6 +735,7 @@ TUR_minority_decision = {
 				add_to_variable = { TUR_ottoman_local_supplies_for_controller = 0.05 }
 				add_to_variable = { TUR_ottoman_state_stability_factor = 0.001 }
 				add_to_variable = { TUR_ottoman_state_war_support_factor = 0.001 }
+				set_state_flag = TUR_increased_conscription_in_karak
 			}
 		}
 		cancel_effect = {
@@ -852,7 +856,7 @@ TUR_minority_decision = {
 			203
 			106
 		}
-		on_map_mode = map_and_decisions_view
+		on_map_mode = map_only
 		days_remove = 45
 		fire_only_once = yes
 		visible = {
@@ -863,6 +867,7 @@ TUR_minority_decision = {
 					has_dynamic_modifier = { modifier = TUR_greek_minority }
 					has_dynamic_modifier = { modifier = TUR_southslav_minority }
 				}
+				NOT = { has_state_flag = TUR_established_order_in_macedonia }
 			}
 		}
 		available = {
@@ -917,6 +922,7 @@ TUR_minority_decision = {
 					add_to_variable = { TUR_ottoman_attrition = -0.5 }
 				}
 				add_compliance = -10
+				set_state_flag = TUR_established_order_in_macedonia
 			}
 		}
 		ai_will_do = {
@@ -938,7 +944,7 @@ TUR_minority_decision = {
 			759
 			203
 		}
-		on_map_mode = map_and_decisions_view
+		on_map_mode = map_only
 		fire_only_once = yes
 		visible = {
 			has_completed_focus = TUR_law_on_churches
@@ -948,6 +954,7 @@ TUR_minority_decision = {
 					has_dynamic_modifier = { modifier = TUR_greek_minority }
 					has_dynamic_modifier = { modifier = TUR_southslav_minority }
 				}
+				NOT = { is_core_of = ROOT }
 			}
 		}
 		available = {
@@ -17149,7 +17156,7 @@ peace_deals = {
 		}
 		available = {
 			OR = {
-	 			surrender_progress > 0
+	 			surrender_progress > 0.05
 	 			casualties > 60000
 	 		}
 			OR = {
@@ -17903,17 +17910,21 @@ TUR_army_factionalism_decision_category = {
 		fire_only_once = yes
 		is_good = no
 		available = {
-			custom_trigger_tooltip = {
-				tooltip = TUR_not_halaskaran_loyalty_tt_hostile
-				check_variable = { TUR_halaskaran_loyalty > 1 }
-			}
-			custom_trigger_tooltip = {
-				tooltip = TUR_not_halaskaran_loyalty_tt_powerful
-				check_variable = { TUR_halaskaran_power < 5 }
-			}
-			custom_trigger_tooltip = {
-				tooltip = TUR_not_halaskaran_loyalty_tt_extended
-				check_variable = { TUR_halaskaran_power < 4 }
+			OR = {
+				custom_trigger_tooltip = {
+					tooltip = TUR_not_halaskaran_loyalty_tt_hostile
+					check_variable = { TUR_halaskaran_loyalty > 1 }
+				}
+				AND = {
+					custom_trigger_tooltip = {
+						tooltip = TUR_not_halaskaran_power_tt_powerful
+						check_variable = { TUR_halaskaran_power < 5 }
+					}
+					custom_trigger_tooltip = {
+						tooltip = TUR_not_halaskaran_power_tt_extended
+						check_variable = { TUR_halaskaran_power < 4 }
+					}
+				}
 			}
 		}
 		activation = {
@@ -17931,32 +17942,91 @@ TUR_army_factionalism_decision_category = {
 		allowed = {
 			original_tag = TUR
 		}
-		icon = GFX_decision_generic_assassination
+		icon = GFX_decision_halaskaran_coup
 		days_mission_timeout = 140
 		fire_only_once = yes
 		is_good = no
 		available = {
-			custom_trigger_tooltip = {
-				tooltip = TUR_not_halaskaran_loyalty_tt_opposing
-				check_variable = { TUR_halaskaran_loyalty > 2 }
-			}
-			custom_trigger_tooltip = {
-				tooltip = TUR_not_halaskaran_loyalty_tt_limited
-				check_variable = { TUR_halaskaran_power < 3 }
+			OR = {
+				custom_trigger_tooltip = {
+					tooltip = TUR_not_halaskaran_loyalty_tt_opposing
+					check_variable = { TUR_halaskaran_loyalty > 2 }
+				}
+				AND = {
+					custom_trigger_tooltip = {
+						tooltip = TUR_not_halaskaran_power_tt_powerful
+						check_variable = { TUR_halaskaran_power < 5 }
+					}
+					custom_trigger_tooltip = {
+						tooltip = TUR_not_halaskaran_power_tt_extended
+						check_variable = { TUR_halaskaran_power < 4 }
+					}
+					custom_trigger_tooltip = {
+						tooltip = TUR_not_halaskaran_power_tt_limited
+						check_variable = { TUR_halaskaran_power < 3 }
+					}
+				}
 			}
 		}
-		activation = {
-			has_country_flag = TUR_raid_on_sublime_porte_successful
-			has_idea = TUR_idea_liberal_revenge
-		}
+		activation = { always = no }
 		timeout_effect = {
-			retire_character = TUR_mahmud_sevket
-			hidden_effect = {
-				country_event = ww1_ottoman.118
-			}
+			country_event = ottoman.12
+			event_option_tooltip = ottoman.12.a
+			set_country_flag = TUR_mahmud_sevket_pasa_assasinated
 		}
 		complete_effect = {
 		}
+	}
+	TUR_raid_on_the_sublime_porte = {
+		allowed = {
+			original_tag = TUR
+		}
+		priority = 100
+		icon = GFX_decision_ittihadist_coup
+		available = {
+			OR = {
+				AND = {
+					custom_trigger_tooltip = {
+						tooltip = TUR_not_ittihadist_loyalty_tt_opposing
+						check_variable = { TUR_ittihadist_loyalty > 2 }
+					}
+					custom_trigger_tooltip = {
+						tooltip = TUR_not_ittihadist_loyalty_tt_hostile
+						check_variable = { TUR_ittihadist_loyalty > 1 }
+					}
+				}
+				AND = {
+					custom_trigger_tooltip = {
+						tooltip = TUR_not_ittihadist_power_tt_powerful
+						check_variable = { TUR_ittihadist_power < 5 }
+					}
+					custom_trigger_tooltip = {
+						tooltip = TUR_not_ittihadist_power_tt_extended
+						check_variable = { TUR_ittihadist_power < 4 }
+					}
+					custom_trigger_tooltip = {
+						tooltip = TUR_not_ittihadist_power_tt_limited
+						check_variable = { TUR_ittihadist_power < 3 }
+					}
+				}
+			}
+		}
+		activation = { always = no }
+		timeout_effect = {
+			country_event = ottoman.10
+			event_option_tooltip = ottoman.10.a
+		}
+		complete_effect = {
+			add_stability = 0.05
+			add_political_power = 35
+			add_popularity = {
+				ideology = fascism
+				popularity = -0.05
+			}
+		}
+		fire_only_once = yes
+		days_mission_timeout = 110
+		is_good = no
 	}
 }
 
@@ -18053,77 +18123,6 @@ TUR_harbiye_nezareti_decision_category = {
 }
 
 TUR_ittihadist_coup_decisions = {
-	TUR_CUP_prepares_coup_mission = {
-		allowed = {
-			original_tag = TUR
-		}
-		priority = 100
-		icon = GFX_decision_generic_assassination
-		available = {
-			#GOAL
-			OR = {
-				has_civil_war = yes
-				has_completed_focus = TUR_ittihat_ve_terakki_victory
-				has_global_flag = kis_firstbalkanwar_lose
-				NOT = {
-					country_exists = SER
-				}
-				has_subject = SER
-				hidden_trigger = {
-					has_country_flag = TUR_ai_goes_hurriyet_ve_itilaf_path
-				}
-			}
-		}
-		activation = {
-			always = no
-		}
-		timeout_effect = {
-			#FAIL
-			add_stability = -0.1
-			add_popularity = {
-				ideology = fascism
-				popularity = 0.15
-			}
-			add_popularity = {
-				ideology = neutrality
-				popularity = 0.2
-			}
-			if = {
-				limit = {
-					NOT = {
-						has_government = neutrality
-					}
-				}
-				set_politics = {
-					ruling_party = neutrality
-					elections_allowed = yes
-				}
-			}
-			custom_effect_tooltip = TUR_CUP_prepares_coup_mission_tooltip
-			remove_mission = TUR_CUP_coup_averted
-			if = {
-				limit = {
-					has_completed_focus = TUR_elections_of_1912
-					has_country_flag = muhtar_pasa_resigns
-				}
-				complete_national_focus = TUR_ittihat_ve_terakki_victory
-			}
-			set_country_flag = TUR_raid_on_sublime_porte
-			every_unit_leader = {
-				limit = {
-					has_trait = trait_TUR_halaskar_zabitan_member
-				}
-				remove_unit_leader_role = yes
-			}
-			country_event = ww1_ottoman.27
-		}
-		complete_effect = {
-			#SUCCESS
-		}
-		fire_only_once = yes
-		days_mission_timeout = 110
-		is_good = no
-	}
 	TUR_CUP_coup_averted = {
 		priority = 99
 		icon = tur_unifying_the_country
@@ -18149,14 +18148,12 @@ TUR_ittihadist_coup_decisions = {
 			if = {
 				limit = {
 					has_completed_focus = TUR_elections_of_1912
-					has_country_flag = muhtar_pasa_resigns
+					has_country_flag = TUR_ahmed_muhtar_resigned
 				}
 				complete_national_focus = TUR_hurriyet_ve_itilaf_victory
 			}
 			set_country_flag = TUR_avert_the_ittihadist_coup
 			set_country_flag = TUR_CUP_coup_fails
-			add_stability = 0.05
-			add_political_power = 85
 			custom_effect_tooltip = TUR_CUP_coup_fails_tooltip
 			remove_mission = TUR_CUP_prepares_coup_mission
 			hidden_effect = { country_event = { id = ottoman.123 random_days = 18 } }
@@ -22554,7 +22551,7 @@ TUR_economy_decision = {
 		complete_effect = {
 			set_country_flag = {
 				flag = has_active_purchase_contract
-				days = 15
+				days = 30
 				value = 1
 			}
 			if = {
@@ -22685,7 +22682,7 @@ TUR_economy_decision = {
 		complete_effect = {
 			set_country_flag = {
 				flag = has_active_purchase_contract
-				days = 15
+				days = 30
 				value = 1
 			}
 			if = {
@@ -22812,7 +22809,7 @@ TUR_economy_decision = {
 		complete_effect = {
 			set_country_flag = {
 				flag = has_active_purchase_contract
-				days = 15
+				days = 30
 				value = 1
 			}
 			if = {
