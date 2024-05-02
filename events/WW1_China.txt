@@ -47,7 +47,7 @@ country_event = {
 				set_temp_variable = { CHI_tempvar_rebellion_province = 5 }
 				
 			
-				set_cosmetic_tag = CHI_neutrality_hubei
+				set_cosmetic_tag = CHI_revolution
 				set_state_owner = 620
 				set_province_controller = 4619
 				set_province_controller = 7167
@@ -61,6 +61,8 @@ country_event = {
 							is_core_of = TAN
 							is_core_of = TIB
 							state = 330
+							state = 982
+							state = 983
 						}
 					}
 					add_core_of = CHI
@@ -1146,6 +1148,7 @@ country_event = {
 		hidden_effect = {
 			MON = {
 				transfer_state = 330
+				transfer_state = 982
 				load_oob = "MON_army"
 			}
 		}
@@ -1194,6 +1197,7 @@ country_event = {
 			}
 			add_state_claim = 329
 			add_state_claim = 330
+			add_state_claim = 982
 			if = {
 				limit = {
 					tag = QIN
@@ -1246,6 +1250,7 @@ country_event = {
 		TIB = {
 			transfer_state = 322
 			transfer_state = 434
+			transfer_state = 985
 			load_oob = "TIB_army"
 		}
 		if = {
@@ -1254,6 +1259,7 @@ country_event = {
 			}
 			add_state_claim = 322
 			add_state_claim = 434
+			add_state_claim = 985
 		}
 	}
 	option = {
@@ -1271,9 +1277,12 @@ country_event = {
 			}
 			add_state_claim = 322
 			add_state_claim = 434
+			add_state_claim = 985
 		}
 		TIB = {
 			transfer_state = 322
+			transfer_state = 434
+			transfer_state = 985
 			load_oob = "TIB_army"
 			change_tag_from = ROOT
 		}
@@ -1519,6 +1528,8 @@ country_event = {
 						state = 329
 						state = 330
 						state = 434
+						state = 982
+						state = 985
 					}
 				}
 				transfer_state_to = PREV
@@ -2032,6 +2043,7 @@ country_event = {
 					uncomplete_children = yes
 				}
 				unlock_national_focus = CHI_kuomintang
+				unlock_national_focus = CHI_three_principles
 				unlock_national_focus = CHI_unite_opposition #cause they are already there
 				mark_focus_tree_layout_dirty = yes
 				add_ideas = CHI_idea_three_principles
@@ -2104,71 +2116,136 @@ country_event = {
 			news_event = { id = ww1_china.36 hours = 6 }
 		}
 		# triggering national protection war
-		if = {
-			limit = { has_global_flag = yuan_shikai_dead }
-			hidden_effect = {
-				unlock_national_focus = CHI_suppress_monarchists
-				set_global_flag = chinese_warlord_crisis
-				set_global_flag = national_protection_war
-				country_event = {
-					id = ww1_china.37
+		# if = {
+		# 	limit = { has_global_flag = yuan_shikai_dead }
+		# 	hidden_effect = {
+		# 		unlock_national_focus = CHI_suppress_monarchists
+		# 		set_global_flag = chinese_warlord_crisis
+		# 		set_global_flag = national_protection_war
+		# 		country_event = {
+		# 			id = ww1_china.37
+		# 		}
+		# 	}
+		# 	custom_effect_tooltip = ww1_china.4.a.tt
+		# }
+		check_neutrality_civil_war_popularity = yes
+		start_civil_war = {
+			ideology = fascism
+			size = civil_war_size_var
+			states = all
+			states_filter = {
+				is_capital = no
+				NOT = { region = 165 }
+			}
+			keep_unit_leaders_trigger = {
+				OR = {
+					has_trait = chinese_nationalist
+					has_trait = chinese_federalist
 				}
 			}
-			custom_effect_tooltip = ww1_china.4.a.tt
 		}
-		# yuan shikai couped the government
-		else = {
-			hidden_effect = {
+		hidden_effect = {
+			random_other_country = {
+				limit = {
+					original_tag = CHI
+					has_government = fascism
+				}
+				set_cosmetic_tag = CHI_uprising
+				load_focus_tree = {
+					tree = china_focus
+					keep_completed = yes
+				}
 				uncomplete_national_focus = {
 					focus = CHI_kuomintang
 					uncomplete_children = yes
 				}
 				unlock_national_focus = CHI_ruling_of_yuan_shikai
 				mark_focus_tree_layout_dirty = yes
-			}
-			effect_tooltip = {
+				remove_ideas = CHI_idea_support_for_revolution
 				set_politics = {
 					ruling_party = neutrality
-				}
-			}
-			remove_ideas = CHI_idea_support_for_revolution
-			set_politics = {
-				ruling_party = neutrality
-				long_name = CHI_neutrality_party
-				name = CHI_neutrality_party
-				elections_allowed = yes
-			}
-			effect_tooltip = {
-				promote_character = CHI_yuan_shikai
-			}
-			set_capital = { state = 608 }
-			hidden_effect = {
-				CHI_yuan_shikai = {
-					promote_character = {
-						ideology = oligarchism
-					}
-					promote_character = {
-						ideology = stratocracy
-					}
-				}
-				set_capital = {
-					state = 608
+					long_name = CHI_neutrality_party
+					name = CHI_neutrality_party
+					elections_allowed = yes
 				}
 				set_popularities = {
-					fascism = 25
+					fascism = 31
 					communism = 0
-					democratic = 28
-					neutrality = 47
+					democratic = 12
+					neutrality = 57
 				}
-				if = {
-					limit = {
-						has_character = CHI_song_jiaoren
-					}
-					country_event = {
-						id = ww1_china.177
-						days = 20
+				set_capital = { state = 608 }
+				ROOT = {
+					every_unit_leader = {
+						limit = {
+							has_trait = CHI_loyalist
+						}
+						set_nationality = PREV.PREV
 					}
 				}
+			}
+		}
+	}
+	option = {
+		name = ww1_china.4.b
+		# yuan shikai couped the government
+		hidden_effect = {
+			uncomplete_national_focus = {
+				focus = CHI_kuomintang
+				uncomplete_children = yes
+			}
+			unlock_national_focus = CHI_ruling_of_yuan_shikai
+			mark_focus_tree_layout_dirty = yes
+		}
+		effect_tooltip = {
+			set_politics = {
+				ruling_party = neutrality
+			}
+		}
+		remove_ideas = CHI_idea_support_for_revolution
+		set_politics = {
+			ruling_party = neutrality
+			long_name = CHI_neutrality_party
+			name = CHI_neutrality_party
+			elections_allowed = yes
+		}
+		effect_tooltip = {
+			promote_character = CHI_yuan_shikai
+		}
+		set_capital = { state = 608 }
+		hidden_effect = {
+			CHI_yuan_shikai = {
+				promote_character = {
+					ideology = oligarchism
+				}
+				promote_character = {
+					ideology = stratocracy
+				}
+			}
+			set_capital = {
+				state = 608
+			}
+			set_popularities = {
+				fascism = 25
+				communism = 0
+				democratic = 28
+				neutrality = 47
+			}
+			if = {
+				limit = {
+					has_character = CHI_song_jiaoren
+				}
+				country_event = {
+					id = ww1_china.177
+					days = 20
+				}
+			}
+		}
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 1000
+				democratic < 0.20
 			}
 		}
 	}
@@ -2273,6 +2350,7 @@ country_event = {
 	}
 	option = {
 		name = ww1_china.8.a
+		custom_effect_tooltip = historical_tt
 		QIN_zhang_xun = {
 			set_nationality = QIN
 			promote_leader = yes
@@ -3065,6 +3143,16 @@ country_event = {
 				}
 				CHI_yan_xishan = {
 					set_nationality = SHX
+				}
+			}
+			CHI_yan_xishan = {
+				if = {
+					limit = {
+						has_ideology = conservatism
+					}
+					promote_character = conservatism
+				}
+				else = {
 					add_country_leader_role = {
 						promote_leader = yes
 						country_leader = {
@@ -3072,6 +3160,14 @@ country_event = {
 							traits = { king_shanxi propaganda_expert }
 						}
 					}
+				}
+				if = {
+					limit = {
+						has_ideology = stratocracy
+					}
+					promote_character = stratocracy
+				}
+				else = {
 					add_country_leader_role = {
 						promote_leader = yes
 						country_leader = {
@@ -3079,6 +3175,14 @@ country_event = {
 							traits = { king_shanxi propaganda_expert }
 						}
 					}
+				}
+				if = {
+					limit = {
+						has_ideology = authoritarian_democracy
+					}
+					promote_character = authoritarian_democracy
+				}
+				else = {
 					add_country_leader_role = {
 						promote_leader = yes
 						country_leader = {
@@ -3309,26 +3413,14 @@ country_event = {
 								producer = CHI
 							}
 						}
+						get_current_government_type = yes
 						CHI = {
-							if = {
-								limit = {
-									has_subject_autonomy_feature = yes
-								}
-								set_autonomy = {
-									target = PREV
-									autonomy_state = autonomy_tgwr_regional_government
-								}
-								PREV = {
-									set_politics = {
-										ruling_party = neutrality
-										elections_allowed = no
-									}
-									set_popularities = {
-										neutrality = 100
-									}
-								}
+							set_autonomy = {
+								target = PREV
+								autonomy_state = autonomy_tgwr_regional_government
 							}
 						}
+						restore_previous_government_type = yes
 					}
 				}
 			}
@@ -3390,6 +3482,27 @@ country_event = {
 						transfer_state = PREV
 						every_owned_state = {
 							set_demilitarized_zone = no
+						}
+					}
+				}
+			}
+			982 = {
+				add_claim_by = SIK
+				if = {
+					limit = {
+						owner = { is_china_or_warlord = yes }
+					}
+					330 = {
+						owner = {
+							if = {
+								limit = {
+									is_china_or_warlord = no
+								}
+								transfer_state = 982
+							}
+							else = {
+								SIK = { transfer_state = 982 }
+							}
 						}
 					}
 				}
@@ -3462,40 +3575,22 @@ country_event = {
 								producer = CHI
 							}
 						}
+						get_current_government_type = yes
 						CHI = {
-							if = {
-								limit = {
-									has_subject_autonomy_feature = yes
-								}
-								set_autonomy = {
-									target = PREV
-									autonomy_state = autonomy_tgwr_regional_government
-								}
-								PREV = {
-									set_politics = {
-										ruling_party = neutrality
-										elections_allowed = no
-									}
-									set_popularities = {
-										neutrality = 100
-									}
-								}
+							set_autonomy = {
+								target = PREV
+								autonomy_state = autonomy_tgwr_regional_government
 							}
 						}
+						restore_previous_government_type = yes
 					}
 				}
-				if = {
-					limit = {
-						has_dlc = "Together for Victory"
-					}
-					set_autonomy = {
-						target = KUM
-						autonomy_state = autonomy_integrated_puppet
-					}
-					else = {
-						puppet = KUM
-					}
+				KUM = { get_current_government_type = yes }
+				set_autonomy = {
+					target = KUM
+					autonomy_state = autonomy_integrated_puppet
 				}
+				KUM = { restore_previous_government_type = yes }
 			}
 		}
 	}
@@ -3811,6 +3906,7 @@ country_event = {
 								OR = {
 									state = 330
 									state = 612
+									state = 983
 								}
 							}
 							add_core_of = PREV
@@ -4323,15 +4419,9 @@ country_event = {
 							if = {
 								limit = { country_exists = SHN }
 								SHN = { get_current_government_type = yes }
-								if = {
-									limit = { has_subject_autonomy_feature = yes }
-									set_autonomy = {
-										target = SHN
-										autonomy_state = autonomy_tgwr_regional_government
-									}
-								}
-								else = {
-									puppet = SHN
+								set_autonomy = {
+									target = SHN
+									autonomy_state = autonomy_tgwr_regional_government
 								}
 								SHN = { restore_previous_government_type = yes }
 							}
@@ -4822,28 +4912,15 @@ country_event = {
 								producer = CHI
 							}
 						}
+						get_current_government_type = yes
 						CHI = {
 							set_truce = {
 								target = PREV
 								days = 330
 							}
-							if = {
-								limit = {
-									has_subject_autonomy_feature = yes
-								}
-								set_autonomy = {
-									target = PREV
-									autonomy_state = autonomy_tgwr_regional_government
-								}
-								PREV = {
-									set_politics = {
-										ruling_party = neutrality
-										elections_allowed = no
-									}
-									set_popularities = {
-										neutrality = 100
-									}
-								}
+							set_autonomy = {
+								target = PREV
+								autonomy_state = autonomy_tgwr_regional_government
 							}
 							transfer_units_fraction = {
 								target = FNG
@@ -4853,6 +4930,7 @@ country_event = {
 								}
 							}
 						}
+						restore_previous_government_type = yes
 					}
 				}
 			}
@@ -4888,6 +4966,14 @@ country_event = {
 			exists = yes
 			has_government = communism
 		}	
+		ZHC = {
+			has_country_flag = zhili_anhui_war_victor
+		}
+		ANC = {
+			NOT = {
+				owns_state = 608
+			}
+		}
 	}
 	immediate = {
 		hidden_effect = {
@@ -4896,16 +4982,53 @@ country_event = {
 					has_character = RUS_roman_ungern_sternberg
 				}
 				RUS_roman_ungern_sternberg = {
-					set_nationality = MON					
+					set_nationality = MON
+					promote_leader = yes
+					add_country_leader_role = {
+						promote_leader = yes
+						country_leader = {
+							ideology = stratocracy
+							traits = {
+								spirit_of_genghis
+								lunatic
+							}
+						}
+					}
 				}			
 			}
+			every_possible_country = {
+				limit = {
+					has_character = TBK_boris_rezukhin
+				}
+				TBK_boris_rezukhin = {
+					set_nationality = MON
+				}
+			}
+			if = {
+				limit = {
+					ALT = {
+						exists = no
+					}
+				}
+				every_possible_country = {
+					limit = {
+						has_character = ALT_aleksandr_kaygorodov
+					}
+					ALT_aleksandr_kaygorodov = {
+						set_nationality = MON
+					}			
+				}
+			}	
 			MON = {
 				transfer_state = 330
 				transfer_state = 329
+				transfer_state = 982
 				set_politics = {
 					ruling_party = fascism
 					elections_allowed = no
 				}
+				add_ideas = MON_bogd_khan_sternberg
+				remove_ideas = MON_divided_rule
 				set_popularities = {
 					fascism = 45
 					communism = 5
@@ -4921,18 +5044,6 @@ country_event = {
 					ideology = fascism
 					long_name = MON_ungern_party
 					name = MON_ungern_party
-				}
-				MON_roman_ungernsternberg = {
-					add_country_leader_role = {
-						promote_leader = yes
-						country_leader = {
-							ideology = stratocracy
-							traits = {
-								spirit_of_genghis
-								lunatic
-							}
-						}
-					}
 				}
 				set_cosmetic_tag = MON_Ungern
 				every_other_country = {
@@ -5002,10 +5113,6 @@ country_event = {
  	fire_only_once = yes
 	immediate = {
 		hidden_effect = {
-			CER = {
-				drop_cosmetic_tag = yes
-				set_cosmetic_tag = CER_RUS
-			}
 			every_owned_state = {
 				limit = {
 					OR = {
@@ -5543,18 +5650,12 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_china.32.a
-		if = {
-			limit = {
-				has_subject_autonomy_feature = yes
-			}
-			set_autonomy = {
-				target = FROM
-				autonomy_state = autonomy_tgwr_regional_government
-			}
-			else = {
-				puppet = FROM
-			}
+		hidden_effect = { get_current_government_type = yes }
+		set_autonomy = {
+			target = FROM
+			autonomy_state = autonomy_tgwr_regional_government
 		}
+		hidden_effect = { restore_previous_government_type = yes }
 		ai_chance = {
 			base = 45
 			modifier = {
@@ -5830,7 +5931,7 @@ country_event = {
 						fascism = 53
 						communism = 0
 					}
-					set_cosmetic_tag = NPA
+					set_cosmetic_tag = CHI_uprising
 					set_country_flag = CHI_national_protection_flag
 					reserve_dynamic_country = yes
 				}
@@ -7085,6 +7186,7 @@ country_event = {
 								state = 610
 								state = 611
 								state = 612
+								state = 983
 							}
 						}
 						transfer_state_to = FNG
@@ -7115,6 +7217,8 @@ country_event = {
 							state = 596
 							state = 613
 							state = 622
+							state = 982
+							state = 983
 						}
 					}
 					transfer_state_to = ZHC
@@ -8283,6 +8387,8 @@ country_event = {
 								state = 622
 								state = 890
 								state = 891
+								state = 982
+								state = 983
 							}
 						}
 						transfer_state_to = GMJ
@@ -8573,6 +8679,7 @@ country_event = {
 							state = 608
 							state = 611
 							state = 612
+							state = 983
 						}
 					}
 					add_core_of = PREV
@@ -8763,10 +8870,6 @@ country_event = {
 	mean_time_to_happen = { days = 0 }
 	immediate = {
 		hidden_effect = {
-			CER = {
-				drop_cosmetic_tag = yes
-				set_cosmetic_tag = CER_RUS
-			}
 			if = {
 				limit = {
 					NOT = { has_global_flag = warlord_era_news }
@@ -8825,7 +8928,7 @@ news_event = {
 			}
 			hidden_effect = {
 				set_country_flag = SE_chi_warlord_era
-				play_song = "battleofwuhan"
+				play_song = "SE_chi_warlord_era"
 			}
 		}
 	}
@@ -8847,7 +8950,7 @@ news_event = {
 			}
 			hidden_effect = {
 				set_country_flag = SE_chi_warlord_era
-				play_song = "battleofwuhan"
+				play_song = "SE_chi_warlord_era"
 			}
 		}
 	}
@@ -8865,7 +8968,7 @@ country_event = {
 		is_china_or_warlord = yes
 		OR = {
 			country_exists = SOV
-			has_global_flag = russian_civil_war
+			has_global_flag = october_revolution
 			has_global_flag = french_civil_war
 			has_global_flag = CHI_may_fourth_movement
 			any_other_country = {
@@ -9221,6 +9324,7 @@ country_event = {
 					state = 610
 					state = 611
 					state = 612
+					state = 983
 				}
 			}
 			FNG = {
@@ -9875,6 +9979,7 @@ country_event = {
 							state = 611
 							state = 612
 							state = 614
+							state = 983
 						}
 					}
 					add_core_of = PREV
@@ -9953,6 +10058,7 @@ country_event = {
 								state = 611
 								state = 612
 								state = 614
+								state = 983
 							}
 						}
 						add_core_of = PREV
@@ -10196,6 +10302,7 @@ country_event = {
 						OR = {
 							state = 611
 							state = 612
+							state = 983
 						}
 					}
 					# Inner Mongolia
@@ -10346,15 +10453,9 @@ country_event = {
 					has_country_flag = CHI_kuomintang_flag
 				}
 				ROOT = { get_current_government_type = yes }
-				if = {
-					limit = { has_subject_autonomy_feature = yes }
-					set_autonomy = {
-						target = ROOT
-						autonomy_state = autonomy_tgwr_regional_government
-					}
-				}
-				else = {
-					puppet = ROOT
+				set_autonomy = {
+					target = ROOT
+					autonomy_state = autonomy_tgwr_regional_government
 				}
 				ROOT = { restore_previous_government_type = yes }
 			}
@@ -12280,23 +12381,14 @@ country_event = {
 							is_subject = no
 						}
 					}
-					if = {
-						limit = { has_subject_autonomy_feature = yes }
-						set_autonomy = {
-							target = PREV
-							autonomy_state = autonomy_tgwr_regional_government
-							end_wars = no
-							end_civil_wars = no
-						}
+					PREV = { get_current_government_type = yes }
+					set_autonomy = {
+						target = PREV
+						autonomy_state = autonomy_tgwr_regional_government
+						end_wars = no
+						end_civil_wars = no
 					}
-					else = {
-						set_autonomy = {
-							target = PREV
-							autonomy_state = autonomy_puppet
-							end_wars = no
-							end_civil_wars = no
-						}
-					}
+					PREV = { restore_previous_government_type = yes }
 				}
 			}
 		}
@@ -12815,17 +12907,9 @@ country_event = {
 					country_exists = KUM
 				}
 				SIK = {
-					if = {
-						limit = {
-							has_dlc = "Together for Victory"
-						}
-						set_autonomy = {
-							target = KUM
-							autonomy_state = autonomy_integrated_puppet
-						}
-						else = {
-							puppet = KUM
-						}
+					set_autonomy = {
+						target = KUM
+						autonomy_state = autonomy_integrated_puppet
 					}
 				}
 			}
@@ -12936,17 +13020,9 @@ country_event = {
 					country_exists = KUM
 				}
 				SIK = {
-					if = {
-						limit = {
-							has_dlc = "Together for Victory"
-						}
-						set_autonomy = {
-							target = KUM
-							autonomy_state = autonomy_integrated_puppet
-						}
-						else = {
-							puppet = KUM
-						}
+					set_autonomy = {
+						target = KUM
+						autonomy_state = autonomy_integrated_puppet
 					}
 				}
 			}
@@ -16310,26 +16386,9 @@ country_event = {
 	option = {
 		name = ww1_china.163.a
 		FROM = {
-			if = {
-				limit = {
-					has_dlc = "Waking the Tiger"
-				}
-				set_autonomy = {
-					target = ROOT
-					autonomy_state = autonomy_wtt_imperial_protectorate
-				}
-			}
-			else_if = {
-				limit = {
-					has_dlc = "Together for Victory"
-				}
-				set_autonomy = {
-					target = ROOT
-					autonomy_state = autonomy_integrated_puppet
-				}
-			}
-			else = {
-				puppet = ROOT
+			set_autonomy = {
+				target = ROOT
+				autonomy_state = autonomy_wtt_imperial_protectorate
 			}
 		}
 		hidden_effect = {
@@ -16477,26 +16536,9 @@ country_event = {
 	option = {
 		name = ww1_china.165.a
 		FROM = {
-			if = {
-				limit = {
-					has_dlc = "Waking the Tiger"
-				}
-				set_autonomy = {
-					target = ROOT
-					autonomy_state = autonomy_wtt_imperial_protectorate
-				}
-			}
-			else_if = {
-				limit = {
-					has_dlc = "Together for Victory"
-				}
-				set_autonomy = {
-					target = ROOT
-					autonomy_state = autonomy_integrated_puppet
-				}
-			}
-			else = {
-				puppet = ROOT
+			set_autonomy = {
+				target = ROOT
+				autonomy_state = autonomy_wtt_imperial_protectorate
 			}
 		}
 		hidden_effect = {
@@ -16557,26 +16599,9 @@ country_event = {
 		trigger = {
 			has_subject = MON
 		}
-		if = {
-			limit = {
-				has_dlc = "Waking the Tiger"
-			}
-			set_autonomy = {
-				target = TAN
-				autonomy_state = autonomy_wtt_imperial_protectorate
-			}
-		}
-		else_if = {
-			limit = {
-				has_dlc = "Together for Victory"
-			}
-			set_autonomy = {
-				target = TAN
-				autonomy_state = autonomy_integrated_puppet
-			}
-		}
-		else = {
-			puppet = TAN
+		set_autonomy = {
+			target = TAN
+			autonomy_state = autonomy_wtt_imperial_protectorate
 		}
 		hidden_effect = {
 			TAN = {
@@ -16707,6 +16732,7 @@ country_event = {
 		name = ww1_china.168.a
 		FROM = {
 			transfer_state = 322
+			transfer_state = 985
 			add_manpower = -100000
 			add_equipment_to_stockpile = {
 				type = infantry_equipment_1
@@ -17292,17 +17318,9 @@ country_event = {
 				unlock_national_focus = CHI_opposition
 			}
 		}
-		if = {
-			limit = {
-				has_subject_autonomy_feature = yes
-			}
-			set_autonomy = {
-				target = HNC
-				autonomy_state = autonomy_tgwr_regional_government
-			}
-			else = {
-				puppet = HNC
-			}
+		set_autonomy = {
+			target = HNC
+			autonomy_state = autonomy_tgwr_regional_government
 		}
 	}
 }
@@ -17490,17 +17508,9 @@ country_event = {
 			limit = {
 				is_kuomintang_state = yes
 			}
-			if = {
-				limit = {
-					has_subject_autonomy_feature = yes
-				}
-				set_autonomy = {
-					target = ROOT
-					autonomy_state = autonomy_tgwr_regional_government
-				}
-				else = {
-					puppet = ROOT
-				}
+			set_autonomy = {
+				target = ROOT
+				autonomy_state = autonomy_tgwr_regional_government
 			}
 		}
 		hidden_effect = {
@@ -17579,17 +17589,9 @@ country_event = {
 					has_war_with = ROOT
 				}
 			}
-			if = {
-				limit = {
-					has_subject_autonomy_feature = yes
-				}
-				set_autonomy = {
-					target = ROOT
-					autonomy_state = autonomy_tgwr_regional_government
-				}
-				else = {
-					puppet = ROOT
-				}
+			set_autonomy = {
+				target = ROOT
+				autonomy_state = autonomy_tgwr_regional_government
 			}
 		}
 		hidden_effect = {
@@ -17662,27 +17664,12 @@ country_event = {
 				puppet = ROOT
 			}
 			hidden_effect = {
-				ROOT = {
-					get_current_government_type = yes
-				}
-				if = {
-					limit = {
-						has_subject_autonomy_feature = yes
-					}
-					set_autonomy = {
-						target = ROOT
-						autonomy_state = autonomy_tgwr_regional_government
-						end_wars = no
-						end_civil_wars = no
-					}
-				}
-				else = {
-					set_autonomy = {
-						target = ROOT
-						autonomy_state = autonomy_puppet
-						end_wars = no
-						end_civil_wars = no
-					}
+				ROOT = { get_current_government_type = yes }
+				set_autonomy = {
+					target = ROOT
+					autonomy_state = autonomy_tgwr_regional_government
+					end_wars = no
+					end_civil_wars = no
 				}
 				every_enemy_country = {
 					limit = {
@@ -17729,6 +17716,7 @@ country_event = {
 					region = 155
 					state = 610
 					state = 612
+					state = 983
 					# Outer Manchuria
 					state = 408
 					state = 409
@@ -17786,6 +17774,7 @@ country_event = {
 					region = 155
 					state = 610
 					state = 612
+					state = 983
 					# Outer Manchuria
 					state = 408
 					state = 409
@@ -18213,6 +18202,7 @@ country_event = {
 								NOT = {
 									state = 329
 									state = 330
+									state = 982
 								}
 							}
 							transfer_state_to = FNG
@@ -18911,15 +18901,9 @@ country_event = {
 		name = ww1_china.208.b
 		# trigger = { is_ai = no }
 		GMJ = {
-			if = {
-				limit = { has_subject_autonomy_feature = yes }
-				set_autonomy = {
-					target = ROOT
-					autonomy_state = autonomy_tgwr_regional_government
-				}
-			}
-			else = {
-				puppet = ROOT
+			set_autonomy = {
+				target = ROOT
+				autonomy_state = autonomy_tgwr_regional_government
 			}
 		}
 	}
@@ -19099,15 +19083,9 @@ country_event = {
 			get_current_government_type = yes
 		}
 		KMT = {
-			if = {
-				limit = { has_subject_autonomy_feature = yes }
-				set_autonomy = {
-					target = ROOT
-					autonomy_state = autonomy_tgwr_regional_government
-				}
-			}
-			else = {
-				puppet = ROOT
+			set_autonomy = {
+				target = ROOT
+				autonomy_state = autonomy_tgwr_regional_government
 			}
 		}
 		hidden_effect = {
