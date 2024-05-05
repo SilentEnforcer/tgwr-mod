@@ -3166,6 +3166,8 @@ focus = {
 					is_core_of = ROOT
 				}
 			}
+			has_subject = IKR
+			has_subject = SMS
 		}
 		
 		NOT = {
@@ -3182,8 +3184,31 @@ focus = {
 		345 = {
 			is_core_of = ROOT
 		}
+		NOT = {
+			has_subject = IKR
+			has_subject = SMS
+			is_in_faction_with = IKR
+			is_in_faction_with = SMS
+		}
 	}
 	completion_reward = {
+		every_other_country = {
+			limit = {
+				OR = {
+					original_tag = IKR
+					original_tag = SMS
+				}
+				OR = {
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
+				}
+			}
+			ROOT = {
+				annex_country = {
+					target = PREV
+				}
+			}
+		}
 		custom_effect_tooltip = GRE_treaty_of_athens_tt
 		hidden_effect = {
 			every_owned_state = {
@@ -4431,6 +4456,8 @@ focus = {
 							state = 345
 							state = 184
 							state = 790
+							state = 974
+							state = 975
 							state = 182
 							state = 187
 						}
@@ -4711,19 +4738,26 @@ focus = {
 		prerequisite = {
 			focus = GRE_the_1st_panhellenic_socialist_congress
 		}
+		available = {
+			has_war = no
+		}	
 		completion_reward = {
 			add_stability = 0.02
 			add_popularity = {
 				ideology = communism
 				popularity = 0.05
 			}
-			345 = {
-				add_compliance = 10
-			}
-			731 = {
-				add_compliance = 10
-			}
-			184 = {
+			every_owned_state = {
+				limit = {
+					OR = {
+						state = 345
+						state = 731
+						state = 184
+					}
+					NOT = {
+						is_core_of = ROOT
+					}
+				}
 				add_compliance = 10
 			}
 		}
@@ -4741,24 +4775,51 @@ focus = {
 		prerequisite = {
 			focus = GRE_the_1st_panhellenic_socialist_congress
 		}
-		completion_reward = {
-			345 = {
-				add_compliance = 10
-				add_state_modifier = {
-					modifier = {
-						local_resources = 0.5
-					}
+		available = {
+			has_war = no
+			OR = {
+				owns_state = 345
+				owns_state = 731
+				owns_state = 184
+			}		
+		}	
+		bypass = {
+			OR = {
+				owns_state = 345
+				owns_state = 731
+				owns_state = 184
+			}
+			if = {
+				limit = {
+					owns_state = 345
 				}	
+				345 = { is_core_of = ROOT }				
 			}
-			731 = {
-				add_compliance = 10
-				add_state_modifier = {
-					modifier = {
-						local_resources = 0.5
+			if = {
+				limit = {
+					owns_state = 731
+				}	
+				731 = { is_core_of = ROOT }
+			}
+			if = {
+				limit = {
+					owns_state = 184
+				}	
+				184 = { is_core_of = ROOT }
+			}
+		}	
+		completion_reward = {
+			every_owned_state = {
+				limit = {
+					OR = {
+						state = 345
+						state = 731
+						state = 184
 					}
+					NOT = {
+						is_core_of = ROOT
+					}	
 				}
-			}
-			184 = {
 				add_compliance = 10
 				add_state_modifier = {
 					modifier = {
@@ -4927,12 +4988,16 @@ focus = {
 				check_variable = { GRE_number_of_states_transfered > 2 }
 			}	
 			NOT = {
-				has_idea = gre_epistratoi
-				hidden_trigger = {
-					OR = {
-						has_idea = gre_epistratoi2
-						has_idea = gre_epistratoi3
-					}				
+				if = {
+					limit = { has_idea = gre_epistratoi2 }
+					has_idea = gre_epistratoi2
+				}
+				else_if = {
+					limit = { has_idea = gre_epistratoi3 }
+					has_idea = gre_epistratoi3
+				}
+				else = {
+					has_idea = gre_epistratoi
 				}
 				has_country_flag = great_war_loser
 			}
@@ -5498,8 +5563,9 @@ focus = {
 			}
 		}
 		bypass = {
-			THE = {
-				exists = yes
+			any_country = {
+				original_tag = GRE
+				has_country_flag = GRE_national_defense_flag
 			}
 		}
 		completion_reward = {
@@ -6411,8 +6477,13 @@ focus = {
 			}
 		}
 		bypass = {
-			has_civil_war = no
-			has_country_flag = civil_war_has_been_triggered
+			OR = {
+				is_in_faction_with = FRA
+				AND = {
+					has_civil_war = no
+					has_country_flag = civil_war_has_been_triggered
+				}
+			}	
 		}
 		completion_reward = {
 			add_equipment_to_stockpile = {
@@ -6476,8 +6547,13 @@ focus = {
 			focus = GRE_declare_a_state_of_emergency
 		}
 		bypass = {
-			has_civil_war = no
-			has_country_flag = civil_war_has_been_triggered
+			OR = {
+				is_in_faction_with = FRA
+				AND = {
+					has_civil_war = no
+					has_country_flag = civil_war_has_been_triggered
+				}
+			}	
 		}
 		completion_reward = {
 			add_timed_idea = {
@@ -6507,7 +6583,15 @@ focus = {
 			}
 			controls_state = 898
 		}
-		bypass_if_unavailable = yes
+		bypass = {
+			OR = {
+				is_in_faction_with = FRA
+				AND = {
+					has_civil_war = no
+					has_country_flag = civil_war_has_been_triggered
+				}
+			}	
+		}
 		completion_reward = {
 			if = {
 				limit = {
@@ -8942,10 +9026,7 @@ focus = {
 			has_completed_focus = GRE_integrate_the_epistratoi
 			has_country_leader = {
 				character = GRE_constantine_i
-			}
-			NOT = {
-				has_country_flag = great_war_loser
-			}		
+			}	
 		}
 		x = -4
 		y = 1
@@ -9032,9 +9113,6 @@ focus = {
 			has_completed_focus = GRE_give_metaxas_seats_in_the_government
 			has_country_leader = {
 				character = GRE_ioannis_metaxas
-			}
-			NOT = {
-				has_country_flag = great_war_loser
 			}
 		}
 		x = -9
