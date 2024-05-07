@@ -364,16 +364,43 @@
 			}
 			if = {
 				limit = {
-					tag = SOV					#winner
-					FROM = {
-						original_tag = RUS
-					}					#loser
+					tag = SOV
 				}
-				SOV = {
-					annex_country = {
-						target = FROM
+				if = { 
+					limit = {
+						FROM = {
+							original_tag = RUS
+						}
+					}	
+					SOV = {
+						annex_country = {
+							target = FROM
+						}
 					}
 				}
+				if = {
+					limit = {
+						has_government = communism
+						NOT = { has_global_flag = russian_civil_war_ends }
+						has_global_flag = russian_civil_war
+						is_subject = no
+						OR = {
+							is_faction_leader = yes
+							is_in_faction = no
+						}
+						NOT = {
+							any_enemy_country = {
+								NOT = {
+									tag = FROM
+								}	
+								is_russian_tag = yes
+							}
+						}
+					}
+					set_country_flag = russian_civil_war_winner
+					set_global_flag = russian_civil_war_ends
+					news_event = rusrevolt.19
+				}	
 			}
 			if = {
 				limit = {
@@ -768,29 +795,6 @@
 					has_cosmetic_tag = ASY_volunteers
 				}
 				drop_cosmetic_tag = yes
-			}
-			if = {
-				limit = {
-					tag = SOV
-					NOT = { has_global_flag = russian_civil_war_ends }
-					has_global_flag = russian_civil_war
-					is_subject = no
-					OR = {
-						is_faction_leader = yes
-						is_in_faction = no
-					}
-					NOT = {
-						any_country = {
-							is_russian_tag = yes
-							any_enemy_country = {
-								is_russian_tag = yes
-							}
-						}
-					}
-				}
-				set_country_flag = russian_civil_war_winner
-				set_global_flag = russian_civil_war_ends
-				news_event = rusrevolt.19
 			}
 		}
 	}
@@ -4421,11 +4425,6 @@
 					OVERLORD = {
 						is_league_of_nations_member = yes
 					}
-					# Protectorate won't join
-					NOT = {
-						has_country_flag = protectorate
-						has_idea = protectorate
-					}
 					# Puppets won't join
 					NOT = {
 						has_autonomy_state = autonomy_tgwr_protectorate
@@ -4541,10 +4540,6 @@
 						damage = 1
 					}
 				}
-				QIN = {
-					TAN = { set_occupation_law = foreign_civilian_oversight }
-					#MON = { set_occupation_law = foreign_civilian_oversight }
-				}	
 			}
 			if = {
 				limit = {
@@ -4756,6 +4751,7 @@
 					random_list = {
 						25 = { FRA = { set_country_flag = FRA_AI_RANDOM_HISTORICAL } }
 						15 = { FRA = { set_country_flag = FRA_AI_RANDOM_SOCIALIST } }
+						10 = { FRA = { set_country_flag = FRA_AI_RANDOM_DEMOCRATIC_RIGHT } }
 						20 = { FRA = { set_country_flag = FRA_AI_RANDOM_DEMOCRATIC_ALTERNATE } }
 						10 = { FRA = { set_country_flag = FRA_AI_RANDOM_NEUTRALITY_BONARPARTIST } }
 						10 = { FRA = { set_country_flag = FRA_AI_RANDOM_NEUTRALITY_MONARCHIST } }
@@ -5066,28 +5062,14 @@
 			}
 			if = {
 				limit = {
-					tag = DON
-					NOT = {
-						has_country_flag = don_before_sra
-					}
-				}
-				DON = {
-					set_country_flag = don_before_sra
-					country_event = ww1_sra.9
-				}
-				SRA = {
-					change_tag_from = DON
-				}
-			}
-			if = {
-				limit = {
 					tag = UPR
+					has_war_with = UKR
 					NOT = {
 						has_country_flag = brest_litovsk_capture
 					}
 				}
 				UPR = {
-					set_country_flag = don_before_sra
+					set_country_flag = brest_litovsk_capture
 				}
 				UKR = {
 					annex_country= {
@@ -5133,6 +5115,10 @@
 					}
 					set_country_flag = KUB_soviet_tag
 					country_lock_all_division_template = yes
+					add_ideas = SOV_idea_red_guard
+					remove_ideas = {
+						standing_alone
+					}
 					set_country_flag = communist_takeover
 					division_template = {
 						name = "Krasnaya Gvardiya"
@@ -5160,57 +5146,70 @@
 			if = {
 				limit = {
 					tag = DON
-					any_enemy_country = {
-						tag = SOV
+					has_war_with = SOV					
+				}		
+				if = {
+					limit = {
+						NOT = {
+							country_exists = SRA
+							has_global_flag = RUS_SRA_spawned
+						}
+					}
+					DON = {
+						country_event = ww1_sra.9
+					}
+				}
+				if = {
+					limit = {
+						SOV = {
+							is_subject = no
+							has_government = communism
+						}
+						NOT = {
+							has_country_flag = communist_takeover
+						}
 					}
 					SOV = {
-						is_subject = no
-						has_government = communism
+						puppet = DON
 					}
-					NOT = {
-						has_country_flag = communist_takeover
-					}
-				}
-				SOV = {
-					puppet = DON
-				}
-				DON = {
-					set_politics = {
-						ruling_party = communism
-						elections_allowed = no
-					}
-					add_popularity = {
-						ideology = communism
-						popularity = 0.25
-					}
-					retire_character = RUS_alexei_kaledin
-					retire_character = DON_anatoliy_nazarov
-					set_country_flag = DON_soviet_tag
-					country_lock_all_division_template = yes
-					set_country_flag = communist_takeover
-					division_template = {
-						name = "Krasnaya Gvardiya"
-						regiments = {
-							militia = { x = 0 y = 0 }
-							militia = { x = 0 y = 1 }
-							militia = { x = 1 y = 0 }
+					DON = {
+						add_popularity = {
+							ideology = communism
+							popularity = 0.25
+						}
+						retire_character = RUS_alexei_kaledin
+						retire_character = DON_anatoliy_nazarov
+						set_country_flag = DON_soviet_tag
+						country_lock_all_division_template = yes
+						set_country_flag = communist_takeover
+						add_ideas = SOV_idea_red_guard
+						remove_ideas = {
+							standing_alone
+						}			
+						division_template = {
+							name = "Krasnaya Gvardiya"
+							regiments = {
+								militia = { x = 0 y = 0 }
+								militia = { x = 0 y = 1 }
+								militia = { x = 1 y = 0 }
+							}
+						}
+						every_owned_state = {
+							DON = {
+								set_state_controller = PREV
+							}	
+						}
+						capital_scope = {
+							create_unit = {
+								division = "division_template = \"Krasnaya Gvardiya\" start_experience_factor = 0.2" 
+								owner = DON
+								allow_spawning_on_enemy_provs = yes
+								count = 2
+							}
 						}
 					}
-					every_owned_state = {
-						DON = {
-							set_state_controller = PREV
-						}	
-					}
-					capital_scope = {
-						create_unit = {
-							division = "division_template = \"Krasnaya Gvardiya\" start_experience_factor = 0.2" 
-							owner = DON
-							allow_spawning_on_enemy_provs = yes
-							count = 2
-						}
-					}
-				}
-			}
+				}	
+			}	
 			if = {
 				limit = {
 					is_balkan_nation = yes
@@ -5865,8 +5864,68 @@
 						has_war_with = PREV
 					}
 				}
-				CHI = {
-					country_event = ww1_china.155
+				# beiyang npa
+				if = {
+					limit = {
+						has_character = CHI_duan_qirui
+					}
+					random_other_country = {
+						limit = {
+							original_tag = CHI
+							NOT = { has_country_flag = CHI_national_protection_flag }
+						}
+						PREV = {
+							transfer_navy = {
+								target = PREV
+							}
+							transfer_units_fraction = {
+								target = PREV
+								size = 0.50
+								stockpile_ratio = 0.8
+								army_ratio = 0.50
+								navy_ratio = 1
+								air_ratio = 1
+								keep_unit_leaders_trigger = {
+									always = yes
+								}
+							}
+							if = {
+								limit = { has_character = CHI_li_yuanhong }
+								CHI_li_yuanhong = {
+									set_nationality = PREV
+								}
+							}
+							every_state = {
+								limit = {
+									OR = {
+										is_core_of = PREV
+										is_claimed_by = PREV
+									}
+								}
+								remove_core_of = PREV
+								remove_claim_by = PREV
+							}
+							every_owned_state = {
+								transfer_state_to = PREV.PREV
+							}
+						}
+					}
+				}
+				# historical npa
+				else = {
+					CHI = {
+						if = {
+							limit = {
+								has_cosmetic_tag = CHI_hongxian_empire
+							}
+							country_event = ww1_china.155
+						}
+						else = {
+							set_global_flag = hongxian_failed
+							country_event = ww1_china.38
+							unlock_national_focus = CHI_beiyang_meditator
+						}
+					}
 				}
 			}
 			if = {
@@ -5881,7 +5940,7 @@
 				}
 				NPA = {
 					country_event = ww1_china.154
-					change_tag_from = NPA
+					change_tag_from = PREV
 				}
 			}
 			if = {
@@ -6415,6 +6474,7 @@
 						}
 						MON = {
 							transfer_state = 330
+							transfer_state = 982
 							drop_cosmetic_tag = yes
 							retire_character = RUS_roman_ungern_sternberg
 							retire_character = RUS_boris_rezukhin
@@ -6450,6 +6510,208 @@
 							}
 						}
 					}	
+				}
+			}
+			if = {
+				limit = {
+					original_tag = LBA
+					has_war_with = ITA
+					ITA = {
+						has_war_with = TUR
+					}
+					has_global_flag = italo_turkish_war
+					NOT = {
+						has_global_flag = italo_turkish_war_ends
+					}
+				}
+				white_peace = ITA
+			}
+			if = {
+				limit = {
+					tag = POL
+					has_war_with = SOV
+					SOV = {
+						has_government = communism
+					}
+					is_subject = no
+					is_in_faction = no
+				}
+				SOV = {
+					white_peace = ROOT
+					set_autonomy = {
+						target = ROOT
+						autonomy_state = autonomy_puppet
+					}
+				}
+				ROOT = {
+					set_politics = {
+						ruling_party = communism
+						elections_allowed = no
+					}
+					set_popularities = {
+						communism = 75
+						neutrality = 10
+						democratic = 15
+					}
+					POL_felix_dzerzhinsky = {
+						if = {
+							limit = {
+								has_ideology = vanguardism
+							}
+							promote_character = vanguardism
+						}
+						else = {
+							add_country_leader_role = {
+								promote_leader = yes
+								country_leader = {
+									ideology = vanguardism
+									traits = { prince_of_terror }
+								}
+							}
+						}
+					}
+					set_party_name = { ideology = communism name = POL_polrewkom_party long_name = POL_polrewkom_party_long }
+					set_cosmetic_tag = POL_SOVIET
+
+					every_owned_state = {
+						limit = {
+							OR = {
+								is_core_of = SOV
+								is_core_of = UKR
+								is_core_of = BLR
+								is_core_of = LIT
+								is_core_of = GER
+								region = 8
+							}
+							NOT = {
+								state = 237
+							}
+						}
+						random_country = {
+							limit = {
+								original_tag = UKR
+								OR = {
+									is_subject_of = SOV
+									is_in_faction_with = SOV
+								}
+							}
+							if = {
+								limit = {
+									PREV = { is_owned_by = ROOT is_core_of = UKR }
+								}
+								transfer_state = PREV
+							}
+						}
+						random_country = {
+							limit = {
+								original_tag = BLR
+								OR = {
+									is_subject_of = SOV
+									is_in_faction_with = SOV
+								}
+							}
+							if = {
+								limit = {
+									PREV = { is_owned_by = ROOT OR = { is_core_of = BLR state = 97 } }
+								}
+								transfer_state = PREV
+							}
+						}
+						random_country = {
+							limit = {
+								original_tag = LIT
+								OR = {
+									is_subject_of = SOV
+									is_in_faction_with = SOV
+								}
+							}
+							if = {
+								limit = {
+									PREV = { is_owned_by = ROOT is_core_of = LIT }
+								}
+								transfer_state = PREV
+							}
+						}
+						random_country = {
+							limit = {
+								original_tag = GER
+								OR = {
+									is_subject_of = SOV
+									is_in_faction_with = SOV
+								}
+							}
+							if = {
+								limit = {
+									PREV = {
+										is_owned_by = ROOT
+										OR = {
+											is_core_of = GER
+											region = 8
+										}
+									}
+								}
+								add_state_core = PREV
+								transfer_state = PREV
+							}
+						}
+						if = {
+							limit = {
+								is_owned_by = ROOT
+								NOT = {
+									is_core_of = GER
+									region = 8
+								}
+							}
+							transfer_state_to = SOV
+						}
+					}
+				}
+				SOV = {
+					every_owned_state = {
+						limit = {
+							is_core_of = BLR
+						}
+						random_country = {
+							limit = {
+								original_tag = BLR
+								OR = {
+									is_in_faction_with = SOV
+									is_subject_of = SOV
+								}
+							}
+							transfer_state = PREV
+						}
+					}
+					every_owned_state = {
+						limit = {
+							is_core_of = LIT
+						}
+						random_country = {
+							limit = {
+								original_tag = LIT
+								OR = {
+									is_in_faction_with = SOV
+									is_subject_of = SOV
+								}
+							}
+							transfer_state = PREV
+						}
+					}
+					every_owned_state = {
+						limit = {
+							is_core_of = UKR
+						}
+						random_country = {
+							limit = {
+								original_tag = BLR
+								OR = {
+									is_in_faction_with = SOV
+									is_subject_of = SOV
+								}
+							}
+							transfer_state = PREV
+						}
+					}
 				}
 			}
 		}
@@ -6722,7 +6984,6 @@
 							has_cosmetic_tag = RUS_eser
 							has_cosmetic_tag = SOV
 							has_cosmetic_tag = SOV_union
-							has_cosmetic_tag = SOV_federation
 							has_cosmetic_tag = SRA
 							has_cosmetic_tag = SRA_government 
 							has_cosmetic_tag = SRA_wrangel
@@ -6772,10 +7033,23 @@
 					}			
 					if = {
 						limit = {
-							has_cosmetic_tag = RUS_state
-							has_country_flag = POLITCENTRE										
+							has_cosmetic_tag = RUS_state																	
 						}
-						set_cosmetic_tag = POLITCENTRE
+						if = {
+							limit = {
+								has_country_flag = POLITCENTRE
+							}
+							set_cosmetic_tag = POLITCENTRE
+							else_if = {
+								limit = {
+									has_country_flag = SIB_KOM_unification
+								}						
+								set_cosmetic_tag = RUS_state_communism
+								else = {
+									set_cosmetic_tag = SIB_communism
+								}
+							}
+						}				
 					}				
 				}
 				if = {
@@ -7447,11 +7721,21 @@
 									character = RUS_mikhail_ii
 									ruling_only  = no 
 								}
+								has_country_leader  = {
+									character = RUS_nikolai_nikolaevich_romanov
+									ruling_only  = no 
+								}
 							}
 						}
 						set_cosmetic_tag = RUS
-						else = {
-							set_cosmetic_tag = RUS_republic
+						else_if = {
+							limit = {
+								has_country_flag = RUS_federation
+							}
+							set_cosmetic_tag = RUS_federation
+							else = {
+								set_cosmetic_tag = RUS_republic
+							}					
 						}	
 					}					
 				}
@@ -7468,19 +7752,29 @@
 					}	
 					if = {
 						limit = {
-							has_cosmetic_tag = POLITCENTRE
 							NOT = {
-								has_government = democratic
-							}									
+								has_cosmetic_tag = RUS_socialism
+							}
+							OR = {
+								AND = {
+									has_cosmetic_tag = POLITCENTRE
+									NOT = {
+										has_government = democratic
+									}
+								}
+								has_cosmetic_tag = RUS_state_communism
+								AND = {
+									has_cosmetic_tag = SIB_communism
+									has_country_flag = RUS_state
+								}
+							}																
 						}
 						set_cosmetic_tag = RUS_state
-					}				
-					if = {
-						limit = {
-							has_cosmetic_tag = SIB_communism							
+						else_if = {
+							limit = { has_cosmetic_tag = SIB_communism }
+							set_cosmetic_tag = SIB
 						}
-						set_cosmetic_tag = SIB
-					}			
+					}
 				}
 				if = {
 					limit = {
@@ -7865,6 +8159,15 @@
 					}
 					set_cosmetic_tag = PRI_rozanov
 				}
+				if = {
+					limit = {
+						original_tag = SAF
+						NOT = {
+							has_cosmetic_tag = SAF_CAP					
+						}
+					}
+					set_cosmetic_tag = SAF_fascism 
+				}
 			}
 			if = {
 				limit = {
@@ -7878,6 +8181,7 @@
 							has_cosmetic_tag = FRA_proto_fascism
 							has_cosmetic_tag = BUL_neutrality
 							has_cosmetic_tag = JAP_fascism_color
+							has_cosmetic_tag = SAF_fascism
 						}
 					}
 					drop_cosmetic_tag = yes
