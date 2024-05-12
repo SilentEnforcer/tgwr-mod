@@ -1,3 +1,71 @@
+SOV_recruit_militia_category = {
+	SOV_recruit_militia = {
+		icon = GFX_decision_generic_reorganize_irregulars
+		allowed = {
+			tag = SOV
+		}
+		cost = 10
+		state_target = yes
+		fire_only_once = yes
+		targets = {
+			247
+			195
+			219
+			252
+			# 217
+			# 224
+			# 242
+		}
+		on_map_mode = map_only
+		days_remove = 15
+		visible = {
+			NOT = {
+				has_idea = RUS_demobilizing_army
+				has_war_with = GER
+			}
+		}
+		available = {
+			NOT = {
+				has_country_flag = SOV_recruiting_militia
+			}
+		}
+		complete_effect = {
+			set_country_flag = SOV_recruiting_militia
+		}
+		remove_effect = {
+			clr_country_flag = SOV_recruiting_militia
+			if = {
+				limit = {
+					NOT = {
+						has_template = "Krasnaya Gvardiya"
+					}
+				}
+				division_template = {
+					name = "Krasnaya Gvardiya"
+					regiments = {
+						militia = { x = 0 y = 0 }
+						militia = { x = 0 y = 1 }
+						militia = { x = 1 y = 0 }
+					}
+					priority = 0
+					is_locked = yes
+				}
+			}
+			FROM = {
+				create_unit = {
+					division = "name = \"Krasnaya Gvardiya\" division_template = \"Krasnaya Gvardiya\" start_experience_factor = 0.1 start_equipment_factor = 0.5"
+					owner = CONTROLLER
+					count = 5
+				}
+				set_state_flag = SOV_has_mobilized_militia
+			}
+		}
+		ai_will_do = {
+			factor = 1000
+		}
+	}
+}
+
 peace_deals = {
 	SOV_sue_for_peace_POL = {
 		icon = GFX_decision_eng_trade_unions_support
@@ -25,76 +93,92 @@ peace_deals = {
 		fire_only_once = yes
 		ai_will_do = {
 			base = 0
-			# historical peace
-			modifier = {
-				add = 1000
-				FROM = {
-					controls_state = 97
-					controls_state = 773
-					controls_state = 808
-					controls_state = 766
-					controls_state = 93
-					controls_state = 94
-					controls_state = 95
-				}
-				casualties_inflicted_by = {
-					opponent = FROM
-					thousands > 60
-				}
-			}
-			# deep into ukraine
 			modifier = {
 				add = 100
-				FROM = {
-					controls_state = 766
-					controls_state = 93
-					controls_state = 201
-				}
-			}
-			modifier = {
-				add = 100
-				UKR = {
-					is_subject_of = ROOT
-					has_capitulated = yes
-				}
-			}
-			# deep into belarus
-			modifier = {
-				add = 100
-				FROM = {
-					controls_state = 773
-					controls_state = 95
-					controls_state = 206
-				}
-			}
-			modifier = {
-				add = 100
-				BLR = {
-					is_subject_of = ROOT
-					has_capitulated = yes
-				}
-			}
-			# massive casualties
-			modifier = {
-				add = 100
-				casualties_inflicted_by = {
-					opponent = FROM
-					thousands > 80
-				}
-			}
-			# no condition to defend west front
-			modifier = {
-				add = 1000
-				any_enemy_country = {
-					NOT = { tag = FROM }
-				}
-				surrender_progress > 0.25
-			}
-			# damned
-			modifier = {
-				add = 1000
 				surrender_progress > 0.30
+				FROM = { surrender_progress < 0.10 }
 			}
+			modifier = {
+				add = 100
+				has_country_flag = {
+					flag = lat_sov_war
+					days > 800
+				}
+				casualties_inflicted_by = {
+					opponent = FROM
+					thousands > 100
+				}
+			}
+			# historical peace
+			# modifier = {
+			# 	add = 1000
+			# 	FROM = {
+			# 		controls_state = 97
+			# 		controls_state = 773
+			# 		controls_state = 808
+			# 		controls_state = 766
+			# 		controls_state = 93
+			# 		controls_state = 94
+			# 		controls_state = 95
+			# 	}
+			# 	casualties_inflicted_by = {
+			# 		opponent = FROM
+			# 		thousands > 60
+			# 	}
+			# }
+			# # deep into ukraine
+			# modifier = {
+			# 	add = 100
+			# 	FROM = {
+			# 		controls_state = 766
+			# 		controls_state = 93
+			# 		controls_state = 201
+			# 	}
+			# }
+			# modifier = {
+			# 	add = 100
+			# 	UKR = {
+			# 		is_subject_of = ROOT
+			# 		has_capitulated = yes
+			# 	}
+			# }
+			# # deep into belarus
+			# modifier = {
+			# 	add = 100
+			# 	FROM = {
+			# 		controls_state = 773
+			# 		controls_state = 95
+			# 		controls_state = 206
+			# 	}
+			# }
+			# modifier = {
+			# 	add = 100
+			# 	BLR = {
+			# 		is_subject_of = ROOT
+			# 		has_capitulated = yes
+			# 	}
+			# }
+			# # massive casualties
+			# modifier = {
+			# 	add = 100
+			# 	casualties_inflicted_by = {
+			# 		opponent = FROM
+			# 		thousands > 80
+			# 	}
+			# }
+			# # no condition to defend west front
+			# modifier = {
+			# 	add = 1000
+			# 	any_enemy_country = {
+			# 		NOT = { tag = FROM }
+			# 	}
+			# 	surrender_progress > 0.25
+			# }
+			# # damned
+			# modifier = {
+			# 	add = 1000
+			# 	surrender_progress > 0.30
+			# }
 		}
 		complete_effect = {
 			set_global_flag = soviet_polish_war_truce
@@ -103,7 +187,8 @@ peace_deals = {
 			}
 		}
 	}
-	SOV_sue_for_peace_POL_GREATER = {	
+	SOV_sue_for_peace_POL_GREATER = {
+		name = SOV_sue_for_peace_POL
 		icon = GFX_decision_eng_trade_unions_support
 		allowed = {
 			original_tag = RUS 
@@ -213,29 +298,47 @@ peace_deals = {
 			base = 0
 			modifier = {
 				add = 100
-				surrender_progress > 0.25
+				surrender_progress > 0.30
 				FROM = { surrender_progress < 0.10 }
 			}
 			modifier = {
 				add = 100
-				casualties_inflicted_by = {
-					opponent = FROM
-					thousands > 10
+				has_country_flag = {
+					flag = lat_sov_war
+					days > 480
 				}
-				# FROM = {
-				# 	surrender_progress < 0.10
-				# }
 			}
 			modifier = {
 				add = 100
-				FROM = {
+				NOT = {
 					OR = {
-						controls_state = 209
-						controls_state = 925
-						controls_state = 926
+						controls_state = 263
+						controls_state = 195
+						controls_state = 219
 					}
 				}
 			}
+			# screw this we redoing
+			# modifier = {
+			# 	add = 100
+			# 	casualties_inflicted_by = {
+			# 		opponent = FROM
+			# 		thousands > 10
+			# 	}
+			# 	# FROM = {
+			# 	# 	surrender_progress < 0.10
+			# 	# }
+			# }
+			# modifier = {
+			# 	add = 100
+			# 	FROM = {
+			# 		OR = {
+			# 			controls_state = 209
+			# 			controls_state = 925
+			# 			controls_state = 926
+			# 		}
+			# 	}
+			# }
 		}
 		complete_effect = {
 			every_country = {
@@ -282,7 +385,7 @@ peace_deals = {
 			}
 		}
 	}
-	
+
 	SOV_sue_for_peace_LAT = {	
 		icon = GFX_decision_eng_trade_unions_support
 		allowed = {
@@ -313,28 +416,45 @@ peace_deals = {
 			base = 0
 			modifier = {
 				add = 100
-				surrender_progress > 0.25
+				surrender_progress > 0.30
 				FROM = { surrender_progress < 0.10 }
 			}
 			modifier = {
 				add = 100
-				casualties_inflicted_by = {
-					opponent = FROM
-					thousands > 10
+				has_country_flag = {
+					flag = lat_sov_war
+					days > 480
 				}
-				# FROM = {
-				# 	surrender_progress < 0.10
-				# }
 			}
 			modifier = {
 				add = 100
-				FROM = {
+				NOT = {
 					OR = {
-						controls_state = 96
-						controls_state = 947
+						controls_state = 263
+						controls_state = 195
+						controls_state = 219
 					}
 				}
 			}
+			# modifier = {
+			# 	add = 100
+			# 	casualties_inflicted_by = {
+			# 		opponent = FROM
+			# 		thousands > 10
+			# 	}
+			# 	# FROM = {
+			# 	# 	surrender_progress < 0.10
+			# 	# }
+			# }
+			# modifier = {
+			# 	add = 100
+			# 	FROM = {
+			# 		OR = {
+			# 			controls_state = 96
+			# 			controls_state = 947
+			# 		}
+			# 	}
+			# }
 		}
 		complete_effect = {
 			every_country = {
@@ -432,43 +552,60 @@ peace_deals = {
 			base = 0
 			modifier = {
 				add = 100
-				surrender_progress > 0.25
+				surrender_progress > 0.50
 				FROM = { surrender_progress < 0.10 }
 			}
 			modifier = {
 				add = 100
-				casualties_inflicted_by = {
-					opponent = FROM
-					thousands > 10
-				}
-				# FROM = {
-				# 	surrender_progress < 0.10
-				# }
-			}
-			modifier = {
-				add = 100
-				NOT = { is_neighbor_of = FROM }
-				FROM = {
-					all_neighbor_country = {
-						NOT = {
-							is_in_faction_with = ROOT
-							has_war_with = PREV
-							has_war_with = ROOT
-						}
-					}
+				has_country_flag = {
+					flag = lat_sov_war
+					days > 480
 				}
 			}
 			modifier = {
 				add = 100
-				FROM = {
+				NOT = {
 					OR = {
-						controls_state = 206
-						controls_state = 207
-						controls_state = 243
-						controls_state = 242
+						controls_state = 263
+						controls_state = 195
+						controls_state = 219
 					}
 				}
 			}
+			# modifier = {
+			# 	add = 100
+			# 	casualties_inflicted_by = {
+			# 		opponent = FROM
+			# 		thousands > 10
+			# 	}
+			# 	# FROM = {
+			# 	# 	surrender_progress < 0.10
+			# 	# }
+			# }
+			# modifier = {
+			# 	add = 100
+			# 	NOT = { is_neighbor_of = FROM }
+			# 	FROM = {
+			# 		all_neighbor_country = {
+			# 			NOT = {
+			# 				is_in_faction_with = ROOT
+			# 				has_war_with = PREV
+			# 				has_war_with = ROOT
+			# 			}
+			# 		}
+			# 	}
+			# }
+			# modifier = {
+			# 	add = 100
+			# 	FROM = {
+			# 		OR = {
+			# 			controls_state = 206
+			# 			controls_state = 207
+			# 			controls_state = 243
+			# 			controls_state = 242
+			# 		}
+			# 	}
+			# }
 		}
 		complete_effect = {
 			every_country = {
@@ -693,6 +830,7 @@ SOV_combat_the_counter_revolution = {
 				tag = VLN
 			}
 		}
+		war_with_on_remove = VLN
 		available = {
 			OR = {
 				is_neighbor_of = FROM
@@ -881,7 +1019,7 @@ SOV_combat_the_counter_revolution = {
 							division = "division_template = \"Krasnaya Gvardiya\" start_experience_factor = 0.2" 
 							owner = PREV
 							allow_spawning_on_enemy_provs = yes
-							count = 2
+							count = 3
 						}
 					}
 					every_state = {
@@ -910,7 +1048,7 @@ SOV_combat_the_counter_revolution = {
 						division = "division_template = \"Krasnaya Gvardiya\" start_experience_factor = 0.2" 
 						owner = PREV
 						allow_spawning_on_enemy_provs = yes
-						count = 2
+						count = 3
 					}
 				}
 			}	
@@ -1090,11 +1228,16 @@ SOV_decision_soviet_republics = {
 		available = {
 			OR = {
 				NOT = {			
-					has_government = communism
+					has_government = communism			
+				}	
+				NOT = {
 					owns_state = 232
-				}			
+				}	
 				is_subject = yes
 				country_exists = TER
+				any_country = {
+					has_cosmetic_tag = KUB_north_caucasus_communism
+				}
 			}	
 		}
 		is_good = yes
@@ -1404,6 +1547,27 @@ SOV_decision_soviet_republics = {
 				transfer_state_to = BLR
 			}
 			puppet = BLR
+			hidden_effect = {
+				BLR = {
+					division_template = {
+						name = "Krasnaya Gvardiya"
+						regiments = {
+							militia = { x = 0 y = 0 }
+							militia = { x = 0 y = 1 }
+							militia = { x = 1 y = 0 }
+						}
+						priority = 0
+						is_locked = yes
+					}
+					capital_scope = {				
+						create_unit = {
+							division = "name = \"Krasnaya Gvardiya\" division_template = \"Krasnaya Gvardiya\" start_experience_factor = 0.1 start_equipment_factor = 0.5"
+							owner = CONTROLLER
+							count = 4
+						}
+					}
+				}
+			}
 		}
 		# icon = GFX_decision_SOV_secure_the_administration
 		# available = {
@@ -1598,6 +1762,7 @@ SOV_decision_soviet_republics = {
 								name = UKR_communist_party 
 							}
 						}
+						set_country_flag = soviet_ukraine
 						size = 0.3 
 						states = { 221 228 227 226 200 240 222} 
 						keep_unit_leaders_trigger = {
@@ -1976,13 +2141,25 @@ SOV_decision_soviet_republics = {
 		fire_only_once = yes
 		available = {
 			has_completed_focus = SOV_soviet_republics
-			country_exists = MOU
 			FROM = {
 				has_capitulated = no
 				has_civil_war = no
+				OR = {
+					is_subject = no
+					AND = {
+						is_subject = yes
+						OVERLORD = {
+							has_war_with = ROOT
+						}
+					}
+				}
 				NOT = {
 					any_other_country = {
-						has_guaranteed = PREV
+						NOT = {
+							is_subject_of = ROOT
+							is_in_faction_with = ROOT
+						}
+						has_guaranteed = FROM
 					}
 				}
 			}
@@ -1993,7 +2170,7 @@ SOV_decision_soviet_republics = {
 			}
 			OR = {
 				is_neighbor_of = FROM
-				any_country = {
+				any_other_country = {
 					OR = {
 						is_subject_of = ROOT
 						is_in_faction_with = ROOT
@@ -2005,12 +2182,20 @@ SOV_decision_soviet_republics = {
 		target_trigger = {
 			FROM = {
 				tag = MOU
-				is_subject = no
 			}
 		}
 		cost = 25
 		ai_will_do = {
-			base = 100
+			base = 0
+			modifier = {
+				add = 100
+				any_state = {
+					is_controlled_by_ROOT_or_subject = yes
+					controller = {
+						is_neighbor_of = FROM
+					}
+				}
+			}
 			modifier = {
 				factor = 0
 				FROM = {
@@ -2018,16 +2203,6 @@ SOV_decision_soviet_republics = {
 						is_in_faction_with = ROOT
 					}
 					has_war = yes
-				}
-			}
-			modifier = {
-				factor = 0
-				any_other_country = {
-					NOT = {
-						is_subject_of = ROOT
-						is_in_faction_with = ROOT
-					}
-					has_guaranteed = FROM
 				}
 			}
 		}

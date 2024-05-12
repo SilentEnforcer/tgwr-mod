@@ -132,6 +132,9 @@ country_event = {
 					}
 					set_faction_name = anti_bulgarian_league
 				}
+				GRE = {
+					set_major = yes
+				}
 			}
 		}
 	}
@@ -230,6 +233,7 @@ country_event = {
 			}
 			white_peace = BUL
 		}
+		set_global_flag = kis_secondbalkanwar_lose
 	}
 }
 
@@ -348,16 +352,19 @@ country_event = {
 	desc = ww1_secondbalkan.7.d
 	picture = GFX_report_event_generic_conference
 	is_triggered_only = yes
+	trigger = {
+		NOT = {
+			has_war_with = BUL
+			has_war_with = RUS
+			has_subject = BUL
+		}
+	}
 	option = {
 		name = ww1_secondbalkan.7.a
 		set_country_flag = kis_secondbalkan_war_winner
 		if = {
 			limit = {
-				756 = {
-					NOT = {
-						is_fully_controlled_by = BUL
-					}
-				}
+				has_global_flag = kis_secondbalkanwar_lose
 			}
 			every_state = {
 				limit = {
@@ -476,9 +483,9 @@ country_event = {
 		name = ww1_secondbalkan.9.a
 		if = {
 			limit = {
-				NOT = { has_global_flag = kis_secondbalkanwar_lose }
+				NOT = { has_global_flag = kis_secondbalkanwar_victory }
 			}
-			set_global_flag = kis_secondbalkanwar_lose
+			set_global_flag = kis_secondbalkanwar_victory
 			news_event = {
 				id = ww1_secondbalkan.19
 				hours = 3
@@ -561,6 +568,9 @@ country_event = {
 	# no peace
 	option = {
 		name = ww1_secondbalkan.10.b
+		trigger = {
+			NOT = { has_global_flag = TUR_BUL_separated_peace }
+		}
 		add_political_power = -50
 		declare_war_on = {
 			target = BUL
@@ -653,6 +663,10 @@ country_event = {
 	}
 	option = {
 		name = ww1_secondbalkan.12.a
+		trigger = {
+			#when turkish rejected bulgarian peace offer
+			has_country_flag = tur_no_peace_bw2
+		}
 		add_war_support = -0.05
 		set_global_flag = TUR_BUL_separated_peace
 		white_peace = BUL
@@ -694,10 +708,119 @@ country_event = {
 			}
 		}
 		ai_chance = {
-			factor = 0
+			base = 0
 			modifier = {
 				has_global_flag = RUS_TUR_timeout_ultimatum
-				factor = 1000
+				add = 1000
+			}
+			modifier = {
+				factor = 0
+				has_global_flag = kis_war
+			}
+		}
+	}
+	option = {
+		name = ww1_secondbalkan.12.a
+		trigger = {
+			#russia warns intervention after 30 days
+			has_global_flag = RUS_TUR_timeout_ultimatum
+			NOT = { has_country_flag = tur_no_peace_bw2 }
+		}
+		hidden_effect = {
+			if = {
+				limit = {
+					451 = {
+						is_owned_by = BUL
+						is_controlled_by = ROOT
+					}
+					757 = {
+						is_owned_by = BUL
+						is_controlled_by = ROOT
+					}
+				}
+				every_state = {
+					limit = {
+						OR = {
+							state = 184
+							state = 345
+							state = 451
+							state = 757
+						}
+					}
+					add_core_of = WTH
+				}
+				WTH = {
+					transfer_state = 451
+					transfer_state = 757
+				}
+				set_autonomy = {
+					target = WTH
+					autonomy_state = autonomy_puppet
+				}
+				WTH = {
+					set_truce = {
+						target = BUL
+						days = 60
+					}
+					set_politics = {
+						ruling_party = neutrality
+						elections_allowed = no
+					}
+					set_popularities = {
+						neutrality = 100
+					}
+					add_ideas = standing_alone	
+				}
+			}
+			every_state = {
+				limit = {
+					OR = {
+						state = 200
+						state = 756
+					}
+					is_owned_by = BUL
+					OR = {
+						is_controlled_by = ROOT
+						ROOT = { has_subject = WTH }
+					}
+				}
+				transfer_state_to = ROOT
+			}
+		}
+		add_war_support = -0.05
+		set_global_flag = TUR_BUL_separated_peace
+		white_peace = BUL
+		effect_tooltip = {
+			if = {
+				limit = {
+					451 = {
+						is_owned_by = BUL
+						is_controlled_by = ROOT
+					}
+					757 = {
+						is_owned_by = BUL
+						is_controlled_by = ROOT
+					}
+				}
+				puppet = WTH
+				custom_effect_tooltip = western_thrace_tt
+			}
+		}
+		hidden_effect = {
+			country_event = {
+				id = ww1_secondbalkan.7
+				days = 35
+			}
+		}
+		ai_chance = {
+			base = 0
+			modifier = {
+				has_global_flag = RUS_TUR_timeout_ultimatum
+				add = 1000
+			}
+			modifier = {
+				factor = 0
+				has_global_flag = kis_war
 			}
 		}
 	}
@@ -709,10 +832,10 @@ country_event = {
 				add = 70
 				has_global_flag = kis_war
 			}
-			modifier = {
-				has_global_flag = RUS_TUR_timeout_ultimatum
-				factor = 0
-			}
+			# modifier = {
+			# 	has_global_flag = RUS_TUR_timeout_ultimatum
+			# 	factor = 0
+			# }
 		}
 		add_war_support = 0.05
 		FROM = {
@@ -827,6 +950,7 @@ country_event = {
 				add_ideas = standing_alone	
 			}
 		}
+		custom_effect_tooltip = western_thrace_tt
 	}
 }
 
@@ -997,9 +1121,17 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		tag = RUS
+		is_subject = no
 		has_war = no
 		TUR = {
 			has_war_with = BUL
+			# this means they crossed the maritsa river
+			any_controlled_state = {
+				is_owned_by = BUL
+				NOT = {
+					state = 756
+				}
+			}
 		}
 		has_global_flag = kis_secondbalkan_war
 		NOT = {

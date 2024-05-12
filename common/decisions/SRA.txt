@@ -74,7 +74,7 @@ RUS_civil_war = {
 		fire_only_once = yes
 
 		ai_will_do = {
-			factor = 10
+			base = 100
 		}
 	}
 	SRA_second_kuban_campaign = {
@@ -187,7 +187,9 @@ RUS_civil_war = {
 		remove_effect = {
 			FROM = {
 				add_core_of = SRA
-				transfer_state_to = SRA
+				SRA = {
+					set_state_owner = PREV
+				}
 			}
 		}
 		ai_will_do = {
@@ -218,7 +220,7 @@ RUS_civil_war = {
 		fire_only_once = no
 
 		ai_will_do = {
-			factor = 10
+			base = 10
 		}
 	}
 	SRA_integrate_white_states = {
@@ -243,10 +245,7 @@ RUS_civil_war = {
 					has_war_with = ROOT
 					has_government = communism
 				}
-				has_capitulated = no
-				exists = yes
 				is_subject = no
-				is_neighbor_of = SRA
 			}
 		}
 		available = {
@@ -269,28 +268,6 @@ RUS_civil_war = {
 			clr_country_flag = SRA_is_asking_integration
 			FROM = {
 				set_country_flag = SRA_is_asking_integration
-				set_country_flag = {
-					flag = must_accept
-					days = 30
-					value = 1
-				}
-				if = {
-					limit = {
-						tag = MOU
-					}
-					set_country_flag = {
-						flag = hostile_country_want_to_annex_on_denial
-						days = 30
-						value = 100
-					}
-				}
-				else = {
-					set_country_flag = {
-						flag = hostile_country_want_to_annex_on_denial
-						days = 30
-						value = 1
-					}
-				}
 				country_event = {
 					id = ww1_sra.35
 					days = 1
@@ -303,7 +280,7 @@ RUS_civil_war = {
 		}
 	}
 	SRA_annex_white_states = {
-		icon = ger_military_buildup
+		icon = SWI_support_humanitarian_efforts
 
 		allowed = {
 			tag = SRA
@@ -321,10 +298,8 @@ RUS_civil_war = {
 					has_war_with = ROOT
 					has_government = communism
 				}
-				has_capitulated = no
-				exists = yes
-				is_subject = yes
-				is_neighbor_of = SRA
+				is_subject_of = ROOT
+				is_neighbor_of = ROOT
 			}
 		}
 		available = {
@@ -380,33 +355,7 @@ RUS_civil_war = {
 		timeout_effect = {
 			add_equipment_to_stockpile = {
 				type = infantry_equipment_0
-				amount = 2500
-				producer = ENG
-			}
-		}
-	}
-	SRA_lend_lease_mock_arty = {
-		icon = ger_military_buildup
-
-		allowed = {
-			tag = SRA
-		}
-
-		available = {
-			always = no
-		}
-
-		days_mission_timeout = 30
-		fire_only_once = yes
-		is_good = yes
-
-		activation = {
-			always = no
-		}
-		timeout_effect = {
-			add_equipment_to_stockpile = {
-				type = artillery_equipment
-				amount = 50
+				amount = 10000
 				producer = ENG
 			}
 		}
@@ -437,7 +386,7 @@ RUS_civil_war = {
 			}
 		}
 	}
-	SRA_lend_lease_mock_fighter = {
+	SRA_lend_lease_mock_arty = {
 		icon = ger_military_buildup
 
 		allowed = {
@@ -457,8 +406,34 @@ RUS_civil_war = {
 		}
 		timeout_effect = {
 			add_equipment_to_stockpile = {
-				type = fighter_equipment
-				amount = 15
+				type = artillery_equipment
+				amount = 50
+				producer = ENG
+			}
+		}
+	}
+	SRA_lend_lease_mock_truck = {
+		icon = ger_military_buildup
+
+		allowed = {
+			tag = SRA
+		}
+
+		available = {
+			always = no
+		}
+
+		days_mission_timeout = 30
+		fire_only_once = yes
+		is_good = yes
+
+		activation = {
+			always = no
+		}
+		timeout_effect = {
+			add_equipment_to_stockpile = {
+				type = motorized_equipment_1
+				amount = 50
 				producer = ENG
 			}
 		}
@@ -545,6 +520,32 @@ RUS_civil_war = {
 			}
 		}
 	}
+	SRA_lend_lease_mock_fighter = {
+		icon = ger_military_buildup
+
+		allowed = {
+			tag = SRA
+		}
+
+		available = {
+			always = no
+		}
+
+		days_mission_timeout = 30
+		fire_only_once = yes
+		is_good = yes
+
+		activation = {
+			always = no
+		}
+		timeout_effect = {
+			add_equipment_to_stockpile = {
+				type = fighter_equipment
+				amount = 15
+				producer = ENG
+			}
+		}
+	}
 	SRA_moscow_directive_absolute = {
 		icon = generic_ignite_civil_war
 
@@ -553,7 +554,12 @@ RUS_civil_war = {
 		}
 
 		available = {
-			controls_province = 6380 #moscow
+			OR = {
+				controls_province = 6380 #moscow
+				OVERLORD = {
+					controls_province = 6380 #moscow
+				}
+			}
 		}
 
 		days_mission_timeout = 150
@@ -764,7 +770,7 @@ RUS_civil_war = {
 			}
 		}
 		ai_will_do = {
-			factor = 0
+			factor = 1
 			modifier = {
 				factor = 100
 				date > 1918.10.1 
@@ -787,21 +793,36 @@ operations = {
 			tag = DON
 		}
 
-		available = {
-			always = no
-		}
-
-		days_mission_timeout = 60
+		days_mission_timeout = 45
 		fire_only_once = yes
 
 		is_good = no
 
 		activation = {
-			has_completed_focus = DON_Alekseev_organization
+			has_country_flag = alekseev_arrived
 			has_war_with = SOV
+			NOT = {
+				country_exists = SRA
+				has_global_flag = RUS_SRA_spawned
+			}
+		}
+
+		available = {
+			OR = {
+				has_government = communism			
+				NOT = {
+					controls_province = 3147
+				}
+				country_exists = SRA
+				has_global_flag = RUS_SRA_spawned
+			}	
 		}
 
 		timeout_effect = {
+			country_event = ww1_sra.9
+		}
+
+		complete_effect = {
 			country_event = ww1_sra.9
 		}
 	}
@@ -834,13 +855,54 @@ political_actions = {
 		}
 
 		ai_will_do = {
-			factor = 1000
+			base = 1000
 		}
 	}
 }
 
 SRA_rada_interactions = {
 
+	SRA_assasinate_mykola = {
+		icon = generic_assassination
+		allowed = {
+			tag = SRA
+		}
+		visible = {
+			has_country_flag = sra_assasination_visible
+		}
+		available = {
+			has_country_flag = sra_assasination_visible
+		}
+		
+		cost = 0
+		days_remove = 7
+
+		remove_effect = {
+			custom_effect_tooltip = sra_mykola_will_assasinated
+			hidden_effect = {
+				set_country_flag = sra_mykola_assasinated
+				add_to_variable = {
+					SRA_cossack_autonomy = -50
+				}
+				if = {
+					limit = {
+						check_variable = {SRA_cossack_autonomy < 0} 
+					}
+					set_variable = {
+						var = SRA_cossack_autonomy
+						value = 0
+					}
+				}
+			}
+			custom_effect_tooltip = SRA_mykola_assasinated_tt
+		}
+
+		fire_only_once = yes
+
+		ai_will_do = {
+			base = 1000
+		}
+	}
 	SRA_cossack_land_rights = {
 		icon = infiltrate_state
 		allowed = {
@@ -859,21 +921,24 @@ SRA_rada_interactions = {
 		complete_effect = {
 			random_controlled_state = {
 				limit = {
-					state = 579
-					state = 234
-					state = 941
-					state = 940
-					state = 233
+					OR = {
+						state = 579
+						state = 234
+						state = 941
+						state = 940
+						state = 233
+					}
 				}
-				# add_dynamic_modifier = {
-				# 	modifier = SRA_cossack_land_rights
-				# }
+				add_dynamic_modifier = {
+					modifier = SRA_cossack_land_rights
+					days = 45
+				}
 			}
 			add_to_variable = {
 				SRA_cossack_loyalty = 20
 			}
 			add_to_variable = {
-				SRA_cossack_autonomy = 10
+				SRA_cossack_autonomy = 5
 			}
 			add_to_variable = {
 				SRA_cossack_favours = 10
@@ -908,10 +973,19 @@ SRA_rada_interactions = {
 				}
 			}
 			custom_effect_tooltip = SRA_cossack_land_rights_tt
+			custom_effect_tooltip = back_in_30_days
 		}
 
 		ai_will_do = {
-			factor = 10
+			base = 10
+			modifier = {
+				add = -100
+				check_variable = {SRA_cossack_autonomy > 50} 
+			}
+			modifier = {
+				add = 100
+				check_variable = {SRA_cossack_loyalty < 20} 
+			}
 		}
 	}
 	SRA_cossack_self_governance = {
@@ -927,7 +1001,7 @@ SRA_rada_interactions = {
 		}
 		
 		cost = 10
-		days_re_enable = 45
+		days_re_enable = 30
 
 		complete_effect = {
 			random_controlled_state = {
@@ -946,7 +1020,7 @@ SRA_rada_interactions = {
 				SRA_cossack_loyalty = 20
 			}
 			add_to_variable = {
-				SRA_cossack_autonomy = 10
+				SRA_cossack_autonomy = 5
 			}
 			add_to_variable = {
 				SRA_cossack_favours = 10
@@ -981,10 +1055,19 @@ SRA_rada_interactions = {
 				}
 			}
 			custom_effect_tooltip = SRA_cossack_self_governance_tt
+			custom_effect_tooltip = back_in_30_days
 		}
 
 		ai_will_do = {
-			factor = 10
+			base = 10
+			modifier = {
+				add = -100
+				check_variable = {SRA_cossack_autonomy > 50} 
+			}
+			modifier = {
+				add = 100
+				check_variable = {SRA_cossack_loyalty < 20} 
+			}
 		}
 	}
 	SRA_pay_cossacks = {
@@ -1000,7 +1083,7 @@ SRA_rada_interactions = {
 		}
 		
 		cost = 50
-		days_re_enable = 45
+		days_re_enable = 30
 
 		complete_effect = {
 			add_to_variable = {
@@ -1033,10 +1116,15 @@ SRA_rada_interactions = {
 				}
 			}
 			custom_effect_tooltip = SRA_pay_cossacks_tt
+			custom_effect_tooltip = back_in_30_days
 		}
 
 		ai_will_do = {
-			factor = 10
+			base = 10
+			modifier = {
+				add = 100
+				check_variable = {SRA_cossack_loyalty < 10} 
+			}
 		}
 	}
 	SRA_clamp_down_autonomy = {
@@ -1052,14 +1140,14 @@ SRA_rada_interactions = {
 		}
 		
 		cost = 20
-		days_re_enable = 45
+		days_re_enable = 30
 
 		complete_effect = {
 			add_to_variable = {
 				SRA_cossack_loyalty = -30
 			}
 			add_to_variable = {
-				SRA_cossack_autonomy = -20
+				SRA_cossack_autonomy = -50
 			}
 			add_to_variable = {
 				SRA_cossack_favours = 0
@@ -1085,10 +1173,19 @@ SRA_rada_interactions = {
 				}
 			}
 			custom_effect_tooltip = SRA_clamp_down_autonomy_tt
+			custom_effect_tooltip = back_in_30_days
 		}
 
 		ai_will_do = {
-			factor = 10
+			base = 10
+			modifier = {
+				add = 1000
+				check_variable = {SRA_cossack_autonomy > 80} 
+			}
+			modifier = {
+				add = 50
+				check_variable = {SRA_cossack_autonomy > 60} 
+			}
 		}
 	}
 	SRA_receive_fleeing_serfs = {
@@ -1101,8 +1198,18 @@ SRA_rada_interactions = {
 		}
 		available = {
 			has_completed_focus = SRA_negotiations_with_kuban_rada
-			check_variable = {SRA_cossack_loyalty > 29} 
-			check_variable = {SRA_cossack_favours > 19} 
+			custom_trigger_tooltip = {
+				tooltip = SRA_has_atleast_30_rada_loyalty
+				check_variable = {SRA_cossack_loyalty > 29} 
+			}
+			custom_trigger_tooltip = {
+				tooltip = SRA_has_atleast_20_rada_favours 
+				check_variable = {SRA_cossack_favours > 19}
+			}
+			custom_trigger_tooltip = {
+				tooltip = SRA_has_less_than_80_rada_autonomy
+				check_variable = {SRA_cossack_autonomy < 80} 
+			}
 		}
 		
 		cost = 10
@@ -1129,13 +1236,14 @@ SRA_rada_interactions = {
 				}
 			}
 			custom_effect_tooltip = SRA_receive_fleeing_serfs_tt
+			custom_effect_tooltip = back_in_30_days
 		}
 
 
 		ai_will_do = {
-			factor = 0
+			base = 1
 			modifier = {
-				factor = 100
+				factor = 1000
 				has_manpower < 10000
 			}
 		}
@@ -1150,8 +1258,18 @@ SRA_rada_interactions = {
 		}
 		available = {
 			has_completed_focus = SRA_negotiations_with_kuban_rada
-			check_variable = {SRA_cossack_loyalty > 39} 
-			check_variable = {SRA_cossack_favours > 29} 
+			custom_trigger_tooltip = {
+				tooltip = SRA_has_atleast_40_rada_loyalty
+				check_variable = {SRA_cossack_loyalty > 39} 
+			}
+			custom_trigger_tooltip = {
+				tooltip = SRA_has_atleast_30_rada_favours
+				check_variable = {SRA_cossack_favours > 29} 
+			}
+			custom_trigger_tooltip = {
+				tooltip = SRA_has_less_than_80_rada_autonomy
+				check_variable = {SRA_cossack_autonomy < 80} 
+			}
 		}
 		
 		cost = 10
@@ -1176,6 +1294,7 @@ SRA_rada_interactions = {
 				}
 			}
 			custom_effect_tooltip = SRA_cossack_raiding_parties_tt
+			custom_effect_tooltip = back_in_30_days
 		}
 		remove_effect = {
 			random_controlled_state = {
@@ -1218,7 +1337,11 @@ SRA_rada_interactions = {
 		}
 
 		ai_will_do = {
-			factor = 25
+			base = 50
+			modifier = {
+				add = 1000
+				check_variable = {SRA_cossack_favours > 80} 
+			}
 		}
 	}
 	SRA_raise_cossack_host = {
@@ -1228,11 +1351,24 @@ SRA_rada_interactions = {
 		}
 		visible = {
 			has_completed_focus = SRA_negotiations_with_kuban_rada
+			NOT = {
+				has_country_flag = sra_cossacks_rebelled
+			}
 		}
 		available = {
 			has_completed_focus = SRA_negotiations_with_kuban_rada
-			check_variable = {SRA_cossack_loyalty > 49} 
-			check_variable = {SRA_cossack_favours > 39} 
+			custom_trigger_tooltip = {
+				tooltip = SRA_has_atleast_50_rada_loyalty
+				check_variable = {SRA_cossack_loyalty > 49} 
+			}
+			custom_trigger_tooltip = {
+				tooltip = SRA_has_atleast_40_rada_favours
+				check_variable = {SRA_cossack_favours > 39} 
+			}
+			custom_trigger_tooltip = {
+				tooltip = SRA_has_less_than_80_rada_autonomy
+				check_variable = {SRA_cossack_autonomy < 80} 
+			}
 		}
 		
 		cost = 25
@@ -1290,15 +1426,65 @@ SRA_rada_interactions = {
 				}
 			}
 			custom_effect_tooltip = SRA_raise_cossack_host_tt
+			custom_effect_tooltip = back_in_60_days
 		}
 
 		ai_will_do = {
-			factor = 25
+			base = 50
+			modifier = {
+				add = 1000
+				check_variable = {SRA_cossack_favours > 80} 
+			}
 		}
 	}
 }
 
 SRA_army_recruitement = {
+
+	SRA_unlock_templates = {
+        icon = GFX_decision_generic_reorganize_irregulars
+        allowed = {
+            tag = SRA
+        }
+        visible = {
+            has_completed_focus = SRA_open_up_mobilization
+        }
+        available = {
+
+        }
+
+        cost = 0
+
+        complete_effect = {
+            set_country_flag = SRA_mobilize_manpower
+            set_division_template_lock = {
+                division_template = "ASFR militsiya"
+                is_locked = no
+            }
+            set_division_template_lock = {
+                division_template = "ASFR caucasian cavalry"
+                is_locked = no
+            }
+			set_division_template_lock = {
+                division_template = "ASFR cossacks"
+                is_locked = no
+            }
+            custom_effect_tooltip = sra_all_divisions_unlocked_tt
+        }
+
+        fire_only_once = yes
+
+        ai_will_do = {
+            base = 1
+			modifier = {
+				add = 100
+				has_army_manpower = {
+					size > 200000
+				}
+			}
+        }
+    }
+
 	SRA_recruit_units = {
 		icon = GFX_decision_generic_reorganize_irregulars
 		allowed = {
@@ -1328,43 +1514,56 @@ SRA_army_recruitement = {
 		}
 		complete_effect = {
 			FROM = {
-				set_state_flag = SRA_has_mobilized 
+				set_state_flag = SRA_has_mobilized_militia
 			}
 		}
 		remove_effect = {
-		
 			if = {
 				limit = {
 					NOT = {
-						has_template = "ASFR militsiya"
+						has_country_flag = SRA_mobilize_manpower
 					}
 				}
-				division_template = {
-					name = "ASFR militsiya"
-					division_names_group = RUS_GAR_01
-					is_locked = yes
-					regiments = {
-						infantry = { x = 0 y = 0 }
-						infantry = { x = 0 y = 1 }
-						infantry = { x = 1 y = 0 }
+				if = {
+					limit = {
+						NOT = {
+							has_template = "ASFR militsiya"
+						}
 					}
-					support = { 
-						artillery = { x = 0 y = 0 }
-						recon = { x = 0 y = 1 }
-						engineer = { x = 0 y = 2 }
+					division_template = {
+						name = "ASFR militsiya"
+						division_names_group = RUS_GAR_01
+						is_locked = yes
+						force_allow_recruiting = yes
+						regiments = {
+							infantry = { x = 0 y = 0 }
+							infantry = { x = 0 y = 1 }
+							infantry = { x = 1 y = 0 }
+						}
+						support = { 
+							artillery = { x = 0 y = 0 }
+							recon = { x = 0 y = 1 }
+							engineer = { x = 0 y = 2 }
+						}
+					}
+				}
+				FROM = {
+					custom_effect_tooltip = SRA_3_infantry_unit
+					hidden_effect = {
+						create_unit = {
+							division = "name = \"ASFR militsiya\" division_template = \"ASFR militsiya\" start_experience_factor = 0.6"
+							owner = ROOT
+							allow_spawning_on_enemy_provs = yes
+						}
 					}
 				}
 			}
-			FROM = {
-				custom_effect_tooltip = SRA_3_infantry_unit
-				hidden_effect = {
-					create_unit = {
-						division = "name = \"ASFR militsiya\" division_template = \"ASFR militsiya\" start_experience_factor = 0.6"
-						owner = ROOT
-						allow_spawning_on_enemy_provs = yes
-					}
+			if = {
+				limit = {
+					has_country_flag = SRA_mobilize_manpower
 				}
-			}
+				add_manpower = 3500
+			}	
 		}
 		ai_will_do = {
 			factor = 100
@@ -1400,37 +1599,50 @@ SRA_army_recruitement = {
 			}
 		}
 		remove_effect = {
-		
 			if = {
 				limit = {
 					NOT = {
-						has_template = "ASFR caucasian cavalry"
+						has_country_flag = SRA_mobilize_manpower
+					}
+					}
+				if = {
+					limit = {
+						NOT = {
+							has_template = "ASFR caucasian cavalry"
+						}
+					}
+					division_template = {
+						name = "ASFR caucasian cavalry"
+						division_names_group = RUS_GAR_01
+						is_locked = yes
+						force_allow_recruiting = yes
+						regiments = {
+							cavalry = { x = 0 y = 0 }
+							cavalry = { x = 0 y = 1 }
+							cavalry = { x = 0 y = 2 }
+							cavalry = { x = 1 y = 0 }
+							cavalry = { x = 1 y = 1 }
+							cavalry = { x = 1 y = 2 }
+						}
 					}
 				}
-				division_template = {
-					name = "ASFR caucasian cavalry"
-					division_names_group = RUS_GAR_01
-					is_locked = yes
-					regiments = {
-						cavalry = { x = 0 y = 0 }
-						cavalry = { x = 0 y = 1 }
-						cavalry = { x = 0 y = 2 }
-						cavalry = { x = 1 y = 0 }
-						cavalry = { x = 1 y = 1 }
-						cavalry = { x = 1 y = 2 }
+				FROM = {
+					custom_effect_tooltip = SRA_6_cavalry_unit
+					hidden_effect = {
+						create_unit = {
+							division = "name = \"ASFR caucasian cavalry\" division_template = \"ASFR caucasian cavalry\" start_experience_factor = 0.6"
+							owner = ROOT
+							allow_spawning_on_enemy_provs = yes
+						}
 					}
 				}
 			}
-			FROM = {
-				custom_effect_tooltip = SRA_6_cavalry_unit
-				hidden_effect = {
-					create_unit = {
-						division = "name = \"ASFR caucasian cavalry\" division_template = \"ASFR caucasian cavalry\" start_experience_factor = 0.6"
-						owner = ROOT
-						allow_spawning_on_enemy_provs = yes
-					}
+			if = {
+				limit = {
+					has_country_flag = SRA_mobilize_manpower
 				}
-			}
+				add_manpower = 3500
+			}	
 		}
 		ai_will_do = {
 			factor = 100
@@ -1468,6 +1680,9 @@ SRA_army_recruitement = {
 					has_state_flag = SRA_has_mobilized_cossacks
 				}
 			}
+			NOT = {
+				has_country_flag = sra_cossacks_rebelled
+			}
 		}
 		complete_effect = {
 			FROM = {
@@ -1475,39 +1690,52 @@ SRA_army_recruitement = {
 			}
 		}
 		remove_effect = {
-		
 			if = {
 				limit = {
 					NOT = {
-						has_template = "ASFR cossacks"
+						has_country_flag = SRA_mobilize_manpower
 					}
 				}
-				division_template = {
-					name = "ASFR cossacks"
-					division_names_group = RUS_GAR_01
-					is_locked = yes
-					regiments = {
-						cavalry = { x = 0 y = 0 }
-						cavalry = { x = 0 y = 1 }
-						cavalry = { x = 1 y = 0 }
-						cavalry = { x = 1 y = 1 }
+				if = {
+					limit = {
+						NOT = {
+							has_template = "ASFR cossacks"
+						}
 					}
-					support = { 
-						artillery = { x = 0 y = 0 }
-						recon = { x = 0 y = 1 }
-						engineer = { x = 0 y = 2 }
+					division_template = {
+						name = "ASFR cossacks"
+						division_names_group = RUS_GAR_01
+						is_locked = yes
+						force_allow_recruiting = yes
+						regiments = {
+							cavalry = { x = 0 y = 0 }
+							cavalry = { x = 0 y = 1 }
+							cavalry = { x = 1 y = 0 }
+							cavalry = { x = 1 y = 1 }
+						}
+						support = { 
+							artillery = { x = 0 y = 0 }
+							recon = { x = 0 y = 1 }
+							engineer = { x = 0 y = 2 }
+						}
+					}
+				}
+				FROM = {
+					custom_effect_tooltip = SRA_4_calvary_unit
+					hidden_effect = {
+						create_unit = {
+							division = "name = \"ASFR cossacks\" division_template = \"ASFR cossacks\" start_experience_factor = 0.6"
+							owner = ROOT
+							allow_spawning_on_enemy_provs = yes
+						}
 					}
 				}
 			}
-			FROM = {
-				custom_effect_tooltip = SRA_4_calvary_unit
-				hidden_effect = {
-					create_unit = {
-						division = "name = \"ASFR cossacks\" division_template = \"ASFR cossacks\" start_experience_factor = 0.6"
-						owner = ROOT
-						allow_spawning_on_enemy_provs = yes
-					}
+			if = {
+				limit = {
+					has_country_flag = SRA_mobilize_manpower
 				}
+				add_manpower = 3500
 			}
 		}
 		ai_will_do = {
@@ -1523,11 +1751,14 @@ RUS_support_in_civil_war = {
 			NOT = {
 				has_war_with = SRA
 			}
+			SRA = {
+				has_war_with = SOV
+			}
 		}
-		custom_cost_text = 2500_infantry_equipment_and_25pp
+		custom_cost_text = 10000_infantry_equipment_1
 		icon = GFX_decision_generic_industry
 		custom_cost_trigger = {
-			has_political_power > 24
+			# has_political_power > 24
 			has_equipment = {
 				infantry_equipment > 2499
 			}
@@ -1557,7 +1788,7 @@ RUS_support_in_civil_war = {
 			hidden_effect = {
 				add_equipment_to_stockpile = {
 					type = infantry_equipment
-					amount = -2500
+					amount = -10000
 				}
 				SRA = {
 					activate_mission = SRA_lend_lease_mock_inf
@@ -1571,7 +1802,7 @@ RUS_support_in_civil_war = {
 			effect_tooltip = {
 				send_equipment = {
 					equipment = infantry_equipment
-					amount = 1000
+					amount = 10000
 					target = SRA
 				}
 			}
@@ -1581,20 +1812,20 @@ RUS_support_in_civil_war = {
 			custom_effect_tooltip = back_in_30_days
 		}
 		ai_will_do = {
-			factor = 0
+			base = 100
 			modifier = {
-				factor = 50
+				add = -50
 				GER = {
 					has_country_flag = great_war_loser
 				}
 				has_equipment = {
-					infantry_equipment > 2500
+					infantry_equipment > 10000
 				}
 			}
 			modifier = {
-				factor = 1000
+				factor = 10
 				has_equipment = {
-					infantry_equipment > 10000
+					infantry_equipment > 20000
 				}
 				NOT = {
 					GER = {
@@ -1610,11 +1841,14 @@ RUS_support_in_civil_war = {
 			NOT = {
 				has_war_with = SRA
 			}
+			SRA = {
+				has_war_with = SOV
+			}
 		}
-		custom_cost_text = 150_support_equipment_and_25pp
+		custom_cost_text = 150_support_equipment
 		icon = SWE_set_army_budget
 		custom_cost_trigger = {
-			has_political_power > 24
+			# has_political_power > 24
 			has_equipment = {
 				support_equipment > 149
 			}
@@ -1670,9 +1904,9 @@ RUS_support_in_civil_war = {
 			custom_effect_tooltip = back_in_45_days
 		}
 		ai_will_do = {
-			factor = 100
+			factor = 90
 			modifier = {
-				factor = 50
+				add = -40
 				GER = {
 					has_country_flag = great_war_loser
 				}
@@ -1685,11 +1919,14 @@ RUS_support_in_civil_war = {
 			NOT = {
 				has_war_with = SRA
 			}
+			SRA = {
+				has_war_with = SOV
+			}
 		}
-		custom_cost_text = 50_artillery_equipment_and_25pp
+		custom_cost_text = 50_artillery_equipment
 		icon = generic_artillery_icon
 		custom_cost_trigger = {
-			has_political_power > 24
+			# has_political_power > 24
 			has_equipment = {
 				artillery_equipment > 49
 			}
@@ -1745,28 +1982,31 @@ RUS_support_in_civil_war = {
 			custom_effect_tooltip = back_in_60_days
 		}
 		ai_will_do = {
-			factor = 100
+			base = 100
 			modifier = {
-				factor = 50
+				add = -50
 				GER = {
 					has_country_flag = great_war_loser
 				}
 			}
 		}
 	}
-	send_equipment_to_SRA_fighter = {
+	send_equipment_to_SRA_truck = {
 		visible = {
 			is_major = yes
 			NOT = {
 				has_war_with = SRA
 			}
+			SRA = {
+				has_war_with = SOV
+			}
 		}
-		custom_cost_text = 15_fighter_equipmesnt_and_25pp
-		icon = SWE_set_air_budget
+		custom_cost_text = 50_artillery_equipment
+		icon = GFX_decision_generic_trucks
 		custom_cost_trigger = {
-			has_political_power > 24
+			# has_political_power > 24
 			has_equipment = {
-				fighter_equipment > 14
+				motorized_equipment_1 > 49
 			}
 		}
 		days_remove = 30
@@ -1783,7 +2023,7 @@ RUS_support_in_civil_war = {
 		}
 		available = {
 			has_equipment = {
-				fighter_equipment > 14
+				motorized_equipment_1 > 49
 			}
 			custom_trigger_tooltip = {
 				tooltip = SRA_lend_lease_ongoing_tt
@@ -1795,11 +2035,11 @@ RUS_support_in_civil_war = {
 		complete_effect = {
 			hidden_effect = {
 				add_equipment_to_stockpile = {
-					type = fighter_equipment
-					amount = -15
+					type = motorized_equipment_1
+					amount = -50
 				}
 				SRA = {
-					activate_mission = SRA_lend_lease_mock_fighter
+					activate_mission = SRA_lend_lease_mock_truck
 				}
 			}
 			add_to_variable = {
@@ -1809,8 +2049,8 @@ RUS_support_in_civil_war = {
 		remove_effect = {
 			effect_tooltip = {
 				send_equipment = {
-					equipment = fighter_equipment
-					amount = 15
+					equipment = motorized_equipment_1
+					amount = 50
 					target = SRA
 				}
 			}
@@ -1820,9 +2060,9 @@ RUS_support_in_civil_war = {
 			custom_effect_tooltip = back_in_60_days
 		}
 		ai_will_do = {
-			factor = 100
+			base = 100
 			modifier = {
-				factor = 50
+				add = -50
 				GER = {
 					has_country_flag = great_war_loser
 				}
@@ -1835,11 +2075,14 @@ RUS_support_in_civil_war = {
 			NOT = {
 				has_war_with = SRA
 			}
+			SRA = {
+				has_war_with = SOV
+			}
 		}
-		custom_cost_text = 10_fighter_equipment_and_25pp
+		custom_cost_text = 10_tank_equipment
 		icon = generic_tank
 		custom_cost_trigger = {
-			has_political_power > 24
+			# has_political_power > 24
 			has_equipment = {
 				heavy_tank_chassis > 9
 			}
@@ -1918,9 +2161,87 @@ RUS_support_in_civil_war = {
 			custom_effect_tooltip = back_in_60_days
 		}
 		ai_will_do = {
-			factor = 100
+			base = 100
 			modifier = {
-				factor = 50
+				add = -50
+				GER = {
+					has_country_flag = great_war_loser
+				}
+			}
+		}
+	}
+	send_equipment_to_SRA_fighter = {
+		visible = {
+			is_major = yes
+			NOT = {
+				has_war_with = SRA
+			}
+			SRA = {
+				has_war_with = SOV
+			}
+		}
+		custom_cost_text = 15_fighter_equipment
+		icon = SWE_set_air_budget
+		custom_cost_trigger = {
+			# has_political_power > 24
+			has_equipment = {
+				fighter_equipment > 14
+			}
+		}
+		days_remove = 30
+		days_re_enable = 60
+		target_trigger = {
+			FROM = {
+				AND = {
+					ROOT = {
+						has_country_flag = can_send_to_SRA
+					}
+					tag = SRA
+				}
+			}
+		}
+		available = {
+			has_equipment = {
+				fighter_equipment > 14
+			}
+			custom_trigger_tooltip = {
+				tooltip = SRA_lend_lease_ongoing_tt
+				check_variable = {
+					lend_lease_ongoing < 2
+				}
+			}
+		}
+		complete_effect = {
+			hidden_effect = {
+				add_equipment_to_stockpile = {
+					type = fighter_equipment
+					amount = -15
+				}
+				SRA = {
+					activate_mission = SRA_lend_lease_mock_fighter
+				}
+			}
+			add_to_variable = {
+				lend_lease_ongoing = 1
+			}
+		}
+		remove_effect = {
+			effect_tooltip = {
+				send_equipment = {
+					equipment = fighter_equipment
+					amount = 15
+					target = SRA
+				}
+			}
+			add_to_variable = {
+				lend_lease_ongoing = -1
+			}
+			custom_effect_tooltip = back_in_60_days
+		}
+		ai_will_do = {
+			base = 100
+			modifier = {
+				add = -50
 				GER = {
 					has_country_flag = great_war_loser
 				}
