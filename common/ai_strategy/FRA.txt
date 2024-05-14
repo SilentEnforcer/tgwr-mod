@@ -27,7 +27,7 @@ FRA_fill_gerardmer_gap = {
 
 	ai_strategy = {
 		type = put_unit_buffers
-		ratio = 0.01
+		ratio = 0.05
 		states = {
 			864
 		}
@@ -169,16 +169,10 @@ FRA_dont_help_italy = {
 		NOT = {
 			has_global_flag = WW1_is_stuck
 		}
+		ITA = { surrender_progress < 0.20 }
 	}
 	
-	abort = {
-		OR = {
-			has_war_with = ITA
-			date > 1918.1.1
-			ITA = { surrender_progress > 0.5 }
-			has_global_flag = great_war_ends
-		}
-	}
+	abort_when_not_enabled = yes
 
 	ai_strategy = {
 		type = dont_defend_ally_borders
@@ -299,40 +293,6 @@ FRA_russian_alliance = {
 		value = 500
 	}
 }
-FRA_morocco_is_thicc = {
-	allowed = {
-		original_tag = FRA	
-	}
-	enable = {
-		always = yes
-	}
-	abort = {
-		OR = {
-			MOR = { exists = no }
-			MOR = { is_subject = yes }
-			has_war = yes
-		}	
-	}
-	ai_strategy = {
-		type = consider_weak
-		id = MOR
-		value = 200
-	}
-	ai_strategy = {
-		type = put_unit_buffers
-		
-		order_id = 1
-		
-		# Morocco
-		states = { 
-			108
-			462
-		}
-		ratio = 0.1
-		area = africa
-		subtract_invasions_from_need = no
-	}
-}
 
 #AI is surprised and wont really help
 FRA_early_defense_of_belgium = {
@@ -352,13 +312,16 @@ FRA_early_defense_of_belgium = {
 				is_in_faction_with = GER
 			}
 			has_capitulated = no
+			surrender_progress < 0.60
 		}
 	}
 	abort = {
 		BEL = {
-			surrender_progress > 0.60
-			has_capitulated = yes
-			has_country_flag = BEL_defeat
+			OR = {
+				surrender_progress > 0.80
+				has_capitulated = yes
+				has_country_flag = BEL_defeat
+			}
 		}
 	}
 
@@ -371,8 +334,25 @@ FRA_early_defense_of_belgium = {
 			29
 			865
 			18
+			17
+			906
 		}
-		ratio = 0.30
+		ratio = 0.80
+		#priority = 9999
+		area = europe
+		subtract_invasions_from_need = yes
+		subtract_fronts_from_need = yes
+	}
+
+	ai_strategy = {	#bonus focus here, to not get encircled by verdun briey line
+		type = put_unit_buffers
+		
+		order_id = 3
+		
+		states = {
+			18
+		}
+		ratio = 0.10
 		area = europe
 		subtract_invasions_from_need = yes
 		subtract_fronts_from_need = yes
@@ -398,13 +378,6 @@ FRA_early_defense_of_belgium = {
 		value = 1
 	}
 
-	##some troops freed to go in belgium
-	ai_strategy = {
-		type = front_unit_request
-		tag = GER
-		value = -100
-	}
-
 }
 
 #defense of belgium for puppets
@@ -424,11 +397,12 @@ FRA_PUPPET_early_defense_of_belgium = {
 				is_in_faction_with = GER
 			}
 			has_capitulated = no
+			surrender_progress < 0.60
 		}
 	}
 	abort = {
 		BEL = {
-			surrender_progress > 0.60
+			surrender_progress > 0.80
 			has_capitulated = yes
 			has_country_flag = BEL_defeat
 		}
@@ -475,6 +449,56 @@ FRA_dont_forget_to_protect_against_germany = {
 		type = prepare_for_war
 		id = BEL
 		value = 1
+	}
+
+	ai_strategy = {	#anticipating germany attack on belgium
+		type = front_unit_request
+		tag = BEL
+		value = 300
+	}
+
+	ai_strategy = {	#anticipating germany attack on belgium
+		type = front_unit_request
+		tag = GER
+		value = -150
+	}
+}
+
+FRA_protect_verdun = {
+	allowed = {
+		original_tag = FRA	
+	}
+	enable = {
+		has_war_with = GER
+		is_in_faction_with = BEL
+		BEL = {
+			OR = {
+				has_capitulated = yes
+				surrender_progress > 0.60
+			}
+		}
+	}
+	abort = {
+		OR = {
+			date > 1915.1.1
+			has_country_flag = great_war_winner
+			has_country_flag = great_war_loser
+			has_global_flag = WW1_is_stuck
+		}
+	}
+	ai_strategy = {	#bonus focus here, to not get encircled by verdun briey line
+		type = put_unit_buffers
+		
+		order_id = 1
+		
+		states = {
+			18
+		}
+		#priority = 9000
+		ratio = 0.50
+		area = europe
+		subtract_invasions_from_need = yes
+		subtract_fronts_from_need = yes
 	}
 }
 
@@ -534,32 +558,41 @@ ALL_protect_FRA_at_all_prices = {
 		ordertype = front
 	}
 
-}
-
-
-FRA_fight_hostile_FRA = {
-	allowed = {
-		original_tag = FRA
-	}
-	enable = {	
-		OR = {
-			any_enemy_country = {
-				original_tag = FRA
-			}
-			has_civil_war = yes
-		}
-	}
-	abort_when_not_enabled = yes
 	ai_strategy = {
 		type = front_control
-		ratio = 0.8
-		tag = FRA
-		priority = 999999
+		tag = AUH	# in case they get trough italy
+		ratio = 0.2
+		
+		priority = 500
 		ordertype = front
-		execution_type = rush
-		execute_order = yes
 	}
+
 }
+
+
+# FRA_fight_hostile_FRA = {
+# 	allowed = {
+# 		original_tag = FRA
+# 	}
+# 	enable = {	
+# 		OR = {
+# 			any_enemy_country = {
+# 				original_tag = FRA
+# 			}
+# 			has_civil_war = yes
+# 		}
+# 	}
+# 	abort_when_not_enabled = yes
+# 	ai_strategy = {
+# 		type = front_control
+# 		ratio = 0.8
+# 		tag = FRA
+# 		priority = 999999
+# 		ordertype = front
+# 		execution_type = rush
+# 		execute_order = yes
+# 	}
+# }
 
 die_wadai = {
 	allowed = {
@@ -1576,5 +1609,156 @@ FRA_VIN_fight_long_mission = {
 			671
 		}
 		subtract_fronts_from_need = no
+	}
+}
+
+FRA_ITA_prepare_in_moutains = {
+	allowed = {
+		OR = {
+			tag = FRA 
+		}
+	}
+	enable = {
+		has_war_together_with = ITA 
+		surrender_progress < 0.3
+		ITA = {
+			surrender_progress > 0.05
+			OR = {
+				NOT = {
+					controls_state = 159
+				}
+				NOT = {
+					controls_state = 160
+				}
+				NOT = {
+					controls_state = 833
+				}
+				NOT = {
+					controls_state = 158
+				}
+			}
+		}
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = 0.15
+		states = {
+			735
+			21
+		}
+		subtract_fronts_from_need = no
+	}
+}
+
+FRA_MOR_is_thicc = {
+	allowed = {
+		tag = FRA
+	}
+	enable = {
+		country_exists = MOR
+		has_war_with_major = no
+		MOR = {
+			has_idea = FRA_idea_moroccan_intervention
+			NOT = {
+				is_subject_of = FRA
+			}
+		}
+		NOT = {
+			has_war_with = MOR
+		}
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = 0.15
+		states = {
+			462
+			108
+		}
+		subtract_fronts_from_need = no
+	}
+	# ai_strategy = {
+	# 	type = front_unit_request
+	# 	tag = GER
+	# 	value = -200
+	# }
+
+	ai_strategy = {
+		type = front_unit_request
+		strategic_region = 140
+		value = -1000
+	}
+	ai_strategy = {
+		type = front_unit_request
+		strategic_region = 184
+		value = -1000
+	}
+
+	ai_strategy = {
+		type = front_unit_request
+		strategic_region = 182
+		value = 100
+	}
+}
+
+FRA_MOR_is_thicc2 = {
+	allowed = {
+		tag = FRA
+	}
+	enable = {
+		country_exists = MOR
+		has_war_with_major = no
+		MOR = {
+			has_idea = MOR_guerilla_warfare
+			NOT = {
+				is_subject_of = FRA
+			}
+		}
+		NOT = {
+			has_war_with = MOR
+		}
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = front_unit_request
+		tag = GER
+		value = -150
+	}
+
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = 0.15
+		states = {
+			462
+			108
+		}
+		subtract_fronts_from_need = no
+	}
+ 
+	ai_strategy = {
+		type = prepare_for_war
+		id = MOR
+		value = 5
+	}
+
+	ai_strategy = {
+		type = front_unit_request
+		strategic_region = 140
+		value = -1000
+	}
+	ai_strategy = {
+		type = front_unit_request
+		strategic_region = 184
+		value = -1000
+	}
+
+	ai_strategy = {
+		type = front_unit_request
+		strategic_region = 182
+		value = 500
 	}
 }
