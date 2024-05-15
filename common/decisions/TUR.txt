@@ -1395,12 +1395,11 @@ TUR_minority_decision = {
 					state = 355
 					state = 354
 					state = 348
+					state = 184
 				}
 			}
 		}
-		highlight_states = {
-			highlight_state_targets = { state = FROM }
-		}
+		highlight_states = { highlight_state_targets = { state = FROM } }
 		on_map_mode = map_only
 		visible = {
 			has_completed_focus = TUR_greek_deportations
@@ -1427,7 +1426,7 @@ TUR_minority_decision = {
 		remove_effect = {
 			if = {
 				limit = { has_completed_focus = TUR_one_language_one_religion_one_nation }
-				add_war_support = 0.005
+				add_stability = 0.002
 			}
 			FROM = {
 				set_temp_variable = { TUR_temp_state_population = state_population }
@@ -1473,24 +1472,200 @@ TUR_minority_decision = {
 					if = {
 						limit = { state = 757 }
 						custom_effect_tooltip = TUR_greek_minority_level_down_gumulcine
-						add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.025 }
-						add_to_variable = { TUR_ottoman_local_intel_to_enemies = -0.05 }
-						add_to_variable = { TUR_ottoman_state_production_speed_buildings_factor = -0.01 }
-						add_to_variable = { TUR_ottoman_local_factories = 0.03 }
-						add_to_variable = { TUR_ottoman_state_stability_factor = 0.001 }
-						add_to_variable = { TUR_ottoman_state_war_support_factor = 0.0005 }
+						if = {
+							limit = { check_variable = { TUR_ottoman_recruitable_population_factor < 0 } }
+							add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.025 }
+						}
+						if = {
+							limit = { check_variable = { TUR_ottoman_local_intel_to_enemies > 0 } }
+							add_to_variable = { TUR_ottoman_local_intel_to_enemies = -0.05 }
+						}
+						if = {
+							limit = { check_variable = { TUR_ottoman_state_production_speed_buildings_factor > 0 } }
+							add_to_variable = { TUR_ottoman_state_production_speed_buildings_factor = -0.01 }
+						}
+						if = {
+							limit = { check_variable = { TUR_ottoman_local_factories < 0 } }
+							add_to_variable = { TUR_ottoman_local_factories = 0.03 }
+						}
+						if = {
+							limit = { check_variable = { TUR_ottoman_state_stability_factor < 0 } }
+							add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.002 }
+						}
+						if = {
+							limit = { check_variable = { TUR_ottoman_state_war_support_factor < 0 } }
+							add_to_variable = { TUR_ottoman_state_war_support_factor = 0.001 }
+						}
 					}
 					else = {
-						custom_effect_tooltip = TUR_greek_minority_level_down_1
-						add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.05 }
-						add_to_variable = { TUR_ottoman_local_intel_to_enemies = -0.1 }
-						add_to_variable = { TUR_ottoman_state_production_speed_buildings_factor = -0.02 }
-						add_to_variable = { TUR_ottoman_local_factories = 0.05 }
-						add_to_variable = { TUR_ottoman_state_stability_factor = 0.002 }
-						add_to_variable = { TUR_ottoman_state_war_support_factor = 0.001 }
+						custom_effect_tooltip = TUR_greek_minority_level_down1
+						if = {
+							limit = { check_variable = { TUR_ottoman_local_factories < 0 } }
+							custom_effect_tooltip = TUR_minority_local_factories_down
+							add_to_variable = { TUR_ottoman_local_factories = 0.05 }
+						}
+						if = {
+							limit = { check_variable = { TUR_ottoman_local_intel_to_enemies > 0 } }
+							custom_effect_tooltip = TUR_minority_intel_to_enemies_down
+							add_to_variable = { TUR_ottoman_local_intel_to_enemies = -0.1 }
+						}
+						if = {
+							limit = { check_variable = { TUR_ottoman_state_production_speed_buildings_factor > 0 } }
+							custom_effect_tooltip = TUR_minority_local_construction_speed_down
+							add_to_variable = { TUR_ottoman_state_production_speed_buildings_factor = -0.02 }
+						}
+						if = {
+							limit = { check_variable = { TUR_ottoman_recruitable_population_factor < 0 } }
+							custom_effect_tooltip = TUR_minority_recruitable_population_down
+							add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.05 }
+						}
+						custom_effect_tooltip = TUR_greek_minority_level_down2
+						if = {
+							limit = { check_variable = { TUR_ottoman_state_stability_factor < 0 } }
+							custom_effect_tooltip = TUR_minority_stability_down
+							add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.002 }
+						}
+						if = {
+							limit = { check_variable = { TUR_ottoman_state_war_support_factor < 0 } }
+							custom_effect_tooltip = TUR_minority_war_support_down
+							add_to_variable = { TUR_ottoman_state_war_support_factor = 0.001 }
+						}
 					}
 				}
 				add_to_variable = { TUR_greek_state_level = -1 }
+			}
+			ottoman_minority_variable_check = yes
+		}
+		cancel_trigger = { NOT = { controls_state = FROM } }
+		ai_will_do = {
+			base = 100
+		}
+	}
+	TUR_destroy_bulgarians = {
+		icon = GFX_decision_generic_prepare_civil_war
+		allowed = { original_tag = TUR }
+		state_target = yes
+		target_trigger = {
+			FROM = {
+				OR = {
+					state = 756
+					state = 849
+					state = 200
+					state = 451
+					state = 757
+				}
+			}
+		}
+		highlight_states = { highlight_state_targets = { state = FROM } }
+		on_map_mode = map_only
+		visible = {
+			has_completed_focus = TUR_destruction_of_the_bulgarians
+			controls_state = FROM
+			FROM = {
+				TUR_state_has_minority_modifier = yes
+				OR = {
+					check_variable = { TUR_ottoman_required_garrison_factor > 0 }
+					check_variable = { TUR_ottoman_resistance_decay < 0 }
+				}
+			}
+		}
+		cost = TUR_minority_cost_medium?30
+		days_remove = TUR_minority_time_large?60
+		available = {
+			FROM = {
+				NOT = {
+					has_dynamic_modifier = { modifier = TUR_autonomous_vilayet }
+					has_dynamic_modifier = { modifier = TUR_semi_autonomous_vilayet }
+				}
+			}
+		}
+		remove_effect = {
+			if = {
+				limit = { has_completed_focus = TUR_one_language_one_religion_one_nation }
+				add_stability = 0.002
+			}
+			FROM = {
+				set_temp_variable = { TUR_temp_state_population = state_population }
+				divide_temp_variable = { TUR_temp_state_population = -5 }
+				add_manpower = TUR_temp_state_population
+				if = {
+					limit = {
+						has_dynamic_modifier = { modifier = TUR_south_slav_minority }
+						check_variable = { TUR_south_slav_state_level < 2 }
+					}
+					TUR_remove_south_slav_effect = yes
+					if = {
+						limit = { check_variable = { TUR_greek_state_level > 0 } }
+						TUR_add_greek_effect = yes
+					}
+					else = {
+						add_core_of = ROOT
+						set_variable = { TUR_ottoman_recruitable_population_factor = 0 }
+						set_variable = { TUR_ottoman_required_garrison_factor = 0 }
+						set_variable = { TUR_ottoman_resistance_decay = 0 }
+						set_variable = { TUR_ottoman_state_stability_factor = 0 }
+						set_variable = { TUR_ottoman_state_war_support_factor = 0 }
+					}
+					if = {
+						limit = { is_core_of = BUL }
+						remove_core_of = BUL
+					}
+				}
+				else = {
+					if = {
+						limit = { state = 757 }
+						custom_effect_tooltip = TUR_south_slav_minority_level_down_gumulcine
+						if = {
+							limit = { check_variable = { TUR_ottoman_recruitable_population_factor < 0 } }
+							add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.025 }
+						}
+						if = {
+							limit = { check_variable = { TUR_ottoman_required_garrison_factor > 0 } }
+							add_to_variable = { TUR_ottoman_required_garrison_factor = -0.02 }
+						}
+						if = {
+							limit = { check_variable = { TUR_ottoman_resistance_decay < 0 } }
+							add_to_variable = { TUR_ottoman_resistance_decay = 0.05 }
+						}
+						if = {
+							limit = { check_variable = { TUR_ottoman_state_stability_factor < 0 } }
+							add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.001 }
+						}
+						if = {
+							limit = { check_variable = { TUR_ottoman_state_war_support_factor < 0 } }
+							add_to_variable = { TUR_ottoman_state_war_support_factor = 0.001 }
+						}
+					}
+					else = {
+						custom_effect_tooltip = TUR_south_slav_minority_level_down_1
+						add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.05 }
+						add_to_variable = { TUR_ottoman_required_garrison_factor = -0.05 }
+						add_to_variable = { TUR_ottoman_resistance_decay = 0.1 }
+						add_to_variable = { TUR_ottoman_state_stability_factor = 0.002 }
+						add_to_variable = { TUR_ottoman_state_war_support_factor = 0.001 }
+						if = {
+							limit = { check_variable = { TUR_ottoman_recruitable_population_factor < 0 } }
+							add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.05 }
+						}
+						if = {
+							limit = { check_variable = { TUR_ottoman_required_garrison_factor > 0 } }
+							add_to_variable = { TUR_ottoman_required_garrison_factor = -0.05 }
+						}
+						if = {
+							limit = { check_variable = { TUR_ottoman_resistance_decay < 0 } }
+							add_to_variable = { TUR_ottoman_resistance_decay = 0.1 }
+						}
+						if = {
+							limit = { check_variable = { TUR_ottoman_state_stability_factor < 0 } }
+							add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.002 }
+						}
+						if = {
+							limit = { check_variable = { TUR_ottoman_state_war_support_factor < 0 } }
+							add_to_variable = { TUR_ottoman_state_war_support_factor = 0.001 }
+						}
+					}
+				}
+				add_to_variable = { TUR_south_slav_state_level = -1 }
 			}
 			ottoman_minority_variable_check = yes
 		}
