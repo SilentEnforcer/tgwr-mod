@@ -1364,7 +1364,7 @@ TUR_minority_decision = {
 		}
 		ai_will_do = { base = 100 }
 	}
-	TUR_integrate_levantese_vilayets = {
+	TUR_integrate_syrian_vilayets = {
 		icon = GFX_decision_generic_nationalism
 		allowed = {
 			original_tag = TUR
@@ -1689,7 +1689,7 @@ TUR_minority_decision = {
 			has_completed_focus = TUR_clamp_down_on_arab_dissent
 			controls_state = FROM
 			FROM = {
-				check_variable = { TUR_surpress_arab_dissent < 6 }
+				check_variable = { TUR_surpress_arab_dissent_for_state < 6 }
 				NOT = { has_state_flag = TUR_surpress_arab_dissent }
 				TUR_state_has_minority_modifier = yes
 			}
@@ -1707,13 +1707,18 @@ TUR_minority_decision = {
 					custom_effect_tooltip = TUR_minority_local_supplies_for_controller_down
 					add_to_variable = { TUR_ottoman_local_supplies_for_controller = 0.02 }
 				}
-				if = {
-					limit = { has_variable = TUR_surpress_arab_dissent }
-					set_variable = { TUR_surpress_arab_dissent = 1 }
-				}
-				else = { add_to_variable = { TUR_surpress_arab_dissent = 1 } }
 				set_state_flag = TUR_surpress_arab_dissent
+				if = {
+					limit = { has_variable = TUR_surpress_arab_dissent_for_state }
+					add_to_variable = { TUR_surpress_arab_dissent_for_state = 1 }
+				}
+				else = { set_variable = { TUR_surpress_arab_dissent_for_state = 1 } }
 			}
+			if = {
+				limit = { has_variable = TUR_surpress_arab_dissent }
+				add_to_variable = { TUR_surpress_arab_dissent = 1 }
+			}
+			else = { set_variable = { TUR_surpress_arab_dissent = 1 } }
 		}
 		cancel_trigger = { NOT = { controls_state = FROM } }
 		ai_will_do = { base = 100 }
@@ -1781,6 +1786,7 @@ TUR_minority_decision = {
 		visible = {
 			has_completed_focus = TUR_clamp_down_on_arab_dissent
 			controls_state = FROM
+			check_variable = { TUR_surpress_arab_dissent > 0 }
 			FROM = { TUR_state_has_minority_modifier = yes }
 		}
 		days_remove = 45
@@ -1826,10 +1832,8 @@ TUR_minority_decision = {
 		visible = {
 			has_completed_focus = TUR_clamp_down_on_arab_dissent
 			controls_state = FROM
-			FROM = {
-				check_variable = { TUR_surpress_arab_dissent > 0 }
-				TUR_state_has_minority_modifier = yes
-			}
+			check_variable = { TUR_surpress_arab_dissent > 0 }
+			FROM = { TUR_state_has_minority_modifier = yes }
 		}
 		days_remove = 15
 		complete_effect = { hidden_effect = { add_command_power = -10 } }
@@ -1861,6 +1865,9 @@ TUR_minority_decision = {
 					limit = { check_variable = { TUR_ottoman_recruitable_population_factor < 0 } }
 					custom_effect_tooltip = TUR_recruit_prisoner_conscripts_tt
 					add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.01 }
+					add_to_variable = { TUR_ottoman_state_stability_factor = -0.001 }
+					set_variable = { TUR_recruit_prisoner_conscripts_in_middle_east = -0.01 }
+					set_variable = { TUR_recruit_prisoner_conscripts_in_middle_east2 = 0.01 }
 				}
 			}
 		}
@@ -1877,6 +1884,12 @@ TUR_minority_decision = {
 			delete_units = {
 				division_template = "Arap Mahkum Askeri"
 				disband = yes
+			}
+			every_state = {
+				limit = { has_variable = TUR_recruit_prisoner_conscripts_in_middle_east }
+				custom_effect_tooltip = TUR_disband_prisoner_conscripts_tt
+				add_to_variable = { TUR_ottoman_recruitable_population_factor = TUR_recruit_prisoner_conscripts_in_middle_east }
+				add_to_variable = { TUR_ottoman_state_stability_factor = TUR_recruit_prisoner_conscripts_in_middle_east2 }
 			}
 		}
 		cancel_trigger = { NOT = { controls_state = FROM } }
@@ -2308,7 +2321,7 @@ TUR_minority_decision = {
 			}
 		}
 	}
-	TUR_slaughter_assyrians = {
+	TUR_massacre_assyrians = {
 		icon = GFX_decision_ETH_chitet
 		allowed = { original_tag = TUR }
 		state_target = yes
