@@ -274,7 +274,7 @@ country_event = {
 		has_capitulated = no
 		has_country_flag = SRA_offensive_failed
 		has_war_with = SOV
-		surrender_progress > 0.65 
+		surrender_progress > 0.45 
 		RUS_anton_denikin = {
 			is_country_leader = yes
 		}
@@ -286,6 +286,14 @@ country_event = {
 		name = ww1_sra.7.a
 		RUS_anton_denikin = {
 			set_nationality = RXL
+		}
+		hidden_effect = {
+			every_country = {
+				limit = {
+					has_country_flag = can_send_to_SRA
+				}
+				clr_country_flag = can_send_to_SRA
+			}
 		}
 		every_possible_country = {
 			limit = {
@@ -332,6 +340,22 @@ country_event = {
 	immediate = {
 		hidden_effect = {
 			set_global_flag = RUS_SRA_spawned
+			# does not work
+			# every_state = {
+			# 	limit = {
+			# 		OR = {
+			# 			region = 135
+			# 			region = 137
+			# 			region = 14
+			# 			region = 138
+			# 			region = 136
+			# 		}
+			# 	}
+			# 	add_dynamic_modifier = {
+			# 		modifier = RUS_russian_civil_war_raging
+			# 		days = 700
+			# 	}
+			# }
 			941 = {
 				SRA = { add_state_core = PREV }
 			}
@@ -1197,6 +1221,7 @@ country_event = {
 			} 
 		}
 		restore_previous_government_type = yes
+		set_country_flag = is_sra_puppet
 		FROM = {
 			country_event = {
 				id = ww1_sra.36
@@ -1339,16 +1364,21 @@ country_event = {
 	trigger = {
 		tag = SRA
 		controls_state = 234
-		NOT = {
-			has_country_flag = sra_annexed_kuban
-		}
+		# NOT = {
+		# 	has_country_flag = sra_annexed_kuban
+		# }
 	}
 	option = {
 		name = ww1_sra.41.a
 		if = {
 			limit = {
-				NOT = {
-					has_country_flag = sra_no_rada
+				OR = {
+					NOT = {
+						has_country_flag = sra_no_rada
+					}
+					NOT = {
+						has_idea = SRA_kuban_rada_1
+					}
 				}
 			}
 			add_ideas = {
@@ -1481,21 +1511,47 @@ country_event = {
 					change_tag_from = KUB
 				}
 				set_country_flag = sra_annexed_kuban
+				KUB = {
+					delete_unit = {} 
+				}
 			}
-			annex_country = {
-				target = KUB
-				transfer_troops = yes
-			}
+			# annex_country = {
+			# 	target = KUB
+			# 	transfer_troops = yes
+			# }
 			add_ideas = {
 				SRA_no_civ_government_1
 				SRA_agrarian_question_idea_1
 			}
-			set_capital = {
-				state = 234
-				remember_old_capital = no
-			}
+			# set_capital = {
+			# 	state = 234
+			# 	remember_old_capital = no
+			# }
+			# hidden_effect = {
+			# 	set_state_owner = 234
+			# }
 			hidden_effect = {
-				set_state_owner = 234
+				division_template = {
+					name = "Kubinskaya militsiya"
+					#division_names_group = RUS_GAR_01
+					regiments = {
+						infantry = { x = 0 y = 0 }
+						infantry = { x = 0 y = 1 }
+						infantry = { x = 1 y = 0 }
+					}
+					support = { 
+						artillery = { x = 0 y = 0 }
+						recon = { x = 0 y = 1 }
+						engineer = { x = 0 y = 2 }
+					}
+				}
+				941 = {
+					create_unit = {
+						division = "name = \"Kubinskaya militsiya\" division_template = \"Kubinskaya militsiya\" start_experience_factor = 0.6"
+						owner = ROOT
+						allow_spawning_on_enemy_provs = yes
+					}
+				}
 			}
 		}
 		else = {
@@ -1700,6 +1756,75 @@ country_event = {
 			}
 			custom_effect_tooltip = SRA_kuban_autonomy_increase_4_tt
 		}
+		ai_chance = {
+			base = 100
+		}
+	}
+}
+
+#soviets receive caucasus front idea
+country_event = {
+	id = ww1_sra.48
+	title = ww1_sra.48.t
+	desc = ww1_sra.48.d
+	picture = GFX_report_event_kuban_gov
+	trigger = {
+		tag = SOV
+		DSR = {
+			is_puppet_of = SOV
+		}
+	}
+	hidden = yes
+	mean_time_to_happen = {
+		days = 1
+	}
+	immediate = {
+		SOV = {
+			add_timed_idea = {
+				idea = SOV_war_in_the_caucasus
+				days = 200
+			}
+		}
+	}
+	is_triggered_only = no
+	fire_only_once = yes
+	#bad
+	option = {
+		name = ww1_sra.48.a
+		ai_chance = {
+			base = 100
+		}
+	}
+}
+
+#soviets remove caucasus front idea
+country_event = {
+	id = ww1_sra.49
+	title = ww1_sra.48.t
+	desc = ww1_sra.48.d
+	picture = GFX_report_event_kuban_gov
+	trigger = {
+		tag = SOV
+		has_war_with = SRA
+		KUB = {
+			has_war_with = SRA
+			surrender_progress > 0.50
+		}
+	}
+	hidden = yes
+	mean_time_to_happen = {
+		days = 1
+	}
+	immediate = {
+		SOV = {
+			remove_ideas = SOV_war_in_the_caucasus
+		}
+	}
+	is_triggered_only = no
+	fire_only_once = yes
+	#bad
+	option = {
+		name = ww1_sra.48.a
 		ai_chance = {
 			base = 100
 		}
