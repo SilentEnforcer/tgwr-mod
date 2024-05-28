@@ -33,7 +33,7 @@ country_event = {
 	title = ww1_denmark.2.t	#Treaty of the Danish West Indies
 	desc = ww1_denmark.2.d	#The US wishes to buy our West Indian colonies, in part out of fears that the Germans could use them as a base for convoy raiding. Should we sell the territory to them?
 	id = ww1_denmark.2
-	picture = report_event_generic_sign_treaty2
+	picture = GFX_report_event_generic_sign_treaty2
 	fire_only_once = yes
 	is_triggered_only = yes
 	option = {
@@ -41,25 +41,49 @@ country_event = {
 		ai_chance = {
 			factor = 100
 		}
-		USA = {
+		FROM = {
 			transfer_state = 750
+			add_political_power = -100
+			add_opinion_modifier = {
+				target = ROOT
+				modifier = large_increase
+			}
+		}
+		750 = { set_state_name = US_VIRGIN_ISLANDS }
+		976 = {
+			owner = {
+				if = {
+					limit = {
+						has_war_with = GER
+						NOT = {
+							has_war_with = FROM
+							has_war_with = ROOT
+						}
+					}
+					add_opinion_modifier = {
+						target = ROOT
+						modifier = medium_increase
+					}
+				}
+				if = {
+					limit = {
+						GER = {
+							OR = {
+								has_war_with = PREV
+								has_war_with = FROM
+							}
+						}
+					}
+					GER = {
+						add_opinion_modifier = {
+							target = ROOT
+							modifier = large_decrease
+						}
+					}
+				}
+			}
 		}
 		add_political_power = 100
-		USA = {
-			add_political_power = -100
-		}
-		add_opinion_modifier = {
-			target = USA
-			modifier = large_increase
-		}
-		add_opinion_modifier = {
-			target = ENG
-			modifier = medium_increase
-		}
-		add_opinion_modifier = {
-			target = GER
-			modifier = large_decrease
-		}
 	}
 	option = {
 		name = ww1_denmark.2.b
@@ -67,17 +91,48 @@ country_event = {
 			factor = 0
 		}
 		add_political_power = -100
-		add_opinion_modifier = {
-			target = USA
-			modifier = large_decrease
+		FROM = {
+			add_opinion_modifier = {
+				target = ROOT
+				modifier = large_decrease
+			}
+			country_event = {
+				id = ww1_usa.85
+				hours = 3
+			}
 		}
-		add_opinion_modifier = {
-			target = ENG
-			modifier = medium_decrease
-		}
-		add_opinion_modifier = {
-			target = GER
-			modifier = medium_increase
+		976 = {
+			owner = {
+				if = {
+					limit = {
+						has_war_with = GER
+						NOT = {
+							has_war_with = FROM
+							has_war_with = ROOT
+						}
+					}
+					add_opinion_modifier = {
+						target = ROOT
+						modifier = medium_decrease
+					}
+				}
+				if = {
+					limit = {
+						GER = {
+							OR = {
+								has_war_with = PREV
+								has_war_with = FROM
+							}
+						}
+					}
+					GER = {
+						add_opinion_modifier = {
+							target = ROOT
+							modifier = medium_increase
+						}
+					}
+				}
+			}
 		}
 	}
 }
@@ -112,16 +167,77 @@ country_event = {
 			remove_core_of = SHL
 			transfer_state_to = PREV
 		}
-		if = {
-			limit = {
+		ai_chance = {
+			factor = 100
+			modifier = {
+				factor = 0
 				has_country_flag = great_war_winner
 			}
-			58 = {
-				transfer_state_to = PREV
+		}
+	}
+	option = {
+		name = ww1_denmark.3.b
+		trigger = {
+			has_country_flag = great_war_winner
+		}
+		751 = {
+			remove_core_of = GER
+			remove_core_of = SHL
+			transfer_state_to = PREV
+		}
+		58 = {
+			transfer_state_to = PREV
+		}
+		ai_chance = {
+			factor = 50
+		}
+	}
+	option = {
+		name = ww1_denmark.3.c
+		trigger = {
+			has_country_flag = great_war_winner
+			NOT = { country_exists = SHL }
+		}
+		751 = {
+			remove_core_of = GER
+			remove_core_of = SHL
+			transfer_state_to = PREV
+		}
+		58 = {
+			transfer_state_to = SHL
+		}
+		if = {
+			limit = { has_monarchy = yes }
+			SHL = { set_country_flag = monarchist_puppet }
+			set_autonomy = {
+				target = SHL
+				autonomy_state = autonomy_tgwr_personal_union
+			}
+		}
+		else = {
+			SHL = { set_country_flag = protectorate }
+			set_autonomy = {
+				target = SHL
+				autonomy_state = autonomy_tgwr_protectorate
 			}
 		}
 		ai_chance = {
-			factor = 100
+			factor = 50
+		}
+	}
+	option = {
+		name = ww1_denmark.3.e
+		trigger = {
+			has_country_flag = great_war_loser
+		}
+		58 = {
+			owner = {
+				transfer_state = 751
+			}
+		}
+		remove_state_core = 751
+		ai_chance = {
+			factor = 200
 		}
 	}
 }
@@ -148,9 +264,19 @@ country_event = {
 	mean_time_to_happen = { days = 60 }
 	option = {
 		name = ww1_denmark.4.a
-		release_autonomy = {
-			target = ICE
-			autonomy_state = autonomy_dominion
+		if = {
+			limit = { has_monarchy = yes }
+			ICE = { set_country_flag = monarchist_puppet }
+			release_autonomy = {
+				target = ICE
+				autonomy_state = autonomy_tgwr_real_union
+			}
+		}
+		else = {
+			release_autonomy = {
+				target = ICE
+				autonomy_state = autonomy_dominion
+			}
 		}
 		hidden_effect = {
 			ICE = {
