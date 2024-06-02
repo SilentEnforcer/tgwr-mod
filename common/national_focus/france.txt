@@ -1185,7 +1185,7 @@ focus_tree = {
 			focus = FRA_ww1_form_the_proudhon_circle
 		}
 		completion_reward = {
-			add_stability = 0.05
+			add_stability = 0.1
 			add_war_support = -0.1
 			custom_effect_tooltip = FRA_join_democrats_socialists_2
 			if = {
@@ -1216,6 +1216,7 @@ focus_tree = {
 		prerequisite = {
 			focus = FRA_ww1_save_the_republic
 			focus = FRA_ww1_form_the_proudhon_circle
+			focus = FRA_ww1_the_social_democrat_compromise
 		}
 		available = {
 			ROOT = {
@@ -1258,7 +1259,10 @@ focus_tree = {
 		offset = {
 			x = 5
 			trigger = {
-				has_completed_focus = FRA_ww1_form_the_proudhon_circle
+				OR = {
+					has_completed_focus = FRA_ww1_form_the_proudhon_circle
+					has_completed_focus = FRA_ww1_the_social_democrat_compromise
+				}
 				NOT = {
 					has_completed_focus = FRA_ww1_rally_the_piou_piou
 				}
@@ -2881,7 +2885,6 @@ focus_tree = {
 			custom_effect_tooltip = FRA_ally_radicals
 			set_country_flag = radical_party_allied
 			FRA_recalculate_parliament_alliance = yes
-		
 			hidden_effect = {
 				random_list = {
 					50 = {
@@ -2890,6 +2893,28 @@ focus_tree = {
 					50 = {
 						set_country_flag = FRA_reformists_will_be_dominants
 					}
+				}
+				if = {
+					limit = {
+						has_country_flag = FRA_AI_RANDOM_SOCIALIST
+						has_game_rule = {
+							rule = FRA_ai_behavior
+							option = SOCIALIST
+						}
+					}
+					clr_country_flag = FRA_anarchists_will_be_dominants
+					set_country_flag = FRA_reformists_will_be_dominants
+				}
+				if = {
+					limit = {
+						has_country_flag = FRA_AI_RANDOM_SOCIALIST_REVOLUTIONNARY
+						has_game_rule = {
+							rule = FRA_ai_behavior
+							option = SOCIALIST_REVOLUTIONNARY
+						}
+					}
+					clr_country_flag = FRA_reformists_will_be_dominants
+					set_country_flag = FRA_anarchists_will_be_dominants
 				}
 				set_cosmetic_tag = FRA_socialism_not_commune
 				every_other_country = {
@@ -4165,6 +4190,10 @@ focus_tree = {
 		}
 		completion_reward = {
 			add_ideas = FRA_ww1_social_investments
+			unlock_decision_tooltip = FRA_invest_in_UIMM
+			unlock_decision_tooltip = FRA_sponsor_the_auberge_the_jeunesses
+			unlock_decision_tooltip = FRA_goncourt_academy_subvention
+			set_country_flag = FRA_ww1_social_investments
 		}
 		ai_will_do = {
 			factor = 1
@@ -4289,6 +4318,21 @@ focus_tree = {
 				amount = 50
 			}
 			add_ideas = FRA_ww1_overseas_economy
+			random_owned_controlled_state = {
+				limit = {
+					NOT = {
+						is_on_continent = europe
+						is_on_continent = africa
+					}
+					is_coastal = yes
+				}
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = {
+					type = industrial_complex
+					level = 1
+					instant_build = yes
+				}
+			}
 		}
 		ai_will_do = {
 			factor = 1
@@ -4322,6 +4366,12 @@ focus_tree = {
 		}
 		completion_reward = {
 			add_research_slot = 1
+			add_tech_bonus = {
+				name = FRA_ww1_research_budget
+				bonus = 1
+				category = electronics
+				uses = 2
+			}
 		}
 		ai_will_do = {
 			factor = 1
@@ -4732,12 +4782,16 @@ focus_tree = {
 					set_popularities = {
 						neutrality = 100
 					}
-					create_country_leader = {
-						name = "FRA_governor_of_algeria"
-						picture = "gfx/leaders/FRA/FRA_provisional_government.png"
-						ideology = oligarchism
-						traits = { foreign_leader }
-					}
+					FRA_charles_lutaud = {
+						set_nationality = ALG
+						add_country_leader_role = {
+							promote_leader = yes
+							country_leader = {
+								ideology = colonial_government
+								traits = { foreign_leader }
+							}
+						}				
+					}			
 				}
 				set_party_name = {
 					ideology = neutrality
@@ -6668,7 +6722,7 @@ focus_tree = {
 						character = FRA_maurice_sarrail
 						promote_leader = yes
 						country_leader = {
-						  	ideology = socialism
+						  	ideology = social_democracy
 							traits = {
 								leftist_freemason
 							}
@@ -8834,22 +8888,6 @@ focus_tree = {
 				}
 			}
 			custom_effect_tooltip = FRA_form_schneider_tank_brigade
-			hidden_effect = {
-				if = {
-					limit = {
-						is_ai = yes
-					}
-					add_equipment_production = {
-						equipment = {
-							type = medium_tank_chassis_1
-							creator = "FRA"
-						}
-						requested_factories = 3
-						progress = 0.1
-						efficiency = 20
-					}
-				}
-			}
 		}
 		ai_will_do = {
 			factor = 500
@@ -9104,22 +9142,6 @@ focus_tree = {
 					has_war = yes
 				}
 				add_ideas = FRA_focus_renault_war_effort
-			}
-			hidden_effect = {
-				if = {
-					limit = {
-						is_ai = yes
-					}
-					add_equipment_production = {
-						equipment = {
-							type = light_tank_chassis_1
-							creator = "FRA"
-						}
-						requested_factories = 6
-						progress = 0.1
-						efficiency = 20
-					}
-				}
 			}
 			
 		}
@@ -11614,7 +11636,63 @@ focus_tree = {
 		x = 0
 		y = 1
 	}
-	
+	#what about becoming monarchist, now ? 
+	focus = {
+		id = FRA_congratulate_the_king
+		icon = GFX_goal_FRA_jean_III
+		relative_position_id = FRA_ww1_continental_affairs
+		allow_branch = {
+			has_country_flag = FRA_emergency_figurehead
+		}
+		prerequisite = {
+			focus = FRA_ww1_continental_affairs
+		}
+		available = {
+			OR = {
+				has_idea = FRA_jean_iii
+				has_idea = FRA_napoleon_v
+				has_idea = FRA_jacques_i
+			}
+		}
+		completion_reward = {
+			add_political_power = 75
+			if = {
+				limit = {
+					has_idea = FRA_jean_iii 
+				}
+				country_event = {
+					id = ww1_france.423
+					days = 1
+				}
+			}
+			if = {
+				limit = {
+					has_idea = FRA_jacques_i 
+				}
+				country_event = {
+					id = ww1_france.424
+					days = 1
+				}
+			}
+			if = {
+				limit = {
+					has_idea = FRA_napoleon_v 
+				}
+				country_event = {
+					id = ww1_france.425
+					days = 1
+				}
+			}
+		}
+		ai_will_do = {
+			base = 2500
+		}
+		cost = 10
+		x = -2
+		y = 1
+	}
+
+	#historical democratic course
 	focus = {
 		id = FRA_ww1_memel_occupation
 		icon = GFX_goal_generic_neutrality_focus
@@ -13837,6 +13915,9 @@ focus_tree = {
 			has_government = communism
 		}
 		completion_reward = {
+			hidden_effect = {
+				remove_french_presidents = yes
+			}
 			add_ideas = FRA_leon_jouhaux
 			country_event = {
 				id = ww1_france.350
@@ -14048,6 +14129,12 @@ focus_tree = {
 			swap_ideas = {
 				add_idea = FRA_garde_populaire_nationale
 				remove_idea = FRA_defiant_army2
+			}
+			if = {
+				limit = {
+					has_idea = FRA_milice_nationale
+				}
+				remove_ideas = FRA_milice_nationale
 			}
 			hidden_effect = {
 				disband_twenty_percent_units = yes
