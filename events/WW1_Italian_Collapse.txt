@@ -586,7 +586,7 @@ country_event = {
 				create_country_leader = {
 					name = "ITA_provisional_government_of_naples"
 					picture = "gfx/leaders/ITA/ITA_Provisional_Government_of_Naples.png"
-					ideology = oligarchism
+					ideology = personalistic_dictatorship
 				}
 				load_focus_tree = {
 					tree = italian_focus
@@ -1915,16 +1915,20 @@ news_event = {
 				every_state = {
 					limit = {
 						OR = {
+							is_owned_by = PAP
 							is_owned_by = SRI
 							is_owned_by = ROI
 							is_owned_by = ITS
 							is_owned_by = ITA
 						}
-						state = 2			
+						OR = {
+							state = 2
+							state = 1001
+						}		
 					}
 					PAP = {
-						transfer_state = PREV
 						add_state_core = PREV
+						transfer_state = PREV
 					}
 				}
 			}
@@ -1937,6 +1941,22 @@ news_event = {
 				inherit_technology = ITS
 				ITS = {
 					add_to_faction = PAP
+				}
+				PAP = {
+					set_research_slots = 3
+					remove_ideas = PAP_captivus_vaticani					
+					if = {
+						limit = {
+							has_idea = closed_economy
+						}
+						add_ideas = limited_exports
+					}	
+					if = {
+						limit = {
+							has_idea = isolation
+						}
+						add_ideas = civilian_economy
+					}
 				}
 			}
 			every_state = {
@@ -1993,6 +2013,15 @@ country_event = {
 		hidden_effect = {
 			if = {
 				limit = {
+					owns_state = 1001
+				}
+				PAP = {
+					add_state_core = 1001
+					transfer_state = 1001
+				}
+			}
+			if = {
+				limit = {
 					owns_state = 2
 				}
 				PAP = {
@@ -2031,21 +2060,36 @@ country_event = {
 			every_character = {
 				set_nationality = SIC
 			}
-			if = {
-				limit = {
-					is_faction_leader = yes
-				}
-				every_other_country = {
-					limit = {
-						is_in_faction_with = ROOT
-					}
-					SIC = {
-						create_faction = italian_federation
-						add_to_faction = PREV
-					}
-				}
-			}
+			# if = {
+			# 	limit = {
+			# 		is_faction_leader = yes
+			# 	}
+			# 	every_other_country = {
+			# 		limit = {
+			# 			is_in_faction_with = ROOT
+			# 		}
+			# 		SIC = {
+			# 			create_faction = italian_federation
+			# 			add_to_faction = PREV
+			# 		}
+			# 	}
+			# }
 			SIC = {
+				if = {
+					limit = {
+						PREV = { is_in_faction_with = ITA }
+					}
+					set_truce = {
+						target = ITA
+						days = 365
+					}
+					diplomatic_relation = {
+						country = PREV
+						relation = non_aggression_pact
+						active = yes
+					}
+				}
+				take_all_subjects_ROOT = yes
 				inherit_technology = ROOT
 				annex_country = {
 					target = ROOT
@@ -2057,17 +2101,9 @@ country_event = {
 						is_neighbor_of = PAP
 						NOT = { has_global_flag = catholic_crusader_is_here }
 					}
-					if = {
-						limit = {
-							has_dlc = "Together for Victory"
-						}
-						set_autonomy = {
-							target = PAP
-							autonomy_state = autonomy_dominion
-						}
-					}
-					else = {
-						puppet = PAP
+					set_autonomy = {
+						target = PAP
+						autonomy_state = autonomy_dominion
 					}
 				}
 				if = {
