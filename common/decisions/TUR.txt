@@ -173,7 +173,7 @@ GER_great_war = {
 			original_tag = TUR
 		}
 		available = {
-			has_global_flag = great_war
+			has_global_flag = kis_war
 			any_enemy_country = {
 				is_major = yes
 			}
@@ -259,27 +259,50 @@ GER_great_war = {
 	}
 	TUR_renounce_our_claims = {
 		icon = GFX_decision_eng_trade_unions_demand
-		allowed = {
-			original_tag = TUR
-		}
+		allowed = { original_tag = TUR }
 		available = {
-			custom_trigger_tooltip = {
-				tooltip = the_great_war_has_started
-				has_global_flag = kis_war
-			}
+			has_global_flag = kis_war
 			any_country = {
 				is_major = yes
 				is_in_faction_with = TUR
 			}
-			any_enemy_country = {
-				is_major = yes
-			}
+			any_enemy_country = { is_major = yes }
 		}
 		visible = { NOT = { has_global_flag = great_war_ends } }
 		cost = 15
 		fire_only_once = yes
 		complete_effect = {
 			TUR_negotiating_our_claims_effect = yes
+		}
+		ai_will_do = {
+			base = 1000
+		}
+	}
+	TUR_declare_nation_wide_martial_law = {
+		icon = GFX_decision_generic_military
+		allowed = { original_tag = TUR }
+		available = {
+			has_global_flag = kis_war
+			any_enemy_country = { is_major = yes }
+		}
+		visible = { NOT = { has_global_flag = great_war_ends } }
+		cost = 30
+		fire_only_once = yes
+		complete_effect = {
+			every_controlled_state = {
+				limit = { TUR_state_has_minority_flag = yes }
+				add_dynamic_modifier = { modifier = TUR_martial_law scope = TUR }
+				set_state_flag = TUR_nation_wide_martial_law
+			}
+			hidden_effect = {
+				every_state = {
+					limit = {
+						NOT = { is_controlled_by = ROOT }
+						TUR_state_has_minority_flag = yes
+					}
+					set_state_flag = TUR_martial_law_no_control
+				}
+			}
 		}
 		ai_will_do = {
 			base = 1000
@@ -8424,9 +8447,39 @@ TUR_cult_of_ittihat_ve_terakki = {
 		available = { TUR_mehmet_emin_yurdakul = { is_hired_as_advisor = no } }
 		days_remove = -1
 		complete_effect = {
-			add_power_balance_value = {
-				id = TUR_army_civilian_struggle
-				value = 0.05
+			if = {
+				limit = {
+					is_power_balance_side_active = {
+						id = TUR_army_civilian_struggle
+						side = TUR_third_faction_civilian_struggle_third_faction
+					}
+				}
+				add_power_balance_value = {
+					id = TUR_army_civilian_struggle
+					value = -0.05
+				}
+			}
+			else = {
+				if = {
+					limit = {
+						power_balance_value = {
+							id = TUR_army_civilian_struggle
+							value < 0
+						}
+					}
+					add_power_balance_value = {
+						id = TUR_army_civilian_struggle
+						value = 0.05
+					}
+					set_country_flag = TUR_appoint_cemal_into_syria1
+				}
+				else = {
+					add_power_balance_value = {
+						id = TUR_army_civilian_struggle
+						value = -0.05
+					}
+					set_country_flag = TUR_appoint_cemal_into_syria2
+				}
 			}
 		}
 		ai_will_do = {
@@ -8441,9 +8494,39 @@ TUR_cult_of_ittihat_ve_terakki = {
 		visible = { has_decision = TUR_utilize_mehmet_emin_yurdakul }
 		complete_effect = {
 			remove_decision = TUR_utilize_mehmet_emin_yurdakul
-			add_power_balance_value = {
-				id = TUR_army_civilian_struggle
-				value = -0.05
+			if = {
+				limit = {
+					is_power_balance_side_active = {
+						id = TUR_army_civilian_struggle
+						side = TUR_third_faction_civilian_struggle_third_faction
+					}
+				}
+				add_power_balance_value = {
+					id = TUR_army_civilian_struggle
+					value = 0.05
+				}
+			}
+			else = {
+				if = {
+					limit = {
+						power_balance_value = {
+							id = TUR_army_civilian_struggle
+							value < 0
+						}
+					}
+					add_power_balance_value = {
+						id = TUR_army_civilian_struggle
+						value = -0.05
+					}
+					set_country_flag = TUR_appoint_cemal_into_syria1
+				}
+				else = {
+					add_power_balance_value = {
+						id = TUR_army_civilian_struggle
+						value = 0.05
+					}
+					set_country_flag = TUR_appoint_cemal_into_syria2
+				}
 			}
 		}
 		ai_will_do = {
@@ -8800,13 +8883,12 @@ TUR_economy_decision = {
 		cost = 25
 		visible = {
 			has_completed_focus = TUR_continuation_of_moratoriums
+			has_variable = opda_consumer_goods
 		}
 		available = {
-			NOT = {
-				custom_trigger_tooltip = {
-					tooltip = TUR_OPDA_trigger_tooltip
-					NOT = { has_variable = opda_lira }
-				}
+			custom_trigger_tooltip = {
+				tooltip = TUR_OPDA_trigger_tooltip
+				has_variable = opda_consumer_goods
 			}
 		}
 		modifier = {
