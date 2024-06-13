@@ -9,6 +9,7 @@ abandon_puppet_tag = { #in testing
 
 				# German
 				has_cosmetic_tag = CRI_GER
+				has_cosmetic_tag = ALS_TUR
 
 				# French
 				has_cosmetic_tag = FRA_classic_blue
@@ -30,6 +31,7 @@ abandon_puppet_tag = { #in testing
 				has_cosmetic_tag = TUR_RUS
 				has_cosmetic_tag = PER_RUS
 				has_cosmetic_tag = POL_RUS
+				has_cosmetic_tag = FIN_RUS
 
 				# Soviet
 				has_cosmetic_tag = SOV_puppet
@@ -583,21 +585,14 @@ GER_release_LIT = {
 								}
 							}
 						}
-						GER = {
-							if = {
-								limit = {
-									GER_wilhelm_karl_von_urach = { is_unit_leader = yes }
-								}
-								GER_wilhelm_karl_von_urach = {
-									set_character_name = LIT_mindaugas_ii
-									if = {
-										limit = {
-											is_field_marshal = no
-										}
-										promote_leader = yes
-									}
-									set_nationality = LIT
-								}
+						every_possible_country = {
+							limit = {
+								has_character = GER_wilhelm_karl_von_urach
+							}
+							GER_wilhelm_karl_von_urach = {
+								set_character_name = LIT_mindaugas_ii
+								promote_leader = yes
+								set_nationality = LIT
 							}
 						}
 						else = {
@@ -703,21 +698,14 @@ GER_release_LIT = {
 								}
 							}
 						}
-						GER = {
-							if = {
-								limit = {
-									GER_wilhelm_karl_von_urach = { is_unit_leader = yes }
-								}
-								GER_wilhelm_karl_von_urach = {
-									set_character_name = LIT_mindaugas_ii
-									if = {
-										limit = {
-											is_field_marshal = no
-										}
-										promote_leader = yes
-									}
-									set_nationality = LIT
-								}
+						every_possible_country = {
+							limit = {
+								has_character = GER_wilhelm_karl_von_urach
+							}
+							GER_wilhelm_karl_von_urach = {
+								set_character_name = LIT_mindaugas_ii
+								promote_leader = yes
+								set_nationality = LIT
 							}
 						}
 						else = {
@@ -2696,6 +2684,21 @@ take_all_subjects_FROM = {
 		}
 		else_if = {
 			limit = {
+				has_autonomy_state = autonomy_tgwr_integrated_protectorate
+			}
+			FROM = { end_puppet = PREV }
+			get_current_government_type = yes
+			ROOT = {
+				PREV = { set_country_flag = protectorate }
+				set_autonomy = {
+					target = PREV
+					autonomous_state = autonomy_tgwr_integrated_protectorate
+				}
+			}
+			restore_previous_government_type = yes
+		}
+		else_if = {
+			limit = {
 				has_autonomy_state = autonomy_tgwr_crownland
 			}
 			FROM = { end_puppet = PREV }
@@ -2763,16 +2766,6 @@ take_all_subjects_FROM = {
 				}
 			}
 			restore_previous_government_type = yes
-		}
-		else_if = {
-			limit = {
-				has_idea = protectorate
-			}
-			FROM = { end_puppet = PREV }
-			get_current_government_type = yes
-			ROOT = { puppet = PREV }
-			restore_previous_government_type = yes
-			add_ideas = protectorate
 		}
 		else = {
 			FROM = { end_puppet = PREV }
@@ -3008,6 +3001,21 @@ take_all_subjects_ROOT = {
 		}
 		else_if = {
 			limit = {
+				has_autonomy_state = autonomy_tgwr_integrated_protectorate
+			}
+			ROOT = { end_puppet = PREV }
+			get_current_government_type = yes
+			PREV = {
+				PREV = { set_country_flag = protectorate }
+				set_autonomy = {
+					target = PREV
+					autonomous_state = autonomy_tgwr_integrated_protectorate
+				}
+			}
+			restore_previous_government_type = yes
+		}
+		else_if = {
+			limit = {
 				has_autonomy_state = autonomy_tgwr_crownland
 			}
 			ROOT = { end_puppet = PREV }
@@ -3075,16 +3083,6 @@ take_all_subjects_ROOT = {
 				}
 			}
 			restore_previous_government_type = yes
-		}
-		else_if = {
-			limit = {
-				has_idea = protectorate
-			}
-			ROOT = { end_puppet = PREV }
-			get_current_government_type = yes
-			PREV = { puppet = PREV }
-			restore_previous_government_type = yes
-			add_ideas = protectorate
 		}
 		else = {
 			ROOT = { end_puppet = PREV }
@@ -3287,6 +3285,19 @@ copy_autonomy_from_ROOT = {
 		}
 		else_if = {
 			limit = {
+				has_autonomy_state = autonomy_tgwr_integrated_protectorate
+			}
+			OVERLORD = {
+				end_puppet = PREV
+				PREV = { set_country_flag = protectorate }
+				set_autonomy = {
+					target = PREV.PREV
+					autonomous_state = autonomy_tgwr_integrated_protectorate
+				}
+			}
+		}
+		else_if = {
+			limit = {
 				has_autonomy_state = autonomy_tgwr_crownland
 			}
 			OVERLORD = {
@@ -3344,16 +3355,6 @@ copy_autonomy_from_ROOT = {
 					autonomous_state = autonomy_tgwr_unilateral_union
 				}
 			}
-		}
-		else_if = {
-			limit = {
-				has_idea = protectorate
-			}
-			OVERLORD = {
-				end_puppet = PREV
-				puppet = PREV.PREV
-			}
-			PREV = { add_ideas = protectorate }
 		}
 		else = {
 			OVERLORD = {
@@ -3506,10 +3507,25 @@ GEO_withdraw_from_persia = {
 						state = 877
 					}
 				}
-				828 = {
-					owner = {
-						set_state_owner = PREV.PREV
+				if = {
+					limit = {
+						828 = {
+							owner = {
+								OR = {
+									has_war_with = ROOT
+									has_war_with = PER
+								}
+							}
+						}
 					}
+					828 = {
+						owner = {
+							set_state_owner = PREV.PREV
+						}
+					}
+				}
+				else = {
+					transfer_state_to = PER
 				}
 			}
 			else = {
