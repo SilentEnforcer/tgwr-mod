@@ -441,6 +441,7 @@ parliament_gui_decision_category = {
 	}
 
 	FRA_SFIO_disposition = {
+		name = FRA_random_election
 		icon = GFX_decision_SOV_place_hq
 		desc = FRA_1910_disposition_desc
 		allowed = {
@@ -503,6 +504,70 @@ parliament_gui_decision_category = {
 		}
 	}
 
+	FRA_bonaparte_disposition = {
+		name = FRA_random_election
+		icon = GFX_decision_SOV_place_hq
+		desc = FRA_1910_disposition_desc
+		allowed = {
+			original_tag = FRA
+		}
+		activation = {
+			has_country_flag = FRA_bonaparte_want_elections_now
+		}
+		available = {
+			hidden_trigger = {
+				AND = { 
+					original_tag = FRA
+					has_country_flag = FRA_bonaparte_legislative_elections_done
+				}
+			}
+		}
+		visible = {
+			original_tag = FRA
+			NOT = { has_country_flag =  FRA_parliament_dissolved }
+			NOT = { has_country_flag =  FRA_bonaparte_legislative_elections_done }
+		}
+		cancel_if_not_visible = yes
+		days_mission_timeout = 20
+		is_good = yes
+		fire_only_once = yes
+		timeout_effect = {
+
+			apply_focus_tree_effects = yes
+			
+			set_variable = { var = SFIO value = 0 } 
+			set_variable = { var = independent_socialist value = 23 } 
+			set_variable = { var = democratic_republican_alliance value = 75 }
+			set_variable = { var = radical_party value = 111 } 
+			set_variable = { var = independent_radicals value = 26 }  #235
+			set_variable = { var = republicain_federation value = 156 } 
+			set_variable = { var = popular_liberal_action value = 182 } 
+			set_variable = { var = nationalists value = 26 }
+			set_variable = { var = vacant value = 0 }
+			#new parties
+			set_variable = { var = conservatives value = 1 }
+			set_variable = { var = independent_republicans value = 0 }
+			set_variable = { var = seatNumbers value = 595 }
+
+			
+			set_variable = { parliament_seat_array^0 = SFIO }
+			set_variable = { parliament_seat_array^1 = independent_socialist }
+			set_variable = { parliament_seat_array^2 = democratic_republican_alliance }
+			set_variable = { parliament_seat_array^3 = radical_party }
+			set_variable = { parliament_seat_array^4 = independent_radicals }
+			set_variable = { parliament_seat_array^5 = republicain_federation }
+			set_variable = { parliament_seat_array^6 = conservatives } #new !
+			set_variable = { parliament_seat_array^7 = independent_republicans } #new
+			set_variable = { parliament_seat_array^8 = popular_liberal_action }
+			set_variable = { parliament_seat_array^9 = nationalists }
+			set_variable = { parliament_seat_array^10 = vacant }
+
+			FRA_recalculate_parliament_alliance = yes
+			set_country_flag = FRA_bonaparte_legislative_elections_done
+			set_country_flag = FRA_parliament_dissolved
+		}
+	}
+
 	FRA_hide_IND_tree = {
 		icon = GFX_decision_generic_speech
 		allowed = {
@@ -552,23 +617,38 @@ parliament_gui_decision_category = {
 			NOT = { has_country_flag =  FRA_1910_judiciary_law_done }
 		}
 		available = {
-			custom_trigger_tooltip = {
-				check_variable = {
-					democrat_alliance < 200
-				}
-				tooltip = FRA_200_seats_n
-			}
+			has_country_flag = FRA_parliament_dissolved
+			has_country_flag =  FRA_1910_judiciary_law_done
 		}
-		complete_effect = {
-			add_stability = -0.01
-		}
-		cancel_if_not_visible = yes
 		days_mission_timeout = 21
 		is_good = yes
 		fire_only_once = yes
 		timeout_effect = {
-			add_stability = 0.02
-			set_country_flag = FRA_1910_judiciary_law_done
+			custom_effect_tooltip = FRA_200_seats_tt
+			if = {
+				limit = {
+					check_variable = {
+						democrat_alliance < 200
+					}
+				}
+				hidden_effect = { add_stability = -0.01 }
+				custom_effect_tooltip = FRA_vote_will_fail
+				else = {
+					custom_effect_tooltip = FRA_vote_will_pass
+					hidden_effect = {
+						add_stability = 0.02
+						set_country_flag = FRA_1910_judiciary_law_done
+					}
+				}
+			}
+			custom_effect_tooltip = FRA_effect_if_law_pass
+			effect_tooltip = {
+				add_stability = 0.02
+			}
+			custom_effect_tooltip = FRA_effect_if_law_fail
+			effect_tooltip = {
+				add_stability = -0.01
+			}
 		}
 	}
 
@@ -585,24 +665,43 @@ parliament_gui_decision_category = {
 			NOT = { has_country_flag =  FRA_deputy_salary_increase_law_done }
 		}
 		available = {
-			custom_trigger_tooltip = {
-				check_variable = {
-					democrat_alliance < 150
-				}
-				tooltip = FRA_150_seats_n
-			}
-		}
-		complete_effect = {
-			add_stability = -0.01
+			has_country_flag =  FRA_deputy_salary_increase_law_done
+			has_country_flag = FRA_parliament_dissolved
 		}
 		cancel_if_not_visible = yes
 		days_mission_timeout = 21
 		is_good = yes
 		fire_only_once = yes
+
 		timeout_effect = {
-			add_stability = -0.025
-			add_political_power = 25
-			set_country_flag = FRA_deputy_salary_increase_law_done
+			custom_effect_tooltip = FRA_150_seats_tt
+			if = {
+				limit = {
+					check_variable = {
+						democrat_alliance < 150
+					}
+				}
+				hidden_effect = { add_stability = -0.01 }
+				custom_effect_tooltip = FRA_vote_will_fail
+				else = {
+					custom_effect_tooltip = FRA_vote_will_pass
+					hidden_effect = {
+						add_stability = -0.025
+						add_political_power = 25
+						set_country_flag = FRA_deputy_salary_increase_law_done
+					}
+					
+				}
+			}
+			custom_effect_tooltip = FRA_effect_if_law_pass
+			effect_tooltip = {
+				add_stability = -0.025
+				add_political_power = 25
+			}
+			custom_effect_tooltip = FRA_effect_if_law_fail
+			effect_tooltip = {
+				add_stability = -0.01
+			}
 		}
 	}
 
@@ -619,27 +718,48 @@ parliament_gui_decision_category = {
 			NOT = { has_country_flag =  FRA_credit_ouvrier_law_done }
 		}
 		available = {
-			custom_trigger_tooltip = {
-				check_variable = {
-					democrat_alliance < 300
-				}
-				tooltip = FRA_300_seats_n
-			}
-		}
-		complete_effect = {
-			add_stability = -0.01
+			has_country_flag =  FRA_credit_ouvrier_law_done
+			has_country_flag = FRA_parliament_dissolved
 		}
 		cancel_if_not_visible = yes
 		days_mission_timeout = 21
 		is_good = yes
 		fire_only_once = yes
+
 		timeout_effect = {
-			add_stability = 0.02
-			add_popularity = {
-				ideology = communism
-				popularity = 0.03
+			custom_effect_tooltip = FRA_300_seats_tt
+			if = {
+				limit = {
+					check_variable = {
+						democrat_alliance < 300
+					}
+				}
+				hidden_effect = { add_stability = -0.01 }
+				custom_effect_tooltip = FRA_vote_will_fail
+				else = {
+					custom_effect_tooltip = FRA_vote_will_pass
+					hidden_effect = {
+						add_stability = 0.02
+						add_popularity = {
+							ideology = communism
+							popularity = 0.03
+						}
+						set_country_flag = FRA_credit_ouvrier_law_done
+					}
+				}
 			}
-			set_country_flag = FRA_credit_ouvrier_law_done
+			custom_effect_tooltip = FRA_effect_if_law_pass
+			effect_tooltip = {
+				add_stability = 0.02
+				add_popularity = {
+					ideology = communism
+					popularity = 0.03
+				}
+			}
+			custom_effect_tooltip = FRA_effect_if_law_fail
+			effect_tooltip = {
+				add_stability = -0.01
+			}
 		}
 	}
 
@@ -656,36 +776,66 @@ parliament_gui_decision_category = {
 			NOT = { has_country_flag =  FRA_minister_of_public_work_budget_increase_done }
 		}
 		available = {
-			custom_trigger_tooltip = {
-				check_variable = {
-					democrat_alliance < 300
-				}
-				tooltip = FRA_300_seats_n
-			}
-		}
-		complete_effect = {
-			add_stability = -0.01
+			has_country_flag = FRA_parliament_dissolved
+			has_country_flag =  FRA_minister_of_public_work_budget_increase_done
 		}
 		cancel_if_not_visible = yes
 		days_mission_timeout = 21
 		is_good = yes
 		fire_only_once = yes
+
 		timeout_effect = {
-			add_stability = -0.02
-			every_owned_state = {
+			custom_effect_tooltip = FRA_300_seats_tt
+			if = {
 				limit = {
-					has_resources_amount = {
-						resource = steel
-						amount > 12
-						delivered = yes
+					check_variable = {
+						democrat_alliance < 300
 					}
 				}
-				add_dynamic_modifier = {
-					modifier = FRA_french_local_investments_exploitation
-					days = 360
+				hidden_effect = { add_stability = -0.01 }
+				custom_effect_tooltip = FRA_vote_will_fail
+				else = {
+					custom_effect_tooltip = FRA_vote_will_pass
+					hidden_effect = {
+						add_stability = -0.02
+						every_owned_state = {
+							limit = {
+								has_resources_amount = {
+									resource = steel
+									amount > 12
+									delivered = yes
+								}
+							}
+							add_dynamic_modifier = {
+								modifier = FRA_french_local_investments_exploitation
+								days = 360
+							}
+						}
+						set_country_flag = FRA_minister_of_public_work_budget_increase_done
+					}
 				}
 			}
-			set_country_flag = FRA_minister_of_public_work_budget_increase_done
+			custom_effect_tooltip = FRA_effect_if_law_pass
+			effect_tooltip = {
+				add_stability = -0.02
+				every_owned_state = {
+					limit = {
+						has_resources_amount = {
+							resource = steel
+							amount > 12
+							delivered = yes
+						}
+					}
+					add_dynamic_modifier = {
+						modifier = FRA_french_local_investments_exploitation
+						days = 360
+					}
+				}
+			}
+			custom_effect_tooltip = FRA_effect_if_law_fail
+			effect_tooltip = {
+				add_stability = -0.01
+			}
 		}
 	}
 
@@ -703,35 +853,64 @@ parliament_gui_decision_category = {
 			owns_state = 14
 		}
 		available = {
-			custom_trigger_tooltip = {
-				check_variable = {
-					democrat_alliance < 250
-				}
-				tooltip = FRA_250_seats_n
-			}
-		}
-		complete_effect = {
-			add_stability = -0.01
+			has_country_flag = FRA_parliament_dissolved
+			has_country_flag =  FRA_railway_unification_in_morbihan_done
 		}
 		cancel_if_not_visible = yes
 		days_mission_timeout = 21
 		is_good = yes
 		fire_only_once = yes
+
 		timeout_effect = {
-			build_railway = {
-				level = 1
-				path = {6536 9510 9495}
-				start_province = 6536
-				target_province = 9495
-			}
-			custom_effect_tooltip = FRA_lorient_rennes_railways
-			14 = {
-				add_dynamic_modifier = {
-					modifier = FRA_french_local_investments_non_UEII
-					days = 70
+			custom_effect_tooltip = FRA_250_seats_tt
+			if = {
+				limit = {
+					check_variable = {
+						democrat_alliance < 250
+					}
+				}
+				hidden_effect = { add_stability = -0.01 }
+				custom_effect_tooltip = FRA_vote_will_fail
+				else = {
+					custom_effect_tooltip = FRA_vote_will_pass
+					hidden_effect = {
+						build_railway = {
+							level = 1
+							path = {6536 9510 9495}
+							start_province = 6536
+							target_province = 9495
+						}
+						custom_effect_tooltip = FRA_lorient_rennes_railways
+						14 = {
+							add_dynamic_modifier = {
+								modifier = FRA_french_local_investments_non_UEII
+								days = 70
+							}
+						}
+						set_country_flag = FRA_railway_unification_in_morbihan_done
+					}
 				}
 			}
-			set_country_flag = FRA_railway_unification_in_morbihan_done
+			custom_effect_tooltip = FRA_effect_if_law_pass
+			effect_tooltip = {
+				build_railway = {
+					level = 1
+					path = {6536 9510 9495}
+					start_province = 6536
+					target_province = 9495
+				}
+				custom_effect_tooltip = FRA_lorient_rennes_railways
+				14 = {
+					add_dynamic_modifier = {
+						modifier = FRA_french_local_investments_non_UEII
+						days = 70
+					}
+				}
+			}
+			custom_effect_tooltip = FRA_effect_if_law_fail
+			effect_tooltip = {
+				add_stability = -0.01
+			}
 		}
 	}
 
@@ -749,40 +928,74 @@ parliament_gui_decision_category = {
 			owns_state = 460
 		}
 		available = {
-			custom_trigger_tooltip = {
-				check_variable = {
-					democrat_alliance < 250
-				}
-				tooltip = FRA_250_seats_n
-			}
-		}
-		complete_effect = {
-			add_stability = -0.01
+			has_country_flag = FRA_parliament_dissolved
+			has_country_flag =  FRA_railway_expansion_in_algeria_done
 		}
 		cancel_if_not_visible = yes
 		days_mission_timeout = 21
 		is_good = yes
 		fire_only_once = yes
+
 		timeout_effect = {
-			build_railway = {
-				level = 1
-				path = {4046 7065 }
-				start_province = 4046
-				target_province = 7065
-			}
-			build_railway = {
-				level = 1
-				path = {13077 7065 }
-				start_province = 13077
-				target_province = 7065
-			}
-			460 = {
-				add_dynamic_modifier = {
-					modifier = FRA_french_local_investments_non_UEII
-					days = 70
+			custom_effect_tooltip = FRA_250_seats_tt
+			if = {
+				limit = {
+					check_variable = {
+						democrat_alliance < 250
+					}
+				}
+				hidden_effect = { add_stability = -0.01 }
+				custom_effect_tooltip = FRA_vote_will_fail
+				else = {
+					custom_effect_tooltip = FRA_vote_will_pass
+					hidden_effect = {
+						build_railway = {
+							level = 1
+							path = {4046 7065 }
+							start_province = 4046
+							target_province = 7065
+						}
+						build_railway = {
+							level = 1
+							path = {13077 7065 }
+							start_province = 13077
+							target_province = 7065
+						}
+						460 = {
+							add_dynamic_modifier = {
+								modifier = FRA_french_local_investments_non_UEII
+								days = 70
+							}
+						}
+						set_country_flag = FRA_railway_expansion_in_algeria_done
+					}
 				}
 			}
-			set_country_flag = FRA_railway_expansion_in_algeria_done
+			custom_effect_tooltip = FRA_effect_if_law_pass
+			effect_tooltip = {
+				build_railway = {
+					level = 1
+					path = {4046 7065 }
+					start_province = 4046
+					target_province = 7065
+				}
+				build_railway = {
+					level = 1
+					path = {13077 7065 }
+					start_province = 13077
+					target_province = 7065
+				}
+				460 = {
+					add_dynamic_modifier = {
+						modifier = FRA_french_local_investments_non_UEII
+						days = 70
+					}
+				}
+			}
+			custom_effect_tooltip = FRA_effect_if_law_fail
+			effect_tooltip = {
+				add_stability = -0.01
+			}
 		}
 	}
 
@@ -812,7 +1025,7 @@ parliament_gui_decision_category = {
 		is_good = no
 		
 		remove_effect = {
-			add_stability = -0.1
+			add_stability = -0.05
 			add_political_power = -150
 		}
 	}
@@ -828,28 +1041,47 @@ parliament_gui_decision_category = {
 				has_country_flag = FRA_parliament_dissolved
 			}
 			date > 1911.04.15
+			date < 1911.12.01
 			NOT = { has_country_flag =  FRA_1911_budget_vote_done }
 		}
 		available = {
-			custom_trigger_tooltip = {
-				check_variable = {
-					democrat_alliance < 250
-				}
-				tooltip = FRA_250_seats_n
-			}
-		}
-		complete_effect = {
-			add_stability = -0.01
+			has_country_flag = FRA_parliament_dissolved
+			has_country_flag =  FRA_1911_budget_vote_done
 		}
 		cancel_if_not_visible = yes
 		days_mission_timeout = 21
 		is_good = yes
 		fire_only_once = no
 		days_re_enable = 60
+
 		timeout_effect = {
-			add_political_power = 25
-			add_stability = 0.02
-			set_country_flag = FRA_1911_budget_vote_done
+			custom_effect_tooltip = FRA_250_seats_tt
+			if = {
+				limit = {
+					check_variable = {
+						democrat_alliance < 250
+					}
+				}
+				hidden_effect = { add_stability = -0.01 }
+				custom_effect_tooltip = FRA_vote_will_fail
+				else = {
+					custom_effect_tooltip = FRA_vote_will_pass
+					hidden_effect = {
+						add_political_power = 25
+						add_stability = 0.02
+						set_country_flag = FRA_1911_budget_vote_done
+					}
+				}
+			}
+			custom_effect_tooltip = FRA_effect_if_law_pass
+			effect_tooltip = {
+				add_political_power = 25
+				add_stability = 0.02
+			}
+			custom_effect_tooltip = FRA_effect_if_law_fail
+			effect_tooltip = {
+				add_stability = -0.01
+			}
 			custom_effect_tooltip = FRA_important_law_that_will_comeback
 		}
 	}
@@ -864,25 +1096,47 @@ parliament_gui_decision_category = {
 				has_country_flag = FRA_parliament_dissolved
 			}
 			date > 1911.12.20
+			date < 1912.12.01
 			NOT = { has_country_flag =  FRA_1912_budget_vote_done }
 		}
 		available = {
-			custom_trigger_tooltip = {
-				check_variable = {
-					democrat_alliance < 250
-				}
-				tooltip = FRA_250_seats_n
-			}
+			has_country_flag = FRA_parliament_dissolved
+			has_country_flag =  FRA_1912_budget_vote_done
 		}
 		cancel_if_not_visible = yes
 		days_mission_timeout = 21
 		is_good = yes
 		fire_only_once = no
 		days_re_enable = 60
+
 		timeout_effect = {
-			add_political_power = 25
-			add_stability = 0.02
-			set_country_flag = FRA_1912_budget_vote_done
+			custom_effect_tooltip = FRA_250_seats_tt
+			if = {
+				limit = {
+					check_variable = {
+						democrat_alliance < 250
+					}
+				}
+				hidden_effect = { add_stability = -0.01 }
+				custom_effect_tooltip = FRA_vote_will_fail
+				else = {
+					custom_effect_tooltip = FRA_vote_will_pass
+					hidden_effect = {
+						add_political_power = 25
+						add_stability = 0.02
+						set_country_flag = FRA_1912_budget_vote_done
+					}
+				}
+			}
+			custom_effect_tooltip = FRA_effect_if_law_pass
+			effect_tooltip = {
+				add_political_power = 25
+				add_stability = 0.02
+			}
+			custom_effect_tooltip = FRA_effect_if_law_fail
+			effect_tooltip = {
+				add_stability = -0.01
+			}
 			custom_effect_tooltip = FRA_important_law_that_will_comeback
 		}
 	}
@@ -900,24 +1154,41 @@ parliament_gui_decision_category = {
 			NOT = { has_country_flag =  FRA_women_rights_code_penal_update_done }
 		}
 		available = {
-			custom_trigger_tooltip = {
-				check_variable = {
-					democrat_alliance < 150
-				}
-				tooltip = FRA_150_seats_n
-			}
-		}
-		complete_effect = {
-			add_stability = -0.01
+			has_country_flag = FRA_parliament_dissolved
+			has_country_flag =  FRA_women_rights_code_penal_update_done
 		}
 		#days_re_enable = 60
 		cancel_if_not_visible = yes
 		days_mission_timeout = 21
 		is_good = yes
 		fire_only_once = yes
+
 		timeout_effect = {
-			set_country_flag = FRA_women_rights_code_penal_update_done
-			add_stability = 0.02
+			custom_effect_tooltip = FRA_150_seats_tt
+			if = {
+				limit = {
+					check_variable = {
+						democrat_alliance < 150
+					}
+				}
+				hidden_effect = { add_stability = -0.01 }
+				custom_effect_tooltip = FRA_vote_will_fail
+				else = {
+					custom_effect_tooltip = FRA_vote_will_pass
+					hidden_effect = {
+						set_country_flag = FRA_women_rights_code_penal_update_done
+						add_stability = 0.02
+					}
+				}
+			}
+			custom_effect_tooltip = FRA_effect_if_law_pass
+			effect_tooltip = {
+				add_stability = 0.02
+			}
+			custom_effect_tooltip = FRA_effect_if_law_fail
+			effect_tooltip = {
+				add_stability = -0.01
+			}
 		}
 	}
 
@@ -934,15 +1205,8 @@ parliament_gui_decision_category = {
 			NOT = { has_country_flag =  FRA_decommissioning_northern_defensive_works_done }
 		}
 		available = {
-			custom_trigger_tooltip = {
-				check_variable = {
-					democrat_alliance < 150
-				}
-				tooltip = FRA_150_seats_n
-			}
-		}
-		complete_effect = {
-			add_stability = -0.01
+			has_country_flag = FRA_parliament_dissolved
+			has_country_flag =  FRA_decommissioning_northern_defensive_works_done
 		}
 		#days_re_enable = 60
 		cancel_if_not_visible = yes
@@ -950,15 +1214,39 @@ parliament_gui_decision_category = {
 		is_good = yes
 		fire_only_once = yes
 		timeout_effect = {
-			set_country_flag = FRA_decommissioning_northern_defensive_works_done
-			add_political_power = 10
-			custom_effect_tooltip = FRA_decommissioning_northern_defensive_works_tt
-			hidden_effect = {
-				remove_building = {
-					type = bunker
-					province = 13011
-					level = 1
+			custom_effect_tooltip = FRA_150_seats_tt
+			if = {
+				limit = {
+					check_variable = {
+						democrat_alliance < 150
+					}
 				}
+				hidden_effect = { add_stability = -0.01 }
+				custom_effect_tooltip = FRA_vote_will_fail
+				else = {
+					custom_effect_tooltip = FRA_vote_will_pass
+					hidden_effect = {
+						set_country_flag = FRA_decommissioning_northern_defensive_works_done
+						add_political_power = 10
+						custom_effect_tooltip = FRA_decommissioning_northern_defensive_works_tt
+						hidden_effect = {
+							remove_building = {
+								type = bunker
+								province = 13011
+								level = 1
+							}
+						}
+					}
+				}
+			}
+			custom_effect_tooltip = FRA_effect_if_law_pass
+			effect_tooltip = {
+				add_political_power = 10
+				custom_effect_tooltip = FRA_decommissioning_northern_defensive_works_tt
+			}
+			custom_effect_tooltip = FRA_effect_if_law_fail
+			effect_tooltip = {
+				add_stability = -0.01
 			}
 		}
 	}
@@ -979,12 +1267,8 @@ parliament_gui_decision_category = {
 			}
 		}
 		available = {
-			custom_trigger_tooltip = {
-				check_variable = {
-					democrat_alliance < 200
-				}
-				tooltip = FRA_200_seats_n
-			}
+			has_country_flag = FRA_parliament_dissolved
+			has_country_flag =  FRA_investments_in_basses_pyrenees_done
 		}
 		cancel_trigger = {
 			NOT = {
@@ -993,29 +1277,63 @@ parliament_gui_decision_category = {
 				}
 			}
 		}
-		complete_effect = {
-			add_stability = -0.01
-		}
 		#days_re_enable = 60
 		cancel_if_not_visible = yes
 		days_mission_timeout = 21
 		is_good = yes
 		fire_only_once = yes
+
 		timeout_effect = {
-			set_country_flag = FRA_investments_in_basses_pyrenees_done
-			build_railway = {
-				level = 1
-				path = {743 9710 3740 11697 }
-				start_province = 743
-				target_province = 11697
-			}
-			19 = {
-				add_extra_state_shared_building_slots = 1
-				add_building_construction = {
-					type = industrial_complex
-					level = 1
-					instant_build = yes
+			custom_effect_tooltip = FRA_200_seats_tt
+			if = {
+				limit = {
+					check_variable = {
+						democrat_alliance < 200
+					}
 				}
+				hidden_effect = { add_stability = -0.01 }
+				custom_effect_tooltip = FRA_vote_will_fail
+				else = {
+					custom_effect_tooltip = FRA_vote_will_pass
+					hidden_effect = {
+						set_country_flag = FRA_investments_in_basses_pyrenees_done
+						build_railway = {
+							level = 1
+							path = {743 9710 3740 11697 }
+							start_province = 743
+							target_province = 11697
+						}
+						19 = {
+							add_extra_state_shared_building_slots = 1
+							add_building_construction = {
+								type = industrial_complex
+								level = 1
+								instant_build = yes
+							}
+						}
+					}
+				}
+			}
+			custom_effect_tooltip = FRA_effect_if_law_pass
+			effect_tooltip = {
+				build_railway = {
+					level = 1
+					path = {743 9710 3740 11697 }
+					start_province = 743
+					target_province = 11697
+				}
+				19 = {
+					add_extra_state_shared_building_slots = 1
+					add_building_construction = {
+						type = industrial_complex
+						level = 1
+						instant_build = yes
+					}
+				}
+			}
+			custom_effect_tooltip = FRA_effect_if_law_fail
+			effect_tooltip = {
+				add_stability = -0.01
 			}
 		}
 	}
@@ -1033,23 +1351,71 @@ parliament_gui_decision_category = {
 			NOT = { has_country_flag =  FRA_exceptional_loan_to_indochina_done }
 		}
 		available = {
-			custom_trigger_tooltip = {
-				check_variable = {
-					democrat_alliance < 250
-				}
-				tooltip = FRA_250_seats_n
-			}
+			has_country_flag = FRA_parliament_dissolved
+			has_country_flag =  FRA_exceptional_loan_to_indochina_done
 		}
-		complete_effect = {
+		days_re_enable = 60
+		cancel_if_not_visible = yes
+		days_mission_timeout = 21
+		is_good = yes
+		fire_only_once = yes
+
+		timeout_effect = {
+			custom_effect_tooltip = FRA_250_seats_tt
 			if = {
 				limit = {
-					IND = {
-						NOT = {
-							has_idea = VIN_insufficient_budget
+					check_variable = {
+						democrat_alliance < 250
+					}
+				}
+				hidden_effect = { 
+					if = {
+						limit = {
+							IND = {
+								NOT = {
+									has_idea = VIN_insufficient_budget
+								}
+							}
+						}
+						add_stability = -0.01
+						every_country = {
+							limit = {
+								OR = {
+									tag = FRA
+									tag = IND
+								}
+							}
+							country_event = {
+								id = ww1_france.412
+								days = 2
+							}
+						}
+					}	
+				}
+				custom_effect_tooltip = FRA_vote_will_fail
+				else = {
+					custom_effect_tooltip = FRA_vote_will_pass
+					hidden_effect = {
+						activate_decision = FRA_investments_in_indochina
+						set_country_flag = FRA_exceptional_loan_to_indochina_done
+						every_country = {
+							limit = {
+								OR = {
+									tag = FRA
+									tag = IND
+								}
+							}
+							country_event = {
+								id = ww1_france.413
+								days = 2
+							}
 						}
 					}
 				}
-				add_stability = -0.01
+			}
+			custom_effect_tooltip = FRA_effect_if_law_pass
+			effect_tooltip = {
+				activate_decision = FRA_investments_in_indochina
 				every_country = {
 					limit = {
 						OR = {
@@ -1058,33 +1424,37 @@ parliament_gui_decision_category = {
 						}
 					}
 					country_event = {
-						id = ww1_france.412
+						id = ww1_france.413
 						days = 2
 					}
 				}
 			}
-			custom_effect_tooltip = FRA_important_law_that_will_comeback
-		}
-		days_re_enable = 60
-		cancel_if_not_visible = yes
-		days_mission_timeout = 21
-		is_good = yes
-		fire_only_once = yes
-		timeout_effect = {
-			activate_decision = FRA_investments_in_indochina
-			set_country_flag = FRA_exceptional_loan_to_indochina_done
-			every_country = {
-				limit = {
-					OR = {
-						tag = FRA
-						tag = IND
+			custom_effect_tooltip = FRA_effect_if_law_fail
+			effect_tooltip = {
+				if = {
+					limit = {
+						IND = {
+							NOT = {
+								has_idea = VIN_insufficient_budget
+							}
+						}
+					}
+					add_stability = -0.01
+					every_country = {
+						limit = {
+							OR = {
+								tag = FRA
+								tag = IND
+							}
+						}
+						country_event = {
+							id = ww1_france.412
+							days = 2
+						}
 					}
 				}
-				country_event = {
-					id = ww1_france.413
-					days = 2
-				}
 			}
+			custom_effect_tooltip = FRA_important_law_that_will_comeback
 		}
 	}
 
@@ -1130,12 +1500,8 @@ parliament_gui_decision_category = {
 			}
 		}
 		available = {
-			custom_trigger_tooltip = {
-				check_variable = {
-					democrat_alliance < 150
-				}
-				tooltip = FRA_150_seats_n
-			}
+			has_country_flag = FRA_parliament_dissolved
+			has_country_flag =  FRA_expansion_of_brest_port_done
 		}
 		cancel_trigger = {
 			NOT = {
@@ -1144,24 +1510,52 @@ parliament_gui_decision_category = {
 				}
 			}
 		}
-		complete_effect = {
-			add_stability = -0.01
-		}
 		#days_re_enable = 60
 		cancel_if_not_visible = yes
 		days_mission_timeout = 21
 		is_good = yes
 		fire_only_once = yes
 		timeout_effect = {
-			add_stability = 0.01
-			set_country_flag = FRA_expansion_of_brest_port_done
-			14 = {
-				add_building_construction = {
-					type = naval_base
-					level = 1
-					province = 3552
-					instant_build = yes
+			custom_effect_tooltip = FRA_150_seats_tt
+			if = {
+				limit = {
+					check_variable = {
+						democrat_alliance < 150
+					}
 				}
+				hidden_effect = { add_stability = -0.01 }
+				custom_effect_tooltip = FRA_vote_will_fail
+				else = {
+					custom_effect_tooltip = FRA_vote_will_pass
+					hidden_effect = {
+						add_stability = 0.01
+						set_country_flag = FRA_expansion_of_brest_port_done
+						14 = {
+							add_building_construction = {
+								type = naval_base
+								level = 1
+								province = 3552
+								instant_build = yes
+							}
+						}
+					}
+				}
+			}
+			custom_effect_tooltip = FRA_effect_if_law_pass
+			effect_tooltip = {
+				add_stability = 0.01
+				14 = {
+					add_building_construction = {
+						type = naval_base
+						level = 1
+						province = 3552
+						instant_build = yes
+					}
+				}
+			}
+			custom_effect_tooltip = FRA_effect_if_law_fail
+			effect_tooltip = {
+				add_stability = -0.01
 			}
 		}
 	}
@@ -1183,30 +1577,73 @@ parliament_gui_decision_category = {
 		}
 		available = {
 			has_equipment = { convoy < 1 } 
+			has_country_flag = FRA_parliament_dissolved
+			has_country_flag =  FRA_payments_to_SGTM_brazil_plata_done
+			has_war_with = BRA
 		}
 		#days_re_enable = 60
 		cancel_if_not_visible = yes
 		days_mission_timeout = 21
 		is_good = yes
 		fire_only_once = yes
+
 		timeout_effect = {
-			add_stability = -0.02
-			set_country_flag = FRA_payments_to_SGTM_brazil_plata_done
-			every_country = {
+			custom_effect_tooltip = FRA_150_seats_tt
+			if = {
 				limit = {
-					OR = {
-						tag = ARG
-						tag = BRA
-						tag = URG
-					}
-					NOT = {
-						has_war_with = FRA
+					check_variable = {
+						democrat_alliance < 150
 					}
 				}
-				add_opinion_modifier = {
-					target = FRA
-					modifier = small_increase
+				hidden_effect = { add_stability = -0.01 }
+				custom_effect_tooltip = FRA_vote_will_fail
+				else = {
+					custom_effect_tooltip = FRA_vote_will_pass
+					hidden_effect = {
+						add_stability = -0.02
+						set_country_flag = FRA_payments_to_SGTM_brazil_plata_done
+						every_country = {
+							limit = {
+								OR = {
+									tag = ARG
+									tag = BRA
+									tag = URG
+								}
+								NOT = {
+									has_war_with = FRA
+								}
+							}
+							add_opinion_modifier = {
+								target = FRA
+								modifier = small_increase
+							}
+						}
+					}
 				}
+			}
+			custom_effect_tooltip = FRA_effect_if_law_pass
+			effect_tooltip = {
+				add_stability = -0.02
+				every_country = {
+					limit = {
+						OR = {
+							tag = ARG
+							tag = BRA
+							tag = URG
+						}
+						NOT = {
+							has_war_with = FRA
+						}
+					}
+					add_opinion_modifier = {
+						target = FRA
+						modifier = small_increase
+					}
+				}
+			}
+			custom_effect_tooltip = FRA_effect_if_law_fail
+			effect_tooltip = {
+				add_stability = -0.01
 			}
 		}
 	}
@@ -1222,20 +1659,13 @@ parliament_gui_decision_category = {
 			}
 			date > 1913.06.17
 			NOT = { has_country_flag =  FRA_saint_erasme_battery_decomission_done }
-			NOT = {
-				has_war_with = BRA
-			}
 			1 = {
 				is_owned_and_controlled_by = FRA
 			}
 		}
 		available = {
-			custom_trigger_tooltip = {
-				check_variable = {
-					democrat_alliance < 150
-				}
-				tooltip = FRA_150_seats_n
-			}
+			has_country_flag = FRA_parliament_dissolved
+			has_country_flag =  FRA_saint_erasme_battery_decomission_done
 		}
 		cancel_trigger = {
 			NOT = {
@@ -1244,20 +1674,46 @@ parliament_gui_decision_category = {
 				}
 			}
 		}
-		complete_effect = {
-			add_stability = -0.01
-		}
 		#days_re_enable = 60
 		cancel_if_not_visible = yes
 		days_mission_timeout = 21
 		is_good = yes
 		fire_only_once = yes
+
 		timeout_effect = {
-			add_political_power = 10
-			remove_building = {
-				type = coastal_bunker
-				province = 9851
-				level = 1
+			custom_effect_tooltip = FRA_150_seats_tt
+			if = {
+				limit = {
+					check_variable = {
+						democrat_alliance < 150
+					}
+				}
+				hidden_effect = { add_stability = -0.01 }
+				custom_effect_tooltip = FRA_vote_will_fail
+				else = {
+					custom_effect_tooltip = FRA_vote_will_pass
+					hidden_effect = {
+						add_political_power = 10
+						remove_building = {
+							type = coastal_bunker
+							province = 9851
+							level = 1
+						}
+					}
+				}
+			}
+			custom_effect_tooltip = FRA_effect_if_law_pass
+			effect_tooltip = {
+				add_political_power = 10
+				remove_building = {
+					type = coastal_bunker
+					province = 9851
+					level = 1
+				}
+			}
+			custom_effect_tooltip = FRA_effect_if_law_fail
+			effect_tooltip = {
+				add_stability = -0.01
 			}
 		}
 	}
@@ -1275,24 +1731,42 @@ parliament_gui_decision_category = {
 			NOT = { has_country_flag =  FRA_exceptional_credit_to_minister_of_war_passed }
 		}
 		available = {
-			custom_trigger_tooltip = {
-				check_variable = {
-					democrat_alliance < 250
-				}
-				tooltip = FRA_250_seats_n
-			}
-		}
-		complete_effect = {
-			add_stability = -0.01
+			has_country_flag = FRA_parliament_dissolved
+			has_country_flag =  FRA_exceptional_credit_to_minister_of_war_passed
 		}
 		#days_re_enable = 60
 		cancel_if_not_visible = yes
 		days_mission_timeout = 21
 		is_good = yes
 		fire_only_once = yes
+
 		timeout_effect = {
-			add_stability = 0.025
-			add_political_power = -15
+			custom_effect_tooltip = FRA_250_seats_tt
+			if = {
+				limit = {
+					check_variable = {
+						democrat_alliance < 250
+					}
+				}
+				hidden_effect = { add_stability = -0.01 }
+				custom_effect_tooltip = FRA_vote_will_fail
+				else = {
+					custom_effect_tooltip = FRA_vote_will_pass
+					hidden_effect = {
+						add_stability = 0.025
+						add_political_power = -15
+					}
+				}
+			}
+			custom_effect_tooltip = FRA_effect_if_law_pass
+			effect_tooltip = {
+				add_stability = 0.025
+				add_political_power = -15
+			}
+			custom_effect_tooltip = FRA_effect_if_law_fail
+			effect_tooltip = {
+				add_stability = -0.01
+			}
 		}
 	}
 
@@ -1303,25 +1777,45 @@ parliament_gui_decision_category = {
 		}
 		activation = {
 			date > 1912.07.11
+			NOT = { has_country_flag = FRA_parliament_dissolved }
 			NOT = { has_country_flag =  FRA_HBM_law_done }
 		}
 		available = {
-			custom_trigger_tooltip = {
-				check_variable = {
-					democrat_alliance < 250
-				}
-				tooltip = FRA_250_seats_n
-			}
+			has_country_flag = FRA_parliament_dissolved
+			has_country_flag =  FRA_HBM_law_done
 		}
 		days_re_enable = 60
 		cancel_if_not_visible = yes
 		days_mission_timeout = 21
 		is_good = yes
 		fire_only_once = no
+		
 		timeout_effect = {
-			set_country_flag = FRA_HBM_law_done
-			custom_effect_tooltip = FRA_unlock_HLM_focus
-
+			custom_effect_tooltip = FRA_250_seats_tt
+			if = {
+				limit = {
+					check_variable = {
+						democrat_alliance < 250
+					}
+				}
+				hidden_effect = { add_stability = -0.01 }
+				custom_effect_tooltip = FRA_vote_will_fail
+				else = {
+					custom_effect_tooltip = FRA_vote_will_pass
+					hidden_effect = {
+						set_country_flag = FRA_HBM_law_done
+						custom_effect_tooltip = FRA_unlock_HLM_focus
+					}
+				}
+			}
+			custom_effect_tooltip = FRA_effect_if_law_pass
+			effect_tooltip = {
+				custom_effect_tooltip = FRA_unlock_HLM_focus
+			}
+			custom_effect_tooltip = FRA_effect_if_law_fail
+			effect_tooltip = {
+				add_stability = -0.01
+			}
 			custom_effect_tooltip = FRA_important_law_that_will_comeback
 		}
 	}
@@ -2011,6 +2505,13 @@ parliament_gui_decision_category = {
 		}
 		ai_will_do = {
 			factor = 500
+			modifier = {
+				has_game_rule = {
+					rule = FRA_ai_behavior
+					option = DEMOCRATIC_RIGHT_NAPOLEON
+				}
+				factor = 0.1
+			}
 		}
 	}
 
@@ -2055,6 +2556,13 @@ parliament_gui_decision_category = {
 		}
 		ai_will_do = {
 			factor = 500
+			modifier = {
+				has_game_rule = {
+					rule = FRA_ai_behavior
+					option = DEMOCRATIC_RIGHT_NAPOLEON
+				}
+				factor = 0.1
+			}
 		}
 	}
 
@@ -2099,6 +2607,13 @@ parliament_gui_decision_category = {
 		}
 		ai_will_do = {
 			factor = 500
+			modifier = {
+				has_game_rule = {
+					rule = FRA_ai_behavior
+					option = DEMOCRATIC_RIGHT_NAPOLEON
+				}
+				factor = 500
+			}
 		}
 	}
 
@@ -2151,6 +2666,381 @@ parliament_gui_decision_category = {
 				hours = 4
 			}
 			set_country_flag = FRA_emergency_figurehead
+		}
+		ai_will_do = {
+			factor = 50000
+		}
+	}
+
+	FRA_support_boulangisme = {
+		icon = GFX_decision_SOV_place_hq
+		allowed = {
+			original_tag = FRA
+		}
+		cost = 25
+		visible = {
+			has_country_flag = FRA_rebuild_the_appel_du_peuple
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = FRA_300_seats
+				check_variable = {
+					democrat_alliance > 300
+				}
+			}
+		}
+		fire_only_once = yes
+		days_remove = 21
+		remove_effect = {
+			add_popularity = {
+				ideology = fascism
+				popularity = 0.05
+			}
+			add_popularity = {
+				ideology = neutrality
+				popularity = 0.05
+			}
+			add_war_support = 0.02
+		}
+		ai_will_do = {
+			factor = 500
+		}
+	}
+
+	FRA_constitutionalize_strike_right = {
+		icon = GFX_decision_SOV_place_hq
+		allowed = {
+			original_tag = FRA
+		}
+		cost = 25
+		visible = {
+			has_country_flag = FRA_bonaparte_social_reforms
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = FRA_250_seats
+				check_variable = {
+					democrat_alliance > 250
+				}
+			}
+		}
+		fire_only_once = yes
+		days_remove = 21
+		remove_effect = {
+			add_popularity = {
+				ideology = communism
+				popularity = 0.02
+			}
+			add_stability = 0.02
+		}
+		ai_will_do = {
+			factor = 500
+		}
+	}
+	#state sponsored worker pension
+
+	FRA_sponsored_worker_pension = {
+		icon = GFX_decision_SOV_place_hq
+		allowed = {
+			original_tag = FRA
+		}
+		cost = 25
+		visible = {
+			has_country_flag = FRA_bonaparte_social_reforms
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = FRA_200_seats
+				check_variable = {
+					democrat_alliance > 200
+				}
+			}
+		}
+		fire_only_once = yes
+		days_remove = 21
+		remove_effect = {
+			add_political_power = 50
+			add_popularity = {
+				ideology = democratic
+				popularity = 0.02
+			}
+		}
+		ai_will_do = {
+			factor = 500
+		}
+	}
+
+	# abolition of the sous-prefets
+
+	FRA_abolition_of_the_sous_prefets = {
+		icon = GFX_decision_SOV_place_hq
+		allowed = {
+			original_tag = FRA
+		}
+		cost = 25
+		visible = {
+			has_country_flag = FRA_regional_refondation
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = FRA_200_seats
+				check_variable = {
+					democrat_alliance > 200
+				}
+			}
+		}
+		fire_only_once = yes
+		days_remove = 21
+		remove_effect = {
+			add_political_power = 75
+			add_stability = -0.04
+			set_country_flag = FRA_abolition_of_the_sous_prefets
+		}
+		ai_will_do = {
+			factor = 500
+		}
+	}
+
+	#reform regional administration
+	FRA_reform_regional_administration = {
+		icon = GFX_decision_SOV_place_hq
+		allowed = {
+			original_tag = FRA
+		}
+		cost = 25
+		visible = {
+			has_country_flag = FRA_regional_refondation
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = FRA_200_seats
+				check_variable = {
+					democrat_alliance > 200
+				}
+			}
+		}
+		fire_only_once = yes
+		days_remove = 21
+		remove_effect = {
+			add_stability = -0.02
+			every_owned_state = {
+				limit = {
+					is_core_of = ROOT
+					is_on_continent = europe
+					is_fully_controlled_by = ROOT
+				}
+				add_dynamic_modifier = {
+					modifier = FRA_french_local_investments_non_UEII
+					days = 360
+				}
+			}
+			set_country_flag = FRA_reform_regional_administration
+		}
+		ai_will_do = {
+			factor = 500
+		}
+	}
+
+	#setup the gouverneur régional
+	FRA_appoint_regional_governor = {
+		icon = GFX_decision_SOV_place_hq
+		allowed = {
+			original_tag = FRA
+		}
+		cost = 25
+		visible = {
+			has_country_flag = FRA_regional_refondation
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = FRA_200_seats
+				check_variable = {
+					democrat_alliance > 200
+				}
+			}
+			has_country_flag = FRA_reform_regional_administration
+			has_country_flag = FRA_abolition_of_the_sous_prefets
+		}
+		fire_only_once = yes
+		days_remove = 21
+		remove_effect = {
+			add_stability = 0.05
+			add_political_power = 35
+		}
+		ai_will_do = {
+			factor = 500
+		}
+	}
+
+	#separate parliament and caisse d'épargne
+
+	FRA_remove_parliament_budget_votes = {
+		icon = GFX_decision_SOV_place_hq
+		allowed = {
+			original_tag = FRA
+		}
+		cost = 25
+		visible = {
+			has_country_flag = FRA_parliamentary_reform
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = FRA_250_seats
+				check_variable = {
+					democrat_alliance > 250
+				}
+			}
+		}
+		fire_only_once = yes
+		days_remove = 21
+		remove_effect = {
+			add_political_power = 75
+			#special temp move
+			add_to_variable = { var = republicain_federation value = -50 } 
+			add_to_variable = { var = radical_party value = 50 }
+			set_variable = { parliament_seat_array^3 = radical_party }
+			set_variable = { parliament_seat_array^5 = republicain_federation }
+			custom_effect_tooltip = FRA_50_republican_go_to_radical
+			FRA_recalculate_parliament_alliance = yes
+
+		}
+		ai_will_do = {
+			factor = 500
+		}
+	}
+
+	FRA_isolate_saving_banks_from_treasury = {
+		icon = GFX_decision_SOV_place_hq
+		allowed = {
+			original_tag = FRA
+		}
+		cost = 25
+		visible = {
+			has_country_flag = FRA_parliamentary_reform
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = FRA_250_seats
+				check_variable = {
+					democrat_alliance > 250
+				}
+			}
+		}
+		fire_only_once = yes
+		days_remove = 21
+		remove_effect = {
+			add_stability = 0.03
+			custom_effect_tooltip = escape_line
+			custom_effect_tooltip = FRA_avoid_economical_crash
+		}
+		ai_will_do = {
+			factor = 500
+		}
+	}
+
+	FRA_governement_support_to_cross_of_fire = {
+		icon = GFX_decision_SOV_place_hq
+		allowed = {
+			original_tag = FRA
+		}
+		cost = 25
+		visible = {
+			has_country_flag = FRA_join_act_with_nationalists
+		}
+		available = {
+			date > 1927.11.11
+			custom_trigger_tooltip = {
+				tooltip = FRA_250_seats
+				check_variable = {
+					democrat_alliance > 250
+				}
+			}
+		}
+		fire_only_once = yes
+		days_remove = 21
+		remove_effect = {
+			set_country_flag = FRA_governement_support_to_cross_of_fire
+			custom_effect_tooltip = available_political_advisor 
+			show_ideas_tooltip = FRA_francois_de_la_rocque
+			add_popularity = {
+				ideology = fascism
+				popularity = 0.03
+			}
+		}
+		ai_will_do = {
+			factor = 500
+		}
+	}
+
+	FRA_governement_support_to_young_patriots = {
+		icon = GFX_decision_SOV_place_hq
+		allowed = {
+			original_tag = FRA
+		}
+		cost = 25
+		visible = {
+			has_country_flag = FRA_join_act_with_nationalists
+		}
+		available = {
+			date > 1924.02.02
+			custom_trigger_tooltip = {
+				tooltip = FRA_250_seats
+				check_variable = {
+					democrat_alliance > 250
+				}
+			}
+		}
+		fire_only_once = yes
+		days_remove = 21
+		remove_effect = {
+			set_country_flag = FRA_governement_support_to_young_patriots
+			custom_effect_tooltip = available_political_advisor 
+			show_ideas_tooltip = FRA_pierre_taittinger
+			add_popularity = {
+				ideology = fascism
+				popularity = 0.02
+			}
+			add_popularity = {
+				ideology = neutrality
+				popularity = 0.01
+			}
+		}
+		ai_will_do = {
+			factor = 500
+		}
+	}
+
+	FRA_governement_support_to_le_faisceau = {
+		icon = GFX_decision_SOV_place_hq
+		allowed = {
+			original_tag = FRA
+		}
+		cost = 25
+		visible = {
+			has_country_flag = FRA_join_act_with_nationalists
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = FRA_250_seats
+				check_variable = {
+					democrat_alliance > 250
+				}
+			}
+		}
+		fire_only_once = yes
+		days_remove = 21
+		remove_effect = {
+			set_country_flag = FRA_governement_support_to_le_faisceau
+			custom_effect_tooltip = available_political_advisor 
+			show_ideas_tooltip = FRA_jacques_arthuys
+			add_popularity = {
+				ideology = fascism
+				popularity = 0.02
+			}
+			add_popularity = {
+				ideology = communism
+				popularity = 0.02
+			}
 		}
 		ai_will_do = {
 			factor = 500
@@ -3309,7 +4199,92 @@ FRA_fortifications = {
 
 }
 
+#battle of france
+#battle_of_france
 FRA_defense_of_france = {
+
+	FRA_fufill_schneider_contract = {
+		icon = GFX_decision_generic_protection
+		allowed = {
+			original_tag = FRA
+		}
+		activation = {
+			has_country_flag = FRA_ww1_CA1_early_production
+			NOT = {
+				has_country_flag = FRA_schneider_contract_fulfilled
+			}
+		}
+		visible = {
+			has_country_flag = FRA_ww1_CA1_early_production
+		}
+		fire_only_once = yes
+		available = {
+			tag = FRA
+			custom_trigger_tooltip = {
+				tooltip = FRA_medium_tanks_on_the_field
+				OR = {
+					check_variable = { num_equipment_in_armies@medium_tank_chassis > 399 }
+					has_equipment = {
+						medium_tank_chassis > 399
+					}
+				}
+			}
+		}
+		days_mission_timeout = 360
+		complete_effect = {
+			set_country_flag = FRA_schneider_contract_fulfilled
+			add_war_support = 0.02
+			mio:FRA_schneider_tanks_organization = {
+				add_mio_funds = 1500
+			}
+			
+		}
+		timeout_effect = {
+			add_political_power = -25
+		}
+		is_good = no
+	}
+
+	FRA_fufill_renault_contract = {
+		icon = GFX_decision_generic_protection
+		allowed = {
+			original_tag = FRA
+		}
+		activation = {
+			has_country_flag = FRA_ww1_form_the_armored_spearhead
+			NOT = {
+				has_country_flag = FRA_renault_contract_fulfilled
+			}
+		}
+		visible = {
+			has_country_flag = FRA_ww1_form_the_armored_spearhead
+		}
+		fire_only_once = yes
+		available = {
+			tag = FRA
+			custom_trigger_tooltip = {
+				tooltip = FRA_light_tanks_on_the_field
+				OR = {
+					check_variable = { num_equipment_in_armies@light_tank_chassis > 1850 }
+					has_equipment = {
+						light_tank_chassis > 1850
+					}
+				}
+			}
+		}
+		days_mission_timeout = 720
+		complete_effect = {
+			set_country_flag = FRA_renault_contract_fulfilled
+			add_war_support = 0.02
+			mio:FRA_renault_organization = {
+				add_mio_funds = 1500
+			}
+		}
+		timeout_effect = {
+			add_war_support = -0.05
+		}
+		is_good = no
+	}
 
 	FRA_move_capital_in_bordeaux = {
 		icon = GFX_decision_generic_protection
@@ -3694,7 +4669,7 @@ FRA_defense_of_france = {
 					add_country_leader_role = {
 						promote_leader = yes
 						country_leader = {
-							ideology = oligarchism
+							ideology = personalistic_dictatorship
 							traits = { verdun_lion generallissimo }
 						}
 					}
@@ -4160,7 +5135,7 @@ peace_deals = {
 						create_country_leader = {
 							name = "FRA_victoire"
 							picture = "gfx/leaders/GER/GER_Victoria_Louise.png"
-							ideology = oligarchism
+							ideology = personalistic_dictatorship
 							female = yes
 							traits = {
 								victoria_iii
@@ -4316,7 +5291,7 @@ peace_deals = {
 					create_country_leader = {
 						name = "FRA_victoire"
 						picture = "gfx/leaders/GER/GER_Victoria_Louise.png"
-						ideology = oligarchism
+						ideology = personalistic_dictatorship
 						female = yes
 						traits = {
 							victoria_iii
@@ -5461,3 +6436,259 @@ political_actions = {
 	}
 }
 
+FRA_weapon_seller = {
+	FRA_sell_60_renault_tanks_to_partners = {
+		allowed = {
+			always = no
+		}
+	}
+
+	FRA_sell_60_renault_tanks_to_FROM = {
+		allowed = {
+			always = yes
+			original_tag = FRA
+		}
+		icon = GFX_decision_hol_exchange_intelligence_data
+		cost = 10
+		days_re_enable = 14
+		visible = {
+			has_country_flag = FRA_maintain_war_industry
+		}
+		target_trigger = {
+			FROM = {
+				NOT = {
+					has_war_with = ROOT
+					has_country_flag = great_war_loser
+				}
+				NOT = {
+					has_country_flag = has_refused_french_weapons
+					has_country_flag = FRA_is_buying_60_renault_tanks
+				}
+				OR = {
+					tag = POL
+					tag = ROM
+					tag = YUG
+					tag = BEL
+					tag = USA
+					tag = SER
+					tag = ITA
+					tag = RUS
+					tag = ENG
+				}
+			}
+		}
+		available = {
+			ROOT = {
+				has_war = no
+			}
+			NOT = {
+				any_other_country = {
+					has_country_flag = has_ongoing_contract_with_FRA
+					has_country_flag = FRA_is_buying_60_renault_tanks
+				}
+			}
+			NOT = {
+				has_country_flag = ongoing_contract_demand
+				has_country_flag = FRA_is_redundings_tanks
+			}
+			FROM = {
+				NOT = {
+					has_country_flag = has_refused_french_weapons
+				}
+				num_of_civilian_factories_available_for_projects > 3 #be sure they can afford it
+			}
+		}
+		complete_effect = {
+			set_country_flag = ongoing_contract_demand
+			set_country_flag = {
+				flag = FRA_time_between_demands
+				days = 210
+				value = 1
+			}
+			FROM = {
+				country_event = {
+					id =  ww1_france.431
+					days = 2
+				}
+			}
+		}
+
+		ai_will_do = {
+			factor = 10
+			modifier = {
+				has_country_flag = FRA_time_between_demands
+				factor = 0
+			}
+		}
+	}
+
+	FRA_is_buying_60_renault_tanks = {
+		allowed = {
+			always = yes
+		}
+		modifier = {
+			civilian_factory_use = 3
+		}
+		available = {
+			has_country_flag = FRA_is_buying_60_renault_tanks
+		}
+		visible = {
+			has_country_flag = FRA_is_buying_60_renault_tanks
+		}
+		days_re_enable = 14
+		fire_only_once = no
+		icon = GFX_decision_hol_exchange_intelligence_data
+		is_good = yes
+		remove_effect = {
+			FRA = {
+				add_offsite_building = { type = industrial_complex level = -3 }
+			}
+		}
+		available = {
+			NOT = {
+				has_war_with = FRA
+			}
+			has_capitulated = no
+		}
+		days_remove = 145
+		ai_will_do = {
+			factor = 200
+		}
+	}
+
+	FRA_fufill_renault_contract_60_tanks = {
+		icon = GFX_decision_generic_protection
+		allowed = {
+			original_tag = FRA
+		}
+		activation = {
+			any_other_country = {
+				has_country_flag = has_ongoing_contract_with_FRA
+				has_country_flag = FRA_is_buying_60_renault_tanks
+			}
+		}
+		visible = {
+			any_other_country = {
+				has_country_flag = has_ongoing_contract_with_FRA
+				has_country_flag = FRA_is_buying_60_renault_tanks
+			}
+		}
+		fire_only_once = no
+		available = {
+			tag = FRA
+			custom_trigger_tooltip = {
+				tooltip = FRA_light_tanks_on_the_field_60
+				OR = {
+					check_variable = { num_equipment_in_armies@light_tank_chassis > 59 }
+					has_equipment = {
+						light_tank_chassis > 59
+					}
+				}
+			}
+		}
+		days_mission_timeout = 140
+		complete_effect = {
+			clr_country_flag = FRA_fulfill_mission_is_runing
+			random_other_country = {
+				limit = {
+					NOT = {
+						has_war_with = ROOT
+					}
+					has_country_flag = has_ongoing_contract_with_FRA
+					has_country_flag = FRA_is_buying_60_renault_tanks
+				}
+				clr_country_flag = has_ongoing_contract_with_FRA
+				country_event = {
+					id = ww1_france.432
+					days = 2
+				}
+			}
+		}
+		timeout_effect = {
+			clr_country_flag = FRA_fulfill_mission_is_runing
+			random_other_country = {
+				limit = {
+					NOT = {
+						tag = FRA
+					}
+					NOT = {
+						has_war_with = ROOT
+					}
+					has_country_flag = has_ongoing_contract_with_FRA
+					has_country_flag = FRA_is_buying_60_renault_tanks
+				}
+				clr_country_flag = has_ongoing_contract_with_FRA
+				clr_country_flag = FRA_is_buying_60_renault_tanks
+				country_event = {
+					id = ww1_france.433
+					days = 2
+				}
+			}
+		}
+		is_good = no
+	}
+
+	FRA_is_refunding_60_tanks_plus_extra = {
+		allowed = {
+			always = yes
+		}
+		modifier = {
+			civilian_factory_use = 5
+		}
+		available = {
+			has_country_flag = FRA_is_redundings_tanks
+		}
+		visible = {
+			has_country_flag = FRA_is_redundings_tanks
+		}
+		days_re_enable = 14
+		fire_only_once = no
+		icon = GFX_decision_hol_exchange_intelligence_data
+		is_good = yes
+		remove_effect = {
+			clr_country_flag = FRA_is_redundings_tanks
+		}
+		available = {
+			has_capitulated = no
+		}
+		days_remove = 140
+		ai_will_do = {
+			factor = 200
+		}
+	}
+
+	FRA_is_being_refunded_plus_extra = {
+		allowed = {
+			always = yes
+		}
+		available = {
+			has_country_flag = FRA_is_redundings_tanks
+			NOT = {
+				has_war_with = FRA
+			}
+		}
+		visible = {
+			NOT = {
+				tag = FRA
+			}
+			has_country_flag = FRA_is_redundings_tanks
+		}
+		days_re_enable = 14
+		fire_only_once = no
+		icon = GFX_decision_hol_exchange_intelligence_data
+		is_good = yes
+		remove_effect = {
+			add_offsite_building = {
+				type = industrial_complex
+				level = -5
+			}
+		}
+		available = {
+			has_capitulated = no
+		}
+		days_remove = 140
+		ai_will_do = {
+			factor = 200
+		}
+	}
+}
