@@ -2464,6 +2464,107 @@ parliament_gui_decision_category = {
 		}
 	}
 
+	FRA_shneider_artillery_manufactures_in_le_havre = {
+		icon = GFX_decision_SOV_place_hq
+		allowed = {
+			original_tag = FRA
+		}
+		cost = 10
+		visible = {
+			has_country_flag = has_invested_in_schneider
+		}
+		available = {
+			OR = {
+				has_idea = FRA_idea_union_sacree
+				ROOT = {
+					custom_trigger_tooltip = {
+						tooltip = FRA_200_seats
+						check_variable = {
+							democrat_alliance > 200
+						}
+					}
+				}
+			}
+			NOT = {
+				has_country_flag = military_contract_flag
+			}
+		}
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = military_contract_flag
+			15 = {
+				set_variable = { military_goal = 2 }
+				set_variable = { military_total_after_goal = military_goal }
+				add_to_variable = { military_total_after_goal = arms_factory_level }
+			}
+			activate_mission = FRA_shneider_artillery_manufactures_in_le_havre_mission
+			custom_effect_tooltip = tt_objective
+			custom_effect_tooltip = FRA_shneider_artillery_manufactures_in_le_havre_mission_tt_title
+			custom_effect_tooltip = FRA_effect_if_mission_completed
+			effect_tooltip = {
+				add_equipment_to_stockpile = {
+					type = artillery_equipment
+					amount = 1000
+				}
+				mio:FRA_schneider_organization = {
+					add_mio_funds = 750
+				}
+			}
+			custom_effect_tooltip = FRA_effect_if_mission_failed
+			effect_tooltip = {
+				add_war_support = -0.05
+				add_political_power = -25
+			}
+		}
+	}
+
+	FRA_shneider_artillery_manufactures_in_le_havre_mission = {
+		icon = generic_factory
+		allowed = {
+			tag = FRA
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = FRA_shneider_artillery_manufactures_in_le_havre_mission_tt
+				15 = {
+					check_variable = { military_goal < arms_factory_level }
+				}
+			}
+		}
+		days_mission_timeout = 240
+		is_good = no
+		activation = {
+			always = no
+		}
+		cancel_trigger = {
+			NOT = {
+				controls_state = 15
+			}
+		}
+		cancel_effect = {
+			clr_country_flag = military_contract_flag
+		}
+
+		complete_effect = {
+			add_equipment_to_stockpile = {
+				type = artillery_equipment
+				amount = 1000
+			}
+			mio:FRA_schneider_organization = {
+				add_mio_funds = 750
+			}
+			clr_country_flag = military_contract_flag
+		}
+
+		timeout_effect = {
+			add_war_support = -0.05
+			add_political_power = -25
+			clr_country_flag = military_contract_flag
+		}
+	}
+
+	
+
 	FRA_allow_orleans_visit = {
 		icon = GFX_decision_SOV_place_hq
 		allowed = {
@@ -4272,7 +4373,7 @@ FRA_defense_of_france = {
 				}
 			}
 		}
-		days_mission_timeout = 360
+		days_mission_timeout = 720
 		complete_effect = {
 			set_country_flag = FRA_renault_contract_fulfilled
 			add_war_support = 0.02
@@ -6482,11 +6583,14 @@ FRA_weapon_seller = {
 				has_war = no
 			}
 			NOT = {
-				has_country_flag = ongoing_contract_demand
-				has_country_flag = FRA_is_redundings_tanks
 				any_other_country = {
 					has_country_flag = has_ongoing_contract_with_FRA
+					has_country_flag = FRA_is_buying_60_renault_tanks
 				}
+			}
+			NOT = {
+				has_country_flag = ongoing_contract_demand
+				has_country_flag = FRA_is_redundings_tanks
 			}
 			FROM = {
 				NOT = {
@@ -6585,6 +6689,7 @@ FRA_weapon_seller = {
 		}
 		days_mission_timeout = 140
 		complete_effect = {
+			clr_country_flag = FRA_fulfill_mission_is_runing
 			random_other_country = {
 				limit = {
 					NOT = {
@@ -6601,8 +6706,12 @@ FRA_weapon_seller = {
 			}
 		}
 		timeout_effect = {
+			clr_country_flag = FRA_fulfill_mission_is_runing
 			random_other_country = {
 				limit = {
+					NOT = {
+						tag = FRA
+					}
 					NOT = {
 						has_war_with = ROOT
 					}
