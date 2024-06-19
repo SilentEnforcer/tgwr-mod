@@ -3644,36 +3644,154 @@ FRA_weapon_seller = {
 }
 
 FRA_french_intervention_in_china = {
+	FRA_start_intervention_in_china = {
+		allowed = {
+			always = yes
+		}
+		icon = GFX_decision_generic_prepare_civil_war
+		available = {
+			has_war = no
+			is_puppet = no
+			591 = {
+				OWNER = {
+					NOT = {
+						is_in_faction_with = ROOT
+					}
+					controls_state = 591
+				}
+			}
+		}
+		visible = {
+			OR = {
+				tag = FRA
+				tag = IND
+			}
+			has_country_flag = FRA_war_on_hainan_flag
+			591 = {
+				OWNER = {
+					NOT = {
+						tag = ROOT
+						is_in_faction_with = ROOT
+					}
+				}
+			}
+		}
+		days_remove = 70
+		remove_effect = {
+			every_country = {
+				limit = {
+					OR = {
+						tag = FRA
+						tag = IND
+					}
+				}
+				declare_war_on = {
+					type = take_claimed_state
+					target = 591.OWNER
+					generator = {591}
+				}
+			}
+			clr_country_flag = FRA_target_of_france
+			591 = {
+				OWNER = {
+					set_country_flag = FRA_target_of_france
+				}
+			}
+			if = {
+				limit = {
+					NOT = {
+						has_country_flag = first_french_intervention
+					}
+				}
+				set_country_flag = first_french_intervention
+				news_event = ww1_france.460
+			}
+			
+		}
+		ai_will_do = {
+			factor = 0
+			modifier = {
+				has_country_flag = great_war_winner
+				has_army_manpower = {
+					size > 250000
+				}
+				add = 500
+			}
+		}
+	}
 	FRA_leave_CHI = {
 		allowed = {
-			original_tag = FRA
+			always = yes
 		}
 		icon = GFX_decision_generic_prepare_civil_war
 		activation = {
-			always = no
+			OR = {
+				tag = FRA
+				tag = IND
+			}
+			has_country_flag = FRA_war_on_hainan_flag
+			591 = {
+				OWNER = {
+					has_war_with = FRA
+				}
+			}
 		}
-		cancel_trigger = {
+		is_good = no
+		available = {
 			591 = {
 				is_controlled_by_ROOT_or_ally = yes
 			}
 		}
-		visible = {
-			NOT = {
-				591 = {
-					is_controlled_by_ROOT_or_ally = yes
+		cancel_trigger = {
+			OR = {
+				any_enemy_country = {
+					has_country_flag = FRA_target_of_france
+					NOT = {
+						owns_state = 591
+					}
+				}
+				any_enemy_country = {
+					has_country_flag = FRA_target_of_france
+					NOT = {
+						controls_state = 591
+					}
+					591 = {
+						is_controlled_by_ROOT_or_ally = no
+						is_controlled_by_ROOT_or_subject = no
+					}
 				}
 			}
 		}
-		ai_will_do = {
-			factor = 100
+		cancel_effect = {
+			white_peace = 591.OWNER
+			every_country = {
+				limit = {
+					has_country_flag = FRA_target_of_france
+				}
+				white_peace = PREV
+			}
+		}
+		complete_effect = {
+			country_event = {
+				id = ww1_france.458
+				days = 2
+			}
 		}
 		days_mission_timeout = 360
-		selectable_mission = yes
-		complete_effect = {
-			add_political_power = 100
-		}
 		timeout_effect = {
-			add_war_support = -0.25		
+			every_country = {
+				limit = {
+					OR = {
+						tag = FRA
+						tag = IND
+					}
+				}
+				add_war_support = -0.25
+				country_event = {
+					id = ww1_france.456
+					days = 1
+				}
+			}	
 		}
 	}
 }
