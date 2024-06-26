@@ -142,9 +142,40 @@ GER_great_war = {
 			tag = TUR
 		}
 		icon = GFX_decision_eng_trade_unions_support
-		fire_only_once = yes
-		cost = 0
-		available = {
+		activation = {
+			has_capitulated = no
+			is_in_faction = yes
+			is_faction_leader = no
+			is_subject = no
+			OR = {
+				AND = {
+					has_war_with = FRA
+					FRA = {
+						is_in_faction = yes
+						is_subject = no
+						NOT = {
+							has_country_flag = great_war_loser
+						}
+					}
+				}
+				AND = {
+					has_war_with = ENG
+					ENG = {
+						is_in_faction = yes
+						is_subject = no
+						NOT = {
+							has_country_flag = great_war_loser
+						}
+					}
+				}
+			}
+			has_global_flag = kis_war
+			NOT = {
+				has_country_flag = great_war_loser
+				has_global_flag = great_war_ends
+				has_global_flag = GER_capitulation
+				has_global_flag = FRA_capitulation
+			}
 			surrender_progress > 0.2
 			OR = {
 				surrender_progress > 0.4
@@ -166,6 +197,7 @@ GER_great_war = {
 					OR = {
 						controls_state = 341
 						controls_state = 347
+						controls_state = 356
 						controls_state = 756
 						controls_state = 825
 						controls_state = 860
@@ -173,45 +205,65 @@ GER_great_war = {
 				}
 			}
 		}
-		visible = {
-			is_in_faction = yes
-			is_faction_leader = no
-			is_subject = no
-			has_war_with = FROM
-			FROM = {
-				is_in_faction = yes
-				is_subject = no
+		available = {
+			controls_state = 347
+			surrender_progress < 0.3
+			has_war_support > 0.2
+			has_stability > 0.2
+			all_state = {
+				OR = {
+					state = 341
+					state = 347
+					state = 356
+					state = 756
+					state = 825
+					state = 860
+				}
 				NOT = {
-					has_country_flag = great_war_loser
+					controller = {
+						has_war_with = ROOT
+					}
 				}
 			}
-			has_global_flag = kis_war
-			NOT = {
-				has_country_flag = great_war_loser
+		}
+		cancel_trigger = {
+			OR = {
+				has_capitulated = yes
+				has_war = no
 				has_global_flag = great_war_ends
 				has_global_flag = GER_capitulation
 				has_global_flag = FRA_capitulation
 			}
 		}
-		target_trigger = {
-			FROM = {
-				tag = ENG
-			}
-		}
-		complete_effect = {
-			FROM = {
-				country_event = {
-					id = ww1_england.264
-					hours = 3
+		is_good = no
+		fire_only_once = no
+		days_mission_timeout = 60
+		timeout_effect = {
+			add_ideas = TUR_mudros_armistice
+			if = {
+				limit = {
+					has_war_with = ENG
+				}
+				ENG = {
+					country_event = {
+						id = ww1_england.264
+						hours = 3
+					}
 				}
 			}
-		}
-		ai_will_do = {
-			base = 0
-			modifier = {
-				surrender_progress > 0.3
-				date > 1916.1.1
-				add = 1000
+			else = {
+				FRA = {
+					country_event = {
+						id = ww1_england.264
+						hours = 3
+					}
+				}
+			}
+			hidden_effect = {
+				news_event = {
+					id = ww1_england.265
+					hours = 10
+				}
 			}
 		}
 	}
@@ -16082,101 +16134,67 @@ TUR_minority_decision = {
 		}
 		timeout_effect = {
 			hidden_effect = {
-				if = {
-					limit = {
-						NOT = {
-							has_template = "Furqat al Mushat"
+				ASR = {
+					if = {
+						limit = {
+							NOT = {
+								has_template = "Furqat al Mushat"
+							}
 						}
-					}
-					division_template = {
-						name = "Furqat al Mushat"
-						regiments = {
-							infantry = {
-								x = 0
-								y = 0
-							}
-							infantry = {
-								x = 0
-								y = 1
-							}
-							infantry = {
-								x = 1
-								y = 0
-							}
-							infantry = {
-								x = 1
-								y = 1
+						division_template = {
+							name = "Furqat al Mushat"
+							regiments = {
+								infantry = { x = 0 y = 0 }
+								infantry = { x = 0 y = 1 }
+								infantry = { x = 1 y = 0 }
+								infantry = { x = 1 y = 1 }
 							}
 						}
 					}
-				}
-				if = {
-					limit = {
-						NOT = {
-							has_template = "Quwat al Qabaeel"
+					if = {
+						limit = {
+							NOT = {
+								has_template = "Quwat al Qabaeel"
+							}
+						}
+						division_template = {
+							name = "Quwat al Qabaeel"
+							is_locked = yes
+							force_allow_recruiting = yes
+							division_cap = 5
+							regiments = {
+								irregular_infantry = { x = 0 y = 0 }
+								irregular_infantry = { x = 0 y = 1 }
+								irregular_infantry = { x = 0 y = 2 }
+								irregular_infantry = { x = 1 y = 0 }
+								irregular_infantry = { x = 1 y = 1 }
+								irregular_infantry = { x = 1 y = 2 }
+							}
 						}
 					}
-					division_template = {
-						name = "Quwat al Qabaeel"
-						is_locked = yes
-						force_allow_recruiting = yes
-						division_cap = 5
-						regiments = {
-							irregular_infantry = {
-								x = 0
-								y = 0
+					if = {
+						limit = {
+							NOT = {
+								has_template = "Furqat Fursan"
 							}
-							irregular_infantry = {
-								x = 0
-								y = 1
-							}
-							irregular_infantry = {
-								x = 0
-								y = 2
-							}
-							irregular_infantry = {
-								x = 1
-								y = 0
-							}
-							irregular_infantry = {
-								x = 1
-						 		y = 1
-							}
-							irregular_infantry = {
-								x = 1
-								y = 2
+						}
+						division_template = {
+							name = "Furqat Fursan"
+							is_locked = yes
+							regiments = {
+								camelry = { x = 0 y = 0 }
+								camelry = { x = 0 y = 1 }
+								camelry = { x = 1 y = 0 }
+								camelry = { x = 1 y = 1 }
 							}
 						}
 					}
 				}
 				if = {
 					limit = {
-						NOT = {
-							has_template = "Furqat Fursan"
-						}
+						NOT = { has_global_flag = kis_war }
 					}
-					division_template = {
-						name = "Furqat Fursan"
-						is_locked = yes
-						regiments = {
-							camelry = {
-								x = 0
-								y = 0
-							}
-							camelry = {
-								x = 0
-								y = 1
-							}
-							camelry = {
-								x = 1
-								y = 0
-							}
-							camelry = {
-								x = 1
-						 		y = 1
-							}
-						}
-					}
+					add_ideas = standing_alone
 				}
 			}
 			if = {
@@ -16362,9 +16380,7 @@ TUR_minority_decision = {
 			}
 			modifier = {
 				factor = 0
-				NOT = {
-					is_historical_focus_on = yes
-				}
+				is_historical_focus_on = no
 				any_state = {
 					is_core_of = ASR
 					NOT = { has_dynamic_modifier = { modifier = TUR_arab_minority } }
@@ -16372,6 +16388,7 @@ TUR_minority_decision = {
 			}
 			modifier = {
 				add = 50
+				is_historical_focus_on = no
 				any_state = {
 					is_core_of = ASR
 					has_dynamic_modifier = { modifier = TUR_arab_minority }
@@ -16900,24 +16917,18 @@ peace_deals = {
 				has_war_with = ITA
 				OR = {
 					casualties > 50000
-					ITA = {
-						controls_state = 448
-						controls_state = 450
-						controls_state = 661
-						controls_state = 663
-					}
 					AND = {
-						any_owned_state = {
-							is_controlled_by = ITA
-							OR = {
-								region = 25
-								region = 129
-								region = 202
-							}
+						NOT = {
+							controls_state = 450
 						}
-						OR = {
-							ITA = { controls_state = 448 }
-							ITA = { controls_state = 450 }
+						NOT = {
+							controls_state = 663
+						}
+						NOT = {
+							controls_state = 661
+						}
+						NOT = {
+							controls_state = 448
 						}
 					}
 					surrender_progress > 0.10
@@ -21673,7 +21684,7 @@ TUR_economy_decision = {
 		}
 	}
 	TUR_sell_mosul_oil = {
-		icon = hol_exchange_intelligence_data
+		icon = GFX_decision_oil
 		allowed = {
 			tag = TUR
 		}
@@ -21857,7 +21868,7 @@ TUR_economy_decision = {
 		}
 	}
 	TUR_sell_kirkuk_oil = {
-		icon = hol_exchange_intelligence_data
+		icon = GFX_decision_oil
 		allowed = {
 			tag = TUR
 		}
@@ -22041,7 +22052,7 @@ TUR_economy_decision = {
 		}
 	}
 	TUR_sell_baghdad_oil = {
-		icon = hol_exchange_intelligence_data
+		icon = GFX_decision_oil
 		allowed = {
 			tag = TUR
 		}
@@ -22229,7 +22240,7 @@ TUR_economy_decision = {
 		}
 	}
 	TUR_sell_basra_oil = {
-		icon = hol_exchange_intelligence_data
+		icon = GFX_decision_oil
 		allowed = {
 			tag = TUR
 		}
@@ -22417,7 +22428,7 @@ TUR_economy_decision = {
 		}
 	}
 	TUR_sell_kuwait_oil = {
-		icon = hol_exchange_intelligence_data
+		icon = GFX_decision_oil
 		allowed = {
 			tag = TUR
 		}

@@ -281,107 +281,56 @@ operations = {
 }
 foreign_politics = {
 	RUS_help_SER = {
-		icon = GFX_decision_generic_intelligence_operation
+		icon = GFX_decision_generic_prepare_civil_war
 		allowed = {
 			tag = RUS
 		}
 		target_trigger = {
 			FROM = {
-				tag = AUH
+				is_major = yes
+				has_offensive_war_with = SER
+				NOT = {
+					has_war_with = ROOT
+					original_tag = TUR
+					is_in_faction_with = ROOT
+				}
+				is_balkan_nation = no
 			}
 		}
 		visible = {
-			NOT = {
-				tag = SOV
-			}
 			is_subject = no
-			SER = {
-				is_subject = no
-				is_faction_leader = yes
-				is_in_faction_with = BUL
-				has_war_with = AUH
-			}	
 			NOT = {
-				has_war_with = AUH 
-				is_in_faction_with = SER
-				is_in_faction_with = AUH
-			}
-		}	
-		available = {
-			SER = {
-				is_in_faction_with = BUL
-				has_war_with = AUH
-				surrender_progress > 0.1
-			}
-		}
-		ai_will_do = {
-			factor = 0
-			modifier = {
-				add = 1000
+				has_global_flag = great_war_ends
+				has_global_flag = russian_revolution
+				has_war_with = SER
+				has_government = communism
 				SER = {
-					surrender_progress > 0.5
+					has_government = communism
+					is_subject = no
 				}
+				has_guaranteed = SER
 			}
-			modifier = {
-				add = 1000
-				GER = {
-					has_war_with = SER 
-					NOT = { is_in_faction_with = ROOT }
-				}
-			}
-			modifier = {
-				factor = 0
-				has_war = yes
+			SER = { has_idea = SER_russian_protection }
+		}
+		available = {
+			has_capitulated = no
+			has_civil_war = no
+			OR = {
+				has_idea = idea_armistice
+				has_idea = idea_army_restrictions
 			}
 		}
-		days_remove = 10
-		war_with_target_on_timeout = yes
+		fire_only_once = yes
+		cost = 0
+		cancel_if_not_visible = yes
+		days_remove = 45
+		war_with_target_on_remove = yes
 		remove_effect = {
-			if = {
-				limit = {
-					is_faction_leader = yes
+			SER = {
+				add_to_war = {
+					targeted_alliance = ROOT
+					enemy = FROM
 				}
-				every_country = {
-					limit = {
-						OR = {
-							is_in_faction_with = SER
-							tag = SER				
-						}
-						
-					}
-					leave_faction = yes
-					ROOT = { add_to_faction = PREV }
-				}
-			}	
-			if = {
-				limit = {
-					is_faction_leader = no
-					is_in_faction = yes
-				}
-				every_country = {
-					limit = {
-						is_in_faction_with = ROOT
-						is_faction_leader = yes
-					}
-					every_country = {
-						limit = {
-							OR = {
-								is_in_faction_with = SER
-								tag = SER
-							}
-							
-						}
-						leave_faction = yes
-						PREV.PREV.PREV = { add_to_faction = PREV }
-					}
-				}
-			}
-			if = {
-				limit = {
-					is_faction_leader = no
-					is_in_faction = no
-				}
-				SER = { add_to_faction = ROOT }
 			}
 		}
 	}
@@ -2764,62 +2713,6 @@ GER_great_war = {
 			custom_effect_tooltip = rus_demobilize_army_tt
 		}
 	}
-
-	RUS_remove_aland_dmz = {
-		icon = GFX_decision_generic_operation
-		fire_only_once = yes
-		allowed = {
-			OR = {
-				tag = RUS
-				tag = SWE
-				tag = FIN
-			}
-		}
-		available = {
-			145 = {
-				is_controlled_by_ROOT_or_subject = yes
-			}	
-			OR = {
-				tag = FIN
-				tag = SWE
-				has_war_with = GER
-				145 = {
-					is_demilitarized_zone = yes
-				}
-			}
-		}
-		visible = {
-			is_subject = no
-			145 = {
-				is_controlled_by_ROOT_or_subject = yes
-			}
-			145 = {
-				has_dynamic_modifier = {
-					modifier = aland_dmz_modifier
-				}
-			}
-		}
-		complete_effect = {
-			145 = {
-				remove_dynamic_modifier = { modifier = aland_dmz_modifier }
-			}	
-		}
-		ai_will_do = {
-			factor = 0
-			modifier = {
-				add = 1000
-				date > 1916.1.1
-			}
-			modifier = {
-				add = 1000
-				tag = SWE
-			}
-			modifier = {
-				add = 1000
-				tag = FIN
-			}
-		}
-	}
 }
 
 RUS_provisional_government = {
@@ -3020,9 +2913,11 @@ RUS_provisional_government = {
 		}
 
 		available = {
-			has_war = yes
-			10 = { is_controlled_by_ROOT_or_subject = yes }
-			surrender_progress < 0.05
+			OR = {
+				has_war = no
+				10 = { is_controlled_by_ROOT_or_subject = yes }
+				surrender_progress < 0.05
+			}
 		}
 		cancel_trigger = {
 			NOT = {
@@ -3071,9 +2966,11 @@ RUS_provisional_government = {
 		}
 
 		available = {
-			has_war = yes
-			10 = { is_controlled_by_ROOT_or_subject = yes }
-			surrender_progress < 0.05
+			OR = {
+				has_war = no
+				10 = { is_controlled_by_ROOT_or_subject = yes }
+				surrender_progress < 0.05
+			}
 		}
 		cancel_trigger = {
 			NOT = {
@@ -3264,6 +3161,69 @@ RUS_provisional_government = {
 			}
 		}
 
+	}
+}
+
+war_measures = {
+	RUS_remove_aland_dmz = {
+		icon = GFX_decision_generic_operation
+		fire_only_once = yes
+		allowed = {
+			OR = {
+				tag = RUS
+				tag = SWE
+				tag = FIN
+			}
+		}
+		available = {
+			145 = {
+				is_controlled_by_ROOT_or_subject = yes
+			}	
+			OR = {
+				tag = FIN
+				tag = SWE
+				has_war_with = GER
+				145 = {
+					is_demilitarized_zone = yes
+				}
+			}
+		}
+		visible = {
+			is_subject = no
+			145 = {
+				is_controlled_by_ROOT_or_subject = yes
+			}
+			145 = {
+				has_dynamic_modifier = {
+					modifier = aland_dmz_modifier
+				}
+			}
+		}
+		complete_effect = {
+			145 = {
+				remove_dynamic_modifier = { modifier = aland_dmz_modifier }
+			}	
+		}
+		highlight_states = {
+			highlight_state_targets = {
+				state = 145
+			}
+		}
+		ai_will_do = {
+			factor = 0
+			modifier = {
+				add = 1000
+				date > 1916.1.1
+			}
+			modifier = {
+				add = 1000
+				tag = SWE
+			}
+			modifier = {
+				add = 1000
+				tag = FIN
+			}
+		}
 	}
 }
 
