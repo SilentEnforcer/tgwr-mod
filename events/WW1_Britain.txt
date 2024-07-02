@@ -773,6 +773,7 @@ country_event = {
 	trigger = {
 		original_tag = ENG
 		date > 1910.5.1
+		has_start_date < 1914.1.1
 		OR = {
 			has_idea = edward_vii
 			has_character = ENG_edward_vii
@@ -2695,6 +2696,7 @@ country_event = {
 	trigger = {
 		tag = ENG
 		date > 1911.9.1
+		has_start_date < 1914.1.1	
 		NOT = {
 			has_government = communism
 			has_completed_focus = ENG_Formation_Labour_Party
@@ -4415,6 +4417,7 @@ country_event = {
 		original_tag = ENG
 		has_war = no
 		date > 1911.01.01
+		has_start_date < 1914.1.1	
 		NOT = {
 			country_exists = IRE
 			has_country_flag = eng_Parliament_Debates_Irish_Home_Rule
@@ -4445,6 +4448,7 @@ country_event = {
 		original_tag = ENG
 		has_war = no
 		date > 1913.07.12
+		has_start_date < 1914.1.1
 		NOT = {
 			country_exists = IRE
 		}
@@ -4499,6 +4503,7 @@ country_event = {
 	trigger = {
 		original_tag = ENG
 		date > 1914.01.01
+		has_start_date < 1914.6.14
 		owns_state = 119
 		NOT = {
 			has_government = communism
@@ -10089,6 +10094,7 @@ country_event = {
 		tag = ENG
 		date > 1911.10.1
 		date < 1916.11.11
+		has_start_date < 1914.1.1	
 		has_character = ENG_arthur_connaught
 		has_subject = CAN
 		NOT = {
@@ -10831,6 +10837,7 @@ country_event = {
 		original_tag = ENG
 		has_government = democratic
 		date > 1910.12.3
+		has_start_date < 1914.1.1
 		has_completed_focus = ENG_balfours_folly
 	}
 	fire_only_once = yes
@@ -12280,6 +12287,7 @@ country_event = {
 			character = ENG_herbert_henry_asquith
 		}		
 		date > 1912.07.1
+		has_start_date < 1914.1.1	
 	}
 	fire_only_once = yes
 	mean_time_to_happen = {
@@ -12812,140 +12820,425 @@ country_event = {
 	option = {
 		name = ww1_england.264.a
 		hidden_effect = {
-			TUR = {
+			FROM = {
+				# Army
+				every_state = {
+					PREV = {
+						delete_unit = {
+							state = PREV
+							disband = yes
+						}
+					}
+				}
+				every_other_country = {
+					limit = { is_in_faction_with = PREV }
+					every_state = {
+						limit = { is_owned_by = FROM }
+						teleport_armies = {
+							limit = { tag = PREV }
+							to_state_array = owned_controlled_states
+						}
+					}
+				}
+				set_country_flag = army_should_be_restricted
+				country_lock_all_division_template = yes
+				add_ideas = idea_army_restrictions
+
+				# Territorial
+				## Britain
 				if = {
-					limit = { has_global_flag = treaty_of_batum }
-					# Kars Republic
-					every_controlled_state = {
+					limit = { has_war_with = ENG }
+					every_state = {
 						limit = {
-							is_owned_by = PREV
-							region = 134
+							is_owned_or_subject_PREV_trigger = yes
+							region = 228
+							is_coastal = yes
+							NOT = {
+								state = 455
+								state = 553
+								state = 859
+							}
 						}
-						set_state_flag = kars_republic
+						transfer_state_to = ENG
 					}
 				}
-				if = {
-					limit = {
-						has_war_together_with = GER
-					}
-					set_country_flag = member_of_central_powers
-				}
-				else = {
-					set_country_flag = member_of_central_powers
-				}
-				every_country = {
-					limit = { is_subject_of = PREV }
-					clr_country_flag = protectorate
-					PREV = { end_puppet = PREV }
-					leave_faction = yes
-					ENG = {
-						faction_leader = { white_peace = PREV.PREV }
-					}
-				}
-				add_ideas = TUR_diplomatic_isolation
-				set_country_flag = great_war_loser 
-				leave_faction = yes
-				every_country = {
-					limit = {
-						has_war_with = TUR
-					}
-					white_peace = PREV
-				}
+				## France
 				every_state = {
 					limit = {
-						owner = { has_country_flag = great_war_loser }
-						is_core_of = PER
-					}
-					transfer_state_to = PER
-				}
-				# TODO: add kars and aras 
-				every_state = {
-					limit = { has_state_flag = kars_republic }
-					set_demilitarized_zone = yes
-				}
-				if = {
-					limit = {
-						ASR = {
-							exists = no
-						}
-					}
-					ASR = {
-						transfer_state = 747
-					}
-				}
-				give_military_access = ENG
-				give_military_access = FRA
-				give_military_access = ITA
-				every_state = {
-					limit = {
-						owner = { has_country_flag = great_war_loser }
-						is_core_of = SYR
+						is_owned_or_subject_PREV_trigger = yes
+						region = 228
+						is_coastal = yes
 						NOT = {
-							state = 852
+							state = 455
 							state = 859
-							state = 677
-							state = 680
-							state = 884
-							state = 454
-							state = 856
-							state = 858
+						}
+					}
+					transfer_state_to = ENG
+				}
+				## Syria
+				every_state = {
+					limit = {
+						is_owned_or_subject_PREV_trigger = yes
+						region = 228
+						NOT = {
+							state = 447
+							state = 453
 						}
 					}
 					transfer_state_to = SYR
 				}
+				## Iraq
+				if = {
+					limit = { has_war_with = ENG }
+					every_state = {
+						limit = {
+							is_owned_or_subject_PREV_trigger = yes
+							region = 28
+							NOT = {
+								state = 676
+								state = 879
+							}
+						}
+						transfer_state_to = SYR
+					}
+				}
+				else = {
+					every_state = {
+						limit = {
+							is_owned_or_subject_PREV_trigger = yes
+							region = 28
+							NOT = {
+								state = 676
+								state = 879
+							}
+						}
+						transfer_state_to = IRQ
+					}
+				}
+				## Western Armenia
+				if = {
+					limit = {
+						has_war_with = RUS
+						NOT = { has_global_flag = russian_revolution }
+					}
+					every_state = {
+						limit = {
+							is_owned_or_subject_PREV_trigger = yes
+							OR = {
+								state = 352
+								state = 353
+								state = 354
+							}
+						}
+						230 = {
+							owner = {
+								transfer_state = PREV.PREV
+							}
+						}
+					}
+				}
+				## The Straits
+				if = {
+					limit = {
+						has_war_with = RUS
+						NOT = { has_global_flag = russian_revolution }
+					}
+					every_state = {
+						limit = {
+							is_owned_or_subject_PREV_trigger = yes
+							OR = {
+								state = 341
+								state = 347
+								state = 860
+								state = 861
+							}
+						}
+						137 = {
+							owner = {
+								transfer_state = PREV.PREV
+							}
+						}
+					}
+				}
+				else_if = {
+					limit = {
+						has_war_with = ENG
+					}
+					every_state = {
+						limit = {
+							is_owned_or_subject_PREV_trigger = yes
+							OR = {
+								state = 347
+								state = 860
+								state = 861
+							}
+						}
+						transfer_state_to = ENG
+					}
+				}
+				## Hejaz
 				every_state = {
 					limit = {
-						owner = { has_country_flag = great_war_loser }
-						is_core_of = HJZ
-						# NOT = {
-						# 	state = 859
-						# }
+						is_owned_or_subject_PREV_trigger = yes
+						OR = {
+							state = 679
+							state = 878
+						}
 					}
 					transfer_state_to = HJZ
 				}
 				every_state = {
 					limit = {
-						owner = { has_country_flag = great_war_loser }
-						is_core_of = YEM
-						# NOT = {
-						# 	state = 859
-						# }
+						is_owned_or_subject_PREV_trigger = yes
+						state = 747
 					}
-					transfer_state_to = YEM
+					transfer_state_to = ASR
 				}
 				every_state = {
 					limit = {
-						owner = { has_country_flag = great_war_loser }
-						NOT = {
-							state = 676
-							state = 879
-						}
+						is_owned_or_subject_PREV_trigger = yes
+						state = 293
+					}
+					transfer_state_to = YEM
+				}
+				## The Gulf
+				every_state = {
+					limit = {
+						is_owned_or_subject_PREV_trigger = yes
 						OR = {
-							is_core_of = IRQ
-							state = 852
-							state = 856
-							state = 454
-							state = 858
+							state = 804
+							state = 904
+							state = 905
 						}
 					}
-					transfer_state_to = ENG
+					292 = {
+						owner = {
+							transfer_state = PREV.PREV
+						}
+					}
 				}
-				FRA = {
-					transfer_state = 553
+				every_state = {
+					limit = {
+						is_owned_or_subject_PREV_trigger = yes
+						OR = {
+							state = 658
+							state = 765
+							state = 886
+						}
+					}
+					if = {
+						limit = {
+							PREV = { has_war_with = ENG }
+						}
+						transfer_state_to = ENG
+					}
+					else = {
+						PREV = {
+							release = BHR
+							release = QAT
+							release = UAE
+						}
+					}
 				}
+				## The Balkans
+				if = {
+					limit = {
+						owns_state = 898
+						NOT = { country_exists = GRE } 
+					}
+					release = GRE
+				}
+				every_state = {
+					limit = {
+						is_owned_or_subject_PREV_trigger = yes
+						OR = {
+							state = 164
+							state = 182
+							state = 183
+							state = 790
+							state = 899
+							state = 974
+							state = 975
+						}
+					}
+					182 = {
+						owner = {
+							transfer_state = PREV.PREV
+						}
+					}
+				}
+				every_state = {
+					limit = {
+						is_owned_or_subject_PREV_trigger = yes
+						OR = {
+							state = 184
+							state = 185
+							state = 200
+							state = 345
+							state = 731
+							state = 757
+							state = 758
+							state = 803
+							state = 826
+						}
+					}
+					185 = {
+						owner = {
+							transfer_state = PREV.PREV
+						}
+					}
+				}
+				if = {
+					limit = {
+						owns_state = 48
+						NOT = { country_exists = BUL } 
+					}
+					release = BUL
+				}
+				every_state = {
+					limit = {
+						is_owned_or_subject_PREV_trigger = yes
+						OR = {
+							state = 184
+							state = 200
+							state = 225
+							state = 451
+							state = 756
+							state = 757
+							state = 759
+							state = 788
+							state = 849
+						}
+					}
+					48 = {
+						owner = {
+							transfer_state = PREV.PREV
+						}
+					}
+				}
+				if = {
+					limit = {
+						owns_state = 809
+						NOT = { country_exists = SER } 
+					}
+					release = SER
+				}
+				every_state = {
+					limit = {
+						is_owned_or_subject_PREV_trigger = yes
+						OR = {
+							state = 106
+							state = 203
+							state = 759
+							state = 760
+							state = 847
+						}
+					}
+					809 = {
+						owner = {
+							transfer_state = PREV.PREV
+						}
+					}
+				}
+				if = {
+					limit = {
+						owns_state = 105
+						NOT = { country_exists = MNT } 
+					}
+					release = MNT
+				}
+				if = {
+					limit = {
+						owns_state = 44
+						NOT = { country_exists = MNT } 
+					}
+					release = ALB
+				}
+
+				# Clear relations
+				leave_faction = yes
+				every_other_country = {
+					limit = {
+						PREV = { has_wargoal_against = PREV }
+					}
+					PREV = {
+						remove_wargoal = {
+							type = all
+							target = PREV
+						}
+					}
+				}
+				every_enemy_country = {
+					limit = {
+						is_faction_leader = yes
+					}
+					white_peace = PREV
+					PREV = { give_military_access = PREV }
+				}
+				every_enemy_country = {
+					white_peace = PREV
+					PREV = { give_military_access = PREV }
+				}
+				every_subject_country = {
+					limit = {
+						has_autonomy_state = autonomy_tgwr_ottoman_emirate
+					}
+					clear_all_relations = yes
+				}
+				set_country_flag = great_war_loser
+				add_ideas = idea_armistice
 			}
 		}
-		white_peace = TUR
 		ai_chance = {
 			base = 100
 		}
 	}
+	# option = {
+	# 	name = ww1_england.264.b
+	# 	add_war_support = -0.25
+	# 	add_stability = -0.25
+	# 	ai_chance = {
+	# 		base = 0
+	# 	}
+	# }
+}
+
+# Armistice of Mudros
+news_event = {
+	id = ww1_england.265
+	title = ww1_england.265.t
+	desc = ww1_england.265.desc
+	picture = GFX_news_event_civil_war_turkey
+	is_triggered_only = yes
+	fire_only_once = yes
+	major = yes
 	option = {
-		name = ww1_england.264.b
-		add_war_support = -0.25
-		add_stability = -0.25
-		ai_chance = {
-			base = 0
+		name = ww1_england.265.a
+		trigger = {
+			original_tag = TUR
+		}
+	}
+	option = {
+		name = ww1_england.265.b
+		trigger = {
+			has_war_with = TUR
+		}
+	}
+	option = {
+		name = ww1_england.265.c
+		trigger = {
+			has_war_together_with = TUR
+			NOT = { original_tag = TUR }
+		}
+	}
+	option = {
+		name = ww1_england.265.d
+		trigger = {
+			NOT = {
+				has_war_with = TUR
+				has_war_together_with = TUR
+				original_tag = TUR
+			}
 		}
 	}
 }
