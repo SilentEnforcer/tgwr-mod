@@ -304,6 +304,7 @@ country_event = {
 	trigger = {
 		tag = SER
 		date > 1912.6.15
+		has_start_date < 1914.1.1
 		has_country_leader = {
 			character = SER_milovan_milovanovic
 			ruling_only = yes
@@ -1531,7 +1532,7 @@ country_event = {
 # 			add_country_leader_role = {
 # 				promote_leader = yes
 # 				country_leader = {
-# 					ideology = despotism
+# 					ideology = personalistic_dictatorship
 # 				}
 # 			}
 # 			promote_character = yes
@@ -1767,6 +1768,7 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		date > 1911.5.5
+		has_start_date < 1914.1.1	
 		NOT = {
 			has_country_flag = black_hand_formalized
 		}
@@ -1793,6 +1795,7 @@ country_event = {
 	trigger = {
 		tag = SER
 		date > 1911.8.8
+		has_start_date < 1914.1.1	
 		NOT = {
 			has_country_flag = Pijemont_magazine
 		}
@@ -2793,6 +2796,7 @@ country_event = {
 		tag = SER
 		has_character = SER_jelena_karadjordjevic
 		date > 1911.8.8
+		has_start_date < 1914.1.1	
 		NOT = {
 			has_country_flag = SER_jelena_wedding
 		}
@@ -3236,24 +3240,9 @@ country_event = {
 		}
 	}
 }
-
-### Radicals beaten !
-# country_event = {
-# 	id = ww1_serbia.136
-# 	title = ww1_serbia.136.t
-# 	desc = ww1_serbia.136.d
-# 	picture = GFX_report_event_conservative_victory
-# 	is_triggered_only = yes
-# 	option = {
-# 		name = ww1_serbia.136.a #Excellent !
-# 		add_political_power = 25
-# 		set_country_flag = democrats_beaten
-# 	}
-# }
 # The Long Expected War
 country_event = {
 	id = ww1_serbia.138
-	picture = GFX_report_event_generic_army
 	trigger = {
 		tag = SER
 		OR = {
@@ -3288,50 +3277,79 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_serbia.139.a
-		annex_country = {
-			target = CRO
-			transfer_troops = yes
-		}
-		if = {
-			limit = {
-				NOT = {
-					has_cosmetic_tag = SER_empire
-					has_cosmetic_tag = YUG
-					has_cosmetic_tag = SER_YUG
-				}
+		custom_effect_tooltip = GAME_OVER_TT
+		FROM = {
+			annex_country = {
+				target = CRO
+				transfer_troops = yes
 			}
 			if = {
 				limit = {
-					has_country_flag = greater_serbia_chosen
-				}
-				set_cosmetic_tag = SER_empire
-			}
-			else_if = {
-				limit = {
-					any_owned_state = {
-						is_core_of = SLV
+					NOT = {
+						has_cosmetic_tag = SER_empire
+						has_cosmetic_tag = YUG
+						has_cosmetic_tag = SER_YUG
 					}
 				}
-				set_cosmetic_tag = SER_YUG
+				if = {
+					limit = {
+						has_country_flag = greater_serbia_chosen
+					}
+					set_cosmetic_tag = SER_empire
+				}
+				else_if = {
+					limit = {
+						any_owned_state = {
+							is_core_of = SLV
+						}
+					}
+					set_cosmetic_tag = SER_YUG
+				}
+				else = {
+					set_cosmetic_tag = YUG
+				}
+				set_country_flag = SER_yugoslavia_formed
 			}
-			else = {
-				set_cosmetic_tag = YUG
+			hidden_effect = {
+				every_state = {
+					limit = {
+						OR = {
+							is_core_of = CRO
+							is_core_of = SLV
+							is_core_of = BOS
+						}
+					}
+					add_core_of = PREV
+				}
+				every_state = {
+					limit = {
+						OR = {
+							is_claimed_by = CRO
+							is_claimed_by = SLV
+							is_claimed_by = BOS
+						}
+					}
+					add_claim_by = PREV
+				}
 			}
-			set_country_flag = SER_yugoslavia_formed
 		}
-		hidden_effect = {
-			every_state = {
-				limit = {
-					is_core_of = CRO
-				}
-				add_core_of = ROOT
+	}
+	option = {
+		name = ww1_serbia.139.b
+		trigger = {
+			NOT = {
+				has_country_flag = great_war_loser
+				is_subject_of = FROM
 			}
-			every_state = {
-				limit = {
-					is_claimed_by = CRO
-				}
-				add_claim_by = ROOT
+		}
+		FROM = {
+			declare_war_on = {
+				target = ROOT
+				type = annex_everything
 			}
+		}
+		ai_chance = {
+			base = 0
 		}
 	}
 }
@@ -3716,6 +3734,132 @@ country_event = {
 		name = ww1_serbia.145.b
 		ai_chance = {
 			base = 0
+		}
+	}
+}
+
+# Austrian puppet serbia border
+country_event = {
+	id = ww1_serbia.146
+	title = ww1_serbia.146.t
+	desc = ww1_serbia.146.d
+	picture = GFX_report_event_generic_military_parade
+	fire_only_once = yes
+	trigger = {
+		tag = AUH
+		any_owned_state = {
+			is_core_of = MNT
+		}
+		SER = {
+			is_subject_of = ROOT
+			NOT = {
+				has_autonomy_state = autonomy_dominion
+				has_autonomy_state = autonomy_tgwr_crownland
+			}
+		}
+		NOT = { has_subject = MNT }
+	}
+	option = {
+		name = ww1_serbia.146.a
+		every_state = {
+			limit = {
+				OR = {
+					state = 107
+					state = 760
+					state = 761
+					state = 809
+					state = 847
+					state = 848
+					state = 876
+				}
+				OWNER = {
+					OR = {
+						tag = ROOT
+						is_subject_of = ROOT
+						has_country_flag = great_war_loser
+					}
+				}
+			}
+			remove_claim_by = ROOT
+			add_core_of = SER
+			transfer_state_to = SER
+		}
+		ai_chance = {
+			base = 0
+		}
+	}
+	option = {
+		name = ww1_serbia.146.c
+		every_state = {
+			limit = {
+				OR = {
+					state = 105
+					state = 107
+					state = 760
+					state = 761
+					state = 809
+					state = 847
+					state = 848
+					state = 876
+				}
+				OWNER = {
+					OR = {
+						tag = ROOT
+						is_subject_of = ROOT
+						has_country_flag = great_war_loser
+					}
+				}
+			}
+			add_core_of = SER
+			if = {
+				limit = { has_resistance = yes }
+				add_resistance = 30
+				add_compliance = -100
+			}
+		}
+		ai_chance = {
+			base = 0
+		}
+	}
+	option = {
+		name = ww1_serbia.146.b
+		add_political_power = -25
+		every_state = {
+			limit = {
+				OR = {
+					state = 107
+					state = 760
+					state = 761
+					state = 809
+					state = 847
+					state = 848
+					state = 876
+				}
+				OWNER = {
+					OR = {
+						tag = ROOT
+						is_subject_of = ROOT
+						has_country_flag = great_war_loser
+					}
+				}
+			}
+			add_core_of = SER
+			if = {
+				limit = { has_resistance = yes }
+				add_resistance = 30
+				add_compliance = -100
+			}
+		}
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 10
+				has_government = fascism
+			}
+			modifier = {
+				add = 10
+				has_subject = CRO
+			}
 		}
 	}
 }

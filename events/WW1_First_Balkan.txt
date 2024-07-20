@@ -256,6 +256,7 @@ country_event = {
 							OR = {
 								tag = FROM
 								is_subject_of = FROM
+								has_war_together_with = FROM
 							}
 						}
 						white_peace = PREV
@@ -621,8 +622,8 @@ country_event = {
 				limit = {
 					original_tag = SER
 				}
-				remove_state_core = 106
-				remove_state_core = 203
+				remove_state_claim = 106
+				remove_state_claim = 203
 				set_global_flag = SER_surrender_in_balkan_war
 			}
 			if = {
@@ -4077,6 +4078,10 @@ country_event = {
 		ai_chance = {
 			factor = 30
 			modifier = {
+				factor = 0 #no room for compromise
+				SER = { owns_state = 759 }
+			}
+			modifier = {
 				is_historical_focus_on = yes
 				factor = 0
 			}
@@ -4101,6 +4106,7 @@ country_event = {
 			}
 		}
 		custom_effect_tooltip = historical_tt
+		add_state_claim = 759
 		BUL = {
 			country_event = {
 				id = ww1_firstbalkan.110
@@ -4334,9 +4340,13 @@ country_event = {
 			}
 		}
 		ai_chance = {
-			factor = 100
+			factor = 5
 			modifier = {
 				is_historical_focus_on = yes
+				has_game_rule = {
+					rule = first_balkan_war_outcome
+					option = DEFAULT
+				}
 				factor = 0
 			}
 			modifier = {
@@ -4389,9 +4399,13 @@ country_event = {
 				add_claim_by = BUL
 			}		
 			SER = {
-				add_state_core = 106 #for Serbia theiving 
-				add_state_core = 203
-			}	
+				add_state_claim = 106
+				add_state_claim = 203
+				country_event = {
+					id = ww1_firstbalkan.118
+					days = 10
+				}
+			}
 			TUR = {
 				country_event = {
 					id = ww1_firstbalkan.3
@@ -4443,6 +4457,23 @@ country_event = {
 			set_country_flag = BW1_winner
 		}
 		hidden_effect = {
+			if = {
+				limit = {
+					country_exists = IKR
+				}
+				TUR = { white_peace = IKR }
+				GRE = {
+					IKR = { get_current_government_type = yes }
+					set_autonomy = {
+						target = IKR
+						autonomy_state = autonomy_tgwr_unilateral_union
+					}
+					IKR = {
+						restore_previous_government_type = yes
+						remove_ideas = standing_alone
+					}
+				}
+			}
 			TUR = {
 				release_puppet = ALB
 				ALB = {
@@ -4507,13 +4538,40 @@ country_event = {
 				}
 			}
 			TUR = {
+				ALB = {
+					set_country_flag = protectorate
+					add_ideas = TUR_wavering_ottoman_influence
+				}
 				set_autonomy = {
 					target = ALB
-					autonomous_state = autonomy_puppet
+					autonomous_state = autonomy_tgwr_protectorate
+				}
+				MAC = {
+					set_country_flag = protectorate
+					add_ideas = TUR_wavering_ottoman_influence
 				}
 				set_autonomy = {
 					target = MAC
-					autonomous_state = autonomy_puppet
+					autonomous_state = autonomy_tgwr_integrated_protectorate
+				}
+			}
+			every_country = {
+				limit = {
+					has_country_flag = BW1_winner
+				}
+				give_guarantee = ALB
+				give_guarantee = MAC
+				set_truce = {
+					target = ALB
+					days = 365
+				}
+				set_truce = {
+					target = MAC
+					days = 365
+				}
+				set_truce = {
+					target = TUR
+					days = 365
 				}
 			}
 			every_state = {
@@ -4532,6 +4590,8 @@ country_event = {
 						state = 345 #solun
 						state = 871 #vlore
 						state = 44 #albania
+						state = 974 #samos
+						state = 975 #ikaria
 					}
 				}
 				set_demilitarized_zone = yes
@@ -4547,6 +4607,10 @@ country_event = {
 			MAC = {
 				transfer_navy = {
 					target = TUR
+				}
+				add_named_threat = {
+					threat = 0.10
+					name = ww1_firstbalkan.117.t
 				}
 			}
 			if = {
@@ -4571,9 +4635,17 @@ country_event = {
 					}
 				}
 			}
+			BLL = {
+				if = {
+					limit = { has_war = no }
+					dismantle_faction = yes
+				}
+			}
+			news_event = {
+				id = ww1_firstbalkan.117
+				hours = 3
+			}
 		}
-
-
 	}
 }
 
@@ -4599,6 +4671,59 @@ news_event = {
 				play_song = "SE_balkan_war_1"
 				set_country_flag = SE_balkan_war_1
 			}
+		}
+	}
+}
+
+# Ottoman surrenders the Balkans news
+news_event = {
+	id = ww1_firstbalkan.117
+	title = ww1_firstbalkan.117.t
+	desc = ww1_firstbalkan.117.d
+	picture = GFX_news_event_bulgarian_troops
+	is_triggered_only = yes
+	major = yes
+	option = {
+		name = ww1_firstbalkan.117.a
+		trigger = {
+			NOT = { original_tag = TUR }
+		}
+	}
+	option = {
+		name = ww1_firstbalkan.117.b
+		trigger = {
+			original_tag = TUR
+		}
+	}
+}
+
+# Serbian thieving notification
+country_event = {
+	id = ww1_firstbalkan.118
+	title = ww1_firstbalkan.118.t
+	desc = ww1_firstbalkan.118.d
+	picture = GFX_report_event_yugoslavia_partisans
+	is_triggered_only = yes
+	trigger = {
+		has_capitulated = no
+		is_subject = no
+		has_war = yes
+		NOT = { owns_state = 203 }
+		106 = { is_controlled_by_ROOT_or_ally = yes }
+		203 = { is_controlled_by_ROOT_or_ally = yes }
+	}
+	option = {
+		name = ww1_firstbalkan.118.a
+		add_state_claim = 106
+		add_state_claim = 203
+		every_state = {
+			limit = {
+				state = 106
+				state = 203
+				is_controlled_by_ROOT_or_ally = yes
+				NOT = { is_controlled_by = ROOT }
+			}
+			set_state_controller_to = ROOT
 		}
 	}
 }
