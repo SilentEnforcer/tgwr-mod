@@ -136,18 +136,27 @@ country_event = {
 	
 	option = {
 		name = ww1_sra.3.a
-		annex_country = {
-			target = DON
-			transfer_troops = yes
-		}
-		DON = {
-			every_unit_leader = {
-				limit = {
+		if = {
+			limit = {
+				DON = {
 					NOT = {
-						is_character = RUS_pyotr_krasnov
+						has_government = communism
 					}
-				}			
-				set_nationality = SRA
+				}
+			}
+			annex_country = {
+				target = DON
+				transfer_troops = yes
+			}
+			DON = {
+				every_unit_leader = {
+					limit = {
+						NOT = {
+							is_character = RUS_pyotr_krasnov
+						}
+					}			
+					set_nationality = SRA
+				}
 			}
 		}
 		set_cosmetic_tag = SRA_government
@@ -274,7 +283,7 @@ country_event = {
 		has_capitulated = no
 		has_country_flag = SRA_offensive_failed
 		has_war_with = SOV
-		surrender_progress > 0.65 
+		surrender_progress > 0.45 
 		RUS_anton_denikin = {
 			is_country_leader = yes
 		}
@@ -287,13 +296,21 @@ country_event = {
 		RUS_anton_denikin = {
 			set_nationality = RXL
 		}
+		hidden_effect = {
+			every_country = {
+				limit = {
+					has_country_flag = can_send_to_SRA
+				}
+				clr_country_flag = can_send_to_SRA
+			}
+		}
 		every_possible_country = {
 			limit = {
 				has_character = RUS_pyotr_wrangel
 			}
 			RUS_pyotr_wrangel = {
 				set_nationality = SRA
-				promote_character = oligarchism
+				promote_character = personalistic_dictatorship
 				promote_character = stratocracy
 			}		
 		}
@@ -332,6 +349,22 @@ country_event = {
 	immediate = {
 		hidden_effect = {
 			set_global_flag = RUS_SRA_spawned
+			# does not work
+			# every_state = {
+			# 	limit = {
+			# 		OR = {
+			# 			region = 135
+			# 			region = 137
+			# 			region = 14
+			# 			region = 138
+			# 			region = 136
+			# 		}
+			# 	}
+			# 	add_dynamic_modifier = {
+			# 		modifier = RUS_russian_civil_war_raging
+			# 		days = 700
+			# 	}
+			# }
 			941 = {
 				SRA = { add_state_core = PREV }
 			}
@@ -359,7 +392,7 @@ country_event = {
 					add_country_leader_role ={
 						promote_leader = yes
 						country_leader = {
-							ideology=oligarchism
+							ideology=personalistic_dictatorship
 						}
 					}
 				}		
@@ -379,7 +412,7 @@ country_event = {
 					add_country_leader_role ={
 						promote_leader = yes
 						country_leader = {
-							ideology=oligarchism
+							ideology=personalistic_dictatorship
 						}
 					}
 				}		
@@ -400,7 +433,7 @@ country_event = {
 					add_country_leader_role ={
 						promote_leader = yes
 						country_leader = {
-							ideology=oligarchism
+							ideology=personalistic_dictatorship
 						}
 					}
 				}		
@@ -415,7 +448,7 @@ country_event = {
 					add_country_leader_role ={
 						promote_leader = yes
 						country_leader = {
-							ideology=oligarchism
+							ideology=personalistic_dictatorship
 						}
 					}
 					remove_unit_leader_role = yes
@@ -569,6 +602,14 @@ country_event = {
 			}
 			every_possible_country = {
 				limit = {
+					has_character = RUS_yuri_danilov
+				}
+				RUS_yuri_danilov = {
+					set_nationality = SRA
+				}		
+			}
+			every_possible_country = {
+				limit = {
 					has_character = RUS_mikhail_sablin
 				}
 				RUS_mikhail_sablin = {
@@ -576,13 +617,10 @@ country_event = {
 				}		
 			}
 			SRA = {
-				inherit_technology = RUS
+				inherit_technology = DON
+				delete_obsolete_russian_templates = yes
 				load_oob = "SRA_1918"
 				add_manpower = 15000
-				delete_unit_template_and_units = {
-					division_template = "Pekhotnaya Diviziya"
-					disband = yes
-				}
 				division_template = {
 					name = "Pekhotnaya Diviziya"
 					regiments = {
@@ -666,6 +704,16 @@ country_event = {
 				delete_unit_template_and_units = {
 					division_template = "Volunteer Cavalry Regiment"
 					disband = no
+				}
+			}
+			SOV = {
+				if = {
+					limit = {
+						NOT = {
+							has_idea = SOV_war_in_the_caucasus_2
+						}
+					}
+					add_ideas = SOV_war_in_the_caucasus_1
 				}
 			}
 		}
@@ -816,7 +864,7 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_sra.15.a
-		add_political_power = 100
+		add_political_power = 150
 		if = {
 			limit = {
 				has_character = RUS_mikhail_alekseyev
@@ -832,7 +880,7 @@ country_event = {
 		else = {
 			activate_advisor = RUS_anton_denikin
 		}
-		add_ideas = SRA_special_council
+		add_ideas = SRA_special_council_idea
 	}
 }
 # greco french intervention forces
@@ -1200,6 +1248,7 @@ country_event = {
 			} 
 		}
 		restore_previous_government_type = yes
+		set_country_flag = is_sra_puppet
 		FROM = {
 			country_event = {
 				id = ww1_sra.36
@@ -1342,16 +1391,21 @@ country_event = {
 	trigger = {
 		tag = SRA
 		controls_state = 234
-		NOT = {
-			has_country_flag = sra_annexed_kuban
-		}
+		# NOT = {
+		# 	has_country_flag = sra_annexed_kuban
+		# }
 	}
 	option = {
 		name = ww1_sra.41.a
 		if = {
 			limit = {
-				NOT = {
-					has_country_flag = sra_no_rada
+				OR = {
+					NOT = {
+						has_country_flag = sra_no_rada
+					}
+					NOT = {
+						has_idea = SRA_kuban_rada_1
+					}
 				}
 			}
 			add_ideas = {
@@ -1382,6 +1436,11 @@ country_event = {
 		tag = SRA
 		KUB = {
 			is_puppet_of = SOV
+		}
+		NOT = {
+			SRA = {
+				has_country_flag = sra_annexed_kuban
+			}
 		}
 	}
 	is_triggered_only = no
@@ -1484,21 +1543,47 @@ country_event = {
 					change_tag_from = KUB
 				}
 				set_country_flag = sra_annexed_kuban
+				KUB = {
+					delete_unit = {} 
+				}
 			}
-			annex_country = {
-				target = KUB
-				transfer_troops = yes
-			}
+			# annex_country = {
+			# 	target = KUB
+			# 	transfer_troops = yes
+			# }
 			add_ideas = {
 				SRA_no_civ_government_1
 				SRA_agrarian_question_idea_1
 			}
-			set_capital = {
-				state = 234
-				remember_old_capital = no
-			}
+			# set_capital = {
+			# 	state = 234
+			# 	remember_old_capital = no
+			# }
+			# hidden_effect = {
+			# 	set_state_owner = 234
+			# }
 			hidden_effect = {
-				set_state_owner = 234
+				division_template = {
+					name = "Kubinskaya militsiya"
+					#division_names_group = RUS_GAR_01
+					regiments = {
+						infantry = { x = 0 y = 0 }
+						infantry = { x = 0 y = 1 }
+						infantry = { x = 1 y = 0 }
+					}
+					support = { 
+						artillery = { x = 0 y = 0 }
+						recon = { x = 0 y = 1 }
+						engineer = { x = 0 y = 2 }
+					}
+				}
+				941 = {
+					create_unit = {
+						division = "name = \"Kubinskaya militsiya\" division_template = \"Kubinskaya militsiya\" start_experience_factor = 0.6"
+						owner = ROOT
+						allow_spawning_on_enemy_provs = yes
+					}
+				}
 			}
 		}
 		else = {
@@ -1536,6 +1621,9 @@ country_event = {
 				}
 			}
 			add_core_of = SRA
+		}
+		hidden_effect = {
+			remove_ideas = RUS_cossack_volnitsa
 		}
 		add_ideas = SRA_kuban_rada_1
 		ai_chance = {

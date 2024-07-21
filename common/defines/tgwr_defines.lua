@@ -2,8 +2,6 @@
 NDefines.NCareerProfile.MOD_STATISTICS_GROUP = "tgwr_career_profile"
 NDefines.NCareerProfile.MOD_STATISTICS_GROUP_NAME = "TGWR_CAREER_PROFILE"
 
-NDefines_Graphics.NFrontend.CAMERA_MIN_HEIGHT = 25.0
-
 NDefines.NGame.START_DATE = "1910.5.1.12"				
 NDefines.NGame.END_DATE = "1935.1.1.1"
 NDefines.NGame.HANDS_OFF_START_TAG = "BHU"
@@ -123,3 +121,5 @@ NDefines.NAI.EMBARGO_WORLD_TENSION_THREAT_DIVISOR = 0 -- Vanilla is 2.5
 NDefines.NNavy.TRAINING_MAX_DAILY_COUNTRY_EXP = 1.0 -- Vanilla is 3.5
 
 NDefines.NAir.CARRIER_SIZE_STAT_INCREMENT = 4					-- Each Point of carrier_size state adds capacity for this many planes
+
+NDefines.NProduction.PRODUCTION_RESOURCE_LACK_PENALTY = -0.10  -- increased so the player research stuff
