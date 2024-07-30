@@ -1,46 +1,11 @@
 debug_decisions = {
-	TUR_load_interwar_focus_tree = {
+	TUR_reload_minority_values = {
 		allowed = { original_tag = TUR }
-		available = {
-		}
-		fire_only_once = no
-		complete_effect = {
-			load_focus_tree = turkey_focus_tree
-		}
-		ai_will_do = {
-			base = 0
-		}
-	}
-	TUR_load_interwar_focus_tree2 = {
-		allowed = { original_tag = TUR }
-		available = {
-		}
-		fire_only_once = no
-		complete_effect = {
-			load_focus_tree = kostantiniyye_focus_tree
-		}
-		ai_will_do = {
-			base = 0
-		}
-	}
-	TUR_load_original_focus_tree = {
-		allowed = { original_tag = TUR }
-		available = {
-		}
-		fire_only_once = no
-		complete_effect = {
-			load_focus_tree = ottoman_focus_tree
-		}
-		ai_will_do = {
-			base = 0
-		}
+		complete_effect = { ottoman_minority_variable_check = yes }
+		ai_will_do = { base = 0 }
 	}
 	TUR_bop_right = {
 		allowed = { original_tag = TUR }
-		visible = {
-			is_debug = yes
-		}
-		fire_only_once = no
 		complete_effect = {
 			add_power_balance_value = {
 				id = TUR_army_civilian_struggle
@@ -51,16 +16,10 @@ debug_decisions = {
 				value = 2
 			}
 		}
-		ai_will_do = {
-			base = 0
-		}
+		ai_will_do = { base = 0 }
 	}
 	TUR_bop_left = {
 		allowed = { original_tag = TUR }
-		visible = {
-			is_debug = yes
-		}
-		fire_only_once = no
 		complete_effect = {
 			add_power_balance_value = {
 				id = TUR_army_civilian_struggle
@@ -71,24 +30,7 @@ debug_decisions = {
 				value = -2
 			}
 		}
-		ai_will_do = {
-			base = 0
-		}
-	}
-	TUR_load_obsolete_focus_tree = {
-		allowed = { original_tag = TUR }
-		available = {
-		}
-		visible = {
-			NOT = { has_country_flag = allow_turkish_obsolete_focuses }
-		}
-		fire_only_once = no
-		complete_effect = {
-			set_country_flag = allow_turkish_obsolete_focuses
-		}
-		ai_will_do = {
-			base = 0
-		}
+		ai_will_do = { base = 0 }
 	}
 }
 
@@ -885,157 +827,377 @@ GER_great_war = {
 }
 
 TUR_armenian_millet = {
-	TUR_conscription_in_karak = {
-		icon = GFX_decision_oppression
+	TUR_clash_against_armenian_gangs = {
+		icon = GFX_decision_generic_prepare_civil_war
 		allowed = { original_tag = TUR }
-		cost = 15
 		state_target = yes
-		targets = { 455 }
-		on_map_mode = map_and_decisions_view
-		days_remove = 30
-		fire_only_once = yes
-		modifier = {
-			consumer_goods_factor = -0.05
+		target_trigger = {
+			FROM = {
+				OR = {
+					state = 349
+					state = 348
+					state = 344
+					state = 857
+					state = 881
+					state = 350
+					state = 352
+					state = 353
+					state = 806
+					state = 816
+				}
+			}
 		}
+		highlight_states = { highlight_state_targets = { state = FROM } }
+		on_map_mode = map_only
 		visible = {
-			has_completed_focus = TUR_secure_power_in_arabia
+			has_completed_focus = TUR_arrest_armenian_agitators
 			controls_state = FROM
 			FROM = {
-				has_dynamic_modifier = { modifier = TUR_arab_minority }
-				NOT = { has_state_flag = TUR_increased_conscription_in_karak }
+				TUR_state_has_minority_modifier = yes
+				OR = {
+					check_variable = { TUR_ottoman_army_defence_factor < 0 }
+					check_variable = { TUR_ottoman_enemy_local_supplies > 0 }
+				}
+				NOT = { has_state_flag = TUR_clash_against_armenian_gangs }
 			}
 		}
+		cost = TUR_minority_cost_small?15
+		days_remove = TUR_minority_time_medium?30
 		available = {
-			divisions_in_state = {
-				type = infantry
-				size > 0
-				state = FROM
+			FROM = {
+				NOT = {
+					has_dynamic_modifier = { modifier = TUR_autonomous_vilayet }
+					has_dynamic_modifier = { modifier = TUR_semi_autonomous_vilayet }
+				}
 			}
 		}
-		cancel_trigger = {
-            divisions_in_state = {
-				type = infantry
-				size < 1
-				state = FROM
-			}
-        }
 		complete_effect = {
 			FROM = {
-				custom_effect_tooltip = TUR_conscription_in_karak_tt
-				add_to_variable = { TUR_ottoman_attrition = 0.2 }
-				add_compliance = -5
+				custom_effect_tooltip = TUR_clash_against_armenian_gangs_tt
+				add_to_variable = { TUR_ottoman_attrition = 0.1 }
+			}
+			ottoman_minority_variable_check = yes
+		}
+		remove_effect = {
+			if = {
+				limit = { has_completed_focus = TUR_one_language_one_religion_one_nation }
+				add_war_support = 0.003
+			}
+			FROM = {
+				custom_effect_tooltip = TUR_clash_against_armenian_gangs_tt2
+				add_to_variable = { TUR_ottoman_attrition = -0.1 }
+				add_to_variable = { TUR_ottoman_army_defence_factor = 0.05 }
+				add_to_variable = { TUR_ottoman_enemy_local_supplies = -0.05 }
+				set_state_flag = TUR_clash_against_armenian_gangs
+			}
+			ottoman_minority_variable_check = yes
+		}
+		cancel_trigger = { NOT = { controls_state = FROM } }
+		ai_will_do = {
+			base = 80
+			modifier = {
+				add = 80
+				FROM = { any_neighbor_state = { controller = { has_war_with = ROOT } } }
+			}
+		}
+	}
+	TUR_exterminate_armenians = {
+		icon = GFX_decision_generic_assassination
+		allowed = { original_tag = TUR }
+		state_target = yes
+		target_trigger = {
+			FROM = {
+				OR = {
+					state = 347
+					state = 1019
+					state = 341
+					state = 825
+					state = 349
+					state = 348
+					state = 344
+					state = 857
+					state = 881
+					state = 350
+					state = 352
+					state = 353
+					state = 816
+					state = 806
+				}
+			}
+		}
+		highlight_states = { highlight_state_targets = { state = FROM } }
+		on_map_mode = map_only
+		visible = {
+			has_completed_focus = TUR_temporary_law_of_deportation
+			controls_state = FROM
+			FROM = {
+				TUR_state_has_minority_modifier = yes
+				OR = {
+					check_variable = { TUR_ottoman_army_defence_factor < 0 }
+					check_variable = { TUR_ottoman_enemy_local_supplies > 0 }
+				}
+			}
+		}
+		cost = TUR_minority_cost_medium?30
+		days_remove = TUR_minority_time_large?60
+		available = {
+			FROM = {
+				NOT = {
+					has_dynamic_modifier = { modifier = TUR_autonomous_vilayet }
+					has_dynamic_modifier = { modifier = TUR_semi_autonomous_vilayet }
+				}
 			}
 		}
 		remove_effect = {
+			if = {
+				limit = { has_completed_focus = TUR_one_language_one_religion_one_nation }
+				add_stability = 0.002
+			}
 			FROM = {
-				custom_effect_tooltip = TUR_conscription_in_karak_tt2
-				add_to_variable = { TUR_ottoman_attrition = -0.2 }
-				add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.05 }
-				add_to_variable = { TUR_ottoman_local_supplies_for_controller = 0.05 }
-				set_state_flag = TUR_increased_conscription_in_karak
+				set_temp_variable = { TUR_temp_state_population = state_population }
+				divide_temp_variable = { TUR_temp_state_population = -5 }
+				add_manpower = TUR_temp_state_population
+				if = {
+					limit = {
+						has_dynamic_modifier = { modifier = TUR_armenian_minority }
+						check_variable = { TUR_armenian_state_level < 2 }
+					}
+					TUR_remove_armenian_effect = yes
+					if = {
+						limit = { state = 352 }
+						ROOT = { country_event = { id = ottoman.101 days = 4 } }
+					}
+					if = {
+						limit = { state = 806 }
+						ROOT = { country_event = { id = ottoman.103 days = 4 } }
+					}
+					if = {
+						limit = { NOT = { is_core_of = ROOT } }
+						add_core_of = ROOT
+					}
+					if = {
+						limit = { is_core_of = ARM }
+						remove_core_of = ARM
+					}
+				}
+				else = {
+					custom_effect_tooltip = TUR_minority_level_down
+					if = {
+						limit = { check_variable = { TUR_ottoman_attrition > 0 } }
+						custom_effect_tooltip = TUR_minority_attrition_down
+						add_to_variable = { TUR_ottoman_attrition = 0.05 }
+					}
+					if = {
+						limit = { check_variable = { TUR_ottoman_army_defence_factor < 0 } }
+						custom_effect_tooltip = TUR_minority_army_defence_factor_down
+						add_to_variable = { TUR_ottoman_army_defence_factor = 0.05 }
+					}
+					if = {
+						limit = { check_variable = { TUR_ottoman_enemy_local_supplies > 0 } }
+						custom_effect_tooltip = TUR_minority_enemy_local_supplies_down
+						add_to_variable = { TUR_ottoman_enemy_local_supplies = -0.05 }
+					}
+					if = {
+						limit = { check_variable = { TUR_ottoman_recruitable_population_factor < 0 } }
+						custom_effect_tooltip = TUR_minority_recruitable_population_down
+						add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.05 }
+					}
+					#custom_effect_tooltip = TUR_minority_stability_war_support_down
+					if = {
+						limit = { check_variable = { TUR_ottoman_state_stability_factor < 0 } }
+						custom_effect_tooltip = TUR_minority_stability_down
+						add_to_variable = { TUR_ottoman_state_stability_factor = 0.002 }
+					}
+					if = {
+						limit = { check_variable = { TUR_ottoman_state_war_support_factor < 0 } }
+						custom_effect_tooltip = TUR_minority_war_support_down
+						add_to_variable = { TUR_ottoman_state_war_support_factor = 0.001 }
+					}
+				}
+				add_to_variable = { TUR_armenian_state_level = -1 }
 			}
+			ottoman_minority_variable_check = yes
 		}
-		cancel_effect = {
-            FROM = {
-				custom_effect_tooltip = TUR_conscription_in_karak_tt3
-				add_to_variable = { TUR_ottoman_attrition = -0.2 }
-			}
-        }
+		cancel_trigger = { NOT = { controls_state = FROM } }
 		ai_will_do = {
-			base = 100
+			base = 80
+			modifier = {
+				add = 80
+				FROM = { any_neighbor_state = { controller = { has_war_with = ROOT } } }
+			}
 		}
 	}
-	TUR_truce_with_asir = {
-		icon = GFX_decision_generic_nationalism
+	TUR_lift_the_armenian_reforms = {
+		icon = GFX_decision_generic_break_treaty
 		allowed = { original_tag = TUR }
-		available = {
-			is_subject = no
-		}
+		cost = 50
 		visible = {
-			has_completed_focus = TUR_secure_power_in_arabia
-			controls_state = FROM
-			FROM = { has_dynamic_modifier = { modifier = TUR_arab_minority } }
+			OR = {
+				AND = {
+					controls_state = 353
+					owns_state = 353
+				}
+				AND = {
+					controls_state = 352
+					owns_state = 352
+				}
+				AND = {
+					controls_state = 881
+					owns_state = 881
+				}
+				AND = {
+					controls_state = 350
+					owns_state = 350
+				}
+				AND = {
+					controls_state = 349
+					owns_state = 349
+				}
+				AND = {
+					controls_state = 348
+					owns_state = 348
+				}
+				AND = {
+					controls_state = 806
+					owns_state = 806
+				}
+				AND = {
+					controls_state = 787
+					owns_state = 787
+				}
+				AND = {
+					controls_state = 939
+					owns_state = 939
+				}
+				AND = {
+					controls_state = 230
+					owns_state = 230
+				}
+			}
+			any_state = {
+				OR = {
+					state = 353
+					state = 352
+					state = 881
+					state = 350
+					state = 349
+					state = 348
+					state = 806
+					state = 787
+					state = 939
+					state = 230
+				}
+				OR = {
+					has_state_flag = TUR_autonomous_vilayet
+					has_state_flag = TUR_semi_autonomous_vilayet
+				}
+			}
 		}
-		cost = 20
-		fire_only_once = yes
-		state_target = yes
-		targets = { 662 }
-		on_map_mode = map_and_decisions_view
+		highlight_states = {
+			highlight_states_trigger = {
+				OR = {
+					state = 353
+					state = 352
+					state = 881
+					state = 350
+					state = 349
+					state = 348
+					state = 806
+					state = 787
+					state = 939
+					state = 230
+				}
+				has_dynamic_modifier = { modifier = TUR_semi_autonomous_vilayet }
+				has_dynamic_modifier = { modifier = TUR_autonomous_vilayet }
+			}
+		}
+		available = {
+			NOT = { is_in_faction_with = RUS }
+			has_war_with = RUS
+		}
 		complete_effect = {
-			set_country_flag = TUR_truce_with_asir
-			clr_global_flag = asir_rebellion
-			FROM = {
-				add_resistance = -30
-				custom_effect_tooltip = TUR_truce_with_asir_tt
-				add_to_variable = { TUR_ottoman_resistance_target = -0.8 }
-			}
-			add_political_power = -50
-			if = {
+			add_stability = -0.05
+			every_state = {
 				limit = {
-					has_government = neutrality
+					OR = {
+						state = 353
+						state = 352
+						state = 881
+						state = 350
+						state = 349
+						state = 348
+						state = 806
+						state = 787
+						state = 939
+						state = 230
+					}
+					has_dynamic_modifier = { modifier = TUR_autonomous_vilayet }
 				}
-				add_popularity = {
-					ideology = neutrality
-					popularity = -0.07
-				}
+				remove_dynamic_modifier = { modifier = TUR_autonomous_vilayet }
 			}
-			if = {
+			every_state = {
 				limit = {
-					has_government = fascism
+					OR = {
+						state = 353
+						state = 352
+						state = 881
+						state = 350
+						state = 349
+						state = 348
+						state = 806
+						state = 787
+						state = 939
+						state = 230
+					}
+					has_dynamic_modifier = { modifier = TUR_semi_autonomous_vilayet }
 				}
-				add_popularity = {
-					ideology = fascism
-					popularity = -0.07
+				remove_dynamic_modifier = { modifier = TUR_semi_autonomous_vilayet }
+			}
+			hidden_effect = {
+				every_state = {
+					limit = {
+						OR = {
+							state = 353
+							state = 352
+							state = 881
+							state = 350
+							state = 349
+							state = 348
+							state = 806
+							state = 787
+							state = 939
+							state = 230
+						}
+						OR = {
+							has_state_flag = TUR_autonomous_vilayet
+							has_state_flag = TUR_semi_autonomous_vilayet
+						}
+					}
+					clr_state_flag = TUR_autonomous_vilayet
+					clr_state_flag = TUR_semi_autonomous_vilayet
+					clr_state_flag = TUR_autonomous_vilayet_no_control
+					clr_state_flag = TUR_semi_autonomous_vilayet_no_control
 				}
 			}
-			if = {
-				limit = {
-					has_government = democratic
-				}
-				add_popularity = {
-					ideology = democratic
-					popularity = -0.07
-				}
-			}
-			if = {
-				limit = {
-					has_government = communism
-				}
-				add_popularity = {
-					ideology = communism
-					popularity = -0.07
-				}
-			}
+			ottoman_minority_variable_check = yes
 		}
 		ai_will_do = {
-			base = 0
+			base = 50
 			modifier = {
 				add = 1000
 				is_historical_focus_on = yes
-				OR = {
-					date > 1914.6.0
-					has_global_flag = great_war
-				}
+				has_global_flag = kis_war
+				has_war = yes
 			}
 			modifier = {
 				factor = 0
-				NOT = {
-					is_historical_focus_on = yes
-				}
-				any_state = {
-					is_core_of = ASR
-					NOT = { has_dynamic_modifier = { modifier = TUR_arab_minority } }
-				}
-			}
-			modifier = {
-				add = 50
-				any_state = {
-					is_core_of = ASR
-					has_dynamic_modifier = { modifier = TUR_arab_minority }
-				}
+				has_government = democratic
 			}
 		}
 	}
+}
+
+TUR_greek_millet = {
 	TUR_establish_order_in_macedonia = {
 		icon = GFX_decision_generic_police_action
 		allowed = { original_tag = TUR }
@@ -1186,193 +1348,6 @@ TUR_armenian_millet = {
 			base = 100
 		}
 	}
-	TUR_tax_collection_in_albania = {
-		icon = GFX_decision_generic_fundraising
-		allowed = { original_tag = TUR }
-		cost = 10
-		state_target = yes
-		targets = {
-			847
-			848
-			870
-			44
-			871
-			803
-			203
-		}
-		fire_only_once = yes
-		on_map_mode = map_only
-		days_remove = 35
-		visible = {
-			has_completed_focus = TUR_increase_taxes_on_albanians
-			controls_state = FROM
-			FROM = {
-				has_dynamic_modifier = { modifier = TUR_albanian_minority }
-				NOT = { has_state_flag = TUR_increase_taxes_on_albanians }
-			}
-		}
-		remove_effect = {
-			FROM = {
-				add_dynamic_modifier = { modifier = TUR_tax_collection days = 365 }
-				if = {
-					limit = { has_country_flag = TUR_albanian_tax_resistance }
-					custom_effect_tooltip = TUR_tax_collection_in_albania_tt2
-					add_to_variable = { TUR_ottoman_resistance_target = 0.2 }
-					add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.05 }
-				}
-				else = {
-					custom_effect_tooltip = TUR_tax_collection_in_albania_tt
-					add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.05 }
-					set_state_flag = TUR_albanian_tax_resistance
-				}
-			}
-		}
-		ai_will_do = { base = 100 }
-	}
-	TUR_increased_albanian_conscriptions = {
-		icon = GFX_decision_generic_military
-		allowed = { original_tag = TUR }
-		cost = 10
-		state_target = yes
-		targets = {
-			847
-			848
-			870
-			44
-			871
-			803
-			203
-			761
-			760
-			106
-		}
-		on_map_mode = map_only
-		visible = {
-			has_completed_focus = TUR_centralize_albania
-			controls_state = FROM
-			FROM = {
-				OR = {
-					has_dynamic_modifier = { modifier = TUR_albanian_minority }
-					state = 761
-					state = 760
-					state = 106
-					state = 758
-				}
-				if = {
-					limit = {
-						OR = {
-							state = 803
-							state = 203
-							state = 848
-							state = 760
-							state = 106
-							state = 758
-						}
-					}
-					check_variable = { TUR_ottoman_albania_centralization_level < 1 }
-				}
-				if = {
-					limit = {
-						OR = {
-							state = 871
-							state = 847
-							state = 761
-						}
-					}
-					check_variable = { TUR_ottoman_albania_centralization_level < 2 }
-				}
-				if = {
-					limit = {
-						OR = {
-							state = 870
-							state = 44
-						}
-					}
-					check_variable = { TUR_ottoman_albania_centralization_level < 3 }
-				}
-			}
-		}
-		available = {
-			FROM = {
-				if = {
-					limit = { check_variable = { TUR_ottoman_albania_centralization_level = 0 } }
-					resistance < 50
-				}
-				if = {
-					limit = { check_variable = { TUR_ottoman_albania_centralization_level = 1 } }
-					resistance < 30
-				}
-				if = {
-					limit = { check_variable = { TUR_ottoman_albania_centralization_level = 2 } }
-					resistance < 10
-				}
-			}
-		}
-		complete_effect = {
-			FROM = {
-				custom_effect_tooltip = TUR_increased_albanian_conscriptions_tt
-				add_to_variable = { TUR_ottoman_resistance_target = 0.2 }
-				add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.05 }
-				add_to_variable = { TUR_ottoman_albania_centralization_level = 1 }
-			}
-		}
-		ai_will_do = { base = 70 }
-	}
-	TUR_improve_albanian_garrisons = {
-		icon = GFX_decision_generic_protection
-		allowed = { original_tag = TUR }
-		custom_cost_text = TUR_decision_cost_300_infantry_equipment
-		custom_cost_trigger = { has_equipment = { infantry_equipment > 299 } }
-		state_target = yes
-		targets = {
-			847
-			848
-			870
-			44
-			871
-			803
-			203
-			761
-			760
-			106
-			758
-		}
-		on_map_mode = map_only
-		visible = {
-			has_completed_focus = TUR_centralize_albania
-			controls_state = FROM
-			FROM = {
-				OR = {
-					has_dynamic_modifier = { modifier = TUR_albanian_minority }
-					state = 761
-					state = 760
-					state = 106
-					state = 758
-				}
-				OR = {
-					check_variable = { TUR_ottoman_resistance_target > 0 }
-					check_variable = { TUR_ottoman_resistance_growth > 0 }
-				}
-			}
-		}
-		days_remove = 30
-		remove_effect = {
-			FROM = {
-				custom_effect_tooltip = TUR_improve_albanian_garrisons_tt
-				if = {
-					limit = { check_variable = { TUR_ottoman_resistance_target > 0 } }
-					custom_effect_tooltip = TUR_improve_albanian_garrisons_tt2
-					add_to_variable = { TUR_ottoman_resistance_target = -0.1 }
-				}
-				if = {
-					limit = { check_variable = { TUR_ottoman_resistance_growth > 0 } }
-					custom_effect_tooltip = TUR_improve_albanian_garrisons_tt3
-					add_to_variable = { TUR_ottoman_resistance_growth = -0.05 }
-				}
-			}
-		}
-		ai_will_do = { base = 100 }
-	}
 	TUR_combat_rebels_in_ahikerya = {
 		icon = GFX_decision_oppression
 		allowed = { original_tag = TUR }
@@ -1456,6 +1431,461 @@ TUR_armenian_millet = {
 		}
 		ai_will_do = {
 			base = 100
+		}
+	}
+	TUR_nationalize_greek_businesses = {
+		icon = GFX_decision_generic_consumer_goods
+		allowed = { original_tag = TUR }
+		state_target = yes
+		target_trigger = {
+			FROM = {
+				OR = {
+					state = 347
+					state = 341
+					state = 860
+					state = 849
+					state = 756
+					state = 200
+					state = 825
+					state = 861
+					state = 339
+					state = 824
+					state = 342
+					state = 790
+					state = 975
+					state = 974
+					state = 164
+					state = 899
+					state = 900
+					state = 182
+					state = 183
+					state = 355
+					state = 354
+					state = 348
+				}
+			}
+		}
+		highlight_states = { highlight_state_targets = { state = FROM } }
+		on_map_mode = map_only
+		visible = {
+			has_completed_focus = TUR_displace_christians_from_economy
+			controls_state = FROM
+			FROM = {
+				TUR_state_has_minority_modifier = yes
+				OR = {
+					check_variable = { TUR_ottoman_local_intel_to_enemies > 0 }
+					check_variable = { TUR_ottoman_state_production_speed_buildings_factor > 0 }
+					check_variable = { TUR_ottoman_local_factories < 0 }
+				}
+				NOT = { has_state_flag = TUR_nationalize_greek_businesses }
+			}
+		}
+		cost = TUR_minority_cost_small?15
+		days_remove = TUR_minority_time_medium?30
+		available = {
+			FROM = {
+				NOT = {
+					has_dynamic_modifier = { modifier = TUR_autonomous_vilayet }
+					has_dynamic_modifier = { modifier = TUR_semi_autonomous_vilayet }
+				}
+			}
+		}
+		remove_effect = {
+			if = {
+				limit = { has_completed_focus = TUR_one_language_one_religion_one_nation }
+				add_stability = 0.002
+			}
+			FROM = {
+				custom_effect_tooltip = TUR_nationalize_greek_businesses_tt
+				add_to_variable = { TUR_ottoman_local_factories = 0.05 }
+				add_to_variable = { TUR_ottoman_state_production_speed_buildings_factor = -0.02 }
+				set_state_flag = TUR_nationalize_greek_businesses
+				set_state_flag = TUR_greek_breakdown_of_economic_infrastructure_2
+				if = {
+					limit = { ROOT = { has_country_flag = TUR_greek_breakdown_of_economic_infrastructure_2 } }
+					if = {
+						limit = { NOT = { has_dynamic_modifier = { modifier = TUR_breakdown_of_economic_infrastructure_2 } } }
+						add_dynamic_modifier = { modifier = TUR_breakdown_of_economic_infrastructure_2 days = 780 }
+					}
+				}
+			}
+			hidden_effect = { country_event = { id = ottoman.126 days = 365 random_days = 730 } }
+			ottoman_minority_variable_check = yes
+		}
+		cancel_trigger = { NOT = { controls_state = FROM } }
+		ai_will_do = {
+			base = 50
+			modifier = {
+				add = -48
+				FROM = {
+					OR = {
+						state = 200
+						state = 756
+						state = 860
+						state = 849
+						state = 341
+						state = 825
+						state = 861
+						state = 824
+						state = 342
+					}
+					check_variable = { TUR_greek_state_level < 2 }
+				}
+			}
+			modifier = {
+				add = -50
+				FROM = {
+					state = 339
+					check_variable = { TUR_greek_state_level < 3 }
+				}
+			}
+			modifier = {
+				add = 80
+				FROM = { any_neighbor_state = { controller = { has_war_with = ROOT } } }
+			}
+		}
+	}
+	TUR_deport_greeks = {
+		icon = GFX_decision_eng_blackshirt_march
+		allowed = { original_tag = TUR }
+		state_target = yes
+		target_trigger = {
+			FROM = {
+				OR = {
+					state = 347
+					state = 341
+					state = 860
+					state = 849
+					state = 756
+					state = 200
+					state = 757
+					state = 825
+					state = 861
+					state = 339
+					state = 824
+					state = 342
+					state = 790
+					state = 975
+					state = 974
+					state = 164
+					state = 899
+					state = 900
+					state = 182
+					state = 183
+					state = 355
+					state = 354
+					state = 348
+					state = 184
+				}
+			}
+		}
+		highlight_states = { highlight_state_targets = { state = FROM } }
+		on_map_mode = map_only
+		visible = {
+			has_completed_focus = TUR_greek_deportations
+			controls_state = FROM
+			FROM = {
+				TUR_state_has_minority_modifier = yes
+				OR = {
+					check_variable = { TUR_ottoman_local_intel_to_enemies > 0 }
+					check_variable = { TUR_ottoman_state_production_speed_buildings_factor > 0 }
+					check_variable = { TUR_ottoman_local_factories < 0 }
+				}
+			}
+		}
+		cost = TUR_minority_cost_medium?30
+		days_remove = TUR_minority_time_large?60
+		available = {
+			FROM = {
+				NOT = {
+					has_dynamic_modifier = { modifier = TUR_autonomous_vilayet }
+					has_dynamic_modifier = { modifier = TUR_semi_autonomous_vilayet }
+				}
+			}
+		}
+		remove_effect = {
+			if = {
+				limit = { has_completed_focus = TUR_one_language_one_religion_one_nation }
+				add_stability = 0.002
+			}
+			FROM = {
+				set_temp_variable = { TUR_temp_state_population = state_population }
+				divide_temp_variable = { TUR_temp_state_population = -5 }
+				add_manpower = TUR_temp_state_population
+				if = {
+					limit = {
+						has_dynamic_modifier = { modifier = TUR_greek_minority }
+						check_variable = { TUR_greek_state_level < 2 }
+					}
+					TUR_remove_greek_effect = yes
+					if = {
+						limit = { NOT = { is_core_of = ROOT } }
+						add_core_of = ROOT
+					}
+					if = {
+						limit = { is_core_of = GRE }
+						remove_core_of = GRE
+					}
+					if = {
+						limit = { is_core_of = PON }
+						remove_core_of = PON
+					}
+				}
+				else = {
+					custom_effect_tooltip = TUR_minority_level_down
+					if = {
+						limit = { check_variable = { TUR_ottoman_local_factories < 0 } }
+						custom_effect_tooltip = TUR_minority_local_factories_down
+						add_to_variable = { TUR_ottoman_local_factories = 0.05 }
+					}
+					if = {
+						limit = { check_variable = { TUR_ottoman_local_intel_to_enemies > 0 } }
+						custom_effect_tooltip = TUR_minority_intel_to_enemies_down
+						add_to_variable = { TUR_ottoman_local_intel_to_enemies = -0.1 }
+					}
+					if = {
+						limit = { check_variable = { TUR_ottoman_recruitable_population_factor < 0 } }
+						custom_effect_tooltip = TUR_minority_recruitable_population_down
+						add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.05 }
+					}
+					if = {
+						limit = { check_variable = { TUR_ottoman_state_production_speed_buildings_factor > 0 } }
+						custom_effect_tooltip = TUR_minority_local_construction_speed_down
+						add_to_variable = { TUR_ottoman_state_production_speed_buildings_factor = -0.02 }
+					}
+					#custom_effect_tooltip = TUR_minority_stability_war_support_down
+					if = {
+						limit = { check_variable = { TUR_ottoman_state_stability_factor < 0 } }
+						custom_effect_tooltip = TUR_minority_stability_down
+						add_to_variable = { TUR_ottoman_state_stability_factor = 0.002 }
+					}
+					if = {
+						limit = { check_variable = { TUR_ottoman_state_war_support_factor < 0 } }
+						custom_effect_tooltip = TUR_minority_war_support_down
+						add_to_variable = { TUR_ottoman_state_war_support_factor = 0.001 }
+					}
+				}
+				add_to_variable = { TUR_greek_state_level = -1 }
+				set_state_flag = TUR_greek_breakdown_of_economic_infrastructure
+				if = {
+					limit = { ROOT = { has_country_flag = TUR_greek_breakdown_of_economic_infrastructure } }
+					if = {
+						limit = { NOT = { has_dynamic_modifier = { modifier = TUR_breakdown_of_economic_infrastructure } } }
+						add_dynamic_modifier = { modifier = TUR_breakdown_of_economic_infrastructure days = 780 }
+					}
+				}
+			}
+			hidden_effect = { country_event = { id = ottoman.99 days = 365 random_days = 730 } }
+			ottoman_minority_variable_check = yes
+		}
+		cancel_trigger = { NOT = { controls_state = FROM } }
+		ai_will_do = {
+			base = 50
+			modifier = {
+				add = -48
+				FROM = {
+					OR = {
+						state = 200
+						state = 756
+						state = 860
+						state = 849
+						state = 341
+						state = 825
+						state = 861
+						state = 824
+						state = 342
+					}
+					check_variable = { TUR_greek_state_level < 2 }
+				}
+			}
+			modifier = {
+				add = -50
+				FROM = {
+					state = 339
+					check_variable = { TUR_greek_state_level < 3 }
+				}
+			}
+			modifier = {
+				add = 80
+				FROM = { any_neighbor_state = { controller = { has_war_with = ROOT } } }
+			}
+		}
+	}
+	TUR_abolish_principality_of_samos = {
+		icon = GFX_decision_generic_break_treaty
+		allowed = { original_tag = TUR }
+		visible = {
+			OR = {
+				has_completed_focus = TUR_displace_christians_from_economy
+				has_completed_focus = TUR_greek_deportations
+			}
+			SMS = {
+				is_subject_of = TUR
+				has_autonomy_state = autonomy_tgwr_integrated_protectorate
+			}
+		}
+		cost = 30
+		highlight_states = { highlight_state_targets = { state = 974 } }
+		complete_effect = {
+			SMS = { country_event = { id = ottoman.89 hours = 8 } }
+			custom_effect_tooltip = if_they_accept_tt
+			event_option_tooltip = ottoman.90.a
+			ottoman_minority_variable_check = yes
+		}
+		ai_will_do = { base = 70 }
+	}
+}
+
+TUR_arab_millet = {
+	TUR_conscription_in_karak = {
+		icon = GFX_decision_oppression
+		allowed = { original_tag = TUR }
+		cost = 15
+		state_target = yes
+		targets = { 455 }
+		on_map_mode = map_and_decisions_view
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+			consumer_goods_factor = -0.05
+		}
+		visible = {
+			has_completed_focus = TUR_secure_power_in_arabia
+			controls_state = FROM
+			FROM = {
+				has_dynamic_modifier = { modifier = TUR_arab_minority }
+				NOT = { has_state_flag = TUR_increased_conscription_in_karak }
+			}
+		}
+		available = {
+			divisions_in_state = {
+				type = infantry
+				size > 0
+				state = FROM
+			}
+		}
+		cancel_trigger = {
+            divisions_in_state = {
+				type = infantry
+				size < 1
+				state = FROM
+			}
+        }
+		complete_effect = {
+			FROM = {
+				custom_effect_tooltip = TUR_conscription_in_karak_tt
+				add_to_variable = { TUR_ottoman_attrition = 0.2 }
+				add_compliance = -5
+			}
+		}
+		remove_effect = {
+			FROM = {
+				custom_effect_tooltip = TUR_conscription_in_karak_tt2
+				add_to_variable = { TUR_ottoman_attrition = -0.2 }
+				add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.05 }
+				add_to_variable = { TUR_ottoman_local_supplies_for_controller = 0.05 }
+				set_state_flag = TUR_increased_conscription_in_karak
+			}
+		}
+		cancel_effect = {
+            FROM = {
+				custom_effect_tooltip = TUR_conscription_in_karak_tt3
+				add_to_variable = { TUR_ottoman_attrition = -0.2 }
+			}
+        }
+		ai_will_do = {
+			base = 100
+		}
+	}
+	TUR_truce_with_asir = {
+		icon = GFX_decision_generic_nationalism
+		allowed = { original_tag = TUR }
+		available = {
+			is_subject = no
+		}
+		visible = {
+			has_completed_focus = TUR_secure_power_in_arabia
+			controls_state = FROM
+			FROM = { has_dynamic_modifier = { modifier = TUR_arab_minority } }
+		}
+		cost = 20
+		fire_only_once = yes
+		state_target = yes
+		targets = { 662 }
+		on_map_mode = map_and_decisions_view
+		complete_effect = {
+			set_country_flag = TUR_truce_with_asir
+			clr_global_flag = asir_rebellion
+			FROM = {
+				add_resistance = -30
+				custom_effect_tooltip = TUR_truce_with_asir_tt
+				add_to_variable = { TUR_ottoman_resistance_target = -0.8 }
+			}
+			add_political_power = -50
+			if = {
+				limit = {
+					has_government = neutrality
+				}
+				add_popularity = {
+					ideology = neutrality
+					popularity = -0.07
+				}
+			}
+			if = {
+				limit = {
+					has_government = fascism
+				}
+				add_popularity = {
+					ideology = fascism
+					popularity = -0.07
+				}
+			}
+			if = {
+				limit = {
+					has_government = democratic
+				}
+				add_popularity = {
+					ideology = democratic
+					popularity = -0.07
+				}
+			}
+			if = {
+				limit = {
+					has_government = communism
+				}
+				add_popularity = {
+					ideology = communism
+					popularity = -0.07
+				}
+			}
+		}
+		ai_will_do = {
+			base = 0
+			modifier = {
+				add = 1000
+				is_historical_focus_on = yes
+				OR = {
+					date > 1914.6.0
+					has_global_flag = great_war
+				}
+			}
+			modifier = {
+				factor = 0
+				NOT = {
+					is_historical_focus_on = yes
+				}
+				any_state = {
+					is_core_of = ASR
+					NOT = { has_dynamic_modifier = { modifier = TUR_arab_minority } }
+				}
+			}
+			modifier = {
+				add = 50
+				any_state = {
+					is_core_of = ASR
+					has_dynamic_modifier = { modifier = TUR_arab_minority }
+				}
+			}
 		}
 	}
 	TUR_pro_ottoman_propaganda_for_shia = {
@@ -2315,284 +2745,62 @@ TUR_armenian_millet = {
 			}
 		}
 	}
-	TUR_nationalize_greek_businesses = {
-		icon = GFX_decision_generic_consumer_goods
+	TUR_occupy_mount_lebanon_mutasarrifate = {
+		icon = GFX_decision_infiltrate_state
 		allowed = { original_tag = TUR }
-		state_target = yes
-		target_trigger = {
-			FROM = {
-				OR = {
-					state = 347
-					state = 341
-					state = 860
-					state = 849
-					state = 756
-					state = 200
-					state = 825
-					state = 861
-					state = 339
-					state = 824
-					state = 342
-					state = 790
-					state = 975
-					state = 974
-					state = 164
-					state = 899
-					state = 900
-					state = 182
-					state = 183
-					state = 355
-					state = 354
-					state = 348
-				}
-			}
-		}
-		highlight_states = { highlight_state_targets = { state = FROM } }
-		on_map_mode = map_only
 		visible = {
-			has_completed_focus = TUR_displace_christians_from_economy
-			controls_state = FROM
-			FROM = {
-				TUR_state_has_minority_modifier = yes
-				OR = {
-					check_variable = { TUR_ottoman_local_intel_to_enemies > 0 }
-					check_variable = { TUR_ottoman_state_production_speed_buildings_factor > 0 }
-					check_variable = { TUR_ottoman_local_factories < 0 }
-				}
-				NOT = { has_state_flag = TUR_nationalize_greek_businesses }
-			}
+			controls_state = 553
+			owns_state = 553
+			553 = { has_dynamic_modifier = { modifier = TUR_autonomous_vilayet_lebanon } }
+			has_completed_focus = TUR_central_administration_in_syria
 		}
-		cost = TUR_minority_cost_small?15
-		days_remove = TUR_minority_time_medium?30
-		available = {
-			FROM = {
-				NOT = {
-					has_dynamic_modifier = { modifier = TUR_autonomous_vilayet }
-					has_dynamic_modifier = { modifier = TUR_semi_autonomous_vilayet }
-				}
+		cost = 30
+		highlight_states = { highlight_state_targets = { state = 553 } }
+		state_target = yes
+		targets = { 553 }
+		complete_effect = {
+			553 = {
+				remove_dynamic_modifier = { modifier = TUR_autonomous_vilayet_lebanon }
+				add_dynamic_modifier = { modifier = TUR_autonomous_vilayet }
+				custom_effect_tooltip = empty_space
+				set_demilitarized_zone = no
 			}
-		}
-		remove_effect = {
-			if = {
-				limit = { has_completed_focus = TUR_one_language_one_religion_one_nation }
-				add_stability = 0.002
-			}
-			FROM = {
-				custom_effect_tooltip = TUR_nationalize_greek_businesses_tt
-				add_to_variable = { TUR_ottoman_local_factories = 0.05 }
-				add_to_variable = { TUR_ottoman_state_production_speed_buildings_factor = -0.02 }
-				set_state_flag = TUR_nationalize_greek_businesses
-				set_state_flag = TUR_greek_breakdown_of_economic_infrastructure_2
-				if = {
-					limit = { ROOT = { has_country_flag = TUR_greek_breakdown_of_economic_infrastructure_2 } }
-					if = {
-						limit = { NOT = { has_dynamic_modifier = { modifier = TUR_breakdown_of_economic_infrastructure_2 } } }
-						add_dynamic_modifier = { modifier = TUR_breakdown_of_economic_infrastructure_2 days = 780 }
-					}
-				}
-			}
-			hidden_effect = { country_event = { id = ottoman.126 days = 365 random_days = 730 } }
 			ottoman_minority_variable_check = yes
 		}
-		cancel_trigger = { NOT = { controls_state = FROM } }
+		ai_will_do = { base = 80 }
+	}
+	TUR_scrap_the_treaty_of_daan = {
+		icon = GFX_decision_generic_break_treaty
+		allowed = { original_tag = TUR }
+		visible = {
+			YEM = {
+				is_subject_of = TUR
+				has_autonomy_state = autonomy_tgwr_ottoman_autonomous_vilayet
+			}
+		}
+		cost = 30
+		highlight_states = { highlight_state_targets = { state = 293 } }
+		complete_effect = {
+			hidden_effect = { YEM = { clr_country_flag = has_adopted_TUR_minority_system } }
+			end_puppet = YEM
+			declare_war_on = {
+				target = YEM
+				type = annex_everything
+			}
+			ottoman_minority_variable_check = yes
+		}
 		ai_will_do = {
-			base = 50
+			base = 0
 			modifier = {
-				add = -48
-				FROM = {
-					OR = {
-						state = 200
-						state = 756
-						state = 860
-						state = 849
-						state = 341
-						state = 825
-						state = 861
-						state = 824
-						state = 342
-					}
-					check_variable = { TUR_greek_state_level < 2 }
-				}
-			}
-			modifier = {
-				add = -50
-				FROM = {
-					state = 339
-					check_variable = { TUR_greek_state_level < 3 }
-				}
-			}
-			modifier = {
-				add = 80
-				FROM = { any_neighbor_state = { controller = { has_war_with = ROOT } } }
+				add = 25
+				NOT = { is_historical_focus_on = yes }
+				has_country_flag = great_war_winner
 			}
 		}
 	}
-	TUR_deport_greeks = {
-		icon = GFX_decision_eng_blackshirt_march
-		allowed = { original_tag = TUR }
-		state_target = yes
-		target_trigger = {
-			FROM = {
-				OR = {
-					state = 347
-					state = 341
-					state = 860
-					state = 849
-					state = 756
-					state = 200
-					state = 757
-					state = 825
-					state = 861
-					state = 339
-					state = 824
-					state = 342
-					state = 790
-					state = 975
-					state = 974
-					state = 164
-					state = 899
-					state = 900
-					state = 182
-					state = 183
-					state = 355
-					state = 354
-					state = 348
-					state = 184
-				}
-			}
-		}
-		highlight_states = { highlight_state_targets = { state = FROM } }
-		on_map_mode = map_only
-		visible = {
-			has_completed_focus = TUR_greek_deportations
-			controls_state = FROM
-			FROM = {
-				TUR_state_has_minority_modifier = yes
-				OR = {
-					check_variable = { TUR_ottoman_local_intel_to_enemies > 0 }
-					check_variable = { TUR_ottoman_state_production_speed_buildings_factor > 0 }
-					check_variable = { TUR_ottoman_local_factories < 0 }
-				}
-			}
-		}
-		cost = TUR_minority_cost_medium?30
-		days_remove = TUR_minority_time_large?60
-		available = {
-			FROM = {
-				NOT = {
-					has_dynamic_modifier = { modifier = TUR_autonomous_vilayet }
-					has_dynamic_modifier = { modifier = TUR_semi_autonomous_vilayet }
-				}
-			}
-		}
-		remove_effect = {
-			if = {
-				limit = { has_completed_focus = TUR_one_language_one_religion_one_nation }
-				add_stability = 0.002
-			}
-			FROM = {
-				set_temp_variable = { TUR_temp_state_population = state_population }
-				divide_temp_variable = { TUR_temp_state_population = -5 }
-				add_manpower = TUR_temp_state_population
-				if = {
-					limit = {
-						has_dynamic_modifier = { modifier = TUR_greek_minority }
-						check_variable = { TUR_greek_state_level < 2 }
-					}
-					TUR_remove_greek_effect = yes
-					if = {
-						limit = { NOT = { is_core_of = ROOT } }
-						add_core_of = ROOT
-					}
-					if = {
-						limit = { is_core_of = GRE }
-						remove_core_of = GRE
-					}
-					if = {
-						limit = { is_core_of = PON }
-						remove_core_of = PON
-					}
-				}
-				else = {
-					custom_effect_tooltip = TUR_minority_level_down
-					if = {
-						limit = { check_variable = { TUR_ottoman_local_factories < 0 } }
-						custom_effect_tooltip = TUR_minority_local_factories_down
-						add_to_variable = { TUR_ottoman_local_factories = 0.05 }
-					}
-					if = {
-						limit = { check_variable = { TUR_ottoman_local_intel_to_enemies > 0 } }
-						custom_effect_tooltip = TUR_minority_intel_to_enemies_down
-						add_to_variable = { TUR_ottoman_local_intel_to_enemies = -0.1 }
-					}
-					if = {
-						limit = { check_variable = { TUR_ottoman_recruitable_population_factor < 0 } }
-						custom_effect_tooltip = TUR_minority_recruitable_population_down
-						add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.05 }
-					}
-					if = {
-						limit = { check_variable = { TUR_ottoman_state_production_speed_buildings_factor > 0 } }
-						custom_effect_tooltip = TUR_minority_local_construction_speed_down
-						add_to_variable = { TUR_ottoman_state_production_speed_buildings_factor = -0.02 }
-					}
-					#custom_effect_tooltip = TUR_minority_stability_war_support_down
-					if = {
-						limit = { check_variable = { TUR_ottoman_state_stability_factor < 0 } }
-						custom_effect_tooltip = TUR_minority_stability_down
-						add_to_variable = { TUR_ottoman_state_stability_factor = 0.002 }
-					}
-					if = {
-						limit = { check_variable = { TUR_ottoman_state_war_support_factor < 0 } }
-						custom_effect_tooltip = TUR_minority_war_support_down
-						add_to_variable = { TUR_ottoman_state_war_support_factor = 0.001 }
-					}
-				}
-				add_to_variable = { TUR_greek_state_level = -1 }
-				set_state_flag = TUR_greek_breakdown_of_economic_infrastructure
-				if = {
-					limit = { ROOT = { has_country_flag = TUR_greek_breakdown_of_economic_infrastructure } }
-					if = {
-						limit = { NOT = { has_dynamic_modifier = { modifier = TUR_breakdown_of_economic_infrastructure } } }
-						add_dynamic_modifier = { modifier = TUR_breakdown_of_economic_infrastructure days = 780 }
-					}
-				}
-			}
-			hidden_effect = { country_event = { id = ottoman.99 days = 365 random_days = 730 } }
-			ottoman_minority_variable_check = yes
-		}
-		cancel_trigger = { NOT = { controls_state = FROM } }
-		ai_will_do = {
-			base = 50
-			modifier = {
-				add = -48
-				FROM = {
-					OR = {
-						state = 200
-						state = 756
-						state = 860
-						state = 849
-						state = 341
-						state = 825
-						state = 861
-						state = 824
-						state = 342
-					}
-					check_variable = { TUR_greek_state_level < 2 }
-				}
-			}
-			modifier = {
-				add = -50
-				FROM = {
-					state = 339
-					check_variable = { TUR_greek_state_level < 3 }
-				}
-			}
-			modifier = {
-				add = 80
-				FROM = { any_neighbor_state = { controller = { has_war_with = ROOT } } }
-			}
-		}
-	}
+}
+
+TUR_south_slavic_millet = {
 	TUR_increased_pressure_on_bulgarians = {
 		icon = GFX_decision_oppression
 		allowed = { original_tag = TUR }
@@ -2848,206 +3056,307 @@ TUR_armenian_millet = {
 			}
 		}
 	}
-	TUR_clash_against_armenian_gangs = {
-		icon = GFX_decision_generic_prepare_civil_war
+}
+
+TUR_albanian_millet = {
+	TUR_tax_collection_in_albania = {
+		icon = GFX_decision_generic_fundraising
 		allowed = { original_tag = TUR }
+		cost = 10
 		state_target = yes
-		target_trigger = {
-			FROM = {
-				OR = {
-					state = 349
-					state = 348
-					state = 344
-					state = 857
-					state = 881
-					state = 350
-					state = 352
-					state = 353
-					state = 806
-					state = 816
-				}
-			}
+		targets = {
+			847
+			848
+			870
+			44
+			871
+			803
+			203
 		}
-		highlight_states = { highlight_state_targets = { state = FROM } }
+		fire_only_once = yes
 		on_map_mode = map_only
+		days_remove = 35
 		visible = {
-			has_completed_focus = TUR_arrest_armenian_agitators
+			has_completed_focus = TUR_increase_taxes_on_albanians
 			controls_state = FROM
 			FROM = {
-				TUR_state_has_minority_modifier = yes
-				OR = {
-					check_variable = { TUR_ottoman_army_defence_factor < 0 }
-					check_variable = { TUR_ottoman_enemy_local_supplies > 0 }
-				}
-				NOT = { has_state_flag = TUR_clash_against_armenian_gangs }
+				has_dynamic_modifier = { modifier = TUR_albanian_minority }
+				NOT = { has_state_flag = TUR_increase_taxes_on_albanians }
 			}
 		}
-		cost = TUR_minority_cost_small?15
-		days_remove = TUR_minority_time_medium?30
+		remove_effect = {
+			FROM = {
+				add_dynamic_modifier = { modifier = TUR_tax_collection days = 365 }
+				if = {
+					limit = { has_country_flag = TUR_albanian_tax_resistance }
+					custom_effect_tooltip = TUR_tax_collection_in_albania_tt2
+					add_to_variable = { TUR_ottoman_resistance_target = 0.2 }
+					add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.05 }
+				}
+				else = {
+					custom_effect_tooltip = TUR_tax_collection_in_albania_tt
+					add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.05 }
+					set_state_flag = TUR_albanian_tax_resistance
+				}
+			}
+		}
+		ai_will_do = { base = 100 }
+	}
+	TUR_increased_albanian_conscriptions = {
+		icon = GFX_decision_generic_military
+		allowed = { original_tag = TUR }
+		cost = 10
+		state_target = yes
+		targets = {
+			847
+			848
+			870
+			44
+			871
+			803
+			203
+			761
+			760
+			106
+		}
+		on_map_mode = map_only
+		visible = {
+			has_completed_focus = TUR_centralize_albania
+			controls_state = FROM
+			FROM = {
+				OR = {
+					has_dynamic_modifier = { modifier = TUR_albanian_minority }
+					state = 761
+					state = 760
+					state = 106
+					state = 758
+				}
+				if = {
+					limit = {
+						OR = {
+							state = 803
+							state = 203
+							state = 848
+							state = 760
+							state = 106
+							state = 758
+						}
+					}
+					check_variable = { TUR_ottoman_albania_centralization_level < 1 }
+				}
+				if = {
+					limit = {
+						OR = {
+							state = 871
+							state = 847
+							state = 761
+						}
+					}
+					check_variable = { TUR_ottoman_albania_centralization_level < 2 }
+				}
+				if = {
+					limit = {
+						OR = {
+							state = 870
+							state = 44
+						}
+					}
+					check_variable = { TUR_ottoman_albania_centralization_level < 3 }
+				}
+			}
+		}
 		available = {
 			FROM = {
-				NOT = {
-					has_dynamic_modifier = { modifier = TUR_autonomous_vilayet }
-					has_dynamic_modifier = { modifier = TUR_semi_autonomous_vilayet }
+				if = {
+					limit = { check_variable = { TUR_ottoman_albania_centralization_level = 0 } }
+					resistance < 50
+				}
+				if = {
+					limit = { check_variable = { TUR_ottoman_albania_centralization_level = 1 } }
+					resistance < 30
+				}
+				if = {
+					limit = { check_variable = { TUR_ottoman_albania_centralization_level = 2 } }
+					resistance < 10
 				}
 			}
 		}
 		complete_effect = {
 			FROM = {
-				custom_effect_tooltip = TUR_clash_against_armenian_gangs_tt
-				add_to_variable = { TUR_ottoman_attrition = 0.1 }
-			}
-			ottoman_minority_variable_check = yes
-		}
-		remove_effect = {
-			if = {
-				limit = { has_completed_focus = TUR_one_language_one_religion_one_nation }
-				add_war_support = 0.003
-			}
-			FROM = {
-				custom_effect_tooltip = TUR_clash_against_armenian_gangs_tt2
-				add_to_variable = { TUR_ottoman_attrition = -0.1 }
-				add_to_variable = { TUR_ottoman_army_defence_factor = 0.05 }
-				add_to_variable = { TUR_ottoman_enemy_local_supplies = -0.05 }
-				set_state_flag = TUR_clash_against_armenian_gangs
-			}
-			ottoman_minority_variable_check = yes
-		}
-		cancel_trigger = { NOT = { controls_state = FROM } }
-		ai_will_do = {
-			base = 80
-			modifier = {
-				add = 80
-				FROM = { any_neighbor_state = { controller = { has_war_with = ROOT } } }
+				custom_effect_tooltip = TUR_increased_albanian_conscriptions_tt
+				add_to_variable = { TUR_ottoman_resistance_target = 0.2 }
+				add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.05 }
+				add_to_variable = { TUR_ottoman_albania_centralization_level = 1 }
 			}
 		}
+		ai_will_do = { base = 70 }
 	}
-	TUR_exterminate_armenians = {
-		icon = GFX_decision_generic_assassination
+	TUR_improve_albanian_garrisons = {
+		icon = GFX_decision_generic_protection
 		allowed = { original_tag = TUR }
+		custom_cost_text = TUR_decision_cost_300_infantry_equipment
+		custom_cost_trigger = { has_equipment = { infantry_equipment > 299 } }
 		state_target = yes
-		target_trigger = {
-			FROM = {
-				OR = {
-					state = 347
-					state = 1019
-					state = 341
-					state = 825
-					state = 349
-					state = 348
-					state = 344
-					state = 857
-					state = 881
-					state = 350
-					state = 352
-					state = 353
-					state = 816
-					state = 806
-				}
-			}
+		targets = {
+			847
+			848
+			870
+			44
+			871
+			803
+			203
+			761
+			760
+			106
+			758
 		}
-		highlight_states = { highlight_state_targets = { state = FROM } }
 		on_map_mode = map_only
 		visible = {
-			has_completed_focus = TUR_temporary_law_of_deportation
+			has_completed_focus = TUR_centralize_albania
 			controls_state = FROM
 			FROM = {
-				TUR_state_has_minority_modifier = yes
 				OR = {
-					check_variable = { TUR_ottoman_army_defence_factor < 0 }
-					check_variable = { TUR_ottoman_enemy_local_supplies > 0 }
+					has_dynamic_modifier = { modifier = TUR_albanian_minority }
+					state = 761
+					state = 760
+					state = 106
+					state = 758
+				}
+				OR = {
+					check_variable = { TUR_ottoman_resistance_target > 0 }
+					check_variable = { TUR_ottoman_resistance_growth > 0 }
 				}
 			}
 		}
-		cost = TUR_minority_cost_medium?30
-		days_remove = TUR_minority_time_large?60
-		available = {
+		days_remove = 30
+		remove_effect = {
 			FROM = {
-				NOT = {
+				custom_effect_tooltip = TUR_improve_albanian_garrisons_tt
+				if = {
+					limit = { check_variable = { TUR_ottoman_resistance_target > 0 } }
+					custom_effect_tooltip = TUR_improve_albanian_garrisons_tt2
+					add_to_variable = { TUR_ottoman_resistance_target = -0.1 }
+				}
+				if = {
+					limit = { check_variable = { TUR_ottoman_resistance_growth > 0 } }
+					custom_effect_tooltip = TUR_improve_albanian_garrisons_tt3
+					add_to_variable = { TUR_ottoman_resistance_growth = -0.05 }
+				}
+			}
+		}
+		ai_will_do = { base = 100 }
+	}
+	TUR_repel_the_grece_memorandum = {
+		icon = generic_break_treaty
+		allowed = { original_tag = TUR }
+		visible = { has_country_flag = TUR_ratify_grece_memorendum }
+		cost = 150
+		visible = {
+			OR = {
+				AND = {
+					controls_state = 44
+					owns_state = 44
+				}
+				AND = {
+					controls_state = 870
+					owns_state = 870
+				}
+				AND = {
+					controls_state = 848
+					owns_state = 848
+				}
+				AND = {
+					controls_state = 847
+					owns_state = 847
+				}
+				AND = {
+					controls_state = 871
+					owns_state = 871
+				}
+			}
+			any_state = {
+				OR = {
+					state = 44
+					state = 870
+					state = 848
+					state = 847
+					state = 871
+				}
+				OR = {
+					has_state_flag = TUR_autonomous_vilayet
+					has_state_flag = TUR_semi_autonomous_vilayet
+				}
+			}
+		}
+		available = {
+			is_subject = no
+			any_controlled_state = {
+				is_core_of = ALB
+			}
+		}
+		complete_effect = {
+			add_stability = -0.05
+			every_state = {
+				limit = {
+					OR = {
+						state = 44
+						state = 870
+						state = 848
+						state = 847
+						state = 871
+					}
 					has_dynamic_modifier = { modifier = TUR_autonomous_vilayet }
+				}
+				remove_dynamic_modifier = { modifier = TUR_autonomous_vilayet }
+			}
+			every_state = {
+				limit = {
+					OR = {
+						state = 44
+						state = 870
+						state = 848
+						state = 847
+						state = 871
+					}
 					has_dynamic_modifier = { modifier = TUR_semi_autonomous_vilayet }
 				}
+				remove_dynamic_modifier = { modifier = TUR_semi_autonomous_vilayet }
 			}
-		}
-		remove_effect = {
-			if = {
-				limit = { has_completed_focus = TUR_one_language_one_religion_one_nation }
-				add_stability = 0.002
-			}
-			FROM = {
-				set_temp_variable = { TUR_temp_state_population = state_population }
-				divide_temp_variable = { TUR_temp_state_population = -5 }
-				add_manpower = TUR_temp_state_population
-				if = {
+			hidden_effect = {
+				every_state = {
 					limit = {
-						has_dynamic_modifier = { modifier = TUR_armenian_minority }
-						check_variable = { TUR_armenian_state_level < 2 }
+						OR = {
+							state = 44
+							state = 870
+							state = 848
+							state = 847
+							state = 871
+						}
+						OR = {
+							has_state_flag = TUR_autonomous_vilayet
+							has_state_flag = TUR_semi_autonomous_vilayet
+						}
 					}
-					TUR_remove_armenian_effect = yes
-					if = {
-						limit = { state = 352 }
-						ROOT = { country_event = { id = ottoman.101 days = 4 } }
-					}
-					if = {
-						limit = { state = 806 }
-						ROOT = { country_event = { id = ottoman.103 days = 4 } }
-					}
-					if = {
-						limit = { NOT = { is_core_of = ROOT } }
-						add_core_of = ROOT
-					}
-					if = {
-						limit = { is_core_of = ARM }
-						remove_core_of = ARM
-					}
+					clr_state_flag = TUR_autonomous_vilayet
+					clr_state_flag = TUR_semi_autonomous_vilayet
+					clr_state_flag = TUR_autonomous_vilayet_no_control
+					clr_state_flag = TUR_semi_autonomous_vilayet_no_control
 				}
-				else = {
-					custom_effect_tooltip = TUR_minority_level_down
-					if = {
-						limit = { check_variable = { TUR_ottoman_attrition > 0 } }
-						custom_effect_tooltip = TUR_minority_attrition_down
-						add_to_variable = { TUR_ottoman_attrition = 0.05 }
-					}
-					if = {
-						limit = { check_variable = { TUR_ottoman_army_defence_factor < 0 } }
-						custom_effect_tooltip = TUR_minority_army_defence_factor_down
-						add_to_variable = { TUR_ottoman_army_defence_factor = 0.05 }
-					}
-					if = {
-						limit = { check_variable = { TUR_ottoman_enemy_local_supplies > 0 } }
-						custom_effect_tooltip = TUR_minority_enemy_local_supplies_down
-						add_to_variable = { TUR_ottoman_enemy_local_supplies = -0.05 }
-					}
-					if = {
-						limit = { check_variable = { TUR_ottoman_recruitable_population_factor < 0 } }
-						custom_effect_tooltip = TUR_minority_recruitable_population_down
-						add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.05 }
-					}
-					#custom_effect_tooltip = TUR_minority_stability_war_support_down
-					if = {
-						limit = { check_variable = { TUR_ottoman_state_stability_factor < 0 } }
-						custom_effect_tooltip = TUR_minority_stability_down
-						add_to_variable = { TUR_ottoman_state_stability_factor = 0.002 }
-					}
-					if = {
-						limit = { check_variable = { TUR_ottoman_state_war_support_factor < 0 } }
-						custom_effect_tooltip = TUR_minority_war_support_down
-						add_to_variable = { TUR_ottoman_state_war_support_factor = 0.001 }
-					}
-				}
-				add_to_variable = { TUR_armenian_state_level = -1 }
 			}
 			ottoman_minority_variable_check = yes
 		}
-		cancel_trigger = { NOT = { controls_state = FROM } }
 		ai_will_do = {
-			base = 80
+			base = 0
 			modifier = {
-				add = 80
-				FROM = { any_neighbor_state = { controller = { has_war_with = ROOT } } }
+				add = 75
+				has_government = fascism
+				has_stability > 0.6
 			}
 		}
 	}
+}
+
+TUR_assyrian_millet = {
 	TUR_usurp_assyrian_properties = {
 		icon = GFX_decision_generic_fundraising
 		allowed = { original_tag = TUR }
@@ -3204,358 +3513,6 @@ TUR_armenian_millet = {
 		}
 		cancel_trigger = { NOT = { controls_state = FROM } }
 		ai_will_do = { base = 30 }
-	}
-	TUR_occupy_mount_lebanon_mutasarrifate = {
-		icon = GFX_decision_infiltrate_state
-		allowed = { original_tag = TUR }
-		visible = {
-			controls_state = 553
-			owns_state = 553
-			553 = { has_dynamic_modifier = { modifier = TUR_autonomous_vilayet_lebanon } }
-			has_completed_focus = TUR_central_administration_in_syria
-		}
-		cost = 30
-		highlight_states = { highlight_state_targets = { state = 553 } }
-		state_target = yes
-		targets = { 553 }
-		complete_effect = {
-			553 = {
-				remove_dynamic_modifier = { modifier = TUR_autonomous_vilayet_lebanon }
-				add_dynamic_modifier = { modifier = TUR_autonomous_vilayet }
-				custom_effect_tooltip = empty_space
-				set_demilitarized_zone = no
-			}
-			ottoman_minority_variable_check = yes
-		}
-		ai_will_do = { base = 80 }
-	}
-	TUR_repel_the_grece_memorandum = {
-		icon = generic_break_treaty
-		allowed = { original_tag = TUR }
-		visible = { has_country_flag = TUR_ratify_grece_memorendum }
-		cost = 150
-		visible = {
-			OR = {
-				AND = {
-					controls_state = 44
-					owns_state = 44
-				}
-				AND = {
-					controls_state = 870
-					owns_state = 870
-				}
-				AND = {
-					controls_state = 848
-					owns_state = 848
-				}
-				AND = {
-					controls_state = 847
-					owns_state = 847
-				}
-				AND = {
-					controls_state = 871
-					owns_state = 871
-				}
-			}
-			any_state = {
-				OR = {
-					state = 44
-					state = 870
-					state = 848
-					state = 847
-					state = 871
-				}
-				OR = {
-					has_state_flag = TUR_autonomous_vilayet
-					has_state_flag = TUR_semi_autonomous_vilayet
-				}
-			}
-		}
-		available = {
-			is_subject = no
-			any_controlled_state = {
-				is_core_of = ALB
-			}
-		}
-		complete_effect = {
-			add_stability = -0.05
-			every_state = {
-				limit = {
-					OR = {
-						state = 44
-						state = 870
-						state = 848
-						state = 847
-						state = 871
-					}
-					has_dynamic_modifier = { modifier = TUR_autonomous_vilayet }
-				}
-				remove_dynamic_modifier = { modifier = TUR_autonomous_vilayet }
-			}
-			every_state = {
-				limit = {
-					OR = {
-						state = 44
-						state = 870
-						state = 848
-						state = 847
-						state = 871
-					}
-					has_dynamic_modifier = { modifier = TUR_semi_autonomous_vilayet }
-				}
-				remove_dynamic_modifier = { modifier = TUR_semi_autonomous_vilayet }
-			}
-			hidden_effect = {
-				every_state = {
-					limit = {
-						OR = {
-							state = 44
-							state = 870
-							state = 848
-							state = 847
-							state = 871
-						}
-						OR = {
-							has_state_flag = TUR_autonomous_vilayet
-							has_state_flag = TUR_semi_autonomous_vilayet
-						}
-					}
-					clr_state_flag = TUR_autonomous_vilayet
-					clr_state_flag = TUR_semi_autonomous_vilayet
-					clr_state_flag = TUR_autonomous_vilayet_no_control
-					clr_state_flag = TUR_semi_autonomous_vilayet_no_control
-				}
-			}
-			ottoman_minority_variable_check = yes
-		}
-		ai_will_do = {
-			base = 0
-			modifier = {
-				add = 75
-				has_government = fascism
-				has_stability > 0.6
-			}
-		}
-	}
-	TUR_lift_the_armenian_reforms = {
-		icon = GFX_decision_generic_break_treaty
-		allowed = { original_tag = TUR }
-		cost = 50
-		visible = {
-			OR = {
-				AND = {
-					controls_state = 353
-					owns_state = 353
-				}
-				AND = {
-					controls_state = 352
-					owns_state = 352
-				}
-				AND = {
-					controls_state = 881
-					owns_state = 881
-				}
-				AND = {
-					controls_state = 350
-					owns_state = 350
-				}
-				AND = {
-					controls_state = 349
-					owns_state = 349
-				}
-				AND = {
-					controls_state = 348
-					owns_state = 348
-				}
-				AND = {
-					controls_state = 806
-					owns_state = 806
-				}
-				AND = {
-					controls_state = 787
-					owns_state = 787
-				}
-				AND = {
-					controls_state = 939
-					owns_state = 939
-				}
-				AND = {
-					controls_state = 230
-					owns_state = 230
-				}
-			}
-			any_state = {
-				OR = {
-					state = 353
-					state = 352
-					state = 881
-					state = 350
-					state = 349
-					state = 348
-					state = 806
-					state = 787
-					state = 939
-					state = 230
-				}
-				OR = {
-					has_state_flag = TUR_autonomous_vilayet
-					has_state_flag = TUR_semi_autonomous_vilayet
-				}
-			}
-		}
-		highlight_states = {
-			highlight_states_trigger = {
-				OR = {
-					state = 353
-					state = 352
-					state = 881
-					state = 350
-					state = 349
-					state = 348
-					state = 806
-					state = 787
-					state = 939
-					state = 230
-				}
-				has_dynamic_modifier = { modifier = TUR_semi_autonomous_vilayet }
-				has_dynamic_modifier = { modifier = TUR_autonomous_vilayet }
-			}
-		}
-		available = {
-			NOT = { is_in_faction_with = RUS }
-			has_war_with = RUS
-		}
-		complete_effect = {
-			add_stability = -0.05
-			every_state = {
-				limit = {
-					OR = {
-						state = 353
-						state = 352
-						state = 881
-						state = 350
-						state = 349
-						state = 348
-						state = 806
-						state = 787
-						state = 939
-						state = 230
-					}
-					has_dynamic_modifier = { modifier = TUR_autonomous_vilayet }
-				}
-				remove_dynamic_modifier = { modifier = TUR_autonomous_vilayet }
-			}
-			every_state = {
-				limit = {
-					OR = {
-						state = 353
-						state = 352
-						state = 881
-						state = 350
-						state = 349
-						state = 348
-						state = 806
-						state = 787
-						state = 939
-						state = 230
-					}
-					has_dynamic_modifier = { modifier = TUR_semi_autonomous_vilayet }
-				}
-				remove_dynamic_modifier = { modifier = TUR_semi_autonomous_vilayet }
-			}
-			hidden_effect = {
-				every_state = {
-					limit = {
-						OR = {
-							state = 353
-							state = 352
-							state = 881
-							state = 350
-							state = 349
-							state = 348
-							state = 806
-							state = 787
-							state = 939
-							state = 230
-						}
-						OR = {
-							has_state_flag = TUR_autonomous_vilayet
-							has_state_flag = TUR_semi_autonomous_vilayet
-						}
-					}
-					clr_state_flag = TUR_autonomous_vilayet
-					clr_state_flag = TUR_semi_autonomous_vilayet
-					clr_state_flag = TUR_autonomous_vilayet_no_control
-					clr_state_flag = TUR_semi_autonomous_vilayet_no_control
-				}
-			}
-			ottoman_minority_variable_check = yes
-		}
-		ai_will_do = {
-			base = 50
-			modifier = {
-				add = 1000
-				is_historical_focus_on = yes
-				has_global_flag = kis_war
-				has_war = yes
-			}
-			modifier = {
-				factor = 0
-				has_government = democratic
-			}
-		}
-	}
-	TUR_scrap_the_treaty_of_daan = {
-		icon = GFX_decision_generic_break_treaty
-		allowed = { original_tag = TUR }
-		visible = {
-			YEM = {
-				is_subject_of = TUR
-				has_autonomy_state = autonomy_tgwr_ottoman_autonomous_vilayet
-			}
-		}
-		cost = 30
-		highlight_states = { highlight_state_targets = { state = 293 } }
-		complete_effect = {
-			hidden_effect = { YEM = { clr_country_flag = has_adopted_TUR_minority_system } }
-			end_puppet = YEM
-			declare_war_on = {
-				target = YEM
-				type = annex_everything
-			}
-			ottoman_minority_variable_check = yes
-		}
-		ai_will_do = {
-			base = 0
-			modifier = {
-				add = 25
-				NOT = { is_historical_focus_on = yes }
-				has_country_flag = great_war_winner
-			}
-		}
-	}
-	TUR_abolish_principality_of_samos = {
-		icon = GFX_decision_generic_break_treaty
-		allowed = { original_tag = TUR }
-		visible = {
-			OR = {
-				has_completed_focus = TUR_displace_christians_from_economy
-				has_completed_focus = TUR_greek_deportations
-			}
-			SMS = {
-				is_subject_of = TUR
-				has_autonomy_state = autonomy_tgwr_integrated_protectorate
-			}
-		}
-		cost = 30
-		highlight_states = { highlight_state_targets = { state = 974 } }
-		complete_effect = {
-			SMS = { country_event = { id = ottoman.89 hours = 8 } }
-			custom_effect_tooltip = if_they_accept_tt
-			event_option_tooltip = ottoman.90.a
-			ottoman_minority_variable_check = yes
-		}
-		ai_will_do = { base = 70 }
 	}
 }
 
