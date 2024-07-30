@@ -932,8 +932,6 @@ TUR_armenian_millet = {
 				add_to_variable = { TUR_ottoman_attrition = -0.2 }
 				add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.05 }
 				add_to_variable = { TUR_ottoman_local_supplies_for_controller = 0.05 }
-				add_to_variable = { TUR_ottoman_state_stability_factor = 0.001 }
-				add_to_variable = { TUR_ottoman_state_war_support_factor = 0.001 }
 				set_state_flag = TUR_increased_conscription_in_karak
 			}
 		}
@@ -1469,6 +1467,13 @@ TUR_armenian_millet = {
 			852
 			553
 			874
+			804
+			291
+			656
+			662
+			886
+			413
+			293
 		}
 		on_map_mode = map_only
 		visible = {
@@ -1482,17 +1487,58 @@ TUR_armenian_millet = {
 				has_completed_focus = TUR_central_administration_in_syria
 			}
 			if = {
-				limit = { FROM = { state = 874 } }
-				has_completed_focus = TUR_entrench_rule_in_mesapotamia
+				limit = {
+					OR = {
+						FROM = { state = 874 }
+						FROM = { state = 291 }
+					}
+				}
+				has_completed_focus = TUR_central_administration_in_syria
+			}
+			if = {
+				limit = {
+					OR = {
+						FROM = { state = 293 }
+						FROM = { state = 662 }
+					}
+				}
+				has_completed_focus = TUR_integrate_hejaz
+			}
+			if = {
+				limit = {
+					OR = {
+						FROM = { state = 804 }
+						FROM = { state = 656 }
+						FROM = { state = 886 }
+						FROM = { state = 413 }
+					}
+				}
+				always = no
 			}
 			controls_state = FROM
 			FROM = { TUR_state_has_minority_modifier = yes }
 		}
 		complete_effect = {
 			FROM = {
-				custom_effect_tooltip = TUR_pro_ottoman_propaganda_for_shia_tt
-				add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.05 }
-				add_to_variable = { TUR_ottoman_state_stability_factor = 0.001 }
+				if = {
+					limit = {
+						OR = {
+							state = 293
+							state = 413
+							state = 804
+							state = 874
+							state = 553
+						}
+					}
+					custom_effect_tooltip = TUR_pro_ottoman_propaganda_for_shia_tt2
+					set_state_flag = TUR_pro_ottoman_propaganda_for_shia
+					add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.05 }
+				}
+				else = {
+					custom_effect_tooltip = TUR_pro_ottoman_propaganda_for_shia_tt
+					set_state_flag = TUR_pro_ottoman_propaganda_for_shia
+					add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.05 }
+				}
 			}
 		}
 		ai_will_do = { base = 100 }
@@ -1961,6 +2007,15 @@ TUR_armenian_millet = {
 				TUR_state_has_minority_modifier = yes
 			}
 		}
+		available = {
+			FROM = {
+				NOT = {
+					has_dynamic_modifier = { modifier = TUR_autonomous_vilayet_lebanon }
+					has_dynamic_modifier = { modifier = TUR_autonomous_vilayet }
+					has_dynamic_modifier = { modifier = TUR_semi_autonomous_vilayet }
+				}
+			}
+		}
 		days_remove = 30
 		complete_effect = {
 			hidden_effect = { add_command_power = -15 }
@@ -1979,8 +2034,13 @@ TUR_armenian_millet = {
 				if = {
 					limit = { has_variable = TUR_surpress_arab_dissent }
 					add_to_variable = { TUR_surpress_arab_dissent = 1 }
+					dd_to_variable = { TUR_surpress_arab_dissent_point = 1 }
 				}
-				else = { set_variable = { TUR_surpress_arab_dissent = 1 } }
+				else = {
+					set_variable = { TUR_surpress_arab_dissent = 1 }
+					set_variable = { TUR_surpress_arab_dissent_point = 1 }
+				}
+				custom_effect_tooltip = TUR_add_surpression_point
 			}
 		}
 		cancel_trigger = { NOT = { controls_state = FROM } }
@@ -2029,47 +2089,50 @@ TUR_armenian_millet = {
 		cost = 10
 		state_target = yes
 		targets = {
-			859
+			291
+			454
+			455
+			553
+			554
+			676
 			677
 			680
 			852
-			554
-			553
-			454
-			858
-			856
-			455
-			883
-			676
 			853
-			291
+			856
+			858
+			859
 			874
+			883
 		}
 		on_map_mode = map_only
 		visible = {
 			has_completed_focus = TUR_clamp_down_on_arab_dissent
 			controls_state = FROM
 			FROM = {
-				check_variable = { TUR_surpress_arab_dissent > TUR_forced_labor_in_middle_east_level }
+				check_variable = { TUR_surpress_arab_dissent_point > TUR_forced_labor_in_middle_east_level }
 				TUR_state_has_minority_modifier = yes
 			}
 		}
-		days_remove = 45
-		complete_effect = {
+		available = {
 			FROM = {
-				custom_effect_tooltip = TUR_forced_labor_in_middle_east_tt
-				add_to_variable = { TUR_ottoman_state_production_speed_buildings_factor = 0.15 }
+				custom_trigger_tooltip = {
+					tooltip = TUR_has_surpression_point
+					check_variable = { TUR_surpress_arab_dissent_point > 0 }
+				}
 			}
 		}
-		remove_effect = {
+		complete_effect = {
 			FROM = {
-				custom_effect_tooltip = TUR_forced_labor_in_middle_east_tt2
-				add_to_variable = { TUR_ottoman_state_production_speed_buildings_factor = -0.15 }
+				custom_effect_tooltip = TUR_remove_surpression_point
+				add_to_variable = { TUR_surpress_arab_dissent_point = -1 }
+				custom_effect_tooltip = TUR_forced_labor_in_middle_east_tt
+				add_to_variable = { TUR_ottoman_state_production_speed_buildings_factor = 0.02 }
 				if = {
-					limit = { NOT = { has_variable = TUR_forced_labor_in_middle_east_level } }
-					set_variable = { TTUR_forced_labor_in_middle_east_level = 1 }
+					limit = { has_variable = TUR_forced_labor_in_middle_east }
+					add_to_variable = { TUR_forced_labor_in_middle_east = 1 }
 				}
-				else = { add_to_variable = { TUR_forced_labor_in_middle_east_level = 1 } }
+				else = { set_variable = { TUR_forced_labor_in_middle_east = 1 } }
 			}
 		}
 		cancel_trigger = { NOT = { controls_state = FROM } }
@@ -2082,34 +2145,41 @@ TUR_armenian_millet = {
 		custom_cost_trigger = { command_power > 9.99 }
 		state_target = yes
 		targets = {
-			859
+			291
+			454
+			455
+			553
+			554
+			676
 			677
 			680
 			852
-			554
-			553
-			454
-			858
-			856
-			455
-			883
-			676
 			853
-			291
+			856
+			858
+			859
 			874
+			883
 		}
 		on_map_mode = map_only
 		visible = {
 			has_completed_focus = TUR_clamp_down_on_arab_dissent
 			controls_state = FROM
 			FROM = {
-				check_variable = { TUR_surpress_arab_dissent > TUR_recruit_prisoner_conscripts_in_middle_east_level }
+				check_variable = { TUR_surpress_arab_dissent_point > 0 }
 				TUR_state_has_minority_modifier = yes
 			}
 		}
-		days_remove = 15
-		complete_effect = { hidden_effect = { add_command_power = -10 } }
-		remove_effect = {
+		available = {
+			FROM = {
+				custom_trigger_tooltip = {
+					tooltip = TUR_has_surpression_point
+					check_variable = { TUR_surpress_arab_dissent_point > 0 }
+				}
+			}
+		}
+		complete_effect = {
+			hidden_effect = { add_command_power = -10 }
 			if = {
 				limit = { NOT = { has_template = "Arap Mahkum Askeri" } }
 				division_template = {
@@ -2117,7 +2187,6 @@ TUR_armenian_millet = {
 					is_locked = yes
 					division_names_group = TUR_GAR_01
 					priority = 0
-					template_counter = 25
 					regiments = {
 						penal_battalion = { x = 0 y = 0 }
 						penal_battalion = { x = 0 y = 1 }
@@ -2132,30 +2201,75 @@ TUR_armenian_millet = {
 				}
 			}
 			FROM = {
+				custom_effect_tooltip = TUR_remove_surpression_point
+				add_to_variable = { TUR_surpress_arab_dissent_point = -1 }
 				create_unit = { division = "name = \"Arap Mahkum Askeri\" division_template = \"Arap Mahkum Askeri\" start_experience_factor = 0.1" owner = TUR }
 				if = {
 					limit = { check_variable = { TUR_ottoman_recruitable_population_factor < 0 } }
 					custom_effect_tooltip = TUR_recruit_prisoner_conscripts_tt
 					add_to_variable = { TUR_ottoman_recruitable_population_factor = 0.01 }
-					add_to_variable = { TUR_ottoman_state_stability_factor = -0.001 }
-					set_variable = { TUR_recruit_prisoner_conscripts_in_middle_east = -0.01 }
-					set_variable = { TUR_recruit_prisoner_conscripts_in_middle_east2 = 0.01 }
 				}
 				if = {
-					limit = { NOT = { has_variable = TUR_recruit_prisoner_conscripts_in_middle_east_level } }
-					set_variable = { TUR_recruit_prisoner_conscripts_in_middle_east_level = 1 }
+					limit = { has_variable = TUR_recruit_prisoner_conscripts_in_middle_east }
+					add_to_variable = { TUR_recruit_prisoner_conscripts_in_middle_east = 1 }
 				}
-				else = { add_to_variable = { TUR_recruit_prisoner_conscripts_in_middle_east_level = 1 } }
+				else = { set_variable = { TUR_recruit_prisoner_conscripts_in_middle_east = 1 } }
 			}
 		}
 		cancel_trigger = { NOT = { controls_state = FROM } }
 		ai_will_do = { base = 20 }
 	}
+	TUR_remove_forced_labor = {
+		icon = GFX_decision_eng_blackshirt_march
+		allowed = { original_tag = TUR }
+		cost = 5
+		visible = { any_controlled_state = { has_variable = TUR_forced_labor_in_middle_east } }
+		days_remove = 5
+		remove_effect = {
+			every_state = {
+				limit = { check_variable = { TUR_forced_labor_in_middle_east = 1 } }
+				custom_effect_tooltip = TUR_remove_forced_labor_tt1
+				add_to_variable = { TUR_ottoman_state_production_speed_buildings_factor = -0.02 }
+				clear_variable = TUR_forced_labor_in_middle_east
+			}
+			every_state = {
+				limit = { check_variable = { TUR_forced_labor_in_middle_east = 2 } }
+				custom_effect_tooltip = TUR_remove_forced_labor_tt2
+				add_to_variable = { TUR_ottoman_state_production_speed_buildings_factor = -0.04 }
+				clear_variable = TUR_forced_labor_in_middle_east
+			}
+			every_state = {
+				limit = { check_variable = { TUR_forced_labor_in_middle_east = 3 } }
+				custom_effect_tooltip = TUR_remove_forced_labor_tt3
+				add_to_variable = { TUR_ottoman_state_production_speed_buildings_factor = -0.06 }
+				clear_variable = TUR_forced_labor_in_middle_east
+			}
+			every_state = {
+				limit = { check_variable = { TUR_forced_labor_in_middle_east = 4 } }
+				custom_effect_tooltip = TUR_remove_forced_labor_tt4
+				add_to_variable = { TUR_ottoman_state_production_speed_buildings_factor = -0.08 }
+				clear_variable = TUR_forced_labor_in_middle_east
+			}
+			every_state = {
+				limit = { check_variable = { TUR_forced_labor_in_middle_east = 5 } }
+				custom_effect_tooltip = TUR_remove_forced_labor_tt5
+				add_to_variable = { TUR_ottoman_state_production_speed_buildings_factor = -0.1 }
+				clear_variable = TUR_forced_labor_in_middle_east
+			}
+		}
+		ai_will_do = {
+			base = 0
+			modifier = {
+				add = 50
+				has_war = no
+			}
+		}
+	}
 	TUR_disband_prisoner_conscripts = {
 		icon = GFX_decision_eng_blackshirt_march
 		allowed = { original_tag = TUR }
 		cost = 5
-		visible = { check_variable = { num_armies_with_type@penal_battalion > 1 } }
+		visible = { has_template = "Arap Mahkum Askeri" }
 		days_remove = 7
 		remove_effect = {
 			delete_units = {
@@ -2163,13 +2277,36 @@ TUR_armenian_millet = {
 				disband = yes
 			}
 			every_state = {
-				limit = { has_variable = TUR_recruit_prisoner_conscripts_in_middle_east }
-				custom_effect_tooltip = TUR_disband_prisoner_conscripts_tt
-				add_to_variable = { TUR_ottoman_recruitable_population_factor = TUR_recruit_prisoner_conscripts_in_middle_east }
-				add_to_variable = { TUR_ottoman_state_stability_factor = TUR_recruit_prisoner_conscripts_in_middle_east2 }
+				limit = { check_variable = { TUR_recruit_prisoner_conscripts_in_middle_east = 1 } }
+				custom_effect_tooltip = TUR_disband_prisoner_conscripts_tt1
+				add_to_variable = { TUR_ottoman_recruitable_population_factor = -0.01 }
+				clear_variable = TUR_recruit_prisoner_conscripts_in_middle_east
+			}
+			every_state = {
+				limit = { check_variable = { TUR_recruit_prisoner_conscripts_in_middle_east = 2 } }
+				custom_effect_tooltip = TUR_disband_prisoner_conscripts_tt2
+				add_to_variable = { TUR_ottoman_recruitable_population_factor = -0.02 }
+				clear_variable = TUR_recruit_prisoner_conscripts_in_middle_east
+			}
+			every_state = {
+				limit = { check_variable = { TUR_recruit_prisoner_conscripts_in_middle_east = 3 } }
+				custom_effect_tooltip = TUR_disband_prisoner_conscripts_tt3
+				add_to_variable = { TUR_ottoman_recruitable_population_factor = -0.03 }
+				clear_variable = TUR_recruit_prisoner_conscripts_in_middle_east
+			}
+			every_state = {
+				limit = { check_variable = { TUR_recruit_prisoner_conscripts_in_middle_east = 4 } }
+				custom_effect_tooltip = TUR_disband_prisoner_conscripts_tt4
+				add_to_variable = { TUR_ottoman_recruitable_population_factor = -0.04 }
+				clear_variable = TUR_recruit_prisoner_conscripts_in_middle_east
+			}
+			every_state = {
+				limit = { check_variable = { TUR_recruit_prisoner_conscripts_in_middle_east = 5 } }
+				custom_effect_tooltip = TUR_disband_prisoner_conscripts_tt5
+				add_to_variable = { TUR_ottoman_recruitable_population_factor = -0.05 }
+				clear_variable = TUR_recruit_prisoner_conscripts_in_middle_east
 			}
 		}
-		cancel_trigger = { NOT = { controls_state = FROM } }
 		ai_will_do = {
 			base = 0
 			modifier = {
