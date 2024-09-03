@@ -8,6 +8,7 @@ remove_french_presidents = {
 		FRA_alexandre_millerand
 		FRA_gaston_doumergue
 		FRA_paul_painleve
+		FRA_alexandre_millerand_pm_advisor
 	}
 }
 
@@ -142,6 +143,13 @@ FRA_remove_all_ideas = {
 	remove_ideas = FRA_fighter_focused_production
 	remove_ideas = FRA_ww1_colonial_volunteers
 	remove_ideas = FRA_idea_reformed_income_tax
+	remove_ideas = FRA_catholic_worker_circles
+	remove_ideas = FRA_UCIDS
+	remove_ideas = FRA_second_waldeck_rousseau_law
+	remove_ideas = FRA_fighter_focused_production
+	remove_ideas = FRA_idea_socialist_income_tax
+	remove_ideas = FRA_workers_cooperatives
+	remove_ideas = FRA_gcpf
 }
 
 FRA_create_FRC = {
@@ -202,6 +210,28 @@ FRA_create_FRC = {
 				set_nationality = FRC
 			}
 			FRA_pierre_semard = {
+				set_nationality = FRC
+			}
+			# them too
+			FRA_gustave_herve = {
+				set_nationality = FRC
+			}
+			FRA_jean_allemane = {
+				set_nationality = FRC
+			}
+			FRA_louis_dubreuilh = {
+				set_nationality = FRC
+			}
+			FRA_alexandre_zevaes = {
+				set_nationality = FRC
+			}
+			FRA_alfred_rosmer = {
+				set_nationality = FRC
+			}
+			FRA_jean_charles_fortune_henry = {
+				set_nationality = FRC
+			}
+			FRA_amedee_dunois = {
 				set_nationality = FRC
 			}
 		}
@@ -289,3 +319,374 @@ FRA_create_NFA = {
 	}
 }
 
+
+
+apply_focus_tree_effects = {
+			## we know that the player is ahistorical and socialist-aligned
+			## we gonna add a bonus socialist support based on his political support
+			if = {
+				limit = {
+					FRA = {
+						is_puppet = no
+						has_completed_focus = FRA_ww1_memories_of_the_commune
+					}
+				}
+				## player is in the earliest socialist focus part
+				add_to_variable = { var = SFIO value = 100 }		#bonus 
+				add_to_variable = { var = conservatives value = -100 }	#malus for democrats
+			}
+			if = {
+				limit = {
+					FRA = {
+						is_puppet = no
+						has_completed_focus = FRA_ww1_socialist_mentality
+						#NOT = { has_completed_focus = FRA_ww1_form_peasant_council }
+					}
+				}
+				## BIG SFIO, but the parliament still fully democratic ruled
+				add_to_variable = { var = SFIO value = democratic_republican_alliance }
+				add_to_variable = { var = SFIO value = independent_socialist }
+				set_variable = { var = democratic_republican_alliance value = 0 } 
+				set_variable = { var = independent_socialist value = 0 } 
+			}
+			##########################
+			# Player has completed proudhon circle
+			###################
+			if = {
+				limit = {
+					FRA = {
+						is_puppet = no
+						has_completed_focus = FRA_ww1_rally_the_piou_piou
+						NOT = {
+							has_completed_focus = FRA_ww1_rally_the_piou_piou
+						}
+						NOT = {
+							has_government = communism
+						}
+					}
+				}
+				## only popular action
+				add_to_variable = { var = popular_liberal_action value = 50 } #little bonus
+				add_to_variable = { var = radical_party value = -50 } #striping from radical party
+			}
+
+			##########################
+			# Player has completed either support Napoleon / Pujo or Valois
+			###################
+			if = {
+				limit = {
+					FRA = {
+						is_puppet = no
+						OR = { 
+							has_completed_focus = FRA_ww1_rally_the_piou_piou
+						}
+						NOT = {
+							has_completed_focus = FRA_ww1_rally_the_piou_piou
+						}
+						NOT = {
+							has_government = communism
+						}
+					}
+				}
+				## only popular action
+				add_to_variable = { var = popular_liberal_action value = 50 } #little bonus
+				add_to_variable = { var = radical_party value = -50 } #striping from radical party
+			}
+			# #### fat right alliance
+			# if = {
+			# 	limit = {
+			# 		FRA = {
+			# 			is_puppet = no
+			# 			has_completed_focus = FRA_ww1_prepare_the_next_elections
+			# 			NOT = {
+			# 				has_government = communism
+			# 			}
+			# 		}
+			# 	}
+			# 	## only popular action
+			# 	add_to_variable = { var = popular_liberal_action value = 50 } #little bonus 
+			# 	add_to_variable = { var = radical_party value = -50 } #striping from radical party
+			# }
+			#### player supported piou piou faction
+			if = {
+				limit = {
+					FRA = {
+						is_puppet = no
+						has_completed_focus = FRA_ww1_rally_the_piou_piou
+						NOT = {
+							has_government = communism
+						}
+					}
+				}
+				add_to_variable = { var = republicain_federation value = 50 } #little bonus 
+				add_to_variable = { var = radical_party value = -50 } #striping from radical party
+			}
+			##### player boost monarchy
+			if = {
+				limit = {
+					FRA = {
+						is_puppet = no
+						has_country_flag = revitalized_monarchist_faction
+						NOT = {
+							has_government = communism
+						}
+					}
+				}
+				set_temp_variable = { var = radical_party_temp value = radical_party }
+				divide_temp_variable = { var = radical_party_temp value = 2}
+				clamp_temp_variable = { var = radical_party_temp min = 0 max = 25 }
+				round_temp_variable = radical_party_temp
+				add_to_variable = { var = popular_liberal_action value = radical_party_temp } #gain up to 25 socialist seats
+				subtract_from_variable = { var = radical_party value = radical_party_temp }
+			}
+			##Player has removed support from independents radicals to republican federation
+			
+			if = {
+				limit = {
+					FRA = {
+						is_puppet = no
+						OR = {
+							has_country_flag = FRA_weakened_independents_radicals
+							has_completed_focus = FRA_ww1_daudet_takeover
+						}
+						NOT = {
+							has_government = communism
+						}
+					}
+				}
+				set_temp_variable = { var = independent_radicals_temp value = independent_radicals }
+				divide_temp_variable = { var = independent_radicals_temp value = 2}
+				clamp_temp_variable = { var = independent_radicals_temp min = 0 max = 50 }
+				round_temp_variable = independent_radicals_temp
+				add_to_variable = { var = republicain_federation value = independent_radicals_temp } #gain up to 50 independents seats
+				subtract_from_variable = { var = independent_radicals value = independent_radicals_temp }
+			}
+			##### player undermine socialism
+			if = {
+				limit = {
+					FRA = {
+						is_puppet = no
+						has_country_flag = FRA_ww1_antagonize_sfio
+						NOT = {
+							has_government = communism
+						}
+					}
+				}
+
+				set_temp_variable = { var = SFIO_temp value = SFIO }
+				divide_temp_variable = { var = SFIO_temp value = 2}
+				clamp_temp_variable = { var = SFIO_temp min = 0 max = 25 }
+				round_temp_variable = SFIO_temp
+				add_to_variable = { var = independent_radicals value = SFIO_temp } #gain up to 25 socialist seats
+				subtract_from_variable = { var = SFIO value = SFIO_temp }
+			}
+			##### player undermine socialism N°2
+			if = {
+				limit = {
+					FRA = {
+						is_puppet = no
+						has_country_flag = FRA_second_security_act
+						NOT = {
+							has_government = communism
+						}
+					}
+				}	
+				#old SFIO members go to left radical party
+				set_temp_variable = { var = SFIO_temp value = SFIO }
+				divide_temp_variable = { var = SFIO_temp value = 2}
+				round_temp_variable = SFIO_temp
+				add_to_variable = { var = radical_party value = SFIO_temp }
+				subtract_from_variable = { var = SFIO value = SFIO_temp }
+				#same for independant socialists
+				set_temp_variable = { var = independent_socialist_temp value = independent_socialist }
+				divide_temp_variable = { var = independent_socialist_temp value = 2}
+				round_temp_variable = independent_socialist_temp
+				add_to_variable = { var = radical_party value = independent_socialist_temp }
+				subtract_from_variable = { var = independent_socialist value = independent_socialist_temp }
+			}
+
+			##### cartel des droites
+			if = {
+				limit = {
+					FRA = {
+						is_puppet = no
+						has_country_flag = FRA_cartel_des_droites
+						NOT = {
+							has_government = communism
+						}
+					}
+				}
+				add_to_variable = { var = republicain_federation value = conservatives }
+				set_variable = { var = conservatives value = 0 }
+			}
+
+			#### player ban SFIO from conservative tree
+			if = {
+				limit = {
+					FRA = {
+						has_country_flag = FRA_socialism_banned_conservative_tree
+						NOT = {
+							has_government = communism
+						}
+					}
+				}
+				add_to_variable = {
+					var = radical_party
+					value = SFIO
+				}
+				set_variable = {
+					var = SFIO
+					value = 0
+				}
+	
+				add_to_variable = {
+					var = radical_party
+					value = independent_socialist
+				}
+				set_variable = {
+					var = independent_socialist
+					value = 0
+				}
+			}
+}
+
+init_front_populaire = {
+	
+	clear_array = front_populaire_parties
+	clear_array = front_populaire_loyalty
+	clear_array = front_populaire_loyalty_litteral
+	add_to_array = { front_populaire_parties = 0 } #hardline SFIO
+	add_to_array = { front_populaire_parties = 1 } #soft SFIO
+	add_to_array = { front_populaire_parties = 2 } #liberal socialists
+	add_to_array = { front_populaire_parties = 3 } #radical socialists
+	
+
+	set_variable = {
+		hardline_SFIO_loyalty = 40
+	}
+	set_variable = {
+		moderate_SFIO_loyalty = 80
+	}
+	set_variable = {
+		liberal_socialists_loyalty = 60
+	}
+	set_variable = {
+		radical_party_loyalty = 60
+	}
+
+	set_variable = {
+		front_populaire_loyalty^0 = hardline_SFIO_loyalty
+	}
+	set_variable = {
+		front_populaire_loyalty_litteral^0 = hardline_SFIO_loyalty
+	}
+	multiply_variable = {
+		front_populaire_loyalty^0 = 100
+	}
+
+	set_variable = {
+		front_populaire_loyalty^1 = moderate_SFIO_loyalty
+	}
+	set_variable = {
+		front_populaire_loyalty_litteral^1 = moderate_SFIO_loyalty
+	}
+	multiply_variable = {
+		front_populaire_loyalty^1 = 100
+	}
+
+	set_variable = {
+		front_populaire_loyalty^2 = liberal_socialists_loyalty
+	}
+	set_variable = {
+		front_populaire_loyalty_litteral^2 = liberal_socialists_loyalty
+	}
+	multiply_variable = {
+		front_populaire_loyalty^2 = 100
+	}
+
+	set_variable = {
+		front_populaire_loyalty^3 = radical_party_loyalty
+	}
+	set_variable = {
+		front_populaire_loyalty_litteral^3 = radical_party_loyalty
+	}
+	multiply_variable = {
+		front_populaire_loyalty^3 = 100
+	}
+}
+
+refresh_front_popular_progressbar = {
+	set_variable = {
+		front_populaire_loyalty^0 = hardline_SFIO_loyalty
+	}
+	multiply_variable = {
+		front_populaire_loyalty^0 = 100
+	}
+
+	set_variable = {
+		front_populaire_loyalty^1 = moderate_SFIO_loyalty
+	}
+	multiply_variable = {
+		front_populaire_loyalty^1 = 100
+	}
+
+	set_variable = {
+		front_populaire_loyalty^2 = liberal_socialists_loyalty
+	}
+	multiply_variable = {
+		front_populaire_loyalty^2 = 100
+	}
+
+	set_variable = {
+		front_populaire_loyalty^3 = radical_party_loyalty
+	}
+	multiply_variable = {
+		front_populaire_loyalty^3 = 100
+	}
+	clamp_variable = { var = hardline_SFIO_loyalty min = 0 max = 100}
+	clamp_variable = { var = moderate_SFIO_loyalty min = 0 max = 100}
+	clamp_variable = { var = liberal_socialists_loyalty min = 0 max = 100}
+	clamp_variable = { var = radical_party_loyalty min = 0 max = 100}
+	set_variable = {
+		front_populaire_loyalty_litteral^0 = hardline_SFIO_loyalty
+	}
+	set_variable = {
+		front_populaire_loyalty_litteral^1 = moderate_SFIO_loyalty
+	}
+	set_variable = {
+		front_populaire_loyalty_litteral^2 = liberal_socialists_loyalty
+	}
+	set_variable = {
+		front_populaire_loyalty_litteral^3 = radical_party_loyalty
+	}
+}
+
+setup_loser_tooltip = {
+	set_temp_variable = {
+		max_lose = front_populaire_loyalty_litteral^v
+	}
+	clamp_temp_variable = { var = loyalty_lose max = front_populaire_loyalty_litteral^v min = 0 }
+	multiply_temp_variable = {
+		loyalty_lose = -1
+	}
+	add_political_power = loyalty_lose
+}
+
+setup_winner_tooltip = {
+	set_temp_variable = {
+		temp_party = front_populaire_loyalty_litteral^v
+	}
+	multiply_temp_variable = {
+		temp_party = -1
+	}
+	set_temp_variable = {
+		max_win = 100
+	}
+	add_to_temp_variable = {
+		max_win = temp_party
+	}
+	multiply_temp_variable = {
+		max_win = 1
+	}
+	clamp_temp_variable = { var = loyalty_gain max = max_win min = 0 }
+}

@@ -463,6 +463,12 @@ political_actions = {
 			UGA = { 
 				set_cosmetic_tag = UGA_israel_uganda_cosmetic 
 				hidden_effect = {
+					ROOT = {
+						set_autonomy = {
+							target = PREV
+							autonomy_state = autonomy_integrated_puppet
+						}
+					}
 					set_popularities = {
 						democratic = 27
 						neutrality = 47
@@ -474,6 +480,11 @@ political_actions = {
 						elections_allowed = no
 					}
 					add_ideas = ISR_jewish_colonisation
+					set_party_name = {
+						ideology = neutrality
+						name = UGA_colonial_administration_party
+						long_name = UGA_colonial_administration_party
+					}
 				}
 			}
 			set_global_flag = israel_uganda
@@ -527,10 +538,13 @@ political_actions = {
 			original_tag = ENG
 		}
 
-		visible = {
+		activation = {
+			has_global_flag = kis_war
+			is_ai = no
+			has_war = yes
+			has_capitulated = no
 			has_country_flag = ENG_shell_crisis
 		}
-
 		available = {
 			OR = {
 				num_of_military_factories > eng_shell_variable #check event ww1_england.217 to tweak as balance demands.
@@ -546,9 +560,15 @@ political_actions = {
 
 		timeout_effect = {
 			add_war_support = -0.15
-			add_popularity = {
-				ideology = democratic
-				popularity = -0.15
+			if = {
+				limit = { has_government = democratic }
+				add_popularity = {
+					ideology = democratic
+					popularity = -0.15
+				}
+			}
+			else = {
+				add_stability = -0.10
 			}
 			add_timed_idea = {
 			    idea = ENG_shell_shortage
@@ -569,9 +589,15 @@ political_actions = {
 		}
 
 		complete_effect = {
-			add_popularity = {
-				ideology = democratic
-				popularity = 0.05
+			if = {
+				limit = { has_government = democratic }
+				add_popularity = {
+					ideology = democratic
+					popularity = 0.05
+				}
+			}
+			else = {
+				add_political_power = 75
 			}
 		}
 
@@ -625,7 +651,6 @@ political_actions = {
 			}
 			if = {
 				limit = {
-					has_dlc = "Together for Victory"
 					NOT = {
 						FROM = {
 							has_autonomy_state = autonomy_dominion
@@ -1771,13 +1796,16 @@ ENG_british_civil_war_category = {
 		}
 	}
 }
+#If removing this decision causes no bugs after the RCW update, just remove it - keeping it just in case we need it
 GER_agadir_crisis = {
 	ENG_agadir_involvement = {
 		icon = GFX_decision_generic_naval
 		allowed = {
 			tag = ENG
+			always = no
 		}
 		available = {
+			always = no
 			NOT = {
 				has_global_flag = agadir_crisis_ends
 				has_global_flag = kis_war
@@ -1787,6 +1815,7 @@ GER_agadir_crisis = {
 			GER = { has_completed_focus = GER_moroccan_crisis }
 		}
 		visible = {
+			always = no
 			has_global_flag = agadir_crisis
 			NOT = {
 				has_global_flag = kis_war
@@ -1861,7 +1890,18 @@ foreign_influence = {
 				# has_cosmetic_tag = NIR_orange_order
 				is_subject = no
 			}
-			NOT = { has_government = communism }
+			NOT = {
+				has_government = communism
+				has_idea = ENG_general_strike
+				has_idea = ENG_general_strike_cw
+			}
+		}
+		cancel_if_not_visible = yes
+		cancel_trigger = {
+			OR = {
+				has_war = yes
+				FROM = { has_war = yes }
+			}
 		}
 		cost = 0
 		days_remove = 120
@@ -2226,12 +2266,18 @@ foreign_politics = {
 		}
 		target_trigger = {
 			FROM = {
-				owns_state = 544
+				owns_state = 971
 				NOT = {
 					tag = ROOT
 					is_subject_of = ROOT
 					has_war_with = ROOT
 				}
+			}
+		}
+		highlight_states = {
+			highlight_state_targets = {
+				state = 544
+				state = 924
 			}
 		}
 		fire_only_once = yes

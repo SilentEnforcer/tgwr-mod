@@ -1322,7 +1322,7 @@ SER_spark_the_uprisings = {
 				is_owned_by = AUH
 			}
 			has_equipment = {
-				infantry_equipment = 500
+				infantry_equipment > 500
 			}
 		}
 		fire_only_once = no
@@ -1393,7 +1393,7 @@ SER_spark_the_uprisings = {
 				is_owned_by = AUH
 			}
 			has_equipment = {
-				infantry_equipment = 500
+				infantry_equipment > 500
 			}
 		}
 		fire_only_once = no
@@ -1463,7 +1463,7 @@ SER_spark_the_uprisings = {
 				is_owned_by = AUH
 			}
 			has_equipment = {
-				infantry_equipment = 500
+				infantry_equipment > 500
 			}
 		}
 		fire_only_once = no
@@ -1533,7 +1533,7 @@ SER_spark_the_uprisings = {
 				is_owned_by = AUH
 			}
 			has_equipment = {
-				infantry_equipment = 500
+				infantry_equipment > 500
 			}
 		}
 		fire_only_once = no
@@ -1806,34 +1806,17 @@ peace_deals = {
 		}
 		available = {
 			OR = {
-				AND = {
-					casualties_inflicted_by = {
-						opponent = FROM
-						thousands > 50
-					}
-					surrender_progress > 0
+				any_owned_state = {
+					is_controlled_by = BUL
 				}
-				AND = {
-					OR = {
-						surrender_progress > 0.8
-						has_capitulated = yes
-					}
-					if = {
-						limit = {
-							is_in_faction_with = ROM
-						}
-						ROM = {
-							OR = {
-								surrender_progress > 0.5
-								has_capitulated = yes
-							}
-						}
-					}
-					if = {
-						limit = {
-							is_in_faction_with = GRE
-						}
-						FROM = { controls_state = 345 }
+				ROM = {
+					has_war_with = BUL
+					has_capitulated = yes
+				}
+				GRE = {
+					has_war_with = BUL
+					any_owned_state = {
+						is_controlled_by = BUL
 					}
 				}
 			}
@@ -1869,11 +1852,104 @@ peace_deals = {
 			base = 0
 			modifier = {
 				add = 500
-				NOT = {
-					controls_state = 821
-					controls_state = 203
+				OR = {
+					surrender_progress > 0.4
+					BUL = {
+						controls_state = 203
+						controls_state = 106
+						controls_state = 821
+					}
+				}
+				if = {
+					limit = {
+						ROM = {
+							has_war_with = BUL
+						}
+					}
+					ROM = {
+						surrender_progress > 0.6
+					}	
+				}
+				GRE = {
+					OR = {
+						surrender_progress > 0.2
+						345 = {
+							is_fully_controlled_by = BUL
+						}
+						731 = {
+							is_controlled_by = BUL
+						}
+					}
 				}
 			}
+		}
+	}
+}
+
+GER_great_war = {
+	BLL_join_allies = {
+		name = decision_join_allies
+		icon = generic_ignite_civil_war
+		allowed = {
+			OR = {
+				original_tag = BUL
+				original_tag = SER
+				original_tag = GRE
+			}
+		}
+		target_trigger = {
+			FROM = {
+				OR = {
+					tag = FRA
+					tag = GER
+				}
+				NOT = { has_war_with = ROOT }
+			}
+		}
+		visible = {
+			is_faction_leader = yes
+			is_subject = no
+			has_global_flag = kis_war
+			OR = {
+				has_war_together_with = GER
+				has_war_together_with = FRA
+			}
+		}
+		available = {
+			any_enemy_country = {
+				has_war_with = FROM
+			}
+		}
+		complete_effect = {
+			every_other_country = {
+				limit = {
+					is_in_faction_with = ROOT
+					is_subject = no
+				}
+				leave_faction = yes
+				set_truce = {
+					target = ROOT
+					days = 365
+				}
+				diplomatic_relation = {
+					country = ROOT
+					relation = non_aggression_pact
+					active = yes
+				}
+				if = {
+					limit = {
+						NOT = { has_war_with = FROM }
+					}
+					FROM = { add_to_faction = PREV }
+				}
+			}
+			dismantle_faction = yes
+			FROM = { add_to_faction = PREV }
+		}
+		fire_only_once = yes
+		ai_will_do = {
+			#must do it
+			factor = 10000
 		}
 	}
 }
