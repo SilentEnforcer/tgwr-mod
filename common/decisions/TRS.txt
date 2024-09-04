@@ -191,8 +191,127 @@ GER_great_war = {
 }
 
 TUR_millet_system = {
+	TRS_subjugate_the_maronite_patriarch = {
+		icon = GFX_decision_oppression
+		allowed = { original_tag = TUR }
+		state_target = yes
+		target_trigger = { FROM = { state = 553 } }
+		highlight_states = { highlight_state_targets = { state = FROM } }
+		on_map_mode = map_and_decisions_view
+		visible = {
+			OR = {
+				has_completed_focus = TUR_subject_christians
+				has_completed_focus = TUR_status_of_autonomy
+			}
+			NOT = { has_global_flag = TRS_subjugate_the_maronite_patriarch }
+			controls_state = 553
+		}
+		available = { FROM = { NOT = { has_dynamic_modifier = { modifier = TUR_autonomous_vilayet_lebanon } } } }
+		cost = 25
+		complete_effect = {
+			FROM = {
+				if = {
+					limit = { check_variable = { TUR_ottoman_army_defence_factor_arab < 0 } }
+					custom_effect_tooltip = TRS_subjugate_the_maronite_patriarch_tt
+					add_to_variable = { TUR_ottoman_army_defence_factor_arab = 0.05 }
+				}
+			}
+			custom_effect_tooltip = TUR_increase_beirut_centralization_5
+			add_to_variable = { global.TUR_beirut_centralization = 0.05 }
+			set_global_flag = TRS_subjugate_the_maronite_patriarch
+			ottoman_minority_variable_check = yes
+		}
+		ai_will_do = {
+			base = 80
+		}
+	}
+	TRS_exile_unruly_bishops = {
+		icon = GFX_decision_hol_draw_up_staff_plans
+		allowed = { original_tag = TUR }
+		state_target = yes
+		target_trigger = {
+			FROM = {
+				OR = {
+					state = 852
+					state = 553
+				}
+			}
+		}
+		highlight_states = { highlight_state_targets = { state = FROM } }
+		on_map_mode = map_only
+		visible = {
+			OR = {
+				has_completed_focus = TUR_subject_christians
+				has_completed_focus = TUR_status_of_autonomy
+			}
+			FROM = {
+				check_variable = { TUR_ottoman_army_defence_factor_arab < 0 }
+				has_dynamic_modifier = { modifier = TUR_arab_minority }
+				NOT = { has_state_flag = TRS_exile_unruly_bishops }
+			}
+			controls_state = FROM
+		}
+		available = { FROM = { NOT = { has_dynamic_modifier = { modifier = TUR_autonomous_vilayet_lebanon } } } }
+		cost = 10
+		complete_effect = {
+			FROM = {
+				custom_effect_tooltip = TRS_subjugate_the_maronite_patriarch_tt
+				add_to_variable = { TUR_ottoman_army_defence_factor_arab = 0.05 }
+				set_state_flag = TRS_exile_unruly_bishops
+			}
+			ottoman_minority_variable_check = yes
+		}
+		ai_will_do = {
+			base = 80
+		}
+	}
+	TRS_fund_regional_churches = {
+		icon = GFX_decision_generic_welfare
+		allowed = { tag = TRS }
+		visible = {
+			has_completed_focus = TUR_subject_christians
+			OR = {
+				852 = { has_dynamic_modifier = { modifier = TUR_arab_minority } }
+				553 = { has_dynamic_modifier = { modifier = TUR_arab_minority } }
+			}
+			OR = {
+				controls_state = 852
+				controls_state = 553
+			}
+		}
+		cost = 5
+		days_remove = 80
+		modifier = { consumer_goods_factor = 0.05 }
+		complete_effect = {
+			every_controlled_state = {
+				limit = {
+					OR = {
+						state = 553
+						state = 852
+					}
+				}
+				custom_effect_tooltip = TRS_fund_regional_churches_tt1
+			}
+			ottoman_minority_variable_check = yes
+		}
+		remove_effect = {
+			every_controlled_state = {
+				limit = {
+					OR = {
+						state = 553
+						state = 852
+					}
+				}
+				custom_effect_tooltip = TRS_fund_regional_churches_tt2
+			}
+			ottoman_minority_variable_check = yes
+		}
+		ai_will_do = {
+			base = 15
+		}
+	}
 	TRS_give_citizenship_to_jews = {
-		icon = GFX_decision_eng_blackshirt_march
+		icon = GFX_decision_generic_political_rally
 		allowed = { tag = TRS }
 		state_target = yes
 		target_trigger = { FROM = { has_dynamic_modifier = { modifier = TUR_jewish_minority } } }
@@ -216,7 +335,7 @@ TUR_millet_system = {
 				add_to_variable = { TUR_ottoman_local_resources_factor_jewish = 0.05 }
 			}
 			if = {
-				limit = { state = 454 }
+				limit = { FROM = { state = 454 } }
 				custom_effect_tooltip = TUR_increase_jerusalem_centralization_5
 				add_to_variable = { global.TUR_jerusalem_centralization = 0.05 }
 			}
@@ -224,10 +343,6 @@ TUR_millet_system = {
 		}
 		ai_will_do = {
 			base = 80
-			modifier = {
-				add = 80
-				FROM = { any_neighbor_state = { controller = { has_war_with = ROOT } } }
-			}
 		}
 	}
 }
