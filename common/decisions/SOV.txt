@@ -21,16 +21,20 @@ SOV_recruit_militia_category = {
 			}
 		}
 		fire_only_once = yes
-		on_map_mode = map_only
-		days_remove = 15
+		on_map_mode = map_and_decisions_view
+		days_remove = 30
 		visible = {
-			owns_state = FROM
 			has_country_flag = sov_militia_recruitment
+			OR = {
+				is_ai = yes
+				is_ai = no
+			}
 		}
 		available = {
 			NOT = {
 				has_country_flag = SOV_recruiting_militia
 			}
+			controls_state = FROM
 		}
 		complete_effect = {
 			set_country_flag = SOV_recruiting_militia
@@ -58,7 +62,7 @@ SOV_recruit_militia_category = {
 				create_unit = {
 					division = "name = \"Krasnaya Gvardiya\" division_template = \"Krasnaya Gvardiya\" start_experience_factor = 0.1 start_equipment_factor = 0.5"
 					owner = CONTROLLER
-					count = 5
+					count = 10
 				}
 				set_state_flag = SOV_has_mobilized_militia
 			}
@@ -356,7 +360,7 @@ peace_deals = {
 							is_controlled_by = FROM
 							is_core_of = NWA
 						}
-						set_state_controller = PREV
+						set_state_controller_to = PREV
 					}
 				}
 			}
@@ -1782,7 +1786,7 @@ SOV_decision_soviet_republics = {
 							}
 						}
 						set_country_flag = soviet_ukraine
-						size = 0.3 
+						size = 0.0
 						states = { 221 228 227 226 200 240 222} 
 						keep_unit_leaders_trigger = {
 							always = yes
@@ -1794,6 +1798,31 @@ SOV_decision_soviet_republics = {
 								end_civil_wars = no
 								end_wars = no
 							}
+						}
+						if = {
+							limit = {
+								NOT = {
+									has_template = "Krasnaya Gvardiya"
+								}
+							}
+							division_template = {
+								name = "Krasnaya Gvardiya"
+								regiments = {
+									militia = { x = 0 y = 0 }
+									militia = { x = 0 y = 1 }
+									militia = { x = 1 y = 0 }
+								}
+								priority = 0
+								is_locked = no
+							}
+						}
+						every_owned_state = {
+							create_unit = {
+								division = "name = \"Krasnaya Gvardiya\" division_template = \"Krasnaya Gvardiya\" start_experience_factor = 0.1 start_equipment_factor = 0.5"
+								owner = CONTROLLER
+								count = 2
+							}
+							set_state_flag = SOV_has_mobilized_militia
 						}
 					}
 					hidden_effect = {
@@ -3061,7 +3090,7 @@ SOV_decision_soviet_republics = {
 								}
 								militia = {
 									x = 1
-									y = 0
+									y = 0 
 								}
 							}
 						}
@@ -3160,11 +3189,15 @@ SOV_red_terror_category = {
 		}
 		days_remove = 90
 		days_re_enable = 10
-		cost = 75
+		custom_cost_trigger = {
+			command_power > 25
+		}
+		custom_cost_text = decision_cost_CP_25
 		ai_will_do = {
 			factor = 100
 		}
 		complete_effect = {
+			add_command_power = -25
 			set_country_flag = {
 				flag = SOV_train_of_trotsky
 				days = 100
