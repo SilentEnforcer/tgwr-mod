@@ -7,7 +7,7 @@
 					FROM = {
 						tag = GER
 					}					#loser
-					has_global_flag = kis_war
+					has_global_flag = great_war
 					NOT = {
 						has_global_flag = FRA_surrender_alone
 						has_global_flag = great_war_ends
@@ -69,7 +69,7 @@
 					FROM = {
 						tag = FRA
 					}					#loser
-					has_global_flag = kis_war
+					has_global_flag = great_war
 					NOT = {
 						has_global_flag = FRA_surrender_alone
 						has_global_flag = great_war_ends
@@ -5483,7 +5483,7 @@
 					}
 					OR = {
 						NOT = {
-							has_global_flag = kis_war
+							has_global_flag = great_war
 						}
 						has_global_flag = interbellum
 					}
@@ -5516,7 +5516,7 @@
 					}
 					OR = {
 						NOT = {
-							has_global_flag = kis_war
+							has_global_flag = great_war
 						}
 						has_global_flag = interbellum
 					}
@@ -5567,7 +5567,7 @@
 					}
 					OR = {
 						NOT = {
-							has_global_flag = kis_war
+							has_global_flag = great_war
 						}
 						has_global_flag = interbellum
 					}
@@ -5745,7 +5745,7 @@
 					tag = RUS
 					is_in_faction = yes
 					is_faction_leader = no
-					has_global_flag = kis_war
+					has_global_flag = great_war
 					GER = {
 						has_war_with = PREV
 						is_subject = no
@@ -5766,7 +5766,7 @@
 					tag = ENG
 					is_in_faction = yes
 					is_faction_leader = no
-					has_global_flag = kis_war
+					has_global_flag = great_war
 					GER = {
 						has_war_with = PREV
 						is_subject = no
@@ -6082,7 +6082,7 @@
 			if = {
 				limit = {
 					tag = GRE
-					has_global_flag = kis_war
+					has_global_flag = great_war
 					OR = {
 						has_war_together_with = GER
 						has_war_together_with = FRA
@@ -6093,53 +6093,11 @@
 				}
 				set_global_flag = greek_defeated_in_ww1
 			}
-			# Irish Civil War
-			if = {
-				limit = {
-					original_tag = IRE
-					has_country_flag = irish_civil_war
-					has_global_flag = irish_civil_war
-					any_other_country = {
-						original_tag = IRE
-						has_country_flag = irish_civil_war
-						has_war_with = PREV
-					}
-				}
-				random_other_country = {
-					limit = {
-						original_tag = IRE
-						has_war_with = PREV
-					}
-					clr_country_flag = irish_civil_war
-					PREV = {
-						clr_country_flag = irish_civil_war
-						transfer_navy = {
-							target = PREV
-						}
-						every_character = {
-							set_nationality = PREV.PREV
-						}
-						every_owned_state = {
-							transfer_state_to = PREV.PREV
-						}
-					}
-					if = {
-						limit = {
-							NOT = { has_cosmetic_tag = IRE_republican }
-						}
-						IRE_cathal_brugha = {
-							remove_country_leader_role = {
-								ideology = authoritarian_democracy
-							}
-						}
-					}
-				}
-			}
 			if = {
 				limit = {
 					original_tag = ALB
 					has_country_flag = military_access_to_serbia
-					has_global_flag = kis_war
+					has_global_flag = great_war
 					NOT = {
 						has_global_flag = great_war_ends
 					}
@@ -6999,6 +6957,44 @@
 						remove_core_of = PREV
 					}
 				}
+			}
+			if = {
+				limit = {
+					original_tag = IRE
+				}
+				if = {
+					limit = {
+						has_country_flag = irish_civil_war
+						has_cosmetic_tag = IRE_IRA
+						has_government = fascism
+					}
+					set_politics = {
+						ruling_party = democratic
+						long_name = IRE_democratic_sinn_fein_party
+						name = IRE_democratic_sinn_fein_party
+						elections_allowed = yes
+					}
+					add_popularity = {
+						ideology = democratic
+						popularity = 0.2
+					}
+				}
+				clr_country_flag = irish_civil_war
+				FROM = {
+					clr_country_flag = irish_civil_war
+					every_unit_leader = {
+						limit = {
+							NOT = {
+								is_character = IRE_liam_lynch
+							}
+						}
+						set_nationality = ROOT
+					}
+					transfer_navy = {
+						target = ROOT
+					}
+				}
+				set_capital = { state = 113 }			
 			}
 			if = {
 				limit = {
@@ -8777,6 +8773,36 @@
 				add_ideas = BUL_idea_lozengradska_operacija
 			}
 			country_event = ww1_firstbalkan.100 #adding major status during war
+			if = {
+				limit = {
+					NOT = {
+						has_global_flag = GER_capitulation
+						has_global_flag = FRA_capitulation
+						has_global_flag = FRA_capitulation_alone
+						has_global_flag = great_war_ends
+					}
+					any_enemy_country = {
+						is_major = yes
+					}
+					ENG = {
+						OR = {
+							is_in_faction_with = ROOT
+							has_guaranteed = ROOT
+						}
+						is_subject = no
+						has_war_with_major = no
+						NOT = {
+							has_idea = ENG_idea_not_ready_yet
+						}
+					}
+				}
+				ENG = {
+					add_timed_idea = {
+						idea = ENG_idea_not_ready_yet
+						days = 140
+					}
+				}
+			}
 		}
 	}
 	on_war_relation_added = {
@@ -8795,6 +8821,83 @@
 						autonomy_state = autonomy_free
 					}
 				}
+			}
+		}
+		effect = {
+			if = {
+				limit = {
+					OR = {
+						AND = {
+							FROM = { original_tag = BUL }
+							ROOT = { original_tag = ROM }
+						}
+						AND = {
+							FROM = { original_tag = ROM }
+							ROOT = { original_tag = BUL }
+						}
+					}
+				}
+				ROM = { set_country_flag = ROM_has_had_war_with_BUL }
+			}
+			if = {
+				limit = {
+					OR = {
+						AND = {
+							FROM = { original_tag = TUR }
+							ROOT = { original_tag = ROM }
+						}
+						AND = {
+							FROM = { original_tag = ROM }
+							ROOT = { original_tag = TUR }
+						}
+					}
+				}
+				ROM = { set_country_flag = ROM_has_had_war_with_TUR }
+			}
+			if = {
+				limit = {
+					OR = {
+						AND = {
+							FROM = { original_tag = SER }
+							ROOT = { original_tag = ROM }
+						}
+						AND = {
+							FROM = { original_tag = ROM }
+							ROOT = { original_tag = SER }
+						}
+					}
+				}
+				ROM = { set_country_flag = ROM_has_had_war_with_SER }
+			}
+			if = {
+				limit = {
+					OR = {
+						AND = {
+							FROM = { original_tag = MNT }
+							ROOT = { original_tag = ROM }
+						}
+						AND = {
+							FROM = { original_tag = ROM }
+							ROOT = { original_tag = MNT }
+						}
+					}
+				}
+				ROM = { set_country_flag = ROM_has_had_war_with_MNT }
+			}
+			if = {
+				limit = {
+					OR = {
+						AND = {
+							FROM = { original_tag = GRE }
+							ROOT = { original_tag = ROM }
+						}
+						AND = {
+							FROM = { original_tag = ROM }
+							ROOT = { original_tag = GRE }
+						}
+					}
+				}
+				ROM = { set_country_flag = ROM_has_had_war_with_GRE }
 			}
 		}
 	}	
@@ -8857,7 +8960,7 @@
 					tag = BUL
 					has_global_flag = balkan_league_fail
 					NOT = {
-						has_global_flag = kis_war
+						has_global_flag = great_war
 						is_in_faction_with = SER
 						is_in_faction_with = GRE
 						is_in_faction_with = MNT
