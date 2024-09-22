@@ -2534,7 +2534,7 @@ country_event = {
 	}
 }
 
-# Request Hong Kong
+# Request Concessions
 country_event = {
 	id = ww1_qing.4
 	title = ww1_qing.4.t
@@ -2566,6 +2566,7 @@ country_event = {
 			}
 			FROM = { transfer_state = PREV }
 		}
+		add_political_power = 75
 		ai_chance = {
 			base = 1
 			modifier = {
@@ -2606,6 +2607,15 @@ country_event = {
 	option = {
 		name = ww1_qing.4.b
 		QIN = { country_event = ww1_qing.5 }
+		custom_effect_tooltip = disagree_effect_tooltip
+		effect_tooltip = {
+			FROM = {
+				declare_war_on = {
+					target = ROOT
+					type = take_core_state
+				}
+			}
+		}
 		ai_chance = {
 			base = 10
 			modifier = {
@@ -2649,10 +2659,12 @@ country_event = {
 				has_idea = idea_army_restrictions
 			}
 		}
-		create_wargoal = {
+		declare_war_on = {
 			target = FROM
 			type = take_core_state
 		}
+		set_country_flag = concessions_war
+		FROM = { set_country_flag = concessions_war }
 		ai_chance = {
 			base = 0
 			modifier = {
@@ -2923,7 +2935,6 @@ country_event = {
 	}
 }
 
-
 # Change puyi portrait
 country_event = {
 	id = ww1_qing.14
@@ -2968,6 +2979,93 @@ country_event = {
 					remove_idea = QIN_idea_xuantong_young
 					add_idea = QIN_idea_xuantong
 				}
+			}
+		}
+	}
+}
+
+# Concessions War - China Sues for Peace
+country_event = {
+	id = ww1_qing.20
+	title = ww1_qing.20.t
+	desc = ww1_qing.20.d
+	picture = GFX_report_event_chinese_soldiers
+	is_triggered_only = yes
+	option = {
+		name = ww1_qing.20.a
+		white_peace = FROM
+		random_owned_state = {
+			limit = {
+				impassable = no
+			}
+			add_building_construction = {
+				type = industrial_complex
+				level = 1
+				instant_build = yes
+			}
+		}
+		hidden_effect = {
+			random_state = {
+				limit = {
+					is_owned_by = FROM
+					industrial_complex > 0
+				}
+				remove_building = {
+					type = industrial_complex
+					level = 1
+				}
+			}
+			every_country = {
+				limit = {
+					has_war_with = FROM
+					OR = {
+						tag = ROOT
+						is_in_faction_with = ROOT
+						is_subject_of = ROOT
+					}
+				}
+				clr_country_flag = concessions_war
+				every_other_country = {
+					limit = {
+						has_war_with = PREV
+						OR = {
+							tag = FROM
+							is_in_faction_with = FROM
+							is_subject_of = FROM
+						}
+					}
+					white_peace = PREV
+				}
+			}
+			if = {
+				limit = {
+					NOT = {
+						any_other_country = {
+							has_war_with = FROM
+							has_country_flag = concessions_war
+						}
+					}
+				}
+				FROM = {
+					clr_country_flag = concessions_war
+				}
+			}
+		}
+	}
+	option = {
+		name = ww1_qing.20.b
+		ai_chance = { factor = 0 }
+		add_named_threat = {
+			threat = 0.10
+			name = concessions_war_peace_rejected
+		}
+		custom_effect_tooltip = concessions_war_no_peace_tt
+		hidden_effect = {
+			every_country = {
+				limit = {
+					has_country_flag = concessions_war
+				}
+				clr_country_flag = concessions_war
 			}
 		}
 	}
