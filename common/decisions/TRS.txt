@@ -398,7 +398,13 @@ TUR_millet_system = {
 		days_remove = 180
 		modifier = { political_power_cost = 0.01 }
 		remove_effect = {
-			TRS_reduce_crippling_illiteracy = yes
+			custom_effect_tooltip = TUR_mass_education_tt
+			add_to_variable = { TUR_ci_political_power_cost = -0.02 }
+			add_to_variable = { TUR_ci_research_speed_factor = -0.02 }
+			hidden_effect = {
+				remove_ideas = TUR_crippling_illiteracy
+				add_ideas = TUR_crippling_illiteracy
+			}
 			if = {
 				limit = { FROM = { state = 677 } }
 				custom_effect_tooltip = TUR_increase_aleppo_centralization_5
@@ -704,6 +710,7 @@ economy_decisions = {
 				add_to_variable = { TRS_cs_production_speed_buildings_factor = -0.1 }
 			}
 			clr_country_flag = TRS_forced_labor
+			set_country_flag = TRS_forced_labor_abolished
 		}
 		ai_will_do = {
 			base = 0
@@ -711,6 +718,104 @@ economy_decisions = {
 				stability < 0.2
 				add = 100
 			}
+		}
+	}
+	TRS_syrian_industrialization_initiative = {
+		icon = GFX_decision_generic_factory
+		allowed = { tag = TRS }
+		visible = { has_completed_focus = TUR_syrian_industrialization }
+		cost = 100
+		days_remove = 720
+		remove_effect = {
+			random_owned_controlled_state = {
+				limit = {
+					is_core_of = ROOT
+					free_building_slots = {
+						building = industrial_complex
+						size > 1
+						include_locked = yes
+					}
+				}
+				prioritize = { 554 }
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = {
+					type = industrial_complex
+					level = 1
+					instant_build = yes
+				}
+			}
+		}
+		ai_will_do = {
+			base = 10
+		}
+	}
+	TRS_blood_and_nails_effort = {
+		icon = GFX_decision_FIN_weapon_caches
+		allowed = { tag = TRS }
+		visible = { has_decision = TRS_syrian_industrialization_initiative }
+		days_remove = 35
+		cost = 25
+		days_re_enable
+		modifier = {
+			stability_weekly = -0.01
+			war_support_weekly = -0.01
+		}
+		remove_effect = {
+			add_days_remove = {
+				decision = TRS_syrian_industrialization_initiative
+				days = -150
+			}
+		}
+		ai_will_do = {
+			base = 10
+		}
+	}
+	TRS_utilize_forced_labor = {
+		icon = GFX_decision_generic_wreckers
+		allowed = { tag = TRS }
+		visible = { has_decision = TRS_syrian_industrialization_initiative }
+		available = {
+			has_completed_focus = TUR_forced_labor
+			custom_trigger_tooltip = {
+				tooltip = TRS_forced_labor_abolished
+				NOT = { has_country_flag = TRS_forced_labor_abolished }
+			}
+		}
+		cost = 50
+		days_remove = 70
+		complete_effect = {
+			custom_effect_tooltip = TRS_utilize_forced_labor_tt
+			add_to_variable = { TRS_cs_industrial_capacity_factory = -0.2 }
+			add_to_variable = { TRS_cs_production_speed_buildings_factor = -0.2 }
+		}
+		remove_effect = {
+			custom_effect_tooltip = TRS_utilize_forced_labor_tt2
+			add_to_variable = { TRS_cs_industrial_capacity_factory = 0.2 }
+			add_to_variable = { TRS_cs_production_speed_buildings_factor = 0.2 }
+			add_days_remove = {
+				decision = TRS_syrian_industrialization_initiative
+				days = -100
+			}
+		}
+		ai_will_do = {
+			base = 10
+		}
+	}
+	TRS_divert_factory_usage = {
+		icon = GFX_decision_generic_construction
+		allowed = { tag = TRS }
+		visible = { has_decision = TRS_syrian_industrialization_initiative }
+		cost = 50
+		days_remove = 70
+		modifier = { consumer_goods_factor = 0.5 }
+		remove_effect = {
+			add_days_remove = {
+				decision = TRS_syrian_industrialization_initiative
+				days = -80
+			}
+		}
+		ai_will_do = {
+			base = 10
 		}
 	}
 	TRS_purchase_damascus_aleppo_railway = {
@@ -1619,17 +1724,6 @@ TRS_mobile_headquarters_decision_category = {
 				add = 100
 			}
 			modifier = {
-				FROM = { state = 1021 }
-				OR = {
-					FROM = { any_neighbor_state = { controller = { has_war_with = ROOT } } }
-					856 = { any_neighbor_state = { controller = { has_war_with = ROOT } } }
-				}
-				controls_state = 454
-				NOT = { 454 = { has_dynamic_modifier = { modifier = TRS_mobile_headquarters_dm } } }
-				856 = { NOT = { has_dynamic_modifier = { modifier = TRS_mobile_headquarters_dm } } }
-				add = 100
-			}
-			modifier = {
 				FROM = { state = 455 }
 				OR = {
 					FROM = { any_neighbor_state = { controller = { has_war_with = ROOT } } }
@@ -1640,13 +1734,11 @@ TRS_mobile_headquarters_decision_category = {
 				add = 100
 			}
 			modifier = {
-				FROM = { state = 454 }
-				OR = {
-					FROM = { any_neighbor_state = { controller = { has_war_with = ROOT } } }
-					856 = { any_neighbor_state = { controller = { has_war_with = ROOT } } }
+				FROM = {
+					state = 454
+					any_neighbor_state = { controller = { has_war_with = ROOT } }
 				}
-				controls_state = 856
-				856 = { NOT = { has_dynamic_modifier = { modifier = TRS_mobile_headquarters_dm } } }
+				NOT = { controls_state = 856 }
 				add = 100
 			}
 			modifier = {
