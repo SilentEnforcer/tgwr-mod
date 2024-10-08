@@ -2834,7 +2834,7 @@ CHI_chinese_warlords = {
 			hidden_effect = {
 				# I'm not sure how will affect on other features.
 				# set_global_flag = warlord_era_end
-				set_global_flag = reunite_china
+				set_global_flag = reunited_china_glov
 				set_country_flag = reunited_china
 				# The old clique that unified China will be forgotten.
 				every_other_country = {
@@ -4760,7 +4760,7 @@ CHI_chinese_warlords = {
 		visible = {
 			has_global_flag = warlord_era
 			NOT = {
-				has_global_flag = reunite_china
+				has_global_flag = reunited_china_glov
 			}
 		}
 		available = {
@@ -6753,24 +6753,34 @@ foreign_politics = {
 	QIN_claim_concessions = {
 		icon = GFX_decision_eng_trade_unions_demand
 		allowed = {
-			original_tag = QIN
+			is_china_or_warlord_no_tt = yes
 		}
 		visible = {
 			is_subject = no
-			has_country_flag = mandate_of_heaven
-		}
-		available = {
-			has_capitulated = no
 			FROM = {
 				NOT = {
 					has_war_with = ROOT
 				}
 			}
+			NOT = { tag = CHI }
+		}
+		available = {
+			OR = {
+				has_completed_focus = QIN_mandate_of_heaven
+				has_country_flag = reunited_china
+			}
+			has_capitulated = no
+			is_neighbor_of = FROM
+			NOT = { has_country_flag = concessions_war }
 		}
 		cost = 50
 		days_re_enable = 365
 		fire_only_once = no
 		complete_effect = {
+			every_country = {
+				limit = { has_country_flag = concessions_war }
+				clr_country_flag = concessions_war
+			}
 			FROM = {
 				if = {
 					limit = {
@@ -6838,6 +6848,18 @@ foreign_politics = {
 		}
 		ai_will_do = {
 			base = 10
+			modifier = {
+				factor = 0
+				has_war_support < 0.5
+			}
+			modifier = {
+				factor = 0
+				has_stability < 0.3
+			}
+			modifier = {
+				factor = 0
+				num_divisions < 20
+			}
 		}
 	}
 }
@@ -8037,6 +8059,224 @@ peace_deals = {
 			modifier = {
 				add = 1000
 				surrender_progress > 0.05
+			}
+		}
+	}
+	CHI_sue_for_peace_concessions_war = {
+		name = sue_for_peace_FROM
+		icon = GFX_decision_SWI_consolidate_council_power
+		allowed = {
+			is_china_or_warlord_no_tt = yes
+		}
+		visible = {
+			has_country_flag = concessions_war
+		}
+		available = {
+			surrender_progress > 0.01
+			NOT = {
+				any_other_country = {
+					has_war_with = FROM
+					is_in_faction_with = ROOT
+					is_subject = no
+					is_china_or_warlord = no
+				}
+			}
+		}
+		target_trigger = {
+			FROM = {
+				has_war_with = ROOT
+				has_country_flag = concessions_war
+			}
+		}
+		fire_only_once = yes
+		complete_effect = {
+			FROM = {
+				country_event = ww1_qing.20
+			}
+			custom_effect_tooltip = agree_effect_tooltip
+			effect_tooltip = {
+				random_owned_state = {
+					limit = {
+						industrial_complex > 0
+					}
+					remove_building = {
+						type = industrial_complex
+						level = 1
+					}
+				}
+				FROM = {
+					random_owned_state = {
+						limit = {
+							impassable = no
+						}
+						add_building_construction = {
+							type = industrial_complex
+							level = 1
+							instant_build = yes
+						}
+					}
+				}
+			}
+		}
+		ai_will_do = {
+			base = 0
+			modifier = {
+				add = 1000
+				FROM = {
+					any_controlled_state = {
+						is_owned_by = ROOT
+						is_coastal = no
+					}
+				}
+			}
+			modifier = {
+				add = 1000
+				surrender_progress > 0.15
+			}
+		}
+	}
+	CHI_concessions_war_capture_timer = {
+		name = concessions_war
+		allowed = {
+			always = yes
+		}
+		icon = GFX_decision_generic_prepare_civil_war
+		activation = {
+			has_country_flag = concessions_war
+			any_enemy_country = {
+				has_country_flag = concessions_war
+			}
+			any_country = {
+				has_country_flag = concessions_war
+				is_china_or_warlord = no
+				any_owned_state = {
+					is_controlled_by_PREV_or_ally = no
+					OR = {
+						state = 746
+						state = 744
+						state = 745
+						state = 326
+						state = 729
+						state = 728
+						state = 524
+						state = 593
+						state = 592
+						state = 613
+						state = 872
+						state = 591
+						state = 594
+					}
+				}
+			}
+			any_country = {
+				has_country_flag = concessions_war
+				is_china_or_warlord = no
+				NOT = {
+					any_allied_country = {
+						is_china_or_warlord = no
+						is_subject = no
+						any_enemy_country = {
+							has_country_flag = concessions_war
+						}
+					}
+				}
+			}
+		}
+		is_good = no
+		available = {
+			NOT = {
+				any_country = {
+					has_country_flag = concessions_war
+					is_china_or_warlord = no
+					any_owned_state = {
+						is_controlled_by_PREV_or_ally = no
+						OR = {
+							state = 746
+							state = 744
+							state = 745
+							state = 326
+							state = 729
+							state = 728
+							state = 524
+							state = 593
+							state = 592
+							state = 613
+							state = 872
+							state = 591
+							state = 594
+						}
+					}
+				}
+			}
+		}
+		cancel_trigger = {
+			OR = {
+				has_war = no
+				NOT = { has_country_flag = concessions_war }
+			}
+		}
+		fire_only_once = no
+		days_mission_timeout = 200
+		timeout_effect = {
+			every_country = {
+				limit = {
+					has_country_flag = concessions_war
+					is_china_or_warlord = no
+					any_enemy_country = {
+						has_country_flag = concessions_war
+					}
+				}
+				clr_country_flag = concessions_war
+				every_owned_state = {
+					limit = {
+						OR = {
+							state = 746
+							state = 744
+							state = 745
+							state = 326
+							state = 729
+							state = 728
+							state = 524
+							state = 593
+							state = 592
+							state = 613
+							state = 872
+							state = 591
+							state = 594
+						}
+					}
+					random_country = {
+						limit = {
+							has_country_flag = concessions_war
+							is_china_or_warlord = yes
+							has_war_with = PREV.PREV
+						}
+						transfer_state = PREV
+						white_peace = PREV.PREV
+						hidden_effect = {
+							if = {
+								limit = {
+									NOT = {
+										any_enemy_country = {
+											has_country_flag = concessions_war
+										}
+									}
+								}
+								clr_country_flag = concessions_war
+							}
+							every_other_country = {
+								limit = {
+									has_war_with = PREV.PREV.PREV
+									OR = {
+										is_in_faction_with = PREV
+										is_subject_of = PREV
+									}
+								}
+								white_peace = PREV.PREV.PREV
+							}
+						}
+					}
+				}
 			}
 		}
 	}

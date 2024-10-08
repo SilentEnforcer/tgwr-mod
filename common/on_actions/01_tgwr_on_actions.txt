@@ -2152,6 +2152,17 @@
 			}
 			if = {
 				limit = {
+					original_tag = SER
+					FROM = { tag = AUH }
+					NOT = {
+						has_autonomy_state = autonomy_dominion
+						has_autonomy_state = autonomy_tgwr_crownland
+					}
+				}
+				AUH_puppet_SER = yes
+			}
+			if = {
+				limit = {
 					original_tag = LIT
 					has_government = neutrality
 					OR = {
@@ -2982,26 +2993,15 @@
 					OVERLORD = {
 						is_league_of_nations_member = yes
 					}
-					# Protectorate won't join
-					NOT = {
-						has_country_flag = protectorate
-						has_idea = protectorate
-					}
 					# Puppets won't join
 					NOT = {
-						has_autonomy_state = autonomy_tgwr_protectorate
+						is_puppet = yes
 						has_autonomy_state = autonomy_tgwr_informal_protectorate
-						has_autonomy_state = autonomy_tgwr_integrated_protectorate
-						has_autonomy_state = autonomy_tgwr_concession
-						has_autonomy_state = autonomy_tgwr_crownland
-						has_autonomy_state = autonomy_integrated_puppet
-						has_autonomy_state = autonomy_puppet
 						has_autonomy_state = autonomy_wtt_imperial_subject
-						has_autonomy_state = autonomy_wtt_imperial_protectorate
-						has_autonomy_state = autonomy_colony
 						has_autonomy_state = autonomy_tgwr_ottoman_emirate #they have no diplomatic rights
 						has_autonomy_state = autonomy_tgwr_unilateral_union #they don't want to be a independent nation
-					}
+						has_autonomy_state = autonomy_tgwr_regional_government
+					}	
 				}
 				join_the_league_of_nations = yes
 			}
@@ -3646,6 +3646,17 @@
 					long_name = UKR_monarchy_party
 					name = UKR_monarchy_party
 				}
+			}
+			if = {
+				limit = {
+					original_tag = SER
+					FROM = { tag = AUH }
+					NOT = {
+						has_autonomy_state = autonomy_dominion
+						has_autonomy_state = autonomy_tgwr_crownland
+					}
+				}
+				AUH_puppet_SER = yes
 			}
 			if = {
 				limit = {
@@ -5260,22 +5271,22 @@
 						}
 					}
 				}
-				SOV = {
-					if = {
-						limit = {
-							NOT = {
-								has_idea = SOV_war_in_the_caucasus_1
-							}
-						}
-						add_ideas = SOV_war_in_the_caucasus_2
-					}
-					else = {
-						swap_ideas = {
-							remove_idea = SOV_war_in_the_caucasus_1
-							add_idea = SOV_war_in_the_caucasus_2
-						}
-					}
-				}
+				# SOV = {
+				# 	if = {
+				# 		limit = {
+				# 			NOT = {
+				# 				has_idea = SOV_war_in_the_caucasus_1
+				# 			}
+				# 		}
+				# 		add_ideas = SOV_war_in_the_caucasus_2
+				# 	}
+				# 	else = {
+				# 		swap_ideas = {
+				# 			remove_idea = SOV_war_in_the_caucasus_1
+				# 			add_idea = SOV_war_in_the_caucasus_2
+				# 		}
+				# 	}
+				# }
 			}	
 			if = {
 				limit = {
@@ -5733,8 +5744,31 @@
 						has_country_flag = has_british_monarchy
 					}
 				}
-				annex_country = {
-					target = UOB
+				FROM = {
+					annex_country = {
+						target = ROOT
+					}
+				}
+			}
+			if = {
+				limit = {
+					original_tag = ENG
+					has_country_flag = ENG_socialist_britain_flag
+					FROM = {
+						original_tag = ENG
+						has_country_flag = ENG_nationalist_britain_flag
+					}
+				}
+				every_character = {
+					set_nationality = FROM
+				}
+				transfer_navy = {
+					target = FROM
+				}
+				FROM = {
+					annex_country = {
+						target = ROOT
+					}
 				}
 			}
 			if = {
@@ -6089,48 +6123,6 @@
 					NOT = { has_global_flag = great_war_ends }
 				}
 				set_global_flag = greek_defeated_in_ww1
-			}
-			# Irish Civil War
-			if = {
-				limit = {
-					original_tag = IRE
-					has_country_flag = irish_civil_war
-					has_global_flag = irish_civil_war
-					any_other_country = {
-						original_tag = IRE
-						has_country_flag = irish_civil_war
-						has_war_with = PREV
-					}
-				}
-				random_other_country = {
-					limit = {
-						original_tag = IRE
-						has_war_with = PREV
-					}
-					clr_country_flag = irish_civil_war
-					PREV = {
-						clr_country_flag = irish_civil_war
-						transfer_navy = {
-							target = PREV
-						}
-						every_character = {
-							set_nationality = PREV.PREV
-						}
-						every_owned_state = {
-							transfer_state_to = PREV.PREV
-						}
-					}
-					if = {
-						limit = {
-							NOT = { has_cosmetic_tag = IRE_republican }
-						}
-						IRE_cathal_brugha = {
-							remove_country_leader_role = {
-								ideology = authoritarian_democracy
-							}
-						}
-					}
-				}
 			}
 			if = {
 				limit = {
@@ -7024,6 +7016,44 @@
 						remove_core_of = PREV
 					}
 				}
+			}
+			if = {
+				limit = {
+					original_tag = IRE
+				}
+				if = {
+					limit = {
+						has_country_flag = irish_civil_war
+						has_cosmetic_tag = IRE_IRA
+						has_government = fascism
+					}
+					set_politics = {
+						ruling_party = democratic
+						long_name = IRE_democratic_sinn_fein_party
+						name = IRE_democratic_sinn_fein_party
+						elections_allowed = yes
+					}
+					add_popularity = {
+						ideology = democratic
+						popularity = 0.2
+					}
+				}
+				clr_country_flag = irish_civil_war
+				FROM = {
+					clr_country_flag = irish_civil_war
+					every_unit_leader = {
+						limit = {
+							NOT = {
+								is_character = IRE_liam_lynch
+							}
+						}
+						set_nationality = ROOT
+					}
+					transfer_navy = {
+						target = ROOT
+					}
+				}
+				set_capital = { state = 113 }			
 			}
 			if = {
 				limit = {
@@ -8809,6 +8839,36 @@
 				add_ideas = BUL_idea_lozengradska_operacija
 			}
 			country_event = ww1_firstbalkan.100 #adding major status during war
+			if = {
+				limit = {
+					NOT = {
+						has_global_flag = GER_capitulation
+						has_global_flag = FRA_capitulation
+						has_global_flag = FRA_capitulation_alone
+						has_global_flag = great_war_ends
+					}
+					any_enemy_country = {
+						is_major = yes
+					}
+					ENG = {
+						OR = {
+							is_in_faction_with = ROOT
+							has_guaranteed = ROOT
+						}
+						is_subject = no
+						has_war_with_major = no
+						NOT = {
+							has_idea = ENG_idea_not_ready_yet
+						}
+					}
+				}
+				ENG = {
+					add_timed_idea = {
+						idea = ENG_idea_not_ready_yet
+						days = 140
+					}
+				}
+			}
 		}
 	}
 	on_war_relation_added = {
@@ -9143,6 +9203,50 @@
 					}
 				}
 			}
+			# Transcaucasia autonomies
+			if = {
+				limit = {
+					ROOT = {
+						OR = {
+							NOT = {
+								has_cosmetic_tag = GEO_TSCN
+								has_cosmetic_tag = GEO_TSCN_commissariat
+								has_cosmetic_tag = GEO_TSCN_communism
+							}
+							FROM.FROM = {
+								is_core_of = ROOT
+							}
+						}
+					}
+					FROM.FROM = {
+						has_dynamic_modifier = { modifier = GEO_transcaucasia_modifier }
+					}
+				}
+				FROM.FROM = {
+					remove_dynamic_modifier = { modifier = GEO_transcaucasia_modifier }
+				}
+			}
+			if = {
+				limit = {
+					ROOT = {
+						OR = {
+							has_cosmetic_tag = GEO_TSCN
+							has_cosmetic_tag = GEO_TSCN_commissariat
+							has_cosmetic_tag = GEO_TSCN_communism
+						}
+					}
+					FROM.FROM = {
+						NOT = { is_core_of = ROOT }
+						OR = {
+							is_core_of = AZR
+							is_core_of = ARM
+						}
+					}
+				}
+				FROM.FROM = {
+					add_dynamic_modifier = { modifier = GEO_transcaucasia_modifier }
+				}
+			}
 		}
 	}
 	on_unit_leader_created = { # This uses the UNIT LEADER sub scope of a character, FROM == country
@@ -9198,6 +9302,19 @@
 				}
 				set_country_flag = has_reduce_units_check
 					
+			}
+
+			#RCW Shipments variable for uk
+			if = {
+				limit = {
+					tag = ENG
+					check_variable = {SRA_total_shipments_remaining > 0} 
+					SRA = {
+						has_war_with = SOV
+					}
+				}
+				add_to_variable = { SRA_available_shipments = 2 }
+				add_to_variable = { SRA_total_shipments_remaining = -2 }
 			}
 		}
 	}
