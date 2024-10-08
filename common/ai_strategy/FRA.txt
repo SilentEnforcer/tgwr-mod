@@ -872,6 +872,8 @@ FRA_protect_GRE = {
 		NOT = {
 			has_global_flag = WW1_is_stuck
 			has_global_flag = great_war_ends
+			has_global_flag = russian_revolution
+			has_global_flag = russian_civil_war
 		}
 	}	
 	ai_strategy = {
@@ -901,10 +903,60 @@ FRA_protect_GRE = {
 				state = 731
 			}
 		}
-		value = 100
+		value = -20
 		area = europe
 	}
+
 	abort_when_not_enabled = yes
+}
+
+FRA_GRE_low_prio = {
+	allowed = {
+		tag = FRA
+	}
+	abort_when_not_enabled = yes
+	enable = {
+		has_global_flag = kis_franzferdinand_murdered
+		has_war_with = GER
+		BUL = {
+			is_in_faction_with = GER
+		}
+		tag = FRA
+		345 = {
+			is_controlled_by_ROOT_or_ally = yes
+		}
+		has_global_flag = russian_revolution
+		has_global_flag = russian_civil_war
+		surrender_progress < 0.3
+		NOT = {
+			has_global_flag = WW1_is_stuck
+			has_global_flag = great_war_ends
+
+		}
+	}	
+
+	ai_strategy = {
+		type = put_unit_buffers
+		states = {
+			345
+			731
+		}
+		ratio = 0.20
+	}
+
+	ai_strategy = {
+		type = front_unit_request
+		tag = BUL
+		state_trigger = {
+			OR = {
+				state = 345
+				state = 731
+			}
+		}
+		value = 60
+		area = europe
+	}
+
 }
 
 FRA_GER_against_FRC_NFA = {
@@ -2041,7 +2093,7 @@ FRA_unit_production = {
 	ai_strategy = {
 		type = role_ratio
 		id = garrison
-		value = 5
+		value = 0
 	}
 
 	ai_strategy = {
@@ -2053,7 +2105,7 @@ FRA_unit_production = {
 	ai_strategy = {
 		type = role_ratio
 		id = mountaineers
-		value = 5
+		value = 2
 	}
 
 	ai_strategy = {
@@ -2065,7 +2117,7 @@ FRA_unit_production = {
 	ai_strategy = {
 		type = role_ratio
 		id = cavalry
-		value = 2
+		value = 1
 	}
 
 	ai_strategy = {
@@ -2083,6 +2135,18 @@ FRA_unit_production = {
 	ai_strategy = {
 		type = role_ratio
 		id = light_armor
+		value = 0
+	}
+
+	ai_strategy = {
+		type = role_ratio
+		id = armor
+		value = 0
+	}
+
+	ai_strategy = {
+		type = role_ratio
+		id = medium_armor
 		value = 0
 	}
 
@@ -2171,7 +2235,7 @@ FRA_unit_production = {
 	ai_strategy = {
 		type = equipment_production_factor
 		id = infantry
-		value = 65 #focus on infantry
+		value = 25 #focus on infantry
 	}
 	
 	ai_strategy = {
@@ -2248,13 +2312,24 @@ early_tank_production = {
 	ai_strategy = {
 		type = equipment_production_factor
 		id = armor
-		value = 250 #build some
+		value = 400 #build some
+	}
+
+	ai_strategy = {
+		type = role_ratio
+		id = garrison
+		value = -1
 	}
 
 	ai_strategy = {
 		type = role_ratio
 		id = medium_armor
 		value = 1
+	}
+	ai_strategy = {
+		type = role_ratio
+		id = armored_car
+		value = -1
 	}
 }
 
@@ -2289,13 +2364,18 @@ renault_tank_production = {
 	ai_strategy = {
 		type = role_ratio
 		id = light_armor
-		value = 1
+		value = 2
 	}
 
 	ai_strategy = {
 		type = role_ratio
 		id = armor
-		value = 2
+		value = 3
+	}
+	ai_strategy = {
+		type = role_ratio
+		id = armored_car
+		value = -1
 	}
 
 
@@ -2304,4 +2384,100 @@ renault_tank_production = {
 		id = armor
 		value = 400 #build some
 	}
+}
+
+renault_mission_focus = {
+	
+	allowed = {
+		original_tag = FRA	
+	}
+	enable = {
+		original_tag = FRA
+		NOT = {
+			has_global_flag = great_war_ends
+		}
+		has_tech = basic_light_tank_chassis
+		has_tech = basic_medium_tank_chassis
+		has_active_mission = FRA_fufill_renault_contract
+	}
+	abort = {
+		OR = {
+			has_global_flag = great_war_ends
+			has_global_flag = great_war_ends
+		}
+	}
+
+	ai_strategy = {
+		type = equipment_production_factor
+		id = armor
+		value = 1000 #build some
+	}
+}
+
+interwar_tank_production = {
+	
+	allowed = {
+		original_tag = FRA	
+	}
+	enable = {
+		original_tag = FRA
+		has_global_flag = great_war_ends
+		has_war = no 
+	}
+	abort = {
+		has_war = yes
+
+	}
+	#it will force AI to produce armored cars and schneider tanks
+
+	ai_strategy = {
+		type = role_ratio
+		id = medium_armor
+		value = 1
+	}
+
+	ai_strategy = {
+		type = role_ratio
+		id = light_armor
+		value = 6
+	}
+
+	ai_strategy = {
+		type = role_ratio
+		id = armor
+		value = 2
+	}
+}
+
+FRA_rape_hainan = {
+	allowed = {
+		original_tag = FRA	
+	}
+	enable = {
+		OR = {
+			tag = FRA
+			tag = IND
+		}
+		has_country_flag = FRA_war_on_hainan_flag
+		NOT = {
+			IND = {
+				owns_state = 591
+			}
+		}
+	}
+	abort = {
+		IND = {
+			owns_state = 591
+		}
+	}
+	ai_strategy = {
+		type = front_unit_request
+		strategic_region = 165
+		value = 300
+	}
+	ai_strategy = {
+        type = invasion_unit_request
+        country_trigger = { owns_state = 591 }
+        value = 200
+    }
 }
