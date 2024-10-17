@@ -325,7 +325,7 @@ focus_tree = {
 		}
 		completion_reward = {
 			custom_effect_tooltip = TUR_enforce_turkish_in_administration_tt
-			add_to_variable = { TRS_cs_political_power_factor = 0.7 }
+			add_to_variable = { TRS_cs_political_power_factor = 0.07 }
 			add_to_variable = { TRS_cs_stability_factor = -0.05 }
 			if = {
 				limit = { has_power_balance = { id = TUR_local_central_rule } }
@@ -1433,7 +1433,7 @@ focus_tree = {
 		}
 	}
 	focus = {
-		id = TUR_loyalty_to_the_empire
+		id = TUR_loyalty_to_the_porte
 		icon = GFX_ottoman_friendship
 		cost = 5
 		search_filters = {
@@ -1444,8 +1444,17 @@ focus_tree = {
 		x = 4
 		y = 3
 		relative_position_id = TUR_enforce_turkish_in_administration
+		available = {
+			is_subject_of = TUR
+			has_war_together_with = TUR
+			any_country = {
+				is_major = yes
+				is_faction_leader = yes
+				has_war_with = ROOT
+			}
+		}
 		completion_reward = {
-			custom_effect_tooltip = TUR_loyalty_to_the_empire_tt
+			custom_effect_tooltip = TUR_loyalty_to_the_porte_tt
 			add_to_variable = { TRS_cs_war_stability_factor = 0.1 }
 			add_war_support = 0.05
 			reverse_add_opinion_modifier = {
@@ -1456,7 +1465,7 @@ focus_tree = {
 				limit = { has_power_balance = { id = TUR_local_central_rule } }
 				add_power_balance_value = {
 					id = TUR_local_central_rule
-					value = -0.1
+					value = 0.1
 				}
 			}
 		}
@@ -1466,18 +1475,177 @@ focus_tree = {
 	}
 	focus = {
 		id = TUR_uneasy_alliance
-		icon = GFX_focus_generic_national_security
+		icon = {
+			trigger = {
+				OR = {
+					FRA = {
+						is_major = yes
+						is_faction_leader = yes
+						has_war_with = ROOT
+					}
+					ENG = {
+						is_major = yes
+						is_faction_leader = yes
+						has_war_with = ROOT
+					}
+				}
+			}
+			value = GFX_TUR_uneasy_alliance_entente
+		}
+		icon = {
+			trigger = {
+				OR = {
+					GER = {
+						is_major = yes
+						is_faction_leader = yes
+						has_war_with = ROOT
+					}
+					AUH = {
+						is_major = yes
+						is_faction_leader = yes
+						has_war_with = ROOT
+					}
+				}
+			}
+			value = GFX_TUR_uneasy_alliance_central_powers
+		}
+		icon = {
+			trigger = {
+				NOT = {
+					FRA = {
+						is_major = yes
+						is_faction_leader = yes
+						has_war_with = ROOT
+					}
+					ENG = {
+						is_major = yes
+						is_faction_leader = yes
+						has_war_with = ROOT
+					}
+					GER = {
+						is_major = yes
+						is_faction_leader = yes
+						has_war_with = ROOT
+					}
+					AUH = {
+						is_major = yes
+						is_faction_leader = yes
+						has_war_with = ROOT
+					}
+				}
+			}
+			value = GFX_TUR_uneasy_alliance_empty
+		}
 		cost = 5
 		search_filters = {
 			FOCUS_FILTER_POLITICAL_CHARACTER
 		}
 		prerequisite = { focus = TUR_enforce_turkish_in_administration }
-		mutually_exclusive = { focus = TUR_loyalty_to_the_empire }
+		mutually_exclusive = { focus = TUR_loyalty_to_the_porte }
 		x = 6
 		y = 3
 		relative_position_id = TUR_enforce_turkish_in_administration
+		available = {
+			is_subject_of = TUR
+			has_war_together_with = TUR
+			any_country = {
+				is_major = yes
+				is_faction_leader = yes
+				has_war_with = ROOT
+			}
+			custom_trigger_tooltip = {
+				tooltip = TUR_uneasy_alliance_tt
+				NOT = { has_global_flag = TRS_cemal_entente_negotiations_failure }
+			}
+		}
+		select_effect = {
+			country_event = ottoman_syria.36
+			random_country = {
+				limit = {
+					is_major = yes
+					is_faction_leader = yes
+					has_war_with = ROOT
+				}
+				set_variable = { global.TRS_country_cemal_negotiating = THIS }
+				country_event = ottoman_syria.37
+			}
+		}
 		completion_reward = {
-			
+			custom_effect_tooltip = tooltip_immediate_effect_upon_focus_start
+			effect_tooltip = {
+				country_event = ottoman_syria.36
+				every_country = {
+					limit = {
+						OR = {
+							check_variable = { global.TRS_country_cemal_negotiating = THIS }
+							AND = {
+								is_major = yes
+								is_faction_leader = yes
+								has_war_with = ROOT
+								NOT = { has_variable = global.TRS_country_cemal_negotiating }
+							}
+						}
+					}
+					country_event = ottoman_syria.37
+				}
+			}
+			custom_effect_tooltip = TUR_uneasy_alliance_tt2
+			if = {
+				limit = { has_power_balance = { id = TUR_local_central_rule } }
+				add_power_balance_value = {
+					id = TUR_local_central_rule
+					value = -0.15
+				}
+			}
+		}
+		ai_will_do = {
+			base = 50
+		}
+	}
+	focus = {
+		id = TUR_a_necessary_backstab
+		icon = GFX_focus_generic_conspiracy
+		cost = 5
+		search_filters = {
+			FOCUS_FILTER_POLITICAL_CHARACTER
+		}
+		prerequisite = { focus = TUR_uneasy_alliance }
+		x = 0
+		y = 2
+		relative_position_id = TUR_uneasy_alliance
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = TUR_a_necessary_backstab_tt
+				has_global_flag = TRS_cemal_entente_negotiations_dropping_out_of_war
+			}
+		}
+		complete_tooltip = {
+			TUR = { end_puppet = TRS }
+			remove_ideas = TRS_the_regent_of_sultan
+			if = {
+				limit = { has_country_flag = TUR_a_necessary_backstab }
+				remove_power_balance = { id = TUR_local_central_rule }
+			}
+			declare_war_on = {
+		    	target = TUR
+		    	type = annex_everything
+			}
+			global.TRS_country_cemal_negotiating = { add_to_faction = ROOT }
+		}
+		completion_reward = {
+			TUR = { end_puppet = TRS }
+			set_cosmetic_tag = TUR_ottoman_cemal
+			remove_ideas = TRS_the_regent_of_sultan
+			if = {
+				limit = { has_power_balance = { id = TUR_local_central_rule } }
+				remove_power_balance = { id = TUR_local_central_rule }
+				set_country_flag = TUR_a_necessary_backstab
+			}
+			declare_war_on = {
+		    	target = TUR
+		    	type = annex_everything
+			}
+			global.TRS_country_cemal_negotiating = { add_to_faction = ROOT }
 		}
 		ai_will_do = {
 			base = 50
@@ -1490,30 +1658,30 @@ focus_tree = {
 		search_filters = {
 			FOCUS_FILTER_POLITICAL_CHARACTER
 		}
-		prerequisite = { focus = TUR_loyalty_to_the_empire focus = TUR_uneasy_alliance }
+		prerequisite = { focus = TUR_loyalty_to_the_porte focus = TUR_uneasy_alliance }
 		x = 1
 		y = 1
-		relative_position_id = TUR_loyalty_to_the_empire
+		relative_position_id = TUR_loyalty_to_the_porte
 		available = { has_war_with = HJZ }
 		complete_tooltip = {
 			add_ideas = TRS_armistice_in_the_revolt
 			if = {
 				limit = { has_country_flag = TUR_deal_with_the_sharifian_revolt }
-				TUR = { country_event = ottoman_syria.42 }
+				TUR = { country_event = ottoman_syria.60 }
 			}
-			HJZ = { country_event = ottoman_syria.43 }
-			country_event = ottoman_syria.36
+			HJZ = { country_event = ottoman_syria.61 }
+			country_event = ottoman_syria.54
 			custom_effect_tooltip = TUR_deal_with_the_sharifian_revolt_tt
 		}
 		completion_reward = {
 			add_ideas = TRS_armistice_in_the_revolt
 			if = {
 				limit = { is_subject_of = TUR }
-				TUR = { country_event = ottoman_syria.42 }
+				TUR = { country_event = ottoman_syria.60 }
 				set_country_flag = TUR_deal_with_the_sharifian_revolt
 			}
-			HJZ = { country_event = ottoman_syria.43 }
-			country_event = ottoman_syria.36
+			HJZ = { country_event = ottoman_syria.61 }
+			country_event = ottoman_syria.54
 			custom_effect_tooltip = TUR_deal_with_the_sharifian_revolt_tt
 		}
 		ai_will_do = {
