@@ -1213,6 +1213,12 @@ focus_tree = {
 		x = 2
 		y = 2
 		relative_position_id = TUR_ottoman_state_in_syria
+		available = {
+			553 = {
+				is_controlled_by = ROOT
+				has_dynamic_modifier = { modifier = TUR_autonomous_vilayet_lebanon }
+			}
+		}
 		complete_tooltip = {
 			if = {
 				limit = { has_country_flag = TUR_occupy_mount_lebanon1 }
@@ -1226,8 +1232,13 @@ focus_tree = {
 			}
 			553 = {
 				custom_effect_tooltip = TUR_occupy_mount_lebanon_mutasarrifate_tt
+				remove_core_of = ROOT
+				custom_effect_tooltip = TUR_occupy_mount_lebanon_mutasarrifate_tt2
+				start_resistance = yes
+				custom_effect_tooltip = empty_space
 				set_demilitarized_zone = no
 			}
+			activate_mission = TRS_integrating_mount_lebanon
 			custom_effect_tooltip = TUR_increase_beirut_centralization_15
 			if = {
 				limit = { has_country_flag = TUR_occupy_mount_lebanon3 }
@@ -1260,8 +1271,22 @@ focus_tree = {
 					remove_dynamic_modifier = { modifier = TUR_autonomous_vilayet_lebanon }
 					add_dynamic_modifier = { modifier = TUR_autonomous_vilayet }
 				}
+				remove_core_of = ROOT
+				hidden_effect = {
+					add_claim_by = ROOT
+					if = {
+						limit = { ROOT = { is_subject_of = TUR } }
+						remove_core_of = TUR
+						add_claim_by = TUR
+					}
+				}
+				custom_effect_tooltip = TUR_occupy_mount_lebanon_mutasarrifate_tt2
+				set_variable = { TUR_ottoman_resistance_target_arab = 0.5 }
+				start_resistance = yes
+				custom_effect_tooltip = empty_space
 				set_demilitarized_zone = no
 			}
+			activate_mission = TRS_integrating_mount_lebanon
 			custom_effect_tooltip = TUR_increase_beirut_centralization_15
 			add_to_variable = { global.TUR_beirut_centralization = 0.15 }
 			ottoman_minority_variable_check = yes
@@ -1433,44 +1458,87 @@ focus_tree = {
 		}
 	}
 	focus = {
-		id = TUR_loyalty_to_the_porte
-		icon = GFX_ottoman_friendship
+		id = TUR_a_job_well_done
+		icon = GFX_goal_tripartite_pact
 		cost = 5
 		search_filters = {
 			FOCUS_FILTER_POLITICAL_CHARACTER
 		}
+		prerequisite = { focus = TUR_the_ideal_province }
 		prerequisite = { focus = TUR_enforce_turkish_in_administration }
-		mutually_exclusive = { focus = TUR_uneasy_alliance }
-		x = 4
-		y = 3
-		relative_position_id = TUR_enforce_turkish_in_administration
-		available = {
-			is_subject_of = TUR
-			has_war_together_with = TUR
-			any_country = {
-				is_major = yes
-				is_faction_leader = yes
-				has_war_with = ROOT
-			}
-		}
+		mutually_exclusive = { focus = TUR_march_on_konstantiniyye }
+		x = 0
+		y = 5
+		relative_position_id = TUR_the_ideal_province
+		available = { is_subject_of = TUR }
 		completion_reward = {
-			custom_effect_tooltip = TUR_loyalty_to_the_porte_tt
-			add_to_variable = { TRS_cs_war_stability_factor = 0.1 }
-			add_war_support = 0.05
-			reverse_add_opinion_modifier = {
-				target = TUR
-				modifier = TUR_commitment_to_the_war
-			}
-			if = {
-				limit = { has_power_balance = { id = TUR_local_central_rule } }
-				add_power_balance_value = {
-					id = TUR_local_central_rule
-					value = 0.1
+			random_country = {
+				limit = { has_subject = ROOT }
+				ROOT = { every_character = { set_nationality = PREV.PREV } }
+				change_tag_from = ROOT
+				annex_country = {
+					target = TRS
+					transfer_troops = yes
 				}
+				add_political_power = 100
 			}
 		}
 		ai_will_do = {
-			base = 50
+			base = 0
+			modifier = {
+				add = 100
+				check_variable = { global.TUR_aleppo_centralization = 1 }
+				check_variable = { global.TUR_deir_ez_zor_centralization = 1 }
+				check_variable = { global.TUR_beirut_centralization = 1 }
+				check_variable = { global.TUR_damascus_centralization = 1 }
+				check_variable = { global.TUR_jerusalem_centralization = 1 }
+			}
+			modifier = {
+				factor = 0
+				NOT = {
+					OR = {
+						NOT = { owns_state = 447 }
+						AND = {
+							owns_state = 447
+							check_variable = { global.TUR_suez_centralization = 1 }
+						}
+					}
+					OR = {
+						NOT = { owns_state = 446 }
+						AND = {
+							owns_state = 446
+							check_variable = { global.TUR_cairo_centralization = 1 }
+						}
+					}
+					OR = {
+						NOT = { owns_state = 452 }
+						AND = {
+							owns_state = 452
+							check_variable = { global.TUR_marsa_matruh_centralization = 1 }
+						}
+					}
+					OR = {
+						NOT = {
+							owns_state = 456
+							owns_state = 457
+						}
+						AND = {
+							OR = {
+								owns_state = 456
+								owns_state = 457
+							}
+							check_variable = { global.TUR_aswan_centralization = 1 }
+						}
+					}
+					OR = {
+						NOT = { owns_state = 551 }
+						AND = {
+							owns_state = 551
+							check_variable = { global.TUR_khartoum_centralization = 1 }
+						}
+					}
+				}
+			}
 		}
 	}
 	focus = {
@@ -1542,7 +1610,7 @@ focus_tree = {
 		}
 		prerequisite = { focus = TUR_enforce_turkish_in_administration }
 		mutually_exclusive = { focus = TUR_loyalty_to_the_porte }
-		x = 6
+		x = 2
 		y = 3
 		relative_position_id = TUR_enforce_turkish_in_administration
 		available = {
@@ -1552,6 +1620,13 @@ focus_tree = {
 				is_major = yes
 				is_faction_leader = yes
 				has_war_with = ROOT
+			}
+			if = {
+				limit = { has_power_balance = { id = TUR_local_central_rule } }
+				is_power_balance_in_range = {
+					id = TUR_local_central_rule
+					range < TUR_local_central_rule_local_low_control
+				}
 			}
 			custom_trigger_tooltip = {
 				tooltip = TUR_uneasy_alliance_tt
@@ -1590,13 +1665,84 @@ focus_tree = {
 				}
 			}
 			custom_effect_tooltip = TUR_uneasy_alliance_tt2
+		}
+		ai_will_do = {
+			base = 50
+		}
+	}
+	focus = {
+		id = TUR_loyalty_to_the_porte
+		icon = GFX_ottoman_friendship
+		cost = 5
+		search_filters = {
+			FOCUS_FILTER_POLITICAL_CHARACTER
+		}
+		prerequisite = { focus = TUR_enforce_turkish_in_administration }
+		mutually_exclusive = { focus = TUR_uneasy_alliance }
+		x = 2
+		y = 0
+		relative_position_id = TUR_uneasy_alliance
+		available = {
+			is_subject_of = TUR
+			has_war_together_with = TUR
+			any_country = {
+				is_major = yes
+				is_faction_leader = yes
+				has_war_with = ROOT
+			}
+		}
+		completion_reward = {
+			custom_effect_tooltip = TUR_loyalty_to_the_porte_tt
+			add_to_variable = { TRS_cs_war_stability_factor = 0.1 }
+			add_war_support = 0.05
+			reverse_add_opinion_modifier = {
+				target = TUR
+				modifier = TUR_commitment_to_the_war
+			}
 			if = {
 				limit = { has_power_balance = { id = TUR_local_central_rule } }
 				add_power_balance_value = {
 					id = TUR_local_central_rule
-					value = -0.15
+					value = 0.1
 				}
 			}
+		}
+		ai_will_do = {
+			base = 50
+		}
+	}
+	focus = {
+		id = TUR_deal_with_the_sharifian_revolt
+		icon = GFX_generic_attack_arab_revolt
+		cost = 5
+		search_filters = {
+			FOCUS_FILTER_POLITICAL_CHARACTER
+		}
+		prerequisite = { focus = TUR_loyalty_to_the_porte focus = TUR_uneasy_alliance }
+		x = 1
+		y = 1
+		relative_position_id = TUR_uneasy_alliance
+		available = { has_war_with = HJZ }
+		complete_tooltip = {
+			add_ideas = TRS_armistice_in_the_revolt
+			if = {
+				limit = { has_country_flag = TUR_deal_with_the_sharifian_revolt }
+				TUR = { country_event = ottoman_syria.60 }
+			}
+			HJZ = { country_event = ottoman_syria.61 }
+			country_event = ottoman_syria.54
+			custom_effect_tooltip = TUR_deal_with_the_sharifian_revolt_tt
+		}
+		completion_reward = {
+			add_ideas = TRS_armistice_in_the_revolt
+			if = {
+				limit = { is_subject_of = TUR }
+				TUR = { country_event = ottoman_syria.60 }
+				set_country_flag = TUR_deal_with_the_sharifian_revolt
+			}
+			HJZ = { country_event = ottoman_syria.61 }
+			country_event = ottoman_syria.54
+			custom_effect_tooltip = TUR_deal_with_the_sharifian_revolt_tt
 		}
 		ai_will_do = {
 			base = 50
@@ -1626,6 +1772,10 @@ focus_tree = {
 				limit = { has_country_flag = TUR_a_necessary_backstab }
 				remove_power_balance = { id = TUR_local_central_rule }
 			}
+			every_state = {
+				limit = { has_state_flag = TUR_a_necessary_backstab }
+				add_claim_by = ROOT
+			}
 			declare_war_on = {
 		    	target = TUR
 		    	type = annex_everything
@@ -1641,6 +1791,11 @@ focus_tree = {
 				remove_power_balance = { id = TUR_local_central_rule }
 				set_country_flag = TUR_a_necessary_backstab
 			}
+			every_state = {
+				limit = { is_owned_by = TUR }
+				add_claim_by = ROOT
+				set_state_flag = TUR_a_necessary_backstab
+			}
 			declare_war_on = {
 		    	target = TUR
 		    	type = annex_everything
@@ -1652,37 +1807,143 @@ focus_tree = {
 		}
 	}
 	focus = {
-		id = TUR_deal_with_the_sharifian_revolt
-		icon = GFX_generic_attack_arab_revolt
+		id = TUR_sultan_of_egypt
+		icon = GFX_TUR_sultan_of_egypt
 		cost = 5
 		search_filters = {
 			FOCUS_FILTER_POLITICAL_CHARACTER
 		}
-		prerequisite = { focus = TUR_loyalty_to_the_porte focus = TUR_uneasy_alliance }
+		prerequisite = { focus = TUR_loyalty_to_the_porte }
+		mutually_exclusive = { focus = TUR_ottoman_provinces_in_egyptian }
 		x = 1
 		y = 1
 		relative_position_id = TUR_loyalty_to_the_porte
-		available = { has_war_with = HJZ }
-		complete_tooltip = {
-			add_ideas = TRS_armistice_in_the_revolt
-			if = {
-				limit = { has_country_flag = TUR_deal_with_the_sharifian_revolt }
-				TUR = { country_event = ottoman_syria.60 }
+		available = {
+			OR = {
+				owns_state = 447
+				owns_state = 446
+				owns_state = 452
+				owns_state = 456
+				owns_state = 457
+				owns_state = 551
 			}
-			HJZ = { country_event = ottoman_syria.61 }
-			country_event = ottoman_syria.54
-			custom_effect_tooltip = TUR_deal_with_the_sharifian_revolt_tt
 		}
 		completion_reward = {
-			add_ideas = TRS_armistice_in_the_revolt
-			if = {
-				limit = { is_subject_of = TUR }
-				TUR = { country_event = ottoman_syria.60 }
-				set_country_flag = TUR_deal_with_the_sharifian_revolt
+		}
+		ai_will_do = {
+			base = 50
+		}
+	}
+	focus = {
+		id = TUR_ottoman_provinces_in_egyptian
+		icon = GFX_TUR_ottoman_provinces_in_egyptian
+		cost = 5
+		search_filters = {
+			FOCUS_FILTER_POLITICAL_CHARACTER
+		}
+		prerequisite = { focus = TUR_loyalty_to_the_porte }
+		prerequisite = { focus = TUR_the_ideal_province }
+		mutually_exclusive = { focus = TUR_sultan_of_egypt }
+		x = 3
+		y = 1
+		relative_position_id = TUR_loyalty_to_the_porte
+		available = {
+			OR = {
+				owns_state = 447
+				owns_state = 446
+				owns_state = 452
+				owns_state = 456
+				owns_state = 457
+				owns_state = 551
 			}
-			HJZ = { country_event = ottoman_syria.61 }
-			country_event = ottoman_syria.54
-			custom_effect_tooltip = TUR_deal_with_the_sharifian_revolt_tt
+		}
+		completion_reward = {
+		}
+		ai_will_do = {
+			base = 50
+		}
+	}
+	focus = {
+		id = TUR_march_on_konstantiniyye
+		icon = GFX_goal_generic_more_territorial_claims
+		cost = 5
+		search_filters = {
+			FOCUS_FILTER_POLITICAL_CHARACTER
+		}
+		prerequisite = { focus = TUR_loyalty_to_the_porte }
+		mutually_exclusive = { focus = TUR_a_job_well_done }
+		will_lead_to_war_with = TUR
+		available = {
+			has_country_flag = great_war_winner
+			NOT = { has_war_together_with = TUR }
+			if = {
+				limit = { has_power_balance = { id = TUR_local_central_rule } }
+				is_power_balance_in_range = {
+					id = TUR_local_central_rule
+					range = TUR_local_central_rule_local_high_control
+				}
+			}
+		}
+		x = 0
+		y = 2
+		relative_position_id = TUR_loyalty_to_the_porte
+		completion_reward = {
+		}
+		ai_will_do = {
+			base = 50
+		}
+	}
+	focus = {
+		id = TUR_fate_of_the_empire
+		icon = GFX_TUR_our_place_in_the_world
+		cost = 5
+		search_filters = {
+			FOCUS_FILTER_POLITICAL_CHARACTER
+		}
+		prerequisite = { focus = TUR_a_necessary_backstab focus = TUR_march_on_konstantiniyye }
+		x = 1
+		y = 1
+		relative_position_id = TUR_a_necessary_backstab
+		available = {
+			OR = {
+				owns_state = 347
+				NOT = { country_exists = TUR }
+			}
+		}
+		complete_tooltip = {
+			every_state = {
+				limit = { has_state_flag = TUR_fate_of_the_empire1 }
+				add_core_of = ROOT
+			}
+			every_state = {
+				limit = { has_state_flag = TUR_fate_of_the_empire2 }
+				add_claim_by = ROOT
+			}
+		}
+		completion_reward = {
+			every_state = {
+				limit = { is_core_of = TUR }
+				add_core_of = ROOT
+				hidden_effect = {
+					if = {
+						limit = { NOT = { country_exists = TUR } }
+						remove_core_of = TUR
+					}
+				}
+				set_state_flag = TUR_fate_of_the_empire1
+			}
+			every_state = {
+				limit = { is_claimed_by = TUR }
+				add_claim_by = ROOT
+				hidden_effect = {
+					if = {
+						limit = { NOT = { country_exists = TUR } }
+						remove_claim_by = TUR
+					}
+				}
+				set_state_flag = TUR_fate_of_the_empire2
+			}
+			custom_effect_tooltip = TUR_fate_of_the_empire_tt
 		}
 		ai_will_do = {
 			base = 50
