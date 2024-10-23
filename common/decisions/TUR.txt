@@ -142,64 +142,36 @@ GER_great_war = {
 			add_war_support = 0.05
 			every_state = {
 				limit = {
-					OR = {
-						is_controlled_by = ROOT
-						controller = {
-							OR = {
-								is_in_faction_with = TUR
-								is_subject_of = TUR
-							}
+					controller = {
+						OR = {
+							original_tag = ROOT
+							is_in_faction_with = TUR
+							is_subject_of = TUR
 						}
 					}
 					OR = {
-						is_core_of = SAU
-						is_core_of = JBS
-						is_core_of = IRQ
-						is_core_of = SYR
-						is_core_of = LEB
-						is_core_of = PAL
-						is_core_of = KUW
-						is_core_of = QAT
-						is_core_of = ALB
+						is_arabian_core = yes
 						is_core_of = PER
-						is_core_of = HJZ
-						is_core_of = ASR
-						is_core_of = YEM
+						is_core_of = ALB
 						is_core_of = EGY
-						is_core_of = LBA
-					}
-					NOT = {
-						is_core_of = controller
-					}
+					}	
+					has_resistance = yes
 				}
 				add_compliance = 3
 			}
-			every_state = {
-				limit = {
-					OR = {
-						controller = {
-							has_war_with = TUR
+			every_enemy_country = {
+				every_controlled_state = {
+					limit = {
+						has_resistance = yes
+						OR = {
+							is_arabian_core = yes
+							is_core_of = PER
+							is_core_of = ALB
+							is_core_of = EGY
 						}
 					}
-					OR = {
-						is_core_of = SAU
-						is_core_of = JBS
-						is_core_of = IRQ
-						is_core_of = SYR
-						is_core_of = LEB
-						is_core_of = PAL
-						is_core_of = KUW
-						is_core_of = QAT
-						is_core_of = ALB
-						is_core_of = PER
-						is_core_of = HJZ
-						is_core_of = ASR
-						is_core_of = YEM
-						is_core_of = EGY
-						is_core_of = LBA
-					}
+					add_resistance = 15
 				}
-				add_resistance = 15
 			}
 			set_country_flag = TUR_jihad_declared
 			custom_effect_tooltip = TUR_declare_jihad_tt
@@ -795,6 +767,105 @@ GER_great_war = {
 				remove_dynamic_modifier = { modifier = TUR_last_stance_in_baghdad scope = TUR }
 			}
 			hidden_effect = { country_event = ottoman.97 }
+		}
+	}
+	TUR_invoke_senussiya_alliance = {
+		icon = GFX_decision_generic_nationalism
+		allowed = {
+			original_tag = TUR
+		}
+		fire_only_once = yes
+		visible = {
+			has_global_flag = great_war
+			is_subject = no
+			NOT = {
+				has_global_flag = great_war_ends
+			}
+			FROM = {
+				is_subject = no
+				is_in_faction = no
+				OR = {
+					has_government = neutrality
+					has_government = fascism
+				}	
+				NOT = {
+					has_war_with = TUR
+					has_war_together_with = TUR
+					has_country_flag = LBA_modus_vivendi_of_acroma
+				}
+			}
+			if = {
+				limit = {
+					LBA = {
+						is_ai = no
+					}
+				}
+				is_in_faction = yes
+			}	
+		}
+		target_trigger = {
+			FROM = {
+				tag = LBA
+			}
+		}
+		available = {
+			has_war = yes
+			any_country = {
+				has_war_with = TUR
+				any_owned_state = {
+					is_core_of = LBA
+				}
+			}
+		}
+		days_remove = 14
+		remove_effect = {
+			if = {
+				limit = {
+					LBA = {
+						is_ai = yes				
+					}
+				}				
+				every_country = {
+					limit = {
+						has_war_with = TUR
+						any_owned_state = {
+							is_core_of = LBA
+						}
+					}
+					LBA = {
+						add_to_war = {
+							targeted_alliance = TUR
+							enemy = PREV
+						}	
+					}
+				}
+				if = {
+					limit = {
+						is_in_faction = yes	
+					}
+					add_to_faction = LBA
+				}
+				else = {
+					LBA = {
+						country_event = generic.5
+					}
+				}
+			}	
+			LBA = {
+				set_country_flag = TUR_invoke_senussiya_alliance
+			}	
+		}
+		cost = 15
+		ai_will_do = {
+			base = 15
+			modifier = {
+				has_war_with = ITA
+				factor = 1000
+			}
+			modifier = {
+				date < 1915.11.1
+				factor = 0
+			}
 		}
 	}
 }
@@ -7754,8 +7825,19 @@ peace_deals = {
 			has_war_with = ITA
 			OR = {
 				is_in_faction = no
-				ITA = { is_in_faction = no }
-				has_global_flag = kis_firstbalkan_war
+				ITA = {
+					is_in_faction = no
+				}
+				OR = {
+					has_global_flag = kis_firstbalkan_war
+					has_war_with = BUL
+					has_war_with = SER
+					has_war_with = GRE
+					any_enemy_country = {
+						is_major = yes
+						NOT = { original_tag = ITA }
+					}
+				}
 			}
 		}
 		visible = {
@@ -7817,13 +7899,30 @@ peace_deals = {
 			}
 			modifier = {
 				add = 500
-				has_war_with = BUL
-				has_war_with = SER
-				has_war_with = ITA
-				ITA = { surrender_progress < 0.05 }
-				NOT = {
-					controls_state = 448
-					controls_state = 450
+				OR = {
+					has_war_with = BUL
+					has_war_with = SER
+					has_war_with = GRE
+				}
+				OR = {
+					AND = {
+						ITA = {
+							surrender_progress < 0.05
+						}
+						NOT = {
+							controls_state = 448
+							controls_state = 450
+						}
+					}
+					surrender_progress > 0.05
+				}
+			}
+		}
+		complete_effect = {
+			ITA = {
+				country_event = {
+					id = ww1_italianturkish.4
+					hours = 3
 				}
 			}
 		}
@@ -10186,87 +10285,30 @@ political_actions = {
 			}
 		}
 	}
-	TUR_invoke_senussiya_alliance = {
-		icon = GFX_decision_generic_nationalism
-		allowed = { original_tag = TUR }
+	TUR_recall_refik_nevzat_bey = {
+		allowed = {
+			original_tag = TUR
+		}
 		visible = {
-			has_global_flag = great_war
-			is_subject = no
-			NOT = { has_global_flag = great_war_ends }
-			FROM = {
-				is_subject = no
-				is_in_faction = no
-				OR = {
-					has_government = neutrality
-					has_government = fascism
-				}	
-				NOT = {
-					has_war_with = TUR
-					has_war_together_with = TUR
-				}
+			has_country_leader = {
+				character = TUR_refik_nevzat
 			}
-			if = {
-				limit = { LBA = { is_ai = no } }
-				is_in_faction = yes
-			}	
+			has_country_leader_with_trait  = refiknevzat
 		}
-		target_trigger = { FROM = { tag = LBA } }
+		days_remove = 15
 		available = {
-			has_war = yes
-			any_country = {
-				has_war_with = TUR
-				any_owned_state = { is_core_of = LBA }
+			custom_trigger_tooltip = {
+				tooltip = TUR_refik_nevzat_bey_in_france
+				has_country_leader_with_trait  = refiknevzat
 			}
 		}
-		days_remove = 14
 		remove_effect = {
-			if = {
-				limit = {
-					LBA = {
-						is_ai = yes				
-					}
-				}
-				if = {
-					limit = {
-						is_in_faction = yes	
-					}
-					add_to_faction = LBA
-				}
-				every_country = {
-					limit = {
-						has_war_with = TUR
-						any_owned_state = {
-							is_core_of = LBA
-						}
-					}
-					LBA = {
-						add_to_war = {
-							targeted_alliance = TUR
-							enemy = PREV
-						}	
-					}
-				}
-				else = {
-					LBA = {
-						country_event = generic.2
-					}
-				}
-			}	
-			LBA = {
-				set_country_flag = TUR_invoke_senussiya_alliance
-			}	
+			remove_country_leader_trait = refiknevzat
+			add_country_leader_trait = refiknevzat2
 		}
-		cost = 15
+		cost = 30
 		ai_will_do = {
-			base = 15
-			modifier = {
-				has_war_with = ITA
-				factor = 1000
-			}
-			modifier = {
-				date < 1915.11.1
-				factor = 0
-			}
+			base = 500
 		}
 	}
 	TUR_alliance_for_karategin = {
@@ -20870,4 +20912,4 @@ TUR_albanian_plot = {
 			}
 		}
 	}
-}
+}	
