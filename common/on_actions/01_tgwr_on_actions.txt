@@ -763,43 +763,6 @@
 			}
 			if = {
 				limit = {
-					tag = JAP
-					NOT = {
-						has_completed_focus = JAP_ww1_fascist_coup
-					}
-				}
-				if = {
-					limit = {
-						has_government = fascism
-					}
-					set_party_name = {
-						ideology = fascism
-						name = JAP_neutrality_party
-						long_name = JAP_neutrality_party_long
-					}
-				}
-				else_if = {
-					limit = {
-						any_country = {
-							has_country_leader_ideology = fascism_ideology
-						}
-					}
-					set_party_name = {
-						ideology = fascism
-						name = fascism
-						long_name = fascism
-					}
-				}
-				else = {
-					set_party_name = {
-						ideology = fascism
-						name = fascism_ideology
-						long_name = fascism_ideology
-					}
-				}
-			}
-			if = {
-				limit = {
 					tag = MAF
 					OR = {
 						owns_state = 274
@@ -2097,11 +2060,19 @@
 				}
 				set_cosmetic_tag = VNC_AUH
 				VNC_eugen_von_osterreich_teschen = {
-					add_country_leader_role = {
-						promote_leader = yes
-						country_leader = {
-							ideology = semi_constitutional_monarchy
-							traits = { foreign_leader }
+					if = {
+						limit = {
+							has_ideology = semi_constitutional_monarchy
+						}
+						promote_character = semi_constitutional_monarchy
+					}
+					else = {
+						add_country_leader_role = {
+							promote_leader = yes
+							country_leader = {
+								ideology = semi_constitutional_monarchy
+								traits = { foreign_leader }
+							}
 						}
 					}
 				}
@@ -2111,6 +2082,7 @@
 					name = VNC_neutrality_AUH_party 
 				}
 				add_state_core = 159
+				add_ideas = AUH_ww1_House_Habsburg_Lorraine
 			}
 			if = {
 				limit = {
@@ -4495,6 +4467,11 @@
 	}
 	on_startup = {
 		effect = {
+			every_possible_country = {
+				#Unit Limits Setup
+				update_mobilisation_bonus = yes
+				country_event = ww1_political.4			
+			}
 			#setting up basic famine state for everyone
 			every_country = {
 				limit = {
@@ -6858,6 +6835,40 @@
 					}
 				}
 			}
+			if = {
+				limit = {
+					tag = NWA
+					has_country_flag = NWA_can_go_exile_in_EST
+					has_war_with = SOV
+				}
+				EST = {
+					NWA = {
+						become_exiled_in = {
+							target = EST
+							legitimacy = 5
+						}
+					}
+					load_oob = "EST_NWA"
+					country_event = ww1_nwa.4
+				}
+				NWA = {
+					clr_country_flag = NWA_can_go_exile_in_EST
+				}
+			}
+			if = {
+				limit = {
+					original_tag = UKR
+					has_country_flag = SOV_soviet_ukraine
+					any_enemy_country = {
+						original_tag = UKR
+						has_war_with = SOV
+						has_capitulated = no
+					}
+				}
+				SOV = {
+					country_event = ww1_soviet.51
+				}
+			}
 		}
 	}
 	on_civil_war_end = {
@@ -7644,17 +7655,6 @@
 						original_tag = ALB
 					}
 					set_cosmetic_tag = ALB_socialism
-				}
-				if = {
-					limit = {
-						original_tag = JAP
-					}
-					set_party_name = {
-						ideology = communism
-						long_name = JAP_communism_party
-						name = JAP_communism_party
-					}
-					clr_country_flag = banned_communism_flag
 				}
 				if = {
 					limit = {
@@ -9312,9 +9312,9 @@
 						is_core_of = ROOT
 					}
 				}
-				if = {
-					limit = {
-						FROM.FROM = {
+				FROM.FROM = {
+					if = {
+						limit = {					
 							region = 115
 							NOT = {
 								has_dynamic_modifier = {
@@ -9325,61 +9325,53 @@
 								}
 							}
 						}
-					}
-					add_dynamic_modifier = {
-						modifier = mongolian_banners_modifier
-					}
-				}
-				else_if = {
-					limit = {
-						FROM.FROM = {
+						add_dynamic_modifier = {
+							modifier = mongolian_banners_modifier
+						}
+					}	
+					else_if = {
+						limit = {
 							is_core_of = MON
 							NOT = {
 								has_dynamic_modifier = {
 									modifier = xinjiang_modifier
 								}
-							}
+							}	
+						}
+						add_dynamic_modifier = {
+							modifier = mongolian_banners_modifier
 						}
 					}
-					add_dynamic_modifier = {
-						modifier = mongolian_banners_modifier
-					}
-				}
-				else_if = {
-					limit = {
-						FROM.FROM = {
+					else_if = {
+						limit = {
 							state = 604
 						}
+						add_dynamic_modifier = {
+							modifier = qinghai_modifier
+						}
 					}
-					add_dynamic_modifier = {
-						modifier = qinghai_modifier
-					}
-				}
-				else_if = {
-					limit = {
-						FROM.FROM = {
+					else_if = {
+						limit = {
 							region = 145
 							NOT = {
 								state = 619
 								has_dynamic_modifier = {
 									modifier = mongolian_banners_modifier
 								}
-							}
+							}	
+						}
+						add_dynamic_modifier = {
+							modifier = xinjiang_modifier
 						}
 					}
-					add_dynamic_modifier = {
-						modifier = xinjiang_modifier
-					}
-				}
-				else_if = {
-					limit = {
-						FROM.FROM = {
+					else_if = {
+						limit = {
 							state = 619
 							NOT = { has_state_flag = kumul_abolished }
 						}
-					}
-					add_dynamic_modifier = {
-						modifier = kumul_modifier
+						add_dynamic_modifier = {
+							modifier = kumul_modifier
+						}
 					}
 				}
 			}
@@ -9404,6 +9396,68 @@
 		effect = {
 			# unit limit calculations
 			country_event = ww1_political.4
+		}
+	}
+
+	on_weekly_RUS = {
+		effect = {
+			SRA = {
+				if = {
+					limit = {
+						has_country_flag = SRA_KUB_interactions
+					}
+					if = {
+						limit = {
+							has_idea = SRA_kuban_rada_1
+						}
+						add_to_variable = { SRA_cossack_autonomy = 5 }
+						add_to_variable = { SRA_cossack_loyalty = -3 }
+						if = {
+							limit = {
+								check_variable = {SRA_cossack_loyalty < 0} 
+							}
+							set_variable = {
+								var = SRA_cossack_loyalty
+								value = 0
+							}
+						}
+						else_if = {
+							limit = {
+								check_variable = {SRA_cossack_autonomy > 100} 
+							}
+							set_variable = {
+								var = SRA_cossack_autonomy 
+								value = 100
+							}
+						}
+					}
+					else_if = {
+						limit = {
+							has_idea = SRA_kuban_rada_2
+						}
+						add_to_variable = { SRA_cossack_autonomy = 10 }
+						add_to_variable = { SRA_cossack_loyalty = -6 }
+						if = {
+							limit = {
+								check_variable = {SRA_cossack_loyalty < 0} 
+							}
+							set_variable = {
+								var = SRA_cossack_loyalty
+								value = 0
+							}
+						}
+						else_if = {
+							limit = {
+								check_variable = {SRA_cossack_autonomy > 100} 
+							}
+							set_variable = {
+								var = SRA_cossack_autonomy 
+								value = 100
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -9439,11 +9493,15 @@
 				set_country_flag = has_reduce_units_check
 					
 			}
+		}
+	}
 
+	on_monthly_ENG = {
+		effect = {
 			#RCW Shipments variable for uk
 			if = {
 				limit = {
-					tag = ENG
+					country_exists = SRA
 					check_variable = {SRA_total_shipments_remaining > 0} 
 					SRA = {
 						has_war_with = SOV
@@ -9453,30 +9511,25 @@
 				add_to_variable = { SRA_total_shipments_remaining = -2 }
 			}
 			#PSW Shipments variable for fra
-			if = {
-				limit = {
-					tag = FRA
-					check_variable = {SRA_total_shipments_remaining > 0} 
-					POL = {
-						has_war_with = SOV
-					}
-				}
-				add_to_variable = { SRA_available_shipments = 2 }
-				add_to_variable = { SRA_total_shipments_remaining = -2 }
-			}
 		}
 	}
-	
 
-	on_startup = {
+	on_monthly_POL = {
 		effect = {
-
-			every_country = {
-				#Unit Limits Setup
-				country_event = ww1_political.4
-			}
+			FRA = {
+				if = {
+					limit = {
+						check_variable = {SRA_total_shipments_remaining > 0} 
+						POL = {
+							has_war_with = SOV
+						}
+					}
+					add_to_variable = { SRA_available_shipments = 2 }
+					add_to_variable = { SRA_total_shipments_remaining = -2 }
+				}
+			}			
 		}
-	}
+	}	
 
 	on_peace = {
 		effect = {
@@ -9518,142 +9571,6 @@
 					}
 				}
 			}
-		}
-	}
-	on_weekly = {
-		effect = {
-			
-			if = {
-				limit = { has_idea = undisturbed_isolation }
-				add_ideas = isolation_malus 
-				remove_ideas = low_economic_bonus
-				remove_ideas = partial_economic_bonus
-				remove_ideas = war_economic_bonus
-				remove_ideas = total_economic_bonus
-			}
-			if = {
-				limit = { has_idea = interwar_recovery }
-				add_ideas = postwar_economic_malus 
-				remove_ideas = low_economic_bonus
-				remove_ideas = partial_economic_bonus
-				remove_ideas = war_economic_bonus
-				remove_ideas = total_economic_bonus
-			}
-			if = {
-				limit = { has_idea = low_economic_mobilisation }
-				add_ideas = low_economic_bonus 
-			}
-
-			if = {
-				limit = { has_idea = partial_economic_mobilisation }
-				add_ideas = partial_economic_bonus
-			}
-
-			if = {
-				limit = { has_idea = war_economy }
-				add_ideas = war_economic_bonus
-			}
-
-			if = {
-				limit = { has_idea = tot_economic_mobilisation }
-				add_ideas = total_economic_bonus
-			}
-			
-			if = {
-				limit = { has_idea = civilian_economy }
-				remove_ideas = postwar_economic_malus
-				remove_ideas = low_economic_bonus
-				remove_ideas = partial_economic_bonus
-				remove_ideas = war_economic_bonus
-				remove_ideas = total_economic_bonus
-
-			}
-			# reserved if on_daily eats too much performance
-			if = {
-				limit = {
-					tag = SRA
-					has_country_flag = SRA_KUB_interactions
-					has_idea = SRA_kuban_rada_1
-				}
-				add_to_variable = { SRA_cossack_autonomy = 5 }
-				add_to_variable = { SRA_cossack_loyalty = -3 }
-				if = {
-					limit = {
-						check_variable = {SRA_cossack_loyalty < 0} 
-					}
-					set_variable = {
-						var = SRA_cossack_loyalty
-						value = 0
-					}
-				}
-				if = {
-					limit = {
-						check_variable = {SRA_cossack_autonomy > 100} 
-					}
-					set_variable = {
-						var = SRA_cossack_autonomy 
-						value = 100
-					}
-				}
-			}
-			if = {
-				limit = {
-					tag = SRA
-					has_country_flag = SRA_KUB_interactions
-					has_idea = SRA_kuban_rada_2
-				}
-				add_to_variable = { SRA_cossack_autonomy = 10 }
-				add_to_variable = { SRA_cossack_loyalty = -6 }
-				if = {
-					limit = {
-						check_variable = {SRA_cossack_loyalty < 0} 
-					}
-					set_variable = {
-						var = SRA_cossack_loyalty
-						value = 0
-					}
-				}
-				if = {
-					limit = {
-						check_variable = {SRA_cossack_autonomy > 100} 
-					}
-					set_variable = {
-						var = SRA_cossack_autonomy 
-						value = 100
-					}
-				}
-			}
-		}
-	}
-	on_daily = {
-		effect = {
-			#ferrari increase
-			# if = {
-			# 	limit = {
-			# 		has_country_flag = SRA_KUB_interactions
-			# 		has_idea = SRA_kuban_rada
-			# 	}
-			# 	add_to_variable = { SRA_cossack_autonomy = 2 }
-			# 	add_to_variable = { SRA_cossack_loyalty = -1 }
-			# 	if = {
-			# 		limit = {
-			# 			check_variable = {SRA_cossack_loyalty < 0} 
-			# 		}
-			# 		set_variable = {
-			# 			var = SRA_cossack_loyalty
-			# 			value = 0
-			# 		}
-			# 	}
-			# 	if = {
-			# 		limit = {
-			# 			check_variable = {SRA_cossack_autonomy < 100} 
-			# 		}
-			# 		set_variable = {
-			# 			var = SRA_cossack_autonomy 
-			# 			value = 100
-			# 		}
-			# 	}
-			# }	
 		}
 	}
 }
