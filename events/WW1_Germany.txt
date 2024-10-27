@@ -7,7 +7,7 @@ country_event = {
 	picture = GFX_report_event_german_reichstag_gathering
 	fire_only_once = yes
 	mean_time_to_happen = {
-		days = 10
+		days = 20
 	}
 	trigger = {
 		original_tag = GER
@@ -132,19 +132,76 @@ country_event = {
 				}
 			}
 			# Republic of Alsace-Lorraine
-			28 = { set_demilitarized_zone = yes }
+			28 = {
+				transfer_state_to = ALS
+			}
+			ALS = {
+				add_popularity = {
+					ideology = communism
+					popularity = 0.35
+				}
+				set_politics = {
+					ruling_party = communism
+					elections_allowed = no
+				}
+				add_ideas = standing_alone
+				set_truce = {
+					target = GER
+					days = 365
+				}
+				set_truce = {
+					target = FRA
+					days = 365
+				}
+			}
 			FRA = {
 				country_event = {
 					id = ww1_germany.171
 					days = 12
 				}
 			}
+			# People's States
+			every_possible_country = {
+				limit = {
+					is_constituent_of_germany = yes
+					OR = {
+						exists = no
+						is_subject_of = ROOT
+					}
+					NOT = {
+						tag = ALS
+					}
+				}
+				meta_effect = {
+					text = {
+						set_politics = {
+							ruling_party = democratic
+							last_election = "[CURRENT_DATE]"
+							elections_allowed = yes
+						}
+					}
+					CURRENT_DATE = "[?global.date.GetDateStringNoHour]"
+				}
+				add_popularity = {
+					ideology = neutrality
+					popularity = -0.35
+				}
+				add_popularity = {
+					ideology = democratic
+					popularity = 0.15
+				}
+				set_country_flag = great_war_loser
+				add_ideas = mutiny_3
+				add_ideas = strikes_3
+			}
 		}
 		add_ideas = mutiny_3
+		add_ideas = strikes_3
 		add_ideas = GER_idea_stuggle_for_power
 		set_global_flag = weimar_republic
 		news_event = {
 			id = ww1_germany.5
+			days = 3
 		}
 		ai_chance = {
 			factor = 10
@@ -180,6 +237,7 @@ country_event = {
 	trigger = {
 		original_tag = GER
 		date > 1913.8.1
+		has_start_date < 1914.1.1
 		has_character = GER_august_bebel
 	}
 	immediate = {
@@ -204,7 +262,7 @@ country_event = {
 			}
 			GER_august_bebel = {
 				remove_country_leader_role = {
-					ideology = socialism
+					ideology = social_democracy
 				}
 				remove_country_leader_role = {
 					ideology = reformist_socialism
@@ -495,7 +553,7 @@ country_event = {
 					casualties > 1200000
 					AND = {
 						casualties > 950000
-						has_idea = ger_famine
+						has_idea =  GER_famine
 					}
 				}
 				OR = {
@@ -537,8 +595,6 @@ country_event = {
 		has_country_flag = great_war_loser
 		NOT = {
 			has_global_flag = prussian_blue
-		}
-		NOT = {
 			has_government = communism
 		}
 	}
@@ -563,6 +619,7 @@ country_event = {
 	}
 	option = {
 		name = ww1_germany.12.a
+		custom_effect_tooltip = historical_tt
 		add_stability = -0.1
 		add_popularity = {
 			ideology = communism
@@ -574,7 +631,7 @@ country_event = {
 		}
 		set_global_flag = spartacist_uprising
 		ai_chance = {
-			factor = 100
+			base = 100
 			modifier = {
 				factor = 0
 				has_game_rule = {
@@ -594,7 +651,6 @@ country_event = {
 							has_government = communism
 							}
 						}
-				
 					}
 				}
 			}
@@ -611,15 +667,15 @@ country_event = {
 		}
 		set_global_flag = support_spartacists
 		ai_chance = {
-			factor = 30
+			base = 30
 			modifier = {
 				is_historical_focus_on = yes
 				NOT = {
 					has_game_rule = {
 						rule = GER_postwar_path
 						option = COMMUNIST_SPARTAKIST
-						}
-					}	
+					}
+				}
 				factor = 0
 			}	
 			modifier = {
@@ -644,7 +700,7 @@ country_event = {
 					rule = GER_postwar_path
 					option = FASCIST_HITLER
 				}
-			}		
+			}
 		}
 	}
 }
@@ -713,7 +769,7 @@ country_event = {
 			set_stability = 0.4
 			remove_ideas = GER_idea_kiel_mutiny
 			remove_ideas = GER_idea_stuggle_for_power
-			add_ideas = standing_alone	
+			add_ideas = standing_alone
 			division_template = {
 				name = "Freikorps Brigade"
 				division_names_group = GER_GAR_01
@@ -782,6 +838,7 @@ country_event = {
 				}
 				set_country_flag = great_war_loser
 				set_cosmetic_tag = BAY_germany
+				remove_ideas = idea_army_restrictions
 				set_stability = 0.4
 				GER_ernst_thalmann = {
 					promote_character = yes
@@ -855,6 +912,17 @@ country_event = {
 						owner = PREV
 					}
 				}
+				if = {
+					limit = {
+						BAY = {
+							has_government = communism
+						}
+					}
+					annex_country = {
+						target = BAY
+						transfer_troops = yes
+					}
+				}
 			}
 			set_global_flag = white_germany
 		}
@@ -889,6 +957,7 @@ country_event = {
 					state = 53
 					state = 52
 					state = 54
+					state = 988
 				}
 			}
 			set_cosmetic_tag = GER_civil_war
@@ -908,6 +977,7 @@ country_event = {
 			remove_ideas = GER_idea_reparations
 			add_ideas = limited_conscription
 			add_ideas = partial_economic_mobilisation
+			remove_ideas = idea_army_restrictions
 			GER_karl_liebknecht = {
 				promote_character = yes
 				add_field_marshal_role = {
@@ -966,6 +1036,17 @@ country_event = {
 				create_unit = {
 					division = "name = \"IX Brigade\" division_template = \"Spartakus Brigade\" start_experience_factor = 0.2"
 					owner = ROOT
+				}
+			}
+			if = {
+				limit = {
+					BAY = {
+						has_government = communism
+					}
+				}
+				annex_country = {
+					target = BAY
+					transfer_troops = yes
 				}
 			}
 			random_other_country = {
@@ -1216,6 +1297,7 @@ country_event = {
 					owns_state = 76
 					owns_state = 84
 					owns_state = 778
+					owns_state = 1044
 				}
 				factor = 0
 			}
@@ -1369,6 +1451,8 @@ country_event = {
 					owns_state = 244
 					owns_state = 163
 					owns_state = 513
+					owns_state = 1006
+					owns_state = 1010
 				}
 			}
 		}
@@ -1391,6 +1475,8 @@ country_event = {
 						state = 244
 						state = 163
 						state = 513
+						state = 1006
+						state = 1010
 					}
 				}
 				ITA = {
@@ -1415,6 +1501,7 @@ country_event = {
 							state = 244
 							state = 163
 							state = 513
+							state = 1006
 						}
 					}
 					ITA = {
@@ -1531,26 +1618,17 @@ country_event = {
 							state = 153
 							state = 244
 							state = 736
+							state = 1010
 						}
 					}
 					add_core_of = PREV
 					transfer_state_to = PREV
 				}
 			}
-			if = {
-				limit = {
-					has_dlc = "Together for Victory"
-				}
-				PREV = {
-					set_autonomy = {
-						target = PREV
-						autonomous_state = autonomy_dominion
-					}
-				}
-				else = {
-					PREV = {
-						puppet = PREV
-					}
+			PREV = {
+				set_autonomy = {
+					target = PREV
+					autonomous_state = autonomy_dominion
 				}
 			}
 			hidden_effect = {
@@ -1707,17 +1785,9 @@ country_event = {
 					remove_state_claim = PREV
 				}
 			}
-			if = {
-				limit = {
-					has_dlc = "Together for Victory"
-				}
-				set_autonomy = {
-					target = MAF
-					autonomy_state = autonomy_colony
-				}
-			}
-			else = {
-				puppet = MAF
+			set_autonomy = {
+				target = MAF
+				autonomy_state = autonomy_colony
 			}
 			MAF = {
 				add_named_threat = {
@@ -2854,23 +2924,10 @@ country_event = {
 	option = {
 		name = ww1_germany.49.a
 		GER = {
-			if = {
-				limit = {
-					has_subject_autonomy_feature = yes
-				}
-				set_autonomy = {
-					target = ROOT
-					autonomy_state = autonomy_tgwr_informal_protectorate
-				}
-				ROOT = {
-					set_country_flag = protectorate
-				}
-			}
-			else = {
-				puppet = ROOT
-				ROOT = {
-					add_ideas = protectorate
-				}
+			ROOT = { set_country_flag = protectorate }
+			set_autonomy = {
+				target = ROOT
+				autonomy_state = autonomy_tgwr_informal_protectorate
 			}
 		}
 		ai_chance = {
@@ -3234,6 +3291,7 @@ country_event = {
 				remove_state_core = 244
 				remove_state_core = 736
 				remove_state_core = 513
+				remove_state_core = 1010
 				random_owned_state = {
 					limit = {
 						is_core_of = AUH
@@ -3250,6 +3308,7 @@ country_event = {
 				transfer_state = 244
 				transfer_state = 736
 				transfer_state = 513
+				transfer_state = 1010
 			}
 			GER = {
 				random_owned_state = {
@@ -3290,6 +3349,7 @@ country_event = {
 				add_manpower = 25000
 				remove_state_core = 736
 				remove_state_core = 513
+				remove_state_core = 1010
 				random_owned_state = {
 					limit = {
 						is_core_of = AUH
@@ -3305,6 +3365,7 @@ country_event = {
 			ITA = {
 				transfer_state = 736
 				transfer_state = 513
+				transfer_state = 1010
 			}
 			GER = {
 				random_owned_state = {
@@ -3388,6 +3449,7 @@ country_event = {
 							state = 76
 							state = 84
 							state = 778
+							state = 1044
 						}
 					}
 					remove_core_of = AUH
@@ -4290,11 +4352,33 @@ country_event = {
 				}
 			}
 		}
+		#historical: two million tons of romanian grain
+		if = {
+			limit = { has_active_mission = GER_mission_famine_timer_early }
+			add_days_mission_timeout = {
+				mission = GER_mission_famine_timer_early
+				days = 30
+			}
+		}
+		else_if = {
+			limit = { has_active_mission = GER_mission_famine_timer }
+			add_days_mission_timeout = {
+				mission = GER_mission_famine_timer
+				days = 30
+			}
+		}
 	}
 	option = {
 		name = ww1_germany.74.b
-		ai_chance = {
-			factor = 0
+		ai_chance = { base = 0 }
+		every_state = {
+			limit = {
+				is_controlled_by_ROOT_or_ally = yes
+				is_owned_by = ROM
+				has_resistance = yes
+			}
+			add_resistance = 30
+			add_compliance = -50
 		}
 	}
 }
@@ -4423,6 +4507,7 @@ country_event = {
 	trigger = {
 		original_tag = GER
 		date > 1913.1.1
+		has_start_date < 1914.1.1
 		has_character = GER_alfred_von_schlieffen
 	}
 	mean_time_to_happen = {
@@ -4540,20 +4625,21 @@ news_event = {
 			# Transfer Neuss to any possible victorious Netherland tag.
 			if = {
 				limit = {
-					any_country = {
-						has_country_flag = great_war_winner
-						owns_state = 793
-						is_subject = no
-						NOT = { has_war_with = FRA }
+					35 = {
+						owner = {
+							has_country_flag = great_war_winner
+						}
+					}
+					51 = {
+						owner = {
+							has_country_flag = great_war_loser
+						}
 					}
 				}
-				random_country = {
-					limit = {
-						owns_state = 793
+				35 = {
+					owner = {
+						transfer_state = 793
 					}
-					#no this is 1923 content
-					#transfer_state = 51
-					#give_military_access = FRA
 				}
 			}
 			# British part
@@ -5616,7 +5702,7 @@ country_event = {
 			has_idea = GER_idea_wilhelm_ii
 		}
 		date > 1910.1.1
-		date > 1918.1.1
+		has_start_date < 1914.1.1
 		NOT = {
 			has_global_flag = GER_1912_Federal_Election
 		}
@@ -5687,7 +5773,7 @@ country_event = {
 			}
 			promote_character = {
 				character = GER_august_bebel
-				ideology = socialism
+				ideology = social_democracy
 			}
 			else = {
 				promote_character = GER_friedrich_ebert
@@ -5870,7 +5956,7 @@ country_event = {
 				add_country_leader_role = {
 					promote_leader = yes
 					country_leader = {
-						ideology = despotism
+						ideology = civilian_dictatorship
 						traits = {
 							staunch_monarchist
 						}
@@ -5910,10 +5996,8 @@ country_event = {
 	}
 	option = {
 		name = ww1_germany.110.a
-		add_timed_idea = {
-			idea = strikes_3
-			days = 100
-		}
+		custom_effect_tooltip = historical_tt
+		add_ideas = strikes_3
 		add_popularity = {
 			ideology = communism
 			popularity = 0.1
@@ -5931,65 +6015,76 @@ country_event = {
 	option = {
 		name = ww1_germany.110.b
 		set_country_flag = kapp_civil_war
-		add_timed_idea = {
-			idea = strikes_3
-			days = 20
-		}
-		add_named_threat = {
-			threat = 7
-			name = kapp_putsch
-		}
-		start_civil_war = {
-			ideology = democratic
-			size = 0.2
-			states = {
-				50
-				28
-				42
-				55
-				60
-				65
-				59
-				56
-				751
-				58
-				61
-				64
-				69
-				82
-				83
-				793
+		add_ideas = strikes_3
+		effect_tooltip = {
+			start_civil_war = {
+				ideology = democratic
+				size = 0.2
 			}
-			capital = 50
-			keep_political_party_members = yes
-			keep_unit_leaders_trigger = {
-				OR = {
-					has_trait = old_guard
-					has_trait = old_guard_navy
-					has_trait = trait_royalist
-					has_trait = trait_royal
-					has_trait = harsh_leader
-					has_unit_leader_flag = kapp_putsch
-				}
+			start_civil_war = {
+				ideology = communism
+				size = 0.1
 			}
-			set_cosmetic_tag = GER_civil_war
-			hidden_effect = {
-				remove_ideas = strikes_3
-				if = {
-					limit = {
-						owns_state = 59
-					}
-					GER = {
-						set_province_controller = 6513
-						set_province_controller = 11402
-						set_province_controller = 11493
-					}
-				}
-			}
-			set_country_flag = great_war_loser
-			set_country_flag = interbellum
 		}
 		hidden_effect = {
+			add_named_threat = {
+				threat = 7
+				name = kapp_putsch
+			}
+			start_civil_war = {
+				ideology = democratic
+				size = 0.2
+				states = all
+				states_filter = {
+					OR = {
+						is_core_of = SAX
+						is_core_of = BAD
+						is_core_of = WUR
+						is_core_of = HAN
+						is_core_of = OLD
+						is_core_of = SHL
+						is_core_of = MEK
+						state = 987
+						state = 54
+						state = 60
+						state = 57
+						state = 55
+						state = 42
+						state = 869
+						state = 989
+						state = 793
+						state = 28
+					}
+				}
+				capital = 50
+				keep_political_party_members = yes
+				keep_unit_leaders_trigger = {
+					OR = {
+						has_trait = old_guard
+						has_trait = old_guard_navy
+						has_trait = trait_royalist
+						has_trait = trait_royal
+						has_trait = harsh_leader
+						has_unit_leader_flag = kapp_putsch
+					}
+				}
+				set_cosmetic_tag = GER_civil_war
+				hidden_effect = {
+					remove_ideas = strikes_3
+					if = {
+						limit = {
+							owns_state = 59
+						}
+						GER = {
+							set_province_controller = 6513
+							set_province_controller = 11402
+							set_province_controller = 11493
+						}
+					}
+				}
+				set_country_flag = great_war_loser
+				set_country_flag = interbellum
+			}
 			create_dynamic_country = {
 				original_tag = GER
 				hidden_effect = {
@@ -6017,7 +6112,7 @@ country_event = {
 						state = 873
 					}
 					set_country_flag = ruhr_uprising
-					# set_country_flag = great_war_loser
+					set_country_flag = great_war_loser
 					set_country_flag = interbellum
 					set_cosmetic_tag = GER_ruhr_revolt
 					set_party_name = {
@@ -6028,7 +6123,7 @@ country_event = {
 					create_country_leader = {
 						name = "GER_workers_councils"
 						picture = "gfx/leaders/GER/GER_workers_councils.png"
-						ideology = marxism
+						ideology = revolutionary_socialism
 						traits = {
 							our_right_to_survive
 						}
@@ -6055,14 +6150,14 @@ country_event = {
 						name = "Brigade der Rote Armee"
 						division_names_group = GER_GAR_02
 						regiments = {
-							infantry = { x = 0 y = 0 }
-							infantry = { x = 0 y = 1 }
-							infantry = { x = 0 y = 2 }
-							infantry = { x = 0 y = 3 }
-							infantry = { x = 1 y = 0 }
-							infantry = { x = 1 y = 1 }
-							infantry = { x = 1 y = 2 }
-							infantry = { x = 1 y = 3 }
+							irregular_infantry = { x = 0 y = 0 }
+							irregular_infantry = { x = 0 y = 1 }
+							irregular_infantry = { x = 0 y = 2 }
+							irregular_infantry = { x = 0 y = 3 }
+							irregular_infantry = { x = 1 y = 0 }
+							irregular_infantry = { x = 1 y = 1 }
+							irregular_infantry = { x = 1 y = 2 }
+							irregular_infantry = { x = 1 y = 3 }
 						}
 					}
 					57 = {
@@ -6098,6 +6193,14 @@ country_event = {
 						}
 						add_civil_war_target = PREV
 					}
+				}
+				add_popularity = {
+					ideology = neutrality
+					popularity = 0.15
+				}
+				add_popularity = {
+					ideology = fascism
+					popularity = 0.07
 				}
 			}
 			news_event = ww1_germany.131
@@ -6511,13 +6614,17 @@ country_event = {
 				}
 				if = {
 					limit = {
-						owns_state = 865
 						BEL = {
 							is_subject_of = GER
 						}
 					}
-					BEL = {
-						transfer_state = 865
+					every_owned_state = {
+						limit = {
+							OR = {
+								state = 865
+							}
+						}
+						transfer_state_to = BEL
 					}
 				}
 				if = {
@@ -6696,9 +6803,13 @@ country_event = {
 		start_civil_war = {
 			ideology = communism
 			size = 0
-			states = {
-				343
-				873
+			states = all
+			states_filter = {
+				OR = {
+					state = 51
+					state = 343
+					state = 873
+				}
 			}
 			capital = 873
 			keep_unit_leaders_trigger = {
@@ -6707,7 +6818,7 @@ country_event = {
 			keep_political_leader = yes
 			hidden_effect = {
 				set_country_flag = ruhr_uprising
-				# set_country_flag = great_war_loser
+				set_country_flag = great_war_loser
 				set_country_flag = interbellum
 				set_cosmetic_tag = GER_ruhr_revolt
 				set_party_name = {
@@ -6718,7 +6829,7 @@ country_event = {
 				create_country_leader = {
 					name = "GER_workers_councils"
 					picture = "gfx/leaders/GER/GER_workers_councils.png"
-					ideology = marxism
+					ideology = revolutionary_socialism
 					traits = {
 						our_right_to_survive
 					}
@@ -6745,14 +6856,14 @@ country_event = {
 					name = "Brigade der Rote Armee"
 					division_names_group = GER_GAR_02
 					regiments = {
-						infantry = { x = 0 y = 0 }
-						infantry = { x = 0 y = 1 }
-						infantry = { x = 0 y = 2 }
-						infantry = { x = 0 y = 3 }
-						infantry = { x = 1 y = 0 }
-						infantry = { x = 1 y = 1 }
-						infantry = { x = 1 y = 2 }
-						infantry = { x = 1 y = 3 }
+						irregular_infantry = { x = 0 y = 0 }
+						irregular_infantry = { x = 0 y = 1 }
+						irregular_infantry = { x = 0 y = 2 }
+						irregular_infantry = { x = 0 y = 3 }
+						irregular_infantry = { x = 1 y = 0 }
+						irregular_infantry = { x = 1 y = 1 }
+						irregular_infantry = { x = 1 y = 2 }
+						irregular_infantry = { x = 1 y = 3 }
 					}
 				}
 				random_owned_state = {
@@ -6781,6 +6892,10 @@ country_event = {
 		}
 		hidden_effect = {
 			set_global_flag = ruhr_uprising
+			add_popularity = {
+				ideology = communism
+				popularity = -0.05
+			}
 		}
 		news_event = ww1_germany.131
 		ai_chance = {
@@ -6804,7 +6919,7 @@ country_event = {
 			keep_political_leader = yes
 			hidden_effect = {
 				set_country_flag = ruhr_uprising
-				# set_country_flag = great_war_loser
+				set_country_flag = great_war_loser
 				set_country_flag = interbellum
 				set_cosmetic_tag = GER_ruhr_revolt
 				set_party_name = {
@@ -6815,7 +6930,7 @@ country_event = {
 				create_country_leader = {
 					name = "GER_workers_councils"
 					picture = "gfx/leaders/GER/GER_workers_councils.png"
-					ideology = marxism
+					ideology = revolutionary_socialism
 					traits = {
 						our_right_to_survive
 					}
@@ -6878,6 +6993,10 @@ country_event = {
 		}
 		hidden_effect = {
 			set_global_flag = ruhr_uprising
+			add_popularity = {
+				ideology = communism
+				popularity = -0.05
+			}
 		}
 		news_event = ww1_germany.131
 		random_other_country = {
@@ -6971,169 +7090,12 @@ country_event = {
 		days = 7
 	}
 	option = {
-		name = ww1_germany.125.a
-		trigger = {
-			OR = {
-				BEL = {
-					OR = {
-						has_country_flag = great_war_winner
-						has_country_flag = great_war_loser
-					}
-				}
-				owns_state = 17
-			}
-		}
-		# occupation withdrawl
-		hidden_effect = {
-			every_owned_state = {
-				limit = {
-					OR = {
-						state = 29
-						state = 785
-					}
-				}
-				16 = { owner = { transfer_state = PREV.PREV } }
-			}
-		}
-		set_global_flag = german_moselland
-		863 = {
-			# Briey
-			if = {
-				limit = {
-					NOT = {
-						is_claimed_by = PREV
-						is_owned_by = PREV
-					}
-				}
-				add_claim_by = PREV
-			}
-		}
-		864 = {
-			# Gérardmer
-			if = {
-				limit = {
-					NOT = {
-						is_claimed_by = PREV
-						is_owned_by = PREV
-					}
-				}
-				add_claim_by = PREV
-			}
-		}
-		17 = {
-			# Nancy
-			if = {
-				limit = {
-					NOT = {
-						is_claimed_by = PREV
-						is_owned_by = PREV
-					}
-				}
-				add_claim_by = PREV
-			}
-		}
-		8 = {
-			# Luxemburg
-			if = {
-				limit = {
-					NOT = {
-						is_core_of = PREV
-					}
-				}
-				add_core_of = PREV
-			}
-		}
-		906 = {
-			# Ardennes
-			if = {
-				limit = {
-					NOT = {
-						is_core_of = PREV
-					}
-				}
-				add_core_of = PREV
-			}
-		}
-		907 = {
-			# Meuse
-			if = {
-				limit = {
-					NOT = {
-						is_claimed_by = PREV
-						is_owned_by = PREV
-					}
-				}
-				add_claim_by = PREV
-			}
-		}
-		BEL = {
-			if = {
-				limit = {
-					exists = yes
-					OR = {
-						has_country_flag = great_war_loser
-						is_subject_of = PREV
-					}
-					NOT = {
-						HOL = {
-							has_country_flag = great_war_winner
-						}
-					}
-				}
-				865 = {
-					# Nord
-					if = {
-						limit = {
-							NOT = {
-								is_claimed_by = PREV
-								is_owned_by = PREV
-							}
-						}
-						add_claim_by = PREV
-					}
-				}
-				29 = {
-					# Pas de Calais
-					if = {
-						limit = {
-							NOT = {
-								is_claimed_by = PREV
-								is_owned_by = PREV
-							}
-						}
-						add_claim_by = PREV
-					}
-				}
-			}
-		}
-	}
-	option = {
 		name = ww1_germany.125.b
-		trigger = {
-			NOT = {
-				owns_state = 17
-			}
-		}
-		# occupation withdrawl
-		hidden_effect = {
-			every_owned_state = {
-				limit = {
-					OR = {
-						state = 29
-						state = 785
-					}
-				}
-				16 = { owner = { transfer_state = PREV.PREV } }
-			}
-			every_state = {
-				limit = {
-					is_owned_by = FRA
-					is_on_continent = europe
-					is_demilitarized_zone = yes
-				}
-				set_demilitarized_zone = no
-			}
-		}
+		# trigger = {
+		# 	NOT = {
+		# 		owns_state = 17
+		# 	}
+		# }
 		863 = {
 			# Briey
 			if = {
@@ -7144,6 +7106,7 @@ country_event = {
 					}
 				}
 				add_claim_by = PREV
+				add_claim_by = ALS
 			}
 		}
 		864 = {
@@ -7156,6 +7119,7 @@ country_event = {
 					}
 				}
 				add_claim_by = PREV
+				add_claim_by = ALS
 			}
 		}
 		17 = {
@@ -7165,6 +7129,18 @@ country_event = {
 					is_claimed_by = PREV
 				}
 				remove_claim_by = PREV
+				remove_claim_by = ALS
+			}
+			if = {
+				limit = {
+					is_owned_or_subject_PREV_trigger = yes
+				}
+				18 = {
+					owner = {
+						transfer_state = 17
+					}
+				}
+				set_demilitarized_zone = yes
 			}
 		}
 		8 = {
@@ -7196,6 +7172,16 @@ country_event = {
 					is_claimed_by = PREV
 				}
 				remove_claim_by = PREV
+			}
+			if = {
+				limit = {
+					is_owned_or_subject_PREV_trigger = yes
+				}
+				34 = {
+					owner = {
+						transfer_state = 907
+					}
+				}
 			}
 		}
 		34 = {
@@ -7214,6 +7200,16 @@ country_event = {
 					is_claimed_by = PREV
 				}
 				remove_claim_by = PREV
+			}
+			if = {
+				limit = {
+					is_owned_or_subject_PREV_trigger = yes
+				}
+				785 = {
+					owner = {
+						transfer_state = 29
+					}
+				}
 			}
 		}
 		865 = {
@@ -7260,6 +7256,7 @@ country_event = {
 							}
 						}
 						add_claim_by = PREV
+						transfer_state_to = PREV
 					}
 				}
 				29 = {
@@ -7274,6 +7271,173 @@ country_event = {
 				907 = {
 					transfer_state_to = PREV
 				}
+			}
+		}
+		BEL = {
+			if = {
+				limit = {
+					exists = yes
+					OR = {
+						has_country_flag = great_war_loser
+						is_subject_of = PREV
+					}
+					NOT = {
+						HOL = {
+							has_country_flag = great_war_winner
+						}
+					}
+				}
+			}
+		}
+		ai_chance = {
+			base = 100
+		}
+	}
+	option = {
+		name = ww1_germany.125.a
+		trigger = {
+			OR = {
+				BEL = {
+					OR = {
+						has_country_flag = great_war_winner
+						has_country_flag = great_war_loser
+					}
+				}
+				owns_state = 17
+			}
+		}
+		set_global_flag = german_moselland
+		863 = {
+			# Briey
+			if = {
+				limit = {
+					NOT = {
+						is_claimed_by = PREV
+						is_owned_by = PREV
+					}
+				}
+				add_claim_by = PREV
+				add_claim_by = ALS
+			}
+		}
+		864 = {
+			# Gérardmer
+			if = {
+				limit = {
+					NOT = {
+						is_claimed_by = PREV
+						is_owned_by = PREV
+					}
+				}
+				add_claim_by = PREV
+				add_claim_by = ALS
+			}
+		}
+		17 = {
+			# Nancy
+			if = {
+				limit = {
+					NOT = {
+						is_claimed_by = PREV
+						is_owned_by = PREV
+					}
+				}
+				add_claim_by = PREV
+				add_claim_by = ALS
+			}
+		}
+		8 = {
+			# Luxemburg
+			if = {
+				limit = {
+					NOT = {
+						is_core_of = PREV
+					}
+				}
+				add_core_of = PREV
+			}
+		}
+		906 = {
+			# Ardennes
+			if = {
+				limit = {
+					NOT = {
+						is_core_of = PREV
+					}
+				}
+				add_core_of = PREV
+			}
+		}
+		907 = {
+			# Meuse
+			if = {
+				limit = {
+					NOT = {
+						is_claimed_by = PREV
+						is_owned_by = PREV
+					}
+				}
+				add_claim_by = PREV
+			}
+		}
+		BEL = {
+			if = {
+				limit = {
+					exists = yes
+					OR = {
+						has_country_flag = great_war_loser
+						is_subject_of = PREV
+					}
+					NOT = {
+						HOL = {
+							has_country_flag = great_war_winner
+						}
+					}
+				}
+				865 = {
+					# Nord
+					if = {
+						limit = {
+							NOT = {
+								is_claimed_by = PREV
+								is_owned_by = PREV
+							}
+						}
+						add_claim_by = PREV
+						transfer_state_to = PREV
+					}
+				}
+				29 = {
+					# Pas de Calais
+					if = {
+						limit = {
+							NOT = {
+								is_claimed_by = PREV
+								is_owned_by = PREV
+							}
+						}
+						add_claim_by = PREV
+					}
+				}
+			}
+		}
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 5
+				NOT = { has_government = fascism }
+			}
+			modifier = {
+				add = 5
+				NOT = { has_global_flag = russian_revolution }
+			}
+			modifier = {
+				add = 5
+				NOT = { has_global_flag = ludendorff_offensive }
+			}
+			modifier = {
+				add = 10
+				owns_state = 17
 			}
 		}
 	}
@@ -7356,248 +7520,212 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_germany.127.a
-		every_state = {
-			limit = {
-				OR = {
-					state = 5
-					state = 42
-					state = 51
-					state = 55
-					state = 57
-					state = 60
-					state = 62
-					state = 63
-					state = 64
-					state = 66
-					state = 67
-					state = 68
-					state = 85
-					state = 86
-					state = 188
-					state = 343
-					state = 404
-					state = 762
-					state = 763
-					state = 869
-					state = 873
-				}
-			}
-			add_core_of = PRE
-		}
-		GER = {
-			every_owned_state = {
-				limit = {
-					is_core_of = PRE
-				}
-				transfer_state_to = PRE
-			}
-			transfer_units_fraction = {
-				target = PRE
-				size = 1
-				stockpile_ratio = 1
-				army_ratio = 1
-				navy_ratio = 1
-				air_ratio = 1
-				keep_unit_leaders_trigger = {
-					always = no
-				}
-			}
-		}
-		puppet = PRE
+		GER = { set_cosmetic_tag = PRE }
 		hidden_effect = {
-			PRE = {
-				inherit_technology = GER
-				set_country_flag = great_war_loser
-				add_ideas = idea_armistice
-				add_ideas = idea_army_restrictions
-				add_timed_idea = {
-					idea = GER_idea_reparations
-					days = 365
-				}
-			}
-			if = {
+			every_state = {
 				limit = {
 					NOT = {
-						country_exists = HAN
+						state = 5
+						state = 42
+						state = 51
+						state = 55
+						state = 57
+						state = 60
+						state = 62
+						state = 63
+						state = 64
+						state = 66
+						state = 67
+						state = 68
+						state = 85
+						state = 86
+						state = 188
+						state = 343
+						state = 404
+						state = 762
+						state = 763
+						state = 869
+						state = 873
+						state = 987
+						state = 995
+						state = 59
+						state = 58
+						state = 751
 					}
 				}
-				set_global_flag = french_hanover
+				remove_core_of = GER
 			}
-			if = {
+			every_state = {
 				limit = {
-					NOT = {
-						country_exists = WUR
+					OR = {
+						state = 42
+						state = 51
+						state = 343
+						state = 793
+						state = 869
+						state = 873
+						state = 989
 					}
 				}
-				set_global_flag = french_wurttemberg
+				add_core_of = RHN
 			}
-			if = {
-				limit = {
-					NOT = {
-						country_exists = SHL
-					}
-				}
-				set_global_flag = french_schleswig
-			}
-			if = {
-				limit = {
-					NOT = {
-						country_exists = SAX
-					}
-				}
-				set_global_flag = french_saxony
-			}
-			if = {
-				limit = {
-					NOT = {
-						country_exists = MEK
-					}
-				}
-				set_global_flag = french_mecklenburg
-			}
-			if = {
-				limit = {
-					NOT = {
-						country_exists = BAY
-					}
-				}
-				set_global_flag = french_bavaria
+			WUR = {
+				add_state_core = 987
 			}
 			GER = {
+				GER_lepold_von_bayern = {
+					set_nationality = BAY
+				}
+				GER_rupprecht_von_bayern = {				
+					if = {
+						limit = {
+							has_character_flag = BAY_rupprecht_i
+						}
+						set_character_name = BAY_rupprecht_i
+					}
+					set_nationality = BAY
+				}
+				GER_felix_von_bothmer = {
+					set_nationality = BAY
+				}
+				GER_kress_von_kressenstein = {
+					set_nationality = BAY
+				}
+				GER_krafft_von_dellmensingen = {
+					set_nationality = BAY
+				}
+				GER_friedrich_august_iii = {
+					set_character_name = {
+						name = SAX_friedrich_august_iii
+					}
+					set_nationality = SAX
+				}
+				GER_karl_ludwig_delsa = {
+					set_nationality = SAX
+				}
+				GER_wilhelm_ii_von_wurttemberg = {
+					set_character_name = {
+						name = WUR_wilhelm_ii
+					}
+					set_nationality = WUR
+				}
+				GER_albrecht_von_wurttemberg = {
+					set_nationality = WUR
+				}
+				GER_wilhelm_karl_von_urach= {
+					set_nationality = WUR
+				}
+				GER_friedrich_ii = {
+					set_character_name = {
+						name = BAD_friedrich_ii
+					}
+					promote_leader = yes
+					set_nationality = BAD
+				}
+				GER_friedrich_franz_iv = {
+					set_character_name = {
+						name = MEK_friedrich_franz_iv
+					}
+					promote_leader = yes
+					set_nationality = MEK
+				}
 				every_owned_state = {
 					limit = {
-						is_core_of = HAN
-						NOT = {
-							is_core_of = PREV
+						OR = {
+							is_core_of = FROM
+							is_claimed_by = FROM
+							state = 869
 						}
 					}
-					transfer_state_to = HAN
+					transfer_state_to = FROM
 				}
-				every_owned_state = {
+				every_possible_country = {
 					limit = {
-						is_core_of = WUR
-						NOT = {
-							is_core_of = PREV
+						exists = no
+						OR = {
+							tag = RHN
+							tag = OLD
+							tag = MEK
+							tag = SAX
+							tag = BAY
+							tag = WUR
+							tag = BAD
 						}
 					}
-					transfer_state_to = WUR
+					set_country_flag = french_puppet
 				}
-				every_owned_state = {
+				release = RHN
+				release = OLD
+				release = MEK
+				release = SAX
+				release = BAY
+				release = WUR
+				release = BAD
+			}
+			every_country = {
+				limit = {
+					has_country_flag = french_puppet
+					OR = {
+						tag = RHN
+						tag = OLD
+						tag = MEK
+						tag = SAX
+						tag = BAY
+						tag = WUR
+						tag = BAD
+					}
+				}
+				FROM = {
+					puppet = PREV
+				}
+				if = {
 					limit = {
-						is_core_of = SHL
-						NOT = {
-							is_core_of = PREV
-						}
+						tag = RHN
+						NOT = { has_government = communism }
 					}
-					transfer_state_to = SHL
-				}
-				every_owned_state = {
-					limit = {
-						is_core_of = SAX
-						NOT = {
-							is_core_of = PREV
-						}
+					set_politics = {
+						ruling_party = fascism
+						elections_allowed = no
 					}
-					transfer_state_to = SAX
-				}
-				every_owned_state = {
-					limit = {
-						is_core_of = MEK
-						NOT = {
-							is_core_of = PREV
-						}
+					add_popularity = {
+						ideology = fascism
+						popularity = 0.20
 					}
-					transfer_state_to = MEK
 				}
-				every_owned_state = {
-					limit = {
-						is_core_of = BAY
-						NOT = {
-							is_core_of = PREV
-						}
+			}
+			every_state = {
+				limit = {
+					is_owned_by = GER
+					NOT = {
+						state = 5
+						state = 42
+						state = 51
+						state = 55
+						state = 57
+						state = 60
+						state = 62
+						state = 63
+						state = 64
+						state = 66
+						state = 67
+						state = 68
+						state = 85
+						state = 86
+						state = 188
+						state = 343
+						state = 404
+						state = 762
+						state = 763
+						state = 869
+						state = 873
+						state = 987
+						state = 995
+						state = 59
+						state = 58
+						state = 751
 					}
-					transfer_state_to = BAY
 				}
-			}
-			if = {
-				limit = {
-					has_global_flag = french_hanover
-				}
-				puppet = HAN
-				HAN = {
-					inherit_technology = GER
-					set_country_flag = great_war_loser
-					add_ideas = idea_armistice
-					add_ideas = idea_army_restrictions
-				}
-			}
-			if = {
-				limit = {
-					has_global_flag = french_wurttemberg
-				}
-				puppet = WUR
-				WUR = {
-					inherit_technology = GER
-					set_country_flag = great_war_loser
-					add_ideas = idea_armistice
-					add_ideas = idea_army_restrictions
-				}
-			}
-			if = {
-				limit = {
-					has_global_flag = french_schleswig
-				}
-				puppet = SHL
-				SHL = {
-					inherit_technology = GER
-					set_country_flag = great_war_loser
-					add_ideas = idea_armistice
-					add_ideas = idea_army_restrictions
-				}
-			}
-			if = {
-				limit = {
-					has_global_flag = french_saxony
-				}
-				puppet = SAX
-				SAX = {
-					inherit_technology = GER
-					set_country_flag = great_war_loser
-					add_ideas = idea_armistice
-					add_ideas = idea_army_restrictions
-				}
-			}
-			if = {
-				limit = {
-					has_global_flag = french_mecklenburg
-				}
-				puppet = MEK
-				MEK = {
-					inherit_technology = GER
-					set_country_flag = great_war_loser
-					add_ideas = idea_armistice
-					add_ideas = idea_army_restrictions
-				}
-			}
-			if = {
-				limit = {
-					has_global_flag = french_bavaria
-				}
-				puppet = BAY
-				BAY = {
-					inherit_technology = GER
-					set_country_flag = great_war_loser
-					add_ideas = idea_armistice
-					add_ideas = idea_army_restrictions
-				}
-			}
-			if = {
-				limit = {
-					country_exists = GER
-				}
-				annex_country = {
-					target = GER
-				}
+				transfer_state_to = FROM
 			}
 		}
 		ai_chance = {
@@ -7734,41 +7862,41 @@ news_event = {
 }
 
 # Default
-country_event = {
-	id = ww1_germany.133
-	title = ww1_germany.133.t
-	desc = ww1_germany.133.d
-	picture = GFX_report_event_gathering_protest
-	trigger = {
-		tag = GER
-		has_global_flag = interbellum
-		has_country_flag = great_war_loser
-		has_idea = GER_idea_reparations
-		has_global_flag = germany_paying_reparations
-		has_war = no
-		has_global_flag = ruhr_uprising
-		FRA = {
-			exists = yes
-			NOT = {
-				is_subject_of = PREV
-			}
-		}
-	}
-	fire_only_once = yes
-	mean_time_to_happen = {
-		days = 400
-	}
-	option = {
-		name = ww1_germany.133.a
-		add_timed_idea = {
-			idea = GER_idea_default
-			days = 365
-		}
-		FRA = {
-			country_event = ww1_germany.134
-		}
-	}
-}
+# country_event = {
+# 	id = ww1_germany.133
+# 	title = ww1_germany.133.t
+# 	desc = ww1_germany.133.d
+# 	picture = GFX_report_event_gathering_protest
+# 	trigger = {
+# 		tag = GER
+# 		has_global_flag = interbellum
+# 		has_country_flag = great_war_loser
+# 		has_idea = GER_idea_reparations
+# 		has_global_flag = germany_paying_reparations
+# 		has_war = no
+# 		has_global_flag = ruhr_uprising
+# 		FRA = {
+# 			exists = yes
+# 			NOT = {
+# 				is_subject_of = PREV
+# 			}
+# 		}
+# 	}
+# 	fire_only_once = yes
+# 	mean_time_to_happen = {
+# 		days = 400
+# 	}
+# 	option = {
+# 		name = ww1_germany.133.a
+# 		add_timed_idea = {
+# 			idea = GER_idea_default
+# 			days = 365
+# 		}
+# 		FRA = {
+# 			country_event = ww1_germany.134
+# 		}
+# 	}
+# }
 
 # # Occupation of the Ruhr
 # country_event = {
@@ -7981,7 +8109,7 @@ country_event = {
 		name = ww1_germany.141.a
 		add_named_threat = {
 			name = ww1_germany.141.t
-			threat = 0.01
+			threat = 1
 		}
 		FRA = {
 			country_event = {
@@ -8018,7 +8146,7 @@ country_event = {
 		add_political_power = -100
 		add_named_threat = {
 			name = ww1_germany.141.t
-			threat = 0.05
+			threat = 5
 		}
 		ai_chance = {
 			factor = 0
@@ -8102,10 +8230,18 @@ country_event = {
 	option = {
 		name = ww1_germany.145.a
 		FROM = {
-			WUR = {
-				set_cosmetic_tag = BADWUR
-				transfer_state = 50
-				PREV = { puppet = PREV }
+			hidden_effect = {
+				WUR = {
+					set_cosmetic_tag = BADWUR
+					transfer_state = 50
+					transfer_state = 986
+					transfer_state = 987
+					set_country_flag = protectorate
+				}
+			}
+			set_autonomy = {
+				target = WUR
+				autonomy_state = autonomy_tgwr_informal_protectorate
 			}
 		}
 	}
@@ -8117,6 +8253,8 @@ country_event = {
 				type = topple_government
 			}
 			set_state_controller = 50
+			set_state_controller = 986
+			set_state_controller = 987
 		}
 		ai_chance = {
 			factor = 0
@@ -8256,20 +8394,38 @@ country_event = {
 	}
 }
 
-# Peace for Our Time?
+# Locarno negotiations - Peace for Our Time?
 country_event = {
 	id = ww1_germany.149
 	title = ww1_germany.149.t
 	desc = ww1_germany.149.d
-	picture = GFX_report_event_german_reichstag_gathering
+	picture = GFX_report_event_generic_read_write
 	is_triggered_only = yes
 	option = {
 		name = ww1_germany.149.a
-		FRA = { country_event = ww1_germany.150 }
+		effect_tooltip = {
+			diplomatic_relation = {
+				country = FROM
+				relation = non_aggression_pact
+				active = yes
+			}
+		}
+		FROM = {
+			country_event = {
+				id = ww1_germany.150
+				days = 3
+				random_days = 2
+			}
+		}
+		add_named_threat = {
+			threat = -2
+			name = FRA_interwar_locarno_agreements
+		}
+		add_war_support = -0.05
 	}
 }
 
-# Rapprochement with the Germans?
+# Locarno negotiations - Answer
 country_event = {
 	id = ww1_germany.150
 	title = ww1_germany.150.t
@@ -8283,15 +8439,7 @@ country_event = {
 			relation = non_aggression_pact
 			active = yes
 		}
-		FROM = {
-			diplomatic_relation = {
-				country = ROOT
-				relation = non_aggression_pact
-				active = yes
-			}
-		}
-		# Locarno Treaties
-		news_event = interwar_news.13
+		add_war_support = -0.01
 	}
 }
 
@@ -8449,7 +8597,7 @@ country_event = {
 							transfer_troops = yes
 						}
 						OST_wilhelm_filchner = {
-							promote_character = oligarchism
+							promote_character = colonial_government
 							promote_character = conservatism
 						}
 						if = {
@@ -8457,24 +8605,16 @@ country_event = {
 								has_character = OST_maximilian_von_spee
 							}
 							OST_maximilian_von_spee = {
-								promote_character = oligarchism
+								promote_character = colonial_government
 								promote_character = stratocracy
 							}
 						}
 					}
 				}
 			}
-			if = {
-				limit = {
-					has_dlc = "Together for Victory"
-				}
-				set_autonomy = {
-					target = OST
-					autonomy_state = autonomy_colony
-				}
-				else = {
-					puppet = OST
-				}
+			set_autonomy = {
+				target = OST
+				autonomy_state = autonomy_colony
 			}
 			OST = {
 				inherit_technology = ROOT
@@ -8815,30 +8955,11 @@ country_event = {
 	picture = GFX_report_event_german_troops
 	fire_only_once = yes
 	trigger = {
+		original_tag = GER
 		has_global_flag = great_war
 		NOT = { has_country_flag = great_war_loser }
-		if = {
-			limit = {
-				country_exists = NMB
-			}
-			original_tag = NMB
-			is_subject_of = GER
-			else_if = {
-				limit = {
-					NOT = { country_exists = NMB }
-				}
-				original_tag = GER
-				owns_state = 541
-			}
-			else_if = {
-				limit = {
-					NOT = { 
-						country_exists = NMB 
-						GER = { owns_state = 541 }
-					}
-				}
-				always = no
-			}
+		541 = {
+			is_owned_or_subject_trigger = yes
 		}
 	}
 	#we need the men
@@ -8851,8 +8972,13 @@ country_event = {
 				is_historical_focus_on = yes
 			}
 		}
-		add_manpower = 3000
+		541 = {
+			OWNER = {
+				add_manpower = 3000			
+			}		
+		}
 		country_event = { id = ww1_germany.158 days = 6 }
+		
 	}
 	#their neutrality is preferable
 	option = {
@@ -8864,15 +8990,7 @@ country_event = {
 				is_historical_focus_on = yes
 			}
 		}
-		if = {
-			limit = {
-				original_tag = GER
-			}
-			add_political_power = 7
-			else = {
-				add_stability = 0.05
-			}
-		}
+		add_political_power = 7
 	}
 }
 #Basters protest conscription
@@ -8893,37 +9011,21 @@ country_event = {
 				is_historical_focus_on = yes
 			}
 		}
-		if = {
-			limit = {
-				original_tag = GER
-			}
-			add_political_power = 2
-			else = {
-				add_war_support = 0.05
-			}
-		}
+		add_political_power = 2
 		hidden_effect = { country_event = { id = ww1_germany.159 days = 3 } }
 	}
 	#compromise- only serve in non-frontline roles, but you will still have German uniforms!
 	option = {
 		name = ww1_germany.158.b
-		add_manpower = -750
+		541 = {
+			OWNER = {
+				add_manpower = -750			
+			}		
+		}
 		ai_chance = {
 			base = 65
-			modifier = {
-				factor = 100
-				is_historical_focus_on = yes
-			}
 		}
-		if = {
-			limit = {
-				original_tag = GER
-			}
-			add_political_power = -4
-			else = {
-				add_stability = -0.075
-			}
-		}
+		add_political_power = -4
 		hidden_effect = { country_event = { id = ww1_germany.161 days = 4 } }
 	}
 	#accept the Baster Council's demands
@@ -8936,17 +9038,12 @@ country_event = {
 				is_historical_focus_on = yes
 			}
 		}
-		add_manpower = -3000
-		if = {
-			limit = {
-				original_tag = GER
-			}
-			add_political_power = -5
-			else = {
-				add_stability = 0.02
-				add_war_support = -0.10
-			}
+		541 = {
+			OWNER = {
+				add_manpower = -3000			
+			}		
 		}
+		add_political_power = -5
 	}
 }
 #Basters revolt: full conscription
@@ -9008,16 +9105,12 @@ country_event = {
 	}
 	option = {
 		name = ww1_germany.159.a
-		add_manpower = -3100
-		if = {
-			limit = {
-				original_tag = GER
-			}
-			add_political_power = -25
-			else = {
-				add_stability = -0.20
-			}
+		541 = {
+			OWNER = {
+				add_manpower = -3100			
+			}		
 		}
+		add_political_power = -25
 		effect_tooltip = {
 			SAF = {
 				division_template = {
@@ -9102,16 +9195,7 @@ country_event = {
 				is_historical_focus_on = yes
 			}
 		}
-		if = {
-			limit = {
-				original_tag = GER
-			}
-			add_political_power = -35
-			else = {
-				add_war_support = -0.20
-				add_stability = -0.05
-			}
-		}
+		add_political_power = -35
 	}
 	#they won't do anything about it.
 	option = {
@@ -9123,16 +9207,7 @@ country_event = {
 				is_historical_focus_on = yes
 			}
 		}
-		if = {
-			limit = {
-				original_tag = GER
-			}
-			add_political_power = 2
-			else = {
-				add_war_support = 0.05
-				add_stability = 0.05
-			}
-		}
+		add_political_power = 2
 		hidden_effect = {
 			country_event = { id = ww1_germany.162 days = 4 }
 		}
@@ -9216,17 +9291,12 @@ country_event = {
 	fire_only_once = yes
 	option = {
 		name = ww1_germany.164.a
-		add_manpower = -817
-		if = {
-			limit = {
-				original_tag = GER
-			}
-			add_political_power = -20
-			else = {
-				add_stability = -0.10
-				add_war_support = -0.10
-			}
+		541 = {
+			OWNER = {
+				add_manpower = -817			
+			}		
 		}
+		add_political_power = -20
 	}
 }
 #Aftermath: Victory! (END OF EVENT CHAIN)
@@ -9239,20 +9309,16 @@ country_event = {
 	fire_only_once = yes
 	option = {
 		name = ww1_germany.165.a
-		add_manpower = -573
-		add_equipment_to_stockpile = {
-   			type = infantry_equipment
-   			amount = 1000
+		541 = {
+			OWNER = {
+				add_manpower = -573		
+				add_equipment_to_stockpile = {
+					type = infantry_equipment
+					amount = 1000
+				}				
+			}		
 		}
-		if = {
-			limit = {
-				original_tag = GER
-			}
-			add_political_power = 10
-			else = {
-				add_war_support = 0.20
-			}
-		}
+		add_political_power = 10
 	}
 }
 
@@ -9462,7 +9528,7 @@ country_event = {
 	option = {
 		name = ww1_germany.167.a
 		add_named_threat = {
-			threat = 0.05
+			threat = 5
 			name = ww1_germany.167.tt
 		}
 		add_stability = -0.05
@@ -9615,7 +9681,7 @@ country_event = {
 	option = {
 		name = ww1_germany.168.a
 		add_named_threat = {
-			threat = 0.05
+			threat = 5
 			name = ww1_germany.168.tt
 		}
 		add_stability = -0.05
@@ -9700,7 +9766,7 @@ country_event = {
 			}
 		}
 		add_named_threat = {
-			threat = 0.05
+			threat = 5
 			name = ww1_germany.169.tt
 		}
 		add_stability = -0.05
@@ -9742,7 +9808,7 @@ country_event = {
 			}
 		}
 		add_named_threat = {
-			threat = 0.05
+			threat = 5
 			name = ww1_germany.169.tt
 		}
 		add_stability = -0.05
@@ -9820,7 +9886,7 @@ country_event = {
 			}
 		}
 		add_named_threat = {
-			threat = 0.05
+			threat = 5
 			name = ww1_germany.170.tt
 		}
 		add_stability = -0.05
@@ -9845,9 +9911,58 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_germany.171.a
-		28 = {
-			set_demilitarized_zone = no
-			transfer_state_to = ROOT
+		annex_country = {
+			target = ALS
+			transfer_troops = no
+		}
+	}
+}
+
+# Claim Mozambique?
+country_event = {
+	id = ww1_germany.172
+	title = ww1_germany.172.t
+	desc = ww1_germany.172.d
+	picture = GFX_report_event_generic_read_write
+	is_triggered_only = yes
+	option = {
+		name = ww1_germany.172.a
+		every_state = {
+			limit = {
+				OR = {
+					state = 545
+					region = 185
+					region = 224
+				}
+				NOT = {
+					state = 540
+					state = 545
+					state = 920
+					state = 921
+					state = 970
+					state = 971
+					state = 973
+					is_claimed_by = ROOT
+				}
+			}
+			add_claim_by = ROOT
+		}
+	}
+	option = {
+		name = ww1_germany.172.b
+		every_state = {
+			limit = {
+				OR = {
+					state = 545
+					state = 705
+					region = 185
+					region = 224
+				}
+				NOT = {
+					is_claimed_by = ROOT
+				}
+			}
+			add_claim_by = ROOT
 		}
 	}
 }

@@ -437,18 +437,10 @@ country_event = {
 		name = ww1_england.7.a
 		white_peace = IRE
 		transfer_state = 119
-		if = {
-			limit = {
-				has_dlc = "Together for Victory"
-			}
-			set_autonomy = {
-				target = IRE
-				autonomous_state = autonomy_dominion
-				freedom_level = 0.85
-			}
-			else = {
-				puppet = IRE
-			}
+		set_autonomy = {
+			target = IRE
+			autonomous_state = autonomy_dominion
+			freedom_level = 0.85
 		}
 		IRE = {
 			remove_ideas = standing_alone
@@ -777,19 +769,16 @@ country_event = {
 	id = ww1_england.100
 	title = ww1_england.100.t
 	desc = ww1_england.100.d
-	picture = GFX_report_event_europe_funeral
+	picture = GFX_report_event_edward_7_death
 	trigger = {
-		original_tag = ENG
-		date > 1910.5.1
+		has_start_date < 1914.1.1
 		OR = {
 			has_idea = edward_vii
 			has_character = ENG_edward_vii
 		}
 	}
+	is_triggered_only = yes
 	fire_only_once = yes
-	mean_time_to_happen = {
-		days = 7
-	}
 	immediate = {
 		hidden_effect = {
 			if = {
@@ -812,10 +801,53 @@ country_event = {
 		}
 	}
 	option = {
-		name = britain.16.a
+		name = ww1_england.100.a
 		effect_tooltip = {
-			remove_ideas = edward_vii
-			add_ideas = george_v
+			swap_ideas = {
+				remove_idea = edward_vii
+				add_idea = george_v
+			}
+		}
+		hidden_effect = {
+			news_event = ww1_england.1000
+		}
+	}
+}
+
+#Edward 7 death global
+news_event = {
+	id = ww1_england.1000
+	title = ww1_england.100.t
+	desc = ww1_england.1000.d
+	picture = GFX_news_event_edward_7_death
+	major = yes
+	is_triggered_only = yes
+	option = {
+		name = ww1_england.1000.a
+		trigger = {		
+			NOT = {
+				tag = ENG
+				AND = {
+					is_subject_of = ENG
+					NOT = {
+						has_country_flag = protectorate
+					}
+				}			
+			}
+		}
+	}
+	option = {
+		name = ww1_england.100.a
+		trigger = {		
+			OR = {
+				tag = ENG
+				AND = {
+					is_subject_of = ENG
+					NOT = {
+						has_country_flag = protectorate
+					}				
+				}			
+			}
 		}
 	}
 }
@@ -829,17 +861,6 @@ news_event = {
 	picture = EVENT_hoi4tgw_south_africa_act
 	major = yes
 	is_triggered_only = yes
-	immediate = {
-		set_global_flag = kis_south_africa_act
-		hidden_effect = {
-			SAF = {
-				drop_cosmetic_tag = yes
-				promote_character = SAF_louis_botha
-				load_oob = "SAF_1910"
-				set_country_flag = saf_release
-			}
-		}
-	}
 	option = {
 		name = ww1_england.101.b
 		ai_chance = {
@@ -1188,70 +1209,28 @@ country_event = {
 	}
 }
 
-#Dervish State
+#Dervish War
 country_event = {
 	id = ww1_england.30
 	title = ww1_england.30.t
 	desc = ww1_england.30.d
 	picture = GFX_report_event_ETH_ethiopian_warriors
-	fire_only_once = yes
-	trigger = {
-		original_tag = ENG
-		owns_state = 269
-		NOT = {
-			has_global_flag = dervish_state
-			has_subject = SOM
-			is_in_faction_with = SOM
-		}
-		has_war_with = TUR
-	}
-	mean_time_to_happen = {
-		days = 65
-	}
+	is_triggered_only = yes
 	immediate = {
 		hidden_effect = {
-			set_global_flag = dervish_state
-			SOM = {
-				transfer_state = 269
-				division_template = {
-					name = "Maleeshiyada Daraawiishta"
-					regiments = {
-						militia = {
-							x = 0
-							y = 0
-						}
-						militia = {
-							x = 0
-							y = 1
-						}
-					}
-				}
-				269 = {
-					create_unit = {
-						division = "name = \"Ilaalada Xasan\" division_template = \"Maleeshiyada Daraawiishta\" start_experience_factor = 0.3"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"Maleeshiyaadka Islaamiga-ah\" division_template = \"Maleeshiyada Daraawiishta\" start_experience_factor = 0.1"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"Wadaniyiin\" division_template = \"Maleeshiyada Daraawiishta\" start_experience_factor = 0.1"
-						owner = PREV
-					}
-				}
-			}
+			set_global_flag = somaliland_campaign
 		}
 	}
 	option = {
 		name = ww1_england.30.a
-		add_state_claim = 269
-		SOM = {
-			declare_war_on = {
-				target = ENG
-				type = annex_everything
-			}
-		}		
+		effect_tooltip = {
+			SOM = {
+				declare_war_on = {
+					target = ENG
+					type = independence_wargoal
+				}
+			}	
+		}			
 	}
 }
 
@@ -1265,11 +1244,15 @@ country_event = {
 	option = {
 		name = ww1_england.31.a
 		ai_chance = {
-			factor = 100
+			base = 100
 			modifier = {
-				factor = 0
+				add = 100
+				has_autonomy_state = autonomy_dominion
+			}
+			modifier = {
+				add = -200
 				has_opinion = {
-					target = ROOT
+					target = FROM
 					value < 0
 				}
 			}
@@ -1279,12 +1262,37 @@ country_event = {
 				target = ROOT
 				transfer_troops = yes
 			}
+			if = {
+				limit = { ROOT = { is_ai = no } }
+				if = {
+					limit = { is_ai = yes }
+					change_tag_from = ROOT
+				}
+				else = {
+					ROOT = { custom_effect_tooltip = GAME_OVER_TT }
+				}
+			}
 		}
 	}
 	option = {
 		name = ww1_england.31.b
 		ai_chance = {
-			factor = 1
+			base = 0
+			modifier = {
+				add = 100
+				NOT = {
+					original_tag = CAN
+					original_tag = AST
+					original_tag = NZL
+					original_tag = NFL
+					original_tag = NIR
+					original_tag = WLS
+				}
+			}
+			modifier = {
+				add = -150
+				NOT = { has_government = FROM }
+			}
 		}
 		add_political_power = -150
 		add_stability = -0.1
@@ -1500,6 +1508,7 @@ country_event = {
 		name = ww1_england.36.a
 		add_ideas = ENG_general_strike
 		hidden_effect = {
+			set_country_flag = dont_trigger_political_event
 			add_stability = -0.35
 			add_war_support = -0.2
 			add_popularity = {
@@ -1645,6 +1654,7 @@ country_event = {
 						tag = SAF
 						tag = IRE
 						tag = NIR
+						tag = NFL
 					}
 					NOT = {
 						has_government = communism
@@ -1728,7 +1738,7 @@ country_event = {
 				add_country_leader_role = {
 					promote_leader = yes
 					country_leader={
-						ideology = socialism
+						ideology = social_democracy
 						traits = { ENG_feminist_cockney_lansbury ENG_pacifist_disarmer_lansbury }
 					}
 				}
@@ -1848,7 +1858,7 @@ country_event = {
 		create_country_leader = {
 			name = "The Grand Tour"
 			picture = "gfx/leaders/ENG/ENG_top_gear.png"
-			ideology = oligarchism
+			ideology = civilian_dictatorship
 			traits = {
 				three_pashas_2				
 			}
@@ -2012,7 +2022,7 @@ country_event = {
 					add_country_leader_role = {
 						promote_leader = yes
 						country_leader={
-							ideology = socialism
+							ideology = social_democracy
 							traits = { ENG_feminist_cockney_lansbury ENG_pacifist_disarmer_lansbury }
 						}
 					}
@@ -2463,6 +2473,14 @@ country_event = {
 			long_name = ENG_stupid_complicated_name_long
 			name = ENG_stupid_complicated_name
 		}
+		hidden_effect = {
+			every_possible_country = {
+				limit = { has_character = ENG_rotha_lintornorman }
+				ENG_rotha_lintornorman = {
+					set_nationality = ROOT
+				}
+			}
+		}
 		ENG_rotha_lintornorman = {
 			if = {
 				limit = {
@@ -2555,7 +2573,7 @@ country_event = {
 				add_country_leader_role = {
 					promote_leader = yes
 					country_leader = {
-						ideology = oligarchism
+						ideology = colonial_government
 					}
 				}
 				add_country_leader_role = {
@@ -2673,6 +2691,7 @@ country_event = {
 	trigger = {
 		tag = ENG
 		date > 1911.9.1
+		has_start_date < 1914.1.1	
 		NOT = {
 			has_government = communism
 			has_completed_focus = ENG_Formation_Labour_Party
@@ -3751,25 +3770,20 @@ country_event = {
 		effect_tooltip = {
 			release = SAF
 			release = ZIM
-			release = BOT
 		}
 		hidden_effect = {
 			# Walvis Bay
 			if = {
 				limit = {
-					789 = {
-						owns_or_subject_of = yes
-					}
+					owns_state = 789
 				}
 				random_other_country = {
 					limit = {
 						owns_state = 541
-						NOT = { has_country_flag = great_war_loser } 
 					}
 					transfer_state = 789
 				}
 			}
-
 			# Rhodesia
 			if = {
 				limit = {
@@ -3806,16 +3820,12 @@ country_event = {
 				542 = { transfer_state_to = BOT }
 				release = BOT
 				end_puppet = BOT
-				# random_other_country = {
-				# 	limit = {
-				# 		owns_state = 681
-				# 		OR = {
-				# 			NOT = { has_country_flag = great_war_loser }
-				# 			original_tag = SAF
-				# 		}
-				# 	}
-				# 	transfer_state = 542
-				# }
+				random_other_country = {
+				 	limit = {
+				 		owns_state = 681
+				 	}
+				 	transfer_state = 542
+				}
 			}
 
 			# Chinde
@@ -3827,9 +3837,32 @@ country_event = {
 				}
 				random_other_country = {
 					limit = {
-						owns_state = 544
+						owns_state = 971
 					}
 					transfer_state = 924
+				}
+			}
+			
+			if = {
+				limit = {
+					owns_state = 1047
+				}
+				random_other_country = {
+					limit = {
+						owns_state = 681
+					}
+					transfer_state = 1047
+				}
+			}
+			if = {
+				limit = {
+					owns_state = 1048
+				}
+				random_other_country = {
+					limit = {
+						owns_state = 275
+					}
+					transfer_state = 275
 				}
 			}
 
@@ -3854,7 +3887,7 @@ country_event = {
 						size = 0.2
 						navy_ratio = 0
 						states = {
-							275 719
+							275 1049
 						}
 						keep_unit_leaders_trigger = {
 							has_trait = trait_royalist
@@ -3991,18 +4024,10 @@ country_event = {
 			get_current_government_type = yes
 		}
 		ENG = {
-			if = {
-				limit = {
-					has_dlc = "Together for Victory"
-				}
-				set_autonomy = {
-					target = ROOT
-					autonomous_state = autonomy_dominion
-					freedom_level = 0.7
-				}
-				else = {
-					puppet = ROOT
-				}
+			set_autonomy = {
+				target = ROOT
+				autonomous_state = autonomy_dominion
+				freedom_level = 0.7
 			}
 		}
 		hidden_effect = {
@@ -4122,60 +4147,15 @@ country_event = {
 				get_current_government_type = yes
 			}
 		}
-		if = {
-			limit = {
-				has_dlc = "Together for Victory"
-			}
-			set_autonomy = {
-				target = ISR
-				autonomous_state = autonomy_dominion
-				freedom_level = 0.2
-			}
+		set_autonomy = {
+			target = ISR
+			autonomous_state = autonomy_dominion
+			freedom_level = 0.2
 		}
-		else_if = {
-			limit = {
-				has_subject_autonomy_feature = yes
-			}
-			set_autonomy = {
-				target = ISR
-				autonomous_state = autonomy_tgwr_informal_protectorate
-				freedom_level = 0.2
-			}
-			ISR = { set_country_flag = protectorate }
-		}
-		else = {
-			puppet = ISR
-			ISR = { add_ideas = protectorate }
-		}
-		if = {
-			limit = {
-				country_exists = PAL
-			}
-			if = {
-				limit = {
-					has_dlc = "Together for Victory"
-				}
-				set_autonomy = {
-					target = PAL
-					autonomous_state = autonomy_dominion
-					freedom_level = 0.2
-				}
-			}
-			else_if = {
-				limit = {
-					has_subject_autonomy_feature = yes
-				}
-				set_autonomy = {
-					target = PAL
-					autonomous_state = autonomy_tgwr_informal_protectorate
-					freedom_level = 0.2
-				}
-				PAL = { set_country_flag = protectorate }
-			}
-			else = {
-				puppet = PAL
-				PAL = { add_ideas = protectorate }
-			}
+		set_autonomy = {
+			target = PAL
+			autonomous_state = autonomy_dominion
+			freedom_level = 0.2
 		}
 		hidden_effect = {
 			every_state = {
@@ -4246,59 +4226,19 @@ country_event = {
 				get_current_government_type = yes
 			}
 		}
-		if = {
-			limit = {
-				has_dlc = "Together for Victory"
-			}
-			set_autonomy = {
-				target = ISR
-				autonomous_state = autonomy_dominion
-				freedom_level = 0.2
-			}
-		}
-		else_if = {
-			limit = {
-				has_subject_autonomy_feature = yes
-			}
-			set_autonomy = {
-				target = ISR
-				autonomous_state = autonomy_tgwr_informal_protectorate
-				freedom_level = 0.2
-			}
-			ISR = { set_country_flag = protectorate }
-		}
-		else = {
-			puppet = ISR
-			ISR = { add_ideas = protectorate }
+		set_autonomy = {
+			target = ISR
+			autonomous_state = autonomy_dominion
+			freedom_level = 0.2
 		}
 		if = {
 			limit = {
 				country_exists = PAL
 			}
-			if = {
-				limit = {
-					has_dlc = "Together for Victory"
-				}
-				set_autonomy = {
-					target = PAL
-					autonomous_state = autonomy_dominion
-					freedom_level = 0.2
-				}
-			}
-			else_if = {
-				limit = {
-					has_subject_autonomy_feature = yes
-				}
-				set_autonomy = {
-					target = PAL
-					autonomous_state = autonomy_tgwr_informal_protectorate
-					freedom_level = 0.2
-				}
-				PAL = { set_country_flag = protectorate }
-			}
-			else = {
-				puppet = PAL
-				PAL = { add_ideas = protectorate }
+			set_autonomy = {
+				target = PAL
+				autonomous_state = autonomy_dominion
+				freedom_level = 0.2
 			}
 		}
 		hidden_effect = {
@@ -4390,30 +4330,10 @@ country_event = {
 				get_current_government_type = yes
 			}
 		}
-		if = {
-			limit = {
-				has_dlc = "Together for Victory"
-			}
-			set_autonomy = {
-				target = ISR
-				autonomous_state = autonomy_dominion
-				freedom_level = 0.2
-			}
-		}
-		else_if = {
-			limit = {
-				has_subject_autonomy_feature = yes
-			}
-			set_autonomy = {
-				target = ISR
-				autonomous_state = autonomy_tgwr_informal_protectorate
-				freedom_level = 0.2
-			}
-			ISR = { set_country_flag = protectorate }
-		}
-		else = {
-			puppet = ISR
-			ISR = { add_ideas = protectorate }
+		set_autonomy = {
+			target = ISR
+			autonomous_state = autonomy_dominion
+			freedom_level = 0.2
 		}
 		hidden_effect = {
 			543 = {
@@ -4454,30 +4374,10 @@ country_event = {
 				get_current_government_type = yes
 			}
 		}
-		if = {
-			limit = {
-				has_dlc = "Together for Victory"
-			}
-			set_autonomy = {
-				target = ISR
-				autonomous_state = autonomy_dominion
-				freedom_level = 0.2
-			}
-		}
-		else_if = {
-			limit = {
-				has_subject_autonomy_feature = yes
-			}
-			set_autonomy = {
-				target = ISR
-				autonomous_state = autonomy_tgwr_informal_protectorate
-				freedom_level = 0.2
-			}
-			ISR = { set_country_flag = protectorate }
-		}
-		else = {
-			puppet = ISR
-			ISR = { add_ideas = protectorate }
+		set_autonomy = {
+			target = ISR
+			autonomous_state = autonomy_dominion
+			freedom_level = 0.2
 		}
 		hidden_effect = {
 			543 = {
@@ -4526,6 +4426,7 @@ country_event = {
 		original_tag = ENG
 		has_war = no
 		date > 1911.01.01
+		has_start_date < 1914.1.1	
 		NOT = {
 			country_exists = IRE
 			has_country_flag = eng_Parliament_Debates_Irish_Home_Rule
@@ -4556,6 +4457,7 @@ country_event = {
 		original_tag = ENG
 		has_war = no
 		date > 1913.07.12
+		has_start_date < 1914.1.1
 		NOT = {
 			country_exists = IRE
 		}
@@ -4610,6 +4512,7 @@ country_event = {
 	trigger = {
 		original_tag = ENG
 		date > 1914.01.01
+		has_start_date < 1914.6.14
 		owns_state = 119
 		NOT = {
 			has_government = communism
@@ -4748,10 +4651,10 @@ country_event = {
 							x = 0
 							y = 4
 						}
-						infantry = {
-							x = 0
-							y = 5
-						}
+						# infantry = {
+						# 	x = 0
+						# 	y = 5
+						# }
 						cavalry = {
 							x = 1
 							y = 0
@@ -4884,19 +4787,11 @@ country_event = {
 			}
 		}
 		add_war_support = -0.01
-		if = {
-			limit = {
-				has_dlc = "Together for Victory"
-			}
-			ENG = {
-				set_autonomy = {
-					target = KEN
-					autonomous_state = autonomy_dominion
-					freedom_level = 0.8
-				}
-			}
-			else = {
-				puppet = KEN
+		ENG = {
+			set_autonomy = {
+				target = KEN
+				autonomous_state = autonomy_dominion
+				freedom_level = 0.8
 			}
 		}
 		hidden_effect = {
@@ -5501,10 +5396,10 @@ country_event = {
 							x = 0
 							y = 4
 						}
-						infantry = {
-							x = 0
-							y = 5
-						}
+						# infantry = {
+						# 	x = 0
+						# 	y = 5
+						# }
 						cavalry = {
 							x = 1
 							y = 0
@@ -5584,6 +5479,7 @@ country_event = {
 				owns_state = 418
 				owns_state = 414
 				owns_state = 411
+				has_subject = ARB
 			}
 		}
 	}
@@ -5594,6 +5490,23 @@ country_event = {
 	immediate = {
 		ENG = {
 			end_puppet = PER
+			if = {
+				limit = {
+					has_subject = ARB
+					country_exists = PER
+				}
+				ARB = {
+					get_current_government_type = yes
+					PER = {
+						set_autonomy = {
+							target = ARB
+							autonomous_state = autonomy_integrated_puppet
+							freedom_level = 0.9
+						}
+					}	
+					restore_previous_government_type = yes
+				}			
+			}
 		}
 		if = {
 			limit = {
@@ -5609,6 +5522,16 @@ country_event = {
 			}
 			diplomatic_relation = {
 				country = PER
+				relation = guarantee
+				active = no
+			}
+			diplomatic_relation = {
+				country = ARB
+				relation = military_access
+				active = no
+			}
+			diplomatic_relation = {
+				country = ARB
 				relation = guarantee
 				active = no
 			}
@@ -6141,33 +6064,19 @@ country_event = {
 			factor = 100
 		}
 		QAT = {
-			if = {
-				limit = {
-					has_subject_autonomy_feature = yes
-				}
+			hidden_effect = {
 				set_country_flag = protectorate
-				ROOT = {
-					set_autonomy = {
-						target = PREV
-						autonomous_state = autonomy_tgwr_protectorate
-						freedom_level = 0.5
-					}
-				}
+				get_current_government_type = yes
 			}
-			else = {
-				add_ideas = protectorate
-				ROOT = { puppet = PREV }
+			ROOT = {
+				set_autonomy = {
+					target = PREV
+					autonomous_state = autonomy_tgwr_protectorate
+					freedom_level = 0.5
+				}
 			}
 			hidden_effect = {
-				set_politics = {
-					ruling_party = neutrality
-				}
-				set_popularities = {
-					democratic = 0
-					neutrality = 100
-					fascism = 0
-					communism = 0
-				}
+				restore_previous_government_type = yes
 			}
 		}
 	}
@@ -6262,11 +6171,8 @@ country_event = {
 				owns_state = 546
 			}
 		}
-		OR = {
-			owns_state = 541
-			SAF = {
-				owns_state = 541
-			}
+		541 = {
+			is_owned_or_subject_trigger = yes
 		}
 	}
 	#Keep as is- historical
@@ -6276,6 +6182,20 @@ country_event = {
 			base = 75
 		}
 		custom_effect_tooltip = historical_tt
+		if = {
+			limit = {
+				owns_state = 541
+				has_subject = SAF
+			}
+			541 = { transfer_state_to = SAF } 
+		}
+		if = {
+			limit = {
+				owns_state = 1050
+				has_subject = SAF
+			}
+			1050 = { transfer_state_to = SAF } 
+		}
 	}
 	#Bothaland
 	option = {
@@ -6289,6 +6209,20 @@ country_event = {
 		}
 		541 = {
 			set_state_name = BOTHALAND_STATE
+		}
+		if = {
+			limit = {
+				owns_state = 541
+				has_subject = SAF
+			}
+			541 = { transfer_state_to = SAF } 
+		}
+		if = {
+			limit = {
+				owns_state = 1050
+				has_subject = SAF
+			}
+			1050 = { transfer_state_to = SAF } 
 		}
 	}
 }
@@ -6354,7 +6288,7 @@ country_event = {
 			target = POR
 			type = take_state_focus
 			generator = {
-				541
+				540
 			}
 		}
 		hidden_effect = {
@@ -6389,16 +6323,32 @@ country_event = {
 		ai_chance = {
 			factor = 40
 		}
-		transfer_state = 544
+		every_state = {
+			limit = {
+				is_core_of = MZB
+				is_owned_by = POR
+			}
+			transfer_state_to = ROOT
+		}
 	}
-	#Give it to SAF
+	#Divide it to SAF
 	option = {
 		name = ww1_england.129.b
 		ai_chance = {
 			factor = 60
 		}
-		SAF = {
-			transfer_state = 544
+		every_state = {
+			limit = {
+				is_core_of = MZB
+				is_owned_by = POR
+			}
+			transfer_state_to = ROOT
+		}
+		every_owned_state = {
+			limit = {
+				state = 970
+			}
+			transfer_state_to = SAF
 		}
 	}
 }
@@ -6438,16 +6388,27 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		original_tag = POR
+		OR = {
+			NOT = { has_global_flag = great_war }
+			has_global_flag = interbellum
+		}
+		is_subject = no
 		ENG = {
+			has_war_with = ROOT
 			has_country_flag = eng_mozambique_bush_war
 		}
-		any_country = {
-			OR = {
-				original_tag = ENG
-				is_subject_of = ENG
+		any_owned_state = {
+			is_core_of = MZB
+		}
+		NOT = {
+			any_controlled_state = {
+				is_owned_by = ROOT
+				is_core_of = MZB
 			}
-			controls_state = 544
-			controls_state = 540
+			any_controlled_state = {
+				is_owned_by = ROOT
+				is_core_of = ANG
+			}
 		}
 	}
 	#give up
@@ -6456,19 +6417,38 @@ country_event = {
 		ai_chance = {
 			factor = 100
 		}
-		SAF = {
-			transfer_state = 544
+		if = {
+			limit = {
+				owns_state = 970
+				ENG = { has_subject = SAF }
+			}
+			SAF = {
+				transfer_state = 970
+				if = {
+					limit = {
+						owns_state = 545
+						ROOT = { owns_state = 544 }
+					}
+					transfer_state = 544
+				}
+			}
 		}
-		ENG = {
-			transfer_state = 540
+		every_owned_state = {
+			limit = {
+				OR = {
+					is_core_of = MZB
+					is_core_of = ANG
+				}
+			}
+			transfer_state_to = ENG
 		}
 		white_peace = ENG
 		hidden_effect = {
-			every_country = {
+			every_other_country = {
 				limit = {
-					is_subject_of = ENG
+					is_in_faction_with = ENG
 				}
-				white_peace = POR
+				white_peace = ROOT
 			}
 		}
 	}
@@ -6492,9 +6472,43 @@ country_event = {
 	trigger = {
 		original_tag = ENG
 		has_country_flag = eng_mozambique_bush_war
+		is_subject = no
 		POR = {
 			controls_state = 719
 			controls_state = 275
+		}
+		OR = {
+			NOT = { has_global_flag = great_war }
+			has_global_flag = interbellum
+		}
+		POR = {
+			has_war_with = ROOT
+		}
+		OR = {
+			any_owned_state = {
+				is_core_of = SAF
+			}
+			has_subject = SAF
+		}
+		if = {
+			limit = {
+				has_subject = SAF
+			}
+			SAF = {
+				has_capitulated = yes
+				is_subject_of = ROOT
+			}
+		}
+		else = {
+			any_owned_state = {
+				is_core_of = SAF
+			}
+			NOT = {
+				any_controlled_state = {
+					is_owned_by = ROOT
+					is_core_of = SAF
+				}
+			}
 		}
 	}
 	#give up
@@ -6504,13 +6518,29 @@ country_event = {
 			factor = 100
 		}
 		white_peace = POR
-		hidden_effect = {
-			every_country = {
-				limit = {
-					is_subject_of = ENG
+		every_other_country = {
+			limit = {
+				OR = {
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
 				}
-				white_peace = POR
+				has_war_with = POR
 			}
+			white_peace = POR
+		}
+		every_state = {
+			limit = {
+				is_owned_or_subject_trigger = yes
+				OR = {
+					is_core_of = SAF
+					is_core_of = BOT
+					is_core_of = ZIM
+					is_core_of = ZAM
+					is_core_of = MLW
+					is_core_of = NMB
+				}
+			}
+			transfer_state_to = POR
 		}
 	}
 	#Fight on
@@ -6538,17 +6568,8 @@ country_event = {
 			has_country_flag = great_war_winner
 			owns_state = 544
 		}
-		OR = {
-			owns_state = 541
-			SAF = {
-				owns_state = 541
-			}
-		}
-		OR = {
-			has_country_flag = tanganyika_is_british
-			NOT = {
-				owns_state = 546
-			}
+		541 = {
+			is_owned_or_subject_trigger = yes
 		}
 	}
 	mean_time_to_happen = {
@@ -6651,6 +6672,14 @@ country_event = {
 		}
 		POR = {
 			transfer_state = 541
+			if = {
+				limit = {
+					PREV = { 
+						1050 = { is_owned_or_subject_trigger = yes }
+					}
+				}
+				transfer_state = 1050
+			}
 		}
 	}
 }
@@ -6712,8 +6741,23 @@ country_event = {
 			factor = 0
 		}
 		POR = {
-			transfer_state = 789
 			transfer_state = 541
+			if = {
+				limit = {
+					PREV = { 
+						789 = { is_owned_or_subject_trigger = yes }
+					}
+				}
+				transfer_state = 789
+			}
+			if = {
+				limit = {
+					PREV = { 
+						1050 = { is_owned_or_subject_trigger = yes }
+					}
+				}
+				transfer_state = 1050
+			}
 		}
 		country_event = {
 			id = ww1_england.129
@@ -7521,12 +7565,14 @@ country_event = {
 	trigger = {
 		tag = SCO
 		has_government = neutrality
-		has_character = SCO_robert_iv
 		NOT = {
 			is_subject_of = ENG
 			has_war_with = BAY
 			has_war_with = GER
-			has_war_with = AUH
+			has_war_with = AUH	
+		}	
+		any_country = {
+			has_character = GER_rupprecht_von_bayern
 		}	
 	}
 	mean_time_to_happen = {
@@ -7575,15 +7621,11 @@ country_event = {
 		name = ww1_england.153.a
 		every_possible_country = {
 			limit = {
-				has_character = GER_rupprecht_von_wittelsbach
+				has_character = GER_rupprecht_von_bayern
 			}
-			GER_rupprecht_von_wittelsbach = {
+			GER_rupprecht_von_bayern = {
 				set_character_name = "SCO_robert_iv"
 				set_nationality = SCO
-			}
-		}
-		SCO = {
-			SCO_robert_iv = {
 				add_country_leader_role = {
 					promote_leader = yes
 					country_leader = {
@@ -7592,6 +7634,8 @@ country_event = {
 					}
 				}
 			}
+		}
+		SCO = {
 			set_party_name = { 
 				ideology = neutrality 
 				long_name = BAY_neutrality_party
@@ -7793,6 +7837,8 @@ country_event = {
 		add_state_claim = 47
 		add_state_claim = 164
 		add_state_claim = 790
+		add_state_claim = 974
+		add_state_claim = 975
 		add_state_claim = 756
 		add_state_claim = 856
 		add_state_claim = 858
@@ -8058,7 +8104,7 @@ country_event = {
 					promote_leader = yes
 					add_country_leader_role = {
 						country_leader = {
-							ideology = oligarchism
+							ideology = colonial_government
 							traits = { great_war_hero british_agent }
 						}
 					}
@@ -8544,7 +8590,7 @@ country_event = {
 			add_country_leader_role = {
 				promote_leader = yes
 				country_leader = {
-					ideology = marxism
+					ideology = revolutionary_socialism
 					traits = { ENG_third_president_republic }
 				}
 			}
@@ -8663,6 +8709,7 @@ country_event = {
 				is_historical_focus_on = yes
 			}
 		}
+		custom_effect_tooltip = historical_tt
 		set_party_name = {
 			ideology = democratic
 			long_name = ENG_democratic_party_conservative
@@ -8709,7 +8756,7 @@ country_event = {
 			add_country_leader_role = {
 				promote_leader = yes
 				country_leader = {
-					ideology = socialism
+					ideology = social_democracy
 					traits = { labour_man }
 				}
 			}
@@ -8772,6 +8819,7 @@ country_event = {
 				is_historical_focus_on = yes
 			}
 		}
+		custom_effect_tooltip = historical_tt
 		set_party_name = {
 			ideology = democratic
 			long_name = ENG_labour_party
@@ -8781,7 +8829,7 @@ country_event = {
 			add_country_leader_role = {
 				promote_leader = yes
 				country_leader = {
-					ideology = socialism
+					ideology = social_democracy
 					traits = { pragmatic_labour }
 				}
 			}
@@ -8933,6 +8981,7 @@ country_event = {
 				is_historical_focus_on = yes
 			}
 		}
+		custom_effect_tooltip = historical_tt
 		country_event = {
 			id = ww1_england.186
 			days = 5
@@ -9053,11 +9102,8 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		original_tag = ENG
-		OR = {
-			owns_state = 541
-			SAF = {
-				owns_state = 541
-			}
+		541 = {
+			is_owned_or_subject_trigger = yes
 		}
 	}
 	immediate = {
@@ -9090,6 +9136,12 @@ country_event = {
 		}
 		NMB = {
 			transfer_state = 541
+			if = {
+				limit = {
+					PREV = { owns_state = 1050 }
+				}
+				transfer_state = 1050
+			}	
 			add_popularity = {
 				ideology = democratic
 				popularity = 0.9
@@ -10113,6 +10165,7 @@ country_event = {
 		tag = ENG
 		date > 1911.10.1
 		date < 1916.11.11
+		has_start_date < 1914.1.1	
 		has_character = ENG_arthur_connaught
 		has_subject = CAN
 		NOT = {
@@ -10855,6 +10908,7 @@ country_event = {
 		original_tag = ENG
 		has_government = democratic
 		date > 1910.12.3
+		has_start_date < 1914.1.1
 		has_completed_focus = ENG_balfours_folly
 	}
 	fire_only_once = yes
@@ -10889,6 +10943,9 @@ country_event = {
 				has_country_flag = long_is_tory_leader
 			}
 			promote_character = ENG_walter_long
+		}
+		hidden_effect = {
+			news_event = ww1_england.266
 		}
 	}
 }
@@ -11066,7 +11123,10 @@ country_event = {
 	# 		modifier = {
 	# 			factor = 0
 	# 			OR = {
-	# 				has_idea = ger_famine
+	# 				OR = {
+					# 	has_idea =  CP_famine_effect
+					# 	has_idea =  GER_famine
+                	# }
 	# 				has_idea = ger_famine_early
 	# 			}
 	# 		}
@@ -11291,6 +11351,7 @@ country_event = {
 				country_exists = WLS
 			}
 		}
+		has_character = GER_rupprecht_von_bayern
 	}
 	fire_only_once = yes
 	option = {
@@ -11328,13 +11389,15 @@ country_event = {
 		puppet = WLS
 		puppet = SCO
 		hidden_effect = {
-			every_possible_country = {
-				limit = {
-					has_character = GER_rupprecht_von_wittelsbach
-				}
-				GER_rupprecht_von_wittelsbach = {
-					set_character_name = "SCO_robert_iv"
-					set_nationality = SCO
+			GER_rupprecht_von_bayern = {
+				set_character_name = "SCO_robert_iv"
+				set_nationality = SCO
+				add_country_leader_role = {
+					promote_leader = yes
+					country_leader = {
+						ideology = semi_constitutional_monarchy
+						traits = { POL_soldier_king german_agent }
+					}
 				}
 			}
 			SCO = {
@@ -11353,17 +11416,7 @@ country_event = {
 					}
 					ENG_henry_horne = {
 						add_unit_leader_trait = guerilla_fighter
-						add_unit_leader_trait = bearer_of_artillery
 						set_nationality = SCO
-					}
-				}
-				SCO_robert_iv = {
-					add_country_leader_role = {
-						promote_leader = yes
-						country_leader = {
-							ideology = semi_constitutional_monarchy
-							traits = { POL_soldier_king german_agent }
-						}
 					}
 				}
 				set_party_name = { 
@@ -11409,13 +11462,15 @@ country_event = {
 		}
 		puppet = SCO
 		hidden_effect = {
-			every_possible_country = {
-				limit = {
-					has_character = GER_rupprecht_von_wittelsbach
-				}
-				GER_rupprecht_von_wittelsbach = {
-					set_character_name = "SCO_robert_iv"
-					set_nationality = SCO
+			GER_rupprecht_von_bayern = {
+				set_character_name = "SCO_robert_iv"
+				set_nationality = SCO
+				add_country_leader_role = {
+					promote_leader = yes
+					country_leader = {
+						ideology = semi_constitutional_monarchy
+						traits = { POL_soldier_king german_agent }
+					}
 				}
 			}
 			SCO = {
@@ -11434,17 +11489,7 @@ country_event = {
 					}
 					ENG_henry_horne = {
 						add_unit_leader_trait = guerilla_fighter
-						add_unit_leader_trait = bearer_of_artillery
 						set_nationality = SCO
-					}
-				}
-				SCO_robert_iv = {
-					add_country_leader_role = {
-						promote_leader = yes
-						country_leader = {
-							ideology = semi_constitutional_monarchy
-							traits = { POL_soldier_king german_agent }
-						}
 					}
 				}
 				set_party_name = { 
@@ -11582,7 +11627,7 @@ country_event = {
 						limit = {
 							has_government = neutrality
 						}
-						set_country_leader_ideology = autocracy
+						set_country_leader_ideology = absolute_monarchy
 					}
 					add_popularity = {
 						ideology = democratic
@@ -11596,7 +11641,12 @@ country_event = {
 						is_core_of = SOM
 					}
 				}
-				release = SOM
+				every_owned_state = {
+					limit = {
+						is_core_of = SOM
+					}
+					transfer_state_to = SOM
+				}	
 			}
 			every_owned_state = {
 				limit = {
@@ -11635,10 +11685,12 @@ country_event = {
 						OR = {
 							is_core_of = UAE
 							is_core_of = KUW
+							is_claimed_by = KUW
 							is_core_of = QAT
+							is_core_of = BHR
 						}
 					}
-					transfer_state_to = EGY
+					transfer_state_to = TUR
 				}
 			}
 
@@ -11894,7 +11946,7 @@ country_event = {
 					add_country_leader_role = {
 						promote_leader = yes
 						country_leader = {
-							ideology = socialism
+							ideology = social_democracy
 							traits = { labour_man }
 						}
 					}
@@ -12316,6 +12368,7 @@ country_event = {
 			character = ENG_herbert_henry_asquith
 		}		
 		date > 1912.07.1
+		has_start_date < 1914.1.1	
 	}
 	fire_only_once = yes
 	mean_time_to_happen = {
@@ -12438,6 +12491,11 @@ country_event = {
 	}
 	option = {
 		name = ww1_england.252.a
+		add_political_power = -200
+		add_popularity = {
+			ideology = democratic
+			popularity = -0.10
+		}
 		suspend_elections = yes
 		ENG_fallen_government = {
 			if = {
@@ -12684,5 +12742,249 @@ country_event = {
 				prioritize_location = 7953
 			}
 		}
+	}
+}
+
+# Invade Fao Fortress
+country_event = {
+	id = ww1_england.261
+	title = ww1_england.261.t
+	desc = ww1_england.261.d
+	picture = GFX_report_event_fao
+	trigger = {
+		tag = ENG
+		has_global_flag = great_war
+		has_war_with = TUR
+		is_subject = no
+		is_ai = yes
+		NOT = {
+			has_government = communism
+		}
+	}
+	fire_only_once = yes
+	option = {
+		name = ww1_england.261.a
+		add_equipment_to_stockpile = {
+			type = infantry_equipment
+			amount = -2000
+		}
+		if = {
+			limit = {
+				is_ai = yes
+			}
+			hidden_effect = {
+				country_event = {
+					id = ww1_england.262
+					days = 15
+				}
+				TUR = {
+					country_event = {
+						id = ww1_england.263
+						days = 16
+					}
+				}
+			}
+		}
+		ai_chance = {
+			base = 100
+		}
+	}
+	option = {
+		name = ww1_england.261.b
+		ai_chance = {
+			base = 0
+		}
+	}
+}
+#faro captured uk
+country_event = {
+	id = ww1_england.262
+	title = ww1_england.262.t
+	desc = ww1_england.262.d
+	picture = GFX_report_event_fao
+	is_triggered_only = yes
+	fire_only_once = yes
+	option = {
+		name = ww1_england.262.a
+		add_equipment_to_stockpile = {
+			type = artillery_equipment
+			amount = 12
+			producer = TUR
+		}
+		hidden_effect = {
+			division_template = {
+				name = "Fao Landing Force"
+				division_names_group = ENG_INF_02
+				regiments = {
+					infantry = { x = 0 y = 0 }
+					infantry = { x = 0 y = 1 }
+					infantry = { x = 1 y = 0 }
+					infantry = { x = 1 y = 1 }
+					artillery_brigade = { x = 2 y = 1 }
+				}
+				support = { 
+					artillery = { x = 0 y = 0 }
+					recon = { x = 0 y = 1 }
+					engineer = { x = 0 y = 2 }
+				}
+			}
+			division_template = {
+				name = "HMS Ocean Landing Party"
+				division_names_group = ENG_INF_02
+				regiments = {
+					marine = { x = 0 y = 0 }
+					marine = { x = 0 y = 1 }
+					marine = { x = 1 y = 0 }
+					marine = { x = 1 y = 1 }
+				}
+				support = { 
+					artillery = { x = 0 y = 0 }
+					recon = { x = 0 y = 1 }
+					engineer = { x = 0 y = 2 }
+				}
+			}
+			set_province_controller = 2089
+			set_country_flag = eng_fao_landing
+			874 = {
+				teleport_armies = {
+					limit = {
+						tag = TUR
+					}
+					to_state = 874
+				}
+				create_unit = {
+					division = "name = \"16. Poona Brigade\" division_template = \"Fao Landing Force\" start_experience_factor = 0.5"
+					owner = ROOT
+					allow_spawning_on_enemy_provs = yes
+					prioritize_location = 2089
+				}
+				create_unit = {
+					division = "name = \"Royal Marines Landing Detachment\" division_template = \"HMS Ocean Landing Party\" start_experience_factor = 0.8"
+					owner = ROOT
+					allow_spawning_on_enemy_provs = yes
+					prioritize_location = 2089
+				}
+			}
+			# if = {
+			# 	limit = {
+			# 		is_ai = yes
+			# 	}
+			# 	874 = {
+			# 		add_claim_by = ENG
+			# 	}
+			# }
+		}
+		ai_chance = {
+			base = 100
+		}
+	}
+}
+
+#Fao captured ottomans
+country_event = {
+	id = ww1_england.263
+	title = ww1_england.263.t
+	desc = ww1_england.263.d
+	picture = GFX_report_event_fao
+	is_triggered_only = yes
+	fire_only_once = yes
+	option = {
+		name = ww1_england.263.a
+		add_war_support = -0.02
+		ai_chance = {
+			base = 100
+		}
+	}
+}
+
+# post-war election - great war lost
+country_event = {
+	id = ww1_england.264
+	title = ww1_england.264.t
+	desc = ww1_england.264.d
+	picture = GFX_report_event_generic_parliament
+	fire_only_once = yes
+	trigger = {
+		original_tag = ENG
+		has_country_flag = great_war_loser
+		has_civil_war = no
+		is_subject = no
+		has_government = democratic
+		NOT = {
+			any_other_country = {
+				original_tag = ROOT
+			}
+		}
+	}
+	#cabinet falls
+	option = {
+		name = ww1_england.264.a
+		suspend_elections = yes
+		ENG_fallen_government = {
+			if = {
+				limit = { has_ideology = libertarianism }
+				promote_character = libertarianism
+			}
+			else = {
+				add_country_leader_role = {
+					promote_leader = yes
+					country_leader = {
+						ideology = libertarianism
+						traits = { cabinet_crisis }
+					}
+				}
+			}
+		}
+	}
+}
+#1910 election, liberal victory
+country_event = {
+	id = ww1_england.267
+	title = ww1_england.267.t
+	desc = ww1_england.267.d
+	picture = GFX_report_event_election_vote
+	trigger = {
+		original_tag = ENG
+		has_government = democratic
+		date > 1910.12.3
+		has_start_date < 1914.1.1
+		NOT = {
+			has_completed_focus = ENG_balfours_folly
+		}
+	}
+	fire_only_once = yes
+	option = {
+		name = ww1_england.267.a
+		add_political_power = 100
+		add_popularity = {
+			ideology = democratic
+			popularity = 0.05
+		}
+		hidden_effect = {
+			news_event = ww1_england.265
+		}
+	}
+}
+
+news_event = {
+	id = ww1_england.265
+	title = ww1_england.265.t
+	desc = ww1_england.265.d
+	major = yes
+	is_triggered_only = yes
+	picture = GFX_news_event_uk_elections_1910
+	option = {
+		name = ww1_england.265.a
+	}
+}
+news_event = {
+	id = ww1_england.266
+	title = ww1_england.266.t
+	desc = ww1_england.266.d
+	picture = GFX_news_event_uk_elections_1910
+	major = yes
+	is_triggered_only = yes
+	option = {
+		name = ww1_england.266.a
 	}
 }

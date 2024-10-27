@@ -12,8 +12,20 @@ country_event = {
 			has_cosmetic_tag = GEO_TSCN
 			has_cosmetic_tag = GEO_TSCN_communism
 		}
-		ARM = { exists = yes }
-		AZR = { exists = yes }
+		ARM = {
+			exists = yes
+			owns_state = 230
+			NOT = { has_war_with = ROOT }
+		}
+		AZR = {
+			exists = yes
+			owns_state = 229
+			NOT = { has_war_with = ROOT }
+		}
+	}
+	# armenia can pop up because of hard corded transfer, so wait some days
+	mean_time_to_happen = {
+		days = 60
 	}
 	immediate = {
         every_state = {
@@ -29,7 +41,27 @@ country_event = {
 					state = 233
 				}
 			}
-			ROOT = { remove_state_core = PREV }
+			if = {
+				limit = {
+					NOT = {
+						state = 816
+						state = 748
+						state = 231
+						state = 233
+					}
+				}
+				remove_core_of = ROOT
+			}
+			if = {
+				limit = {
+					has_dynamic_modifier = {
+						modifier = GEO_transcaucasia_modifier
+					}
+				}
+				remove_dynamic_modifier = {
+					modifier = GEO_transcaucasia_modifier
+				}
+			}
 		}
 		drop_cosmetic_tag = yes
 		set_party_name = {
@@ -40,7 +72,7 @@ country_event = {
 		set_research_slots = 2
 		set_stability = 0.56
 		GEO_noe_ramishvili = {
-			promote_character = socialism
+			promote_character = social_democracy
 			promote_character = authoritarian_democracy
 		}
 	}
@@ -71,7 +103,7 @@ country_event = {
 			name = GEO_TSCN_neutrality_party 
 		}
 		GEO_nikoloz_chkheidze = {
-			promote_character = socialism
+			promote_character = social_democracy
 		}
 	}
 }
@@ -302,7 +334,7 @@ country_event = {
 	option = {
 		name = ww1_georgia.10.a
 		GEO_noe_zhordania = {
-			promote_character = socialism
+			promote_character = social_democracy
 			promote_character = authoritarian_democracy
 		}
 	}
@@ -404,9 +436,13 @@ country_event = {
 							state = 230
 							state = 939
 						}
+						NOT = { state = 818 } #
 					}
 					transfer_state_to = ARM
-					else = {
+					else_if = {
+						limit = {
+							is_owned_by = ROOT
+						}
 						set_state_owner_to = ARM
 					}
 				}
@@ -431,7 +467,10 @@ country_event = {
 				}
 				if = {
 					limit = {
-						is_controlled_by_ROOT_or_ally = yes
+						OR = {
+							ROOT = { has_war = no }	
+							is_controlled_by_ROOT_or_ally = yes
+						}
 					}
 					transfer_state_to = AZR
 					else = {
@@ -468,7 +507,7 @@ country_event = {
 			set_stability = 0.56
 			GEO_noe_zhordania = {
 				promote_character = authoritarian_democracy
-				promote_character = socialism
+				promote_character = social_democracy
 			}
 			if = {
 				limit = {
@@ -482,6 +521,19 @@ country_event = {
 					add_to_faction = ROOT
 					add_to_faction = ARM
 					add_to_faction = AZR
+				}
+			}
+			else_if = {
+				limit = {
+					has_war = no
+				}
+				every_country = {
+					limit = {
+						has_war = no
+						is_in_faction = yes
+						has_country_flag = post_transcaucasia
+					}
+					leave_faction = yes
 				}
 			}
 			every_other_country = {
@@ -533,6 +585,14 @@ country_event = {
 						white_peace = PREV
 					}
 				}
+			}
+			every_country = {
+				limit = {
+					has_country_flag = post_transcaucasia
+					has_war = no
+					has_idea = standing_alone
+				}
+				remove_ideas = standing_alone
 			}
 		}
 	}
@@ -586,31 +646,23 @@ country_event = {
 	option = {
 		name = ww1_georgia.12.a
 		effect_tooltip = {
-			if = {
-				limit = { has_subject_autonomy_feature = yes }
-				set_autonomy = {
-					target = GEO
-					autonomous_state = autonomy_tgwr_informal_protectorate
-				}
-				else = { puppet = GEO }
+			set_autonomy = {
+				target = GEO
+				autonomous_state = autonomy_tgwr_informal_protectorate
 			}
 		}
 		hidden_effect = {
 			GEO = { remove_ideas = standing_alone }
-			GEO = { get_current_government_type = yes }
+			GEO = {
+				set_country_flag = protectorate
+				get_current_government_type = yes
+			}
 			set_autonomy = {
 				target = GEO
 				autonomous_state = autonomy_tgwr_informal_protectorate
 				freedom_level = 0.6
 			}
 			GEO = {
-				if = {
-					limit = {
-						has_subject_autonomy_feature = yes
-					}
-					set_country_flag = protectorate
-					else = { add_ideas = protectorate }
-				}
 				restore_previous_government_type = yes
 				set_country_flag = german_protection_on_georgia
 			}

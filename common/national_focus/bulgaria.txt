@@ -158,6 +158,17 @@
 		available = {
 			is_subject = no
 		}
+		bypass = {
+			OR = {
+				NOT = { country_exists = SER }
+				has_war_with = SER
+				AND = {
+					owns_state = 106
+					owns_state = 203
+				}
+				has_subject = MAC
+			}
+		}
 		# mutually_exclusive = {
 		# 	focus = BUL_treaty_of_friendship
 		# }
@@ -445,6 +456,7 @@
 		icon = GFX_goal_generic_forceful_treaty
 		cost = 3
 		mutually_exclusive = {
+			focus = BUL_lone_victor
 			focus = BUL_our_darkest_hours
 		}
 		available = {
@@ -458,6 +470,11 @@
 					}
 				}
 				has_global_flag = balkan_league_fail
+				has_global_flag = BW1_avoided
+				AND = {
+					country_exists = MAC
+					has_global_flag = autonomous_macedonia
+				}
 			}
 			has_war = no
 			NOT = {
@@ -466,10 +483,7 @@
 			}
 		}
 		bypass = {
-			OR = {
-				has_global_flag = kis_firstbalkanwar_victory
-				has_global_flag = lone_liberator_victorious
-			}
+			has_global_flag = kis_firstbalkanwar_victory
 			owns_state = 203
 		}
 		x = 4
@@ -508,13 +522,45 @@
 		}
 	}
 	focus = {
+		id = BUL_lone_victor
+		icon = GFX_focus_BUL_the_fate_of_the_balkans
+		cost = 3
+		mutually_exclusive = {
+			focus = BUL_thieving_allies
+			focus = BUL_our_darkest_hours
+		}
+		relative_position_id = BUL_thieving_allies
+		available = {
+			has_global_flag = balkan_league_fail
+			has_global_flag = lone_liberator_victorious
+			owns_state = 203
+			owns_state = 106
+			has_war = no
+			NOT = {
+				has_idea = idea_armistice
+				has_idea = idea_army_restrictions
+			}
+		}
+		x = -3
+		y = 0
+		ai_will_do = {
+			factor = 100
+		}
+		completion_reward = {
+			add_political_power = 150
+		}
+	}
+	focus = {
 		id = BUL_relative_hegemony
 		icon = GFX_focus_BUL_free_balkan_states
 		cost = 5
 		available = {
 			has_global_flag = kis_firstbalkanwar_victory
 			has_war = no
-			owns_state = 203
+			OR = {
+				owns_state = 203
+				203 = { is_owned_by = MAC }
+			}
 		}
 		relative_position_id = BUL_thieving_allies
 		mutually_exclusive = {
@@ -549,6 +595,7 @@
 		}
 		relative_position_id = BUL_thieving_allies
 		mutually_exclusive = {
+			focus = BUL_lone_victor
 			focus = BUL_thieving_allies
 		}
 		x = 3
@@ -602,6 +649,7 @@
 						}
 					}
 				}
+				has_global_flag = BW1_avoided
 			}
 		}
 		ai_will_do = {
@@ -660,10 +708,10 @@
 			NOT = {
 				has_war_with = SER
 			}
-			owns_state = 106
-			owns_state = 759
-			owns_state = 788
-			owns_state = 821
+			106 = { is_owned_or_subject_trigger = yes }
+			759 = { is_owned_or_subject_trigger = yes }
+			788 = { is_owned_or_subject_trigger = yes }
+			821 = { is_owned_or_subject_trigger = yes }
 		}
 		ai_will_do = {
 			factor = 100
@@ -920,6 +968,7 @@
 			focus = BUL_first_national_catastrophe
 			focus = BUL_victory_in_second_balkan_war
 			focus = BUL_relative_hegemony
+			focus = BUL_lone_victor
 		}
 		mutually_exclusive = {
 			focus = BUL_ferdinands_abdication
@@ -1041,7 +1090,7 @@
 						character = BUL_ferdinand_i
 					}	
 				}
-				set_country_leader_ideology = autocracy	
+				set_country_leader_ideology = absolute_monarchy	
 			}
 			remove_ideas = BUL_idea_national_assembly
 			add_political_power = 50
@@ -1666,6 +1715,7 @@
 		}
 		bypass = {
 			owns_state = 347
+			owns_state = 1018
 			owns_state = 341
 			owns_state = 756
 			owns_state = 200
@@ -1688,6 +1738,19 @@
 					}
 				}
 				add_state_claim = 347
+			}
+			if = {
+				limit = {
+					OR = {
+						NOT = {
+							owns_state = 1018
+						}
+						1018 = {
+							is_core_of = ROOT
+						}
+					}
+				}
+				add_state_claim = 1018
 			}
 			if = {
 				limit = {
@@ -2093,7 +2156,7 @@
 			}
 		}
 		ai_will_do = {
-			factor = 4
+			factor = 500
 		}
 		search_filters = {
 			FOCUS_FILTER_HISTORICAL
@@ -2467,6 +2530,9 @@
 		}
 		completion_reward = {
 			add_ideas = BUL_idea_welfare_reforms
+			BUL_vasil_radoslavov = {
+				remove_country_leader_trait = corrupted_minister
+			}
 		}
 	}
 	focus = {
@@ -2725,6 +2791,7 @@
 			add_state_core = 102
 			add_state_core = 163
 			add_state_core = 875
+			add_state_core = 1006
 			set_cosmetic_tag = UBF_united_balkan_federation
 		}
 	}
@@ -2892,6 +2959,14 @@
 		ai_will_do = {
 			factor = 10
 			# nearby enemy don't exists
+			modifier = {
+				factor = 100
+				date > 1915.6.6
+				SER = {
+					has_war = yes
+				}
+				has_war = no
+			}
 			modifier = {
 				factor = 0
 				NOT = {
@@ -3091,7 +3166,7 @@
 	}
 	focus = {
 		id = BUL_claim_adrianople
-		icon = GFX_goal_generic_occupy_states_ongoing_war
+		icon = GFX_focus_GRE_claim_eastern_thrace
 		cost = 10
 		prerequisite = {
 			focus = BUL_pact_of_sofia
@@ -3132,6 +3207,12 @@
 						is_owned_by = ROOT
 					}
 				}
+				1018 = {
+					OR = {
+						is_claimed_by = ROOT
+						is_owned_by = ROOT
+					}
+				}
 			}
 		}
 		ai_will_do = {
@@ -3161,6 +3242,7 @@
 					owns_state = 756
 				}
 				add_state_claim = 347
+				add_state_claim = 1018
 			}
 		}
 	}
@@ -3275,7 +3357,7 @@
 	}
 	focus = {
 		id = BUL_claim_nis
-		icon = GFX_goal_demand_sudetenland
+		icon = GFX_goal_generic_more_territorial_claims
 		cost = 10
 		prerequisite = {
 			focus = BUL_claim_adrianople
@@ -3285,7 +3367,7 @@
 			focus = BUL_claim_vardar_macedonia
 		}
 		relative_position_id = BUL_claim_vardar_macedonia
-		x = 0
+		x = -1
 		y = 1
 		ai_will_do = {
 			factor = 4
@@ -3309,31 +3391,47 @@
 			}
 		}
 		available = {
-			controls_state = 48
-			controls_state = 212
-			controls_state = 211
-			controls_state = 788
-			controls_state = 759
-			controls_state = 106
-			controls_state = 731
-			controls_state = 184
-			OR = {
-				controls_state = 756
-				AND = {
-					controls_state = 77
-					controls_state = 805
-				}
-			}
-			NOT = {
-				any_other_country = {
-					is_in_faction_with = ROOT
-					owns_state = 809
-				}
-			}
+			809 = { is_controlled_by_ROOT_or_ally = yes }
+			876 = { is_controlled_by_ROOT_or_ally = yes }
 		}
 		completion_reward = {
 			add_state_claim = 809
 			add_state_claim = 876
+		}
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
+		}
+	}
+	focus = {
+		id = BUL_claim_salonika
+		icon = GFX_focus_GRE_byzantine_themata
+		cost = 10
+		prerequisite = {
+			focus = BUL_claim_adrianople
+			focus = BUL_claim_dobruja
+		}
+		prerequisite = {
+			focus = BUL_claim_vardar_macedonia
+		}
+		relative_position_id = BUL_claim_vardar_macedonia
+		x = 1
+		y = 1
+		ai_will_do = {
+			factor = 4
+		}
+		bypass = {
+			owns_state = 345
+		}
+		available = {
+			345 = {
+				owner = { has_war_with = ROOT }
+				is_controlled_by_ROOT_or_ally = yes
+			}
+		}
+		completion_reward = {
+			custom_effect_tooltip = BUL_claim_salonika_tt
+			add_state_claim = 345
+			add_political_power = 45
 		}
 		search_filters = {
 			FOCUS_FILTER_HISTORICAL
@@ -3432,7 +3530,7 @@
 		completion_reward = {
 			add_doctrine_cost_reduction = {
 				name = land_doc_bonus
-				cost_reduction = 0.99
+				cost_reduction = 0.5
 				uses = 1
 				category = land_doctrine
 			}
@@ -3459,9 +3557,15 @@
 		completion_reward = {
 			add_doctrine_cost_reduction = {
 				name = BUL_superior_firepower
-				cost_reduction = 0.99
-				uses = 2
+				cost_reduction = 0.5
+				uses = 1
 				category = land_doctrine
+			}
+			add_tech_bonus = {
+				name = infantry_weapons_bonus
+				bonus = 0.5
+				uses = 1
+				category = artillery
 			}
 		}
 		search_filters = {
@@ -3483,9 +3587,15 @@
 		completion_reward = {
 			add_doctrine_cost_reduction = {
 				name = BUL_numerical_superiority
-				cost_reduction = 0.99
-				uses = 2
+				cost_reduction = 0.5
+				uses = 1
 				category = land_doctrine
+			}
+			add_tech_bonus = {
+				name = infantry_weapons_bonus
+				bonus = 0.5
+				uses = 1
+				category = infantry_weapons
 			}
 		}
 		ai_will_do = {
@@ -3690,21 +3800,6 @@
 		x = 19
 		y = 0
 		bypass = {
-			custom_trigger_tooltip = {
-				tooltip = infrastructure_effort_tt
-				48 = {
-					free_building_slots = {
-						building = infrastructure
-						size < 1
-					}
-				}
-				199 = {
-					free_building_slots = {
-						building = infrastructure
-						size < 1
-					}
-				}
-			}
 		}
 		ai_will_do = {
 			factor = 4
@@ -3774,41 +3869,13 @@
 			factor = 2
 		}
 		completion_reward = {
-			random_owned_controlled_state = {
-				limit = {
-					free_building_slots = {
-						building = industrial_complex
-						size > 0
-						include_locked = yes
-					}
-					OR = {
-						is_in_home_area = yes
-						NOT = {
-							owner = {
-								any_owned_state = {
-									free_building_slots = {
-										building = industrial_complex
-										size > 0
-										include_locked = yes
-									}
-									is_in_home_area = yes
-								}
-							}
-						}
-					}
-				}
+			48 = {
 				add_extra_state_shared_building_slots = 1
 				add_building_construction = {
 					type = industrial_complex
 					level = 1
 					instant_build = yes
 				}
-			}
-			add_tech_bonus = {
-				name = industrial_bonus
-				bonus = 1
-				uses = 1
-				category = industry
 			}
 		}
 		search_filters = {
@@ -3827,24 +3894,27 @@
 		ai_will_do = {
 			factor = 2
 		}
+		available = {
+			212 = {
+				is_owned_and_controlled_by = ROOT
+			}
+			912 = {
+				is_owned_and_controlled_by = ROOT
+			}
+		}
 		bypass = {
 		}
 		completion_reward = {
-			48 = {
+			212 = {
+				add_extra_state_shared_building_slots = 1
 				add_building_construction = {
 					type = infrastructure
 					level = 1
 					instant_build = yes
 				}
 			}
-			random_owned_controlled_state = {
-				add_building_construction = {
-					type = infrastructure
-					level = 1
-					instant_build = yes
-				}
-			}
-			random_owned_controlled_state = {
+			912 = {
+				add_extra_state_shared_building_slots = 1
 				add_building_construction = {
 					type = infrastructure
 					level = 1
@@ -3872,8 +3942,15 @@
 			factor = 3
 		}
 		completion_reward = {
-			every_owned_state = {
+			212 = {
 				add_extra_state_shared_building_slots = 1
+			}
+			211 = {
+				add_extra_state_shared_building_slots = 1
+			}
+			swap_ideas = {
+				add_idea = BUL_idea_agrarian_economy2
+				remove_idea = BUL_idea_agrarian_economy
 			}
 		}
 	}
@@ -3893,9 +3970,9 @@
 			factor = 3
 		}
 		completion_reward = {
-			swap_ideas = {
-				remove_idea = BUL_idea_agrarian_economy
-				add_idea = BUL_idea_agrarian_economy2
+			add_timed_idea = {
+				idea = BUL_idea_agrarian_mobilisation
+				days = 450
 			}
 		}
 	}
@@ -3946,38 +4023,8 @@
 		ai_will_do = {
 			factor = 2
 		}
-		complete_tooltip = {
-			add_extra_state_shared_building_slots = 1
-			add_building_construction = {
-				type = arms_factory
-				level = 1
-				instant_build = yes
-			}
-		}
 		completion_reward = {
-			random_owned_controlled_state = {
-				limit = {
-					free_building_slots = {
-						building = arms_factory
-						size > 0
-						include_locked = yes
-					}
-					OR = {
-						is_in_home_area = yes
-						NOT = {
-							owner = {
-								any_owned_state = {
-									free_building_slots = {
-										building = arms_factory
-										size > 0
-										include_locked = yes
-									}
-									is_in_home_area = yes
-								}
-							}
-						}
-					}
-				}
+			48 = {
 				add_extra_state_shared_building_slots = 1
 				add_building_construction = {
 					type = arms_factory
@@ -4006,17 +4053,15 @@
 			factor = 3
 		}
 		completion_reward = {
-			random_owned_controlled_state = {
+			48 = {
 				add_resource = {
 					type = steel
 					amount = 10
 				}
-				add_extra_state_shared_building_slots = 1
-				add_building_construction = {
-					type = industrial_complex
-					level = 1
-					instant_build = yes
-				}
+			}
+			swap_ideas = {
+				remove_idea = BUL_idea_industrializing_economy
+				add_idea = BUL_idea_industrializing_economy2
 			}
 		}
 		search_filters = {
@@ -4039,21 +4084,9 @@
 			factor = 3
 		}
 		completion_reward = {
-			random_owned_controlled_state = {
-				add_extra_state_shared_building_slots = 1
-				add_building_construction = {
-					type = industrial_complex
-					level = 1
-					instant_build = yes
-				}
-			}
-			random_owned_controlled_state = {
-				add_extra_state_shared_building_slots = 1
-				add_building_construction = {
-					type = industrial_complex
-					level = 1
-					instant_build = yes
-				}
+			add_timed_idea = {
+				idea = BUL_idea_national_champions
+				days = 365
 			}
 		}
 		search_filters = {
@@ -4209,7 +4242,14 @@
 		x = 17
 		y = 6
 		completion_reward = {
-			add_ideas = BUL_idea_grain_export
+			swap_ideas = {
+				add_idea = BUL_idea_agrarian_economy3
+				remove_idea = BUL_idea_agrarian_economy2
+			}
+			add_timed_idea = {
+				idea = BUL_idea_grain_export
+				days = 465
+			}
 		}
 		ai_will_do = {
 			factor = 3
@@ -4233,7 +4273,7 @@
 		}
 		completion_reward = {
 			swap_ideas = {
-				remove_idea = BUL_idea_industrializing_economy
+				remove_idea = BUL_idea_industrializing_economy2
 				add_idea = BUL_idea_partly_industrialized_economy
 			}
 		}

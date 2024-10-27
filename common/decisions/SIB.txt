@@ -4,7 +4,7 @@ RUS_civil_war = {
 		icon = GFX_decision_generic_reorganize_irregulars
 
 		allowed = {
-			always = yes
+			is_russian_tag = yes
 		}
 
 		available = {
@@ -16,6 +16,7 @@ RUS_civil_war = {
 		is_good = no
 
 		activation = {
+			has_global_flag = russian_civil_war
 			has_template = "Chekhoslovatskiy Polk"
 		}
 
@@ -27,11 +28,116 @@ RUS_civil_war = {
 			add_ideas = SIB_czech_garrisons
 		}
 	}
+	# AI is too retar to spawn troops
+	SIB_spawn_troops_ffs = {
+		icon = GFX_decision_generic_reorganize_irregulars
+		allowed = {
+			tag = SIB
+		}
+		visible = {
+			is_ai = yes
+			has_war_with = SOV
+		}
+		available = {
+			has_completed_focus = SIB_mobilization_of_the_siberian_army
+			# NOT = {
+			# 	has_idea = SIB_mobilization_of_the_siberian_army
+			# }
+			has_manpower > 25800
+			has_equipment = {
+				infantry_equipment > 3000
+			}
+		}
+		
+		cost = 0
+		days_re_enable = 1
+		days_remove = 7
+
+		complete_effect = {
+			add_manpower = -25800
+			add_equipment_to_stockpile = {
+				type = infantry_equipment
+				amount = -3000
+			}
+		}
+		remove_effect = {
+			hidden_effect = {
+				if = {
+					limit = {
+						NOT = {
+							has_template = "Sibirskaya Diviziya"
+						}
+					}
+					division_template = {
+						name = "Sibirskaya Diviziya"
+						division_names_group = RUS_GAR_01
+						is_locked = yes
+						regiments = {
+							infantry = { x = 0 y = 0 }
+							infantry = { x = 0 y = 1 }
+							infantry = { x = 0 y = 2 }
+							infantry = { x = 0 y = 3 }
+							infantry = { x = 1 y = 0 }
+							infantry = { x = 1 y = 1 }
+							infantry = { x = 1 y = 2 }
+							infantry = { x = 1 y = 3 }
+						}
+						support = { 
+							artillery = { x = 0 y = 0 }
+							engineer = { x = 0 y = 1 }
+						}
+					}
+				}
+			}
+			if = {
+				limit = {
+					has_full_control_of_state = 571
+				}
+				571 = {
+					create_unit = {
+						division = "division_template = \"Sibirskaya Diviziya\" start_experience_factor = 0.2"
+						owner = ROOT
+						count = 3
+						allow_spawning_on_enemy_provs = no
+					}
+				}
+			}
+			else = {
+				capital_scope = {
+					create_unit = {
+						division = "division_template = \"Sibirskaya Diviziya\" start_experience_factor = 0.2"
+						owner = ROOT
+						count = 3
+						allow_spawning_on_enemy_provs = no
+					}
+				}
+			}
+		}
+
+		ai_will_do = {
+			base = 1000
+			# modifier = {
+			# 	add = 1000
+			# 	has_army_manpower = {
+			# 		size < 250000
+			# 	}
+			# }
+			modifier = {
+				add = -3000
+				OR = {
+					has_equipment = {
+						infantry_equipment < 7500
+					}
+					has_manpower < 50000
+				}
+			}
+		}
+	}
 	SIB_looming_reactionary_revolt = {
 		icon = GFX_decision_revolt
 
 		allowed = {
-			always = yes
+			always = no
 		}
 
 		available = {
@@ -53,22 +159,37 @@ RUS_civil_war = {
 					limit = {
 						has_idea = SIB_strong_monarchist_opposition 
 					}
-					TBK = {
-						transfer_state = 516
-						transfer_state = 564
-						transfer_state = 566
-						transfer_state = 568
-						transfer_state = 574
-						transfer_state = 576
-						transfer_state = 644
-					}
-					563 = {
-						create_unit = {
-							division = "name = \"Belaya Gvardiya\" division_template = \"White Guard Corps\" start_experience_factor = 0.2 start_equipment_factor = 0.7"
-							owner = TBK
-							count = 8
-							allow_spawning_on_enemy_provs = yes
+					every_state = {
+						limit = {
+							OWNER = {
+								is_russian_tag = yes
+								NOT = {
+									original_tag = TBK
+								}	
+							}	
+							OR = {
+								state = 516
+								state = 563
+								state = 564
+								state = 566
+								state = 568
+								state = 574
+								state = 576
+								state = 644
+							}
 						}
+						transfer_state_to = TBK
+					}
+					TBK = {
+						random_owned_state = {
+							prioritize = { 563 }
+							create_unit = {
+								division = "name = \"Belaya Gvardiya\" division_template = \"Belogvardeyskiy Korpus\" start_experience_factor = 0.2 start_equipment_factor = 0.7"
+								owner = TBK
+								count = 8
+								allow_spawning_on_enemy_provs = yes
+							}
+						}	
 					}
 					remove_ideas = SIB_strong_monarchist_opposition 
 				}
@@ -76,19 +197,35 @@ RUS_civil_war = {
 					limit = {
 						has_idea = SIB_medium_monarchist_opposition 
 					}
-					TBK = {
-						transfer_state = 564
-						transfer_state = 566
-						transfer_state = 574
-						transfer_state = 644
-					}
-					563 = {
-						create_unit = {
-							division = "name = \"Belaya Gvardiya\" division_template = \"White Guard Corps\" start_experience_factor = 0.2 start_equipment_factor = 0.7"
-							owner = TBK
-							count = 4
-							allow_spawning_on_enemy_provs = yes
+					every_state = {
+						limit = {
+							OWNER = {
+								is_russian_tag = yes
+								NOT = {
+									original_tag = TBK
+								}
+							}	
+							OR = {
+								state = 563
+								state = 564
+								state = 566
+								state = 574
+								state = 576
+								state = 644
+							}
 						}
+						transfer_state_to = TBK
+					}
+					TBK = {
+						random_owned_state = {
+							prioritize = { 563 }
+							create_unit = {
+								division = "name = \"Belaya Gvardiya\" division_template = \"Belogvardeyskiy Korpus\" start_experience_factor = 0.2 start_equipment_factor = 0.7"
+								owner = TBK
+								count = 4
+								allow_spawning_on_enemy_provs = yes
+							}
+						}	
 					}
 					remove_ideas = SIB_medium_monarchist_opposition 
 				}
@@ -96,16 +233,31 @@ RUS_civil_war = {
 					limit = {
 						has_idea = SIB_weak_monarchist_opposition 
 					}
-					TBK = {
-						transfer_state = 564
-					}
-					563 = {
-						create_unit = {
-							division = "name = \"Belaya Gvardiya\" division_template = \"White Guard Corps\" start_experience_factor = 0.2 start_equipment_factor = 0.7"
-							owner = TBK
-							count = 2
-							allow_spawning_on_enemy_provs = yes
+					every_state = {
+						limit = {
+							OWNER = {
+								is_russian_tag = yes
+								NOT = {
+									original_tag = TBK
+								}
+							}	
+							OR = {
+								state = 563
+								state = 564
+							}
 						}
+						transfer_state_to = TBK
+					}
+					TBK = {
+						random_owned_state = {
+							prioritize = { 563 }
+							create_unit = {
+								division = "name = \"Belaya Gvardiya\" division_template = \"Belogvardeyskiy Korpus\" start_experience_factor = 0.2 start_equipment_factor = 0.7"
+								owner = TBK
+								count = 2
+								allow_spawning_on_enemy_provs = yes
+							}
+						}	
 					}
 					remove_ideas = SIB_weak_monarchist_opposition 
 				}
@@ -345,6 +497,7 @@ RUS_civil_war = {
 				OR = {
 					tag = UCH
 					tag = ORE
+					tag = USS
 				}
 			}
 		}
@@ -391,7 +544,7 @@ RUS_civil_war = {
 	RUS_demand_recognition_FROM = {
 		icon = GFX_decision_generic_army_support	
 		allowed = {
-			is_russian_tag = yes
+			tag = SIB
 		}
 		target_trigger ={
 			FROM = {
@@ -399,13 +552,28 @@ RUS_civil_war = {
 					tag = SRA
 					tag = RSO
 					tag = DON
+					tag = KUB
 					tag = NWA
+					tag = TRC
 				}	
 			}
 		}
 		visible = {
 			has_global_flag = russian_civil_war
-			has_completed_focus = SIB_demand_recognition_from_generals
+			OR = {
+				has_completed_focus = SIB_demand_recognition_from_generals
+				has_completed_focus = SIB_contact_the_white_forces
+				AND = {
+					has_completed_focus = SIB_finish_the_whites_off
+					FROM = {
+						tag = TRC
+						OR = {
+							has_government = democratic
+							has_government = neutrality
+						}
+					}
+				}
+			}
 		}
 		available = {		
 			FROM = { 
@@ -413,6 +581,9 @@ RUS_civil_war = {
 				is_subject = no
 				NOT = {
 					has_war_with = ROOT
+				}
+				NOT = {
+					has_government = communism
 				}
 			}
 		}
@@ -432,7 +603,7 @@ RUS_civil_war = {
 	RUS_demand_vladivostok = {
 		icon = GFX_decision_generic_army_support	
 		allowed = {
-			is_russian_tag = yes
+			tag = SIB
 		}
 		target_trigger ={
 			FROM = {
@@ -467,7 +638,7 @@ RUS_civil_war = {
 	RUS_attack_FROM = {
 		icon = GFX_decision_generic_ignite_civil_war	
 		allowed = {
-			is_russian_tag = yes
+			tag = SIB
 		}
 		target_trigger ={
 			FROM = {
@@ -484,6 +655,7 @@ RUS_civil_war = {
 					tag = URA
 					tag = CER
 					tag = TER
+					tag = TRC
 				}	
 			}
 		}
@@ -491,16 +663,23 @@ RUS_civil_war = {
 			has_global_flag = russian_civil_war
 			has_completed_focus = SIB_finish_the_whites_off
 			FROM = { 
-				exists = yes
 				is_subject = no
 				NOT = {
 					has_war_with = ROOT
+				}
+				if = {
+					limit = {
+						tag = TRC
+					}
+					NOT = {
+						has_government = neutrality
+						has_government = democratic
+					}
 				}
 			}
 		}
 		available = {		
 			FROM = { 
-				exists = yes
 				is_subject = no
 				NOT = {
 					has_war_with = ROOT
@@ -524,20 +703,20 @@ RUS_civil_war = {
 	RUS_invite_FROM_to_federation = {
 		icon = GFX_decision_eng_trade_unions_support	
 		allowed = {
-			is_russian_tag = yes
+			tag = SIB
 		}
 		target_trigger ={
 			FROM = {
 				OR = {
-					tag = MOU
-					tag = GEO
-					tag = ARM
-					tag = AZR
-					tag = UKR
-					tag = BLR
-					tag = CRI
-					tag = TRK
-					tag = KAZ
+					original_tag = MOU
+					original_tag = GEO
+					original_tag = ARM
+					original_tag = AZR
+					original_tag = UKR
+					original_tag = BLR
+					original_tag = CRI
+					original_tag = TRK
+					original_tag = KAZ
 				}	
 			}
 		}
@@ -545,7 +724,6 @@ RUS_civil_war = {
 			has_global_flag = russian_civil_war
 			has_completed_focus = SIB_federative_republic
 			FROM = { 
-				exists = yes
 				is_subject = no
 				NOT = {
 					has_government = communism
@@ -555,7 +733,6 @@ RUS_civil_war = {
 		}
 		available = {		
 			FROM = { 
-				exists = yes
 				is_subject = no
 				NOT = {
 					has_war_with = ROOT
@@ -581,7 +758,7 @@ SIB_import_weapons_category = {
 	SIB_negotiate_import_with_FROM = {
 		icon = GFX_decision_hol_exchange_intelligence_data
 		allowed = {
-			original_tag = RUS
+			tag = SIB
 		}
 		target_trigger = {
 			FROM = {
@@ -694,7 +871,7 @@ SIB_import_weapons_category = {
 	SIB_buy_FROM_infantry_weapons = {
 		icon = generic_industry
 		allowed = {
-			original_tag = RUS
+			tag = SIB
 		}
 		target_trigger = {
 			FROM = {
@@ -715,8 +892,8 @@ SIB_import_weapons_category = {
 		}
 		available = {
 			check_variable = {
-    				SIB_gold_reserve_var < -0.04
-				tooltip = SIB_has_more_than_04
+    			SIB_gold_reserve_var < -0.024
+				tooltip = SIB_has_more_than_024
 			}
 			FROM = {
 				has_opinion = {
@@ -793,7 +970,7 @@ SIB_import_weapons_category = {
 				}
 				add_to_variable = {
 					var = SIB_gold_reserve_var
-					value = 0.05
+					value = 0.025
 					tooltip = SIB_add_05_to_var
 				}
 			}
@@ -802,7 +979,7 @@ SIB_import_weapons_category = {
 			clr_country_flag = SIB_ongoing_infantry_import
 			add_equipment_to_stockpile = {
 				type = infantry_equipment
-				amount = 1000
+				amount = 3000
 				producer = FROM
 			}
 		}
@@ -813,7 +990,7 @@ SIB_import_weapons_category = {
 	SIB_buy_FROM_support_equipment = {
 		icon = GFX_decision_ger_military_buildup
 		allowed = {
-			original_tag = RUS
+			tag = SIB
 		}
 		target_trigger = {
 			FROM = {
@@ -834,8 +1011,8 @@ SIB_import_weapons_category = {
 		}
 		available = {
 			check_variable = {
-    				SIB_gold_reserve_var < -0.04
-				tooltip = SIB_has_more_than_04
+    			SIB_gold_reserve_var < -0.024
+				tooltip = SIB_has_more_than_024
 			}
 			FROM = {
 				has_opinion = {
@@ -912,7 +1089,7 @@ SIB_import_weapons_category = {
 				}
 				add_to_variable = {
 					var = SIB_gold_reserve_var
-					value = 0.05
+					value = 0.025
 					tooltip = SIB_add_05_to_var
 				}
 			}
@@ -921,7 +1098,7 @@ SIB_import_weapons_category = {
 			clr_country_flag = SIB_ongoing_support_import
 			add_equipment_to_stockpile = {
 				type = support_equipment
-				amount = 50
+				amount = 250
 				producer = FROM
 			}
 		}
@@ -932,7 +1109,7 @@ SIB_import_weapons_category = {
 	SIB_buy_FROM_artillery_equipment = {
 		icon = GFX_decision_generic_artillery_icon
 		allowed = {
-			original_tag = RUS
+			tag = SIB
 		}
 		target_trigger = {
 			FROM = {
@@ -953,8 +1130,8 @@ SIB_import_weapons_category = {
 		}
 		available = {
 			check_variable = {
-    				SIB_gold_reserve_var < -0.04
-				tooltip = SIB_has_more_than_04
+    			SIB_gold_reserve_var < -0.024
+				tooltip = SIB_has_more_than_024
 			}
 			FROM = {
 				has_opinion = {
@@ -1031,7 +1208,7 @@ SIB_import_weapons_category = {
 				}
 				add_to_variable = {
 					var = SIB_gold_reserve_var
-					value = 0.05
+					value = 0.025
 					tooltip = SIB_add_05_to_var
 				}
 			}
@@ -1040,7 +1217,7 @@ SIB_import_weapons_category = {
 			clr_country_flag = SIB_ongoing_artillery_import
 			add_equipment_to_stockpile = {
 				type = artillery_equipment
-				amount = 50
+				amount = 250
 				producer = FROM
 			}
 		}
