@@ -11,6 +11,12 @@ GER_great_war = {
 					has_idea = neutrality_idea
 				}
 			}
+			FROM = {
+				NOT = {				
+					is_in_faction_with = ROOT
+					has_war_with = FRA
+				}
+			}	
 		}	
 		visible = {
 			tag = GER
@@ -36,7 +42,6 @@ GER_great_war = {
 					state = 29
 					state = 785
 					state = 865
-					state = 1020
 				}
 			}
 		}
@@ -49,7 +54,10 @@ GER_great_war = {
 			GER = {
 				if = {
 					limit = {
-						NOT = { has_country_flag = germany_accepted_belgian_socialist_offer }
+						NOT = { 
+							BEL = { has_war_with = ROOT }
+							has_country_flag = germany_accepted_belgian_socialist_offer 
+						}
 					}
 					declare_war_on = {
 						target = BEL
@@ -58,7 +66,7 @@ GER_great_war = {
 				}
 				if = {
 					limit = {
-						has_country_flag = germany_accepted_belgian_socialist_offer
+						has_country_flag = germany_accepted_belgian_socialist_offer 
 					}
 					BEL = {
 						give_military_access = GER
@@ -70,10 +78,22 @@ GER_great_war = {
 						}
 					}
 				}
-				declare_war_on = {
-					target = LUX
-					type = puppet_wargoal_focus
-				}
+				if = {
+					limit = {
+						LUX = {
+							exists = yes
+							NOT = {
+								has_war_with = ROOT
+								has_war_with = FRA
+								is_in_faction_with = ROOT
+							}	
+						}
+					}
+					declare_war_on = {
+						target = LUX
+						type = puppet_wargoal_focus
+					}
+				}	
 				add_timed_idea = {
 					idea = schlieffenmoltke
 					days = 60
@@ -588,21 +608,26 @@ GER_great_war = {
 				has_global_flag = great_war_ends
 				has_global_flag = GER_capitulation
 				has_global_flag = FRA_capitulation
+				has_global_flag = FRA_capitulation_alone
 				has_global_flag = before_the_leaves_fall_flag
 				has_global_flag = before_the_leaves_fall_failed
 			}
 		}
 		available = {
-			OR = {
-				AND = {
-					FRA = { has_war = no }
-					GER = { has_war = no }
+			custom_trigger_tooltip = {
+				tooltip = before_the_leaves_fall_tt
+				OR = {
+					AND = {
+						FRA = { has_war = no }
+						GER = { has_war = no }
+					}
+					has_global_flag = great_war_ends
+					has_global_flag = GER_capitulation
+					has_global_flag = FRA_capitulation
+					has_global_flag = FRA_capitulation_alone
+					has_global_flag = before_the_leaves_fall_flag
+					has_global_flag = before_the_leaves_fall_failed
 				}
-				has_global_flag = great_war_ends
-				has_global_flag = GER_capitulation
-				has_global_flag = FRA_capitulation
-				has_global_flag = before_the_leaves_fall_flag
-				has_global_flag = before_the_leaves_fall_failed
 			}
 		}
 		visible = {
@@ -1524,19 +1549,6 @@ GER_decision_puppet_kingdoms = {
 				}
 				puppet = HOL
 			}
-			if = {
-				limit = {
-					HOL = {
-						is_subject_of = ROOT
-						OR = {
-							has_autonomy_state = autonomy_tgwr_integrated_protectorate
-							has_autonomy_state = autonomy_tgwr_protectorate
-							has_autonomy_state = autonomy_tgwr_informal_protectorate
-						}
-					}
-				}
-				puppet = GEO
-			}
 			HOL = {
 				hidden_effect = {
 					every_possible_country = {
@@ -1882,11 +1894,15 @@ GER_decision_central_powers_conference = {
 			arms_factory > 2
 			ROM = { exists = yes is_in_faction = no }
 			NOT = { has_global_flag = central_powers_conference_ends }
-			AUH = { has_full_control_of_state = 76 }
+			AUH = {
+				has_full_control_of_state = 76
+				has_full_control_of_state = 1044
+			}
 		}
 		highlight_states = {
 			highlight_state_targets = {
 				state = 76
+				state = 1044
 			}
 		}
 		cost = 75
@@ -3671,6 +3687,7 @@ prestigious_projects = {
 							state = 768
 							# Südwestafrika
 							state = 541
+							state = 1050
 						}
 					}
 					add_core_of = MAF
@@ -3760,6 +3777,21 @@ prestigious_projects = {
 						ETH = {
 							give_military_access = GER
 							give_military_access = PREV
+						}
+						if = {
+							limit = {
+								AFA = {
+									exists = yes
+									NOT = {
+										has_war_with = GER
+										has_war_with = PREV
+									}
+								}
+							}
+							AFA = {
+								give_military_access = GER
+								give_military_access = PREV
+							}
 						}
 					}
 				}
@@ -5461,78 +5493,78 @@ interwar_decisions = {
 			hidden_effect = { country_event = ww1_germany.108 }
 		}
 	}
-	GER_locarno_treaties_timer = {
-		icon = GFX_decision_eng_install_government
-		days_mission_timeout = 70
-		activation = {
-			NOT = {
-				FRA = {
-					has_country_flag = FRA_interwar_locarno_agreements
-				}
-			}
-			has_global_flag = interbellum
-			has_global_flag = versallies_treaty
-			threat < 0.2
-			FRA = {
-				is_subject = no
-				has_war = no
-				NOT = { has_wargoal_against = GER }
-			}
-			GER = {
-				is_subject = no
-				has_war = no
-				has_country_flag = great_war_loser
-				has_completed_focus = GER_rise_of_evil
-				NOT = {
-					has_idea = GER_idea_reparations
-					has_government = fascism
-					has_wargoal_against = FRA
-				}
-			}
-			NOT = {
-				has_global_flag = interwar_locarno_treaties
-				has_global_flag = prussian_blue
-				has_global_flag = treaty_of_berlin
-				has_global_flag = spartakist_in_bavaria
-			}
-		}
-		allowed = {
-			always = yes
-		}
-		available = {
-			OR = {
-				FRA = { has_war = yes }
-				GER = { has_war = yes }
-				GER = { is_subject = yes }
-				FRA = { is_subject = yes }
-				threat > 0.50
-				has_global_flag = prussian_blue
-				has_global_flag = treaty_of_berlin
-				has_global_flag = spartakist_in_bavaria
-				GER = { has_government = fascism }
-			}
-		}
-		visible = {
-			OR = {
-				has_country_flag = great_war_winner
-				has_country_flag = great_war_loser
-			}
-		}
-		fire_only_once = no
-		is_good = yes
-		timeout_effect = {
-			hidden_effect = { set_global_flag = interwar_locarno_treaties }
-			effect_tooltip = {
-				GER = { country_event = ww1_germany.149 }
-			}
-			if = {
-				limit = {
-					tag = GER
-				}
-				country_event = ww1_germany.149
-			}
-		}
-	}
+	# GER_locarno_treaties_timer = {
+	# 	icon = GFX_decision_eng_install_government
+	# 	days_mission_timeout = 70
+	# 	activation = {
+	# 		NOT = {
+	# 			FRA = {
+	# 				has_country_flag = FRA_interwar_locarno_agreements
+	# 			}
+	# 		}
+	# 		has_global_flag = interbellum
+	# 		has_global_flag = versallies_treaty
+	# 		threat < 0.2
+	# 		FRA = {
+	# 			is_subject = no
+	# 			has_war = no
+	# 			NOT = { has_wargoal_against = GER }
+	# 		}
+	# 		GER = {
+	# 			is_subject = no
+	# 			has_war = no
+	# 			has_country_flag = great_war_loser
+	# 			has_completed_focus = GER_rise_of_evil
+	# 			NOT = {
+	# 				has_idea = GER_idea_reparations
+	# 				has_government = fascism
+	# 				has_wargoal_against = FRA
+	# 			}
+	# 		}
+	# 		NOT = {
+	# 			has_global_flag = interwar_locarno_treaties
+	# 			has_global_flag = prussian_blue
+	# 			has_global_flag = treaty_of_berlin
+	# 			has_global_flag = spartakist_in_bavaria
+	# 		}
+	# 	}
+	# 	allowed = {
+	# 		always = yes
+	# 	}
+	# 	available = {
+	# 		OR = {
+	# 			FRA = { has_war = yes }
+	# 			GER = { has_war = yes }
+	# 			GER = { is_subject = yes }
+	# 			FRA = { is_subject = yes }
+	# 			threat > 0.50
+	# 			has_global_flag = prussian_blue
+	# 			has_global_flag = treaty_of_berlin
+	# 			has_global_flag = spartakist_in_bavaria
+	# 			GER = { has_government = fascism }
+	# 		}
+	# 	}
+	# 	visible = {
+	# 		OR = {
+	# 			has_country_flag = great_war_winner
+	# 			has_country_flag = great_war_loser
+	# 		}
+	# 	}
+	# 	fire_only_once = no
+	# 	is_good = yes
+	# 	timeout_effect = {
+	# 		hidden_effect = { set_global_flag = interwar_locarno_treaties }
+	# 		effect_tooltip = {
+	# 			GER = { country_event = ww1_germany.149 }
+	# 		}
+	# 		if = {
+	# 			limit = {
+	# 				tag = GER
+	# 			}
+	# 			country_event = ww1_germany.149
+	# 		}
+	# 	}
+	# }
 }
 GER_fortifications = {
 
@@ -6298,9 +6330,6 @@ GER_hre_cat = {
 			32 = {
 				is_controlled_by_ROOT_or_subject = yes
 			}
-			1020 = {
-				is_controlled_by_ROOT_or_subject = yes
-			}
 		}
 		highlight_states = {
 			highlight_state_targets = {
@@ -6315,7 +6344,6 @@ GER_hre_cat = {
 				state = 27
 				state = 20
 				state = 32
-				state = 1020
 			}
 		}
 		visible = {
@@ -6351,7 +6379,6 @@ GER_hre_cat = {
 						state = 27
 						state = 20
 						state = 32
-						state = 1020
 					}
 				}
 				hidden_effect = { remove_claim_by = ROOT }
