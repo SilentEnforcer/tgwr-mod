@@ -1246,16 +1246,33 @@ country_event = {
 		ai_chance = {
 			base = 100
 			modifier = {
-				add = 100
-				has_autonomy_state = autonomy_dominion
-			}
-			modifier = {
 				add = -200
 				has_opinion = {
 					target = FROM
 					value < 0
 				}
 			}
+			modifier = {
+				factor = 0
+				OR = {
+					original_tag = SAF
+					has_completed_focus = CAN_seperation
+				}	
+			}
+		}
+		every_unit_leader = {
+			limit = {
+				OR = {
+					ROOT = {
+						NOT = {
+							original_tag = SAF
+						}
+					}
+					has_trait = trait_royalist
+				}				
+			}	
+			set_nationality = FROM	
+			add_unit_leader_trait = trait_royalist
 		}
 		FROM = {
 			annex_country = {
@@ -1290,7 +1307,7 @@ country_event = {
 				}
 			}
 			modifier = {
-				add = -150
+				add = 150
 				NOT = { has_government = FROM }
 			}
 		}
@@ -5337,8 +5354,17 @@ country_event = {
 		original_tag = ENG
 		has_war = yes
 		OR = {
-			has_completed_focus = ENG_Imperial_Federation
-			controls_state = 466
+			AND = {
+				has_completed_focus = ENG_Imperial_Federation
+				466 = {
+					is_owned_or_subject_trigger = yes
+					is_controlled_by_ROOT_or_subject = yes
+				}
+			}	
+			AND = {
+				owns_state 466
+				controls_state = 466
+			}	
 		}
 	}
 	immediate = {
@@ -5346,15 +5372,34 @@ country_event = {
 			news_event = {
 				id = eng_news.8
 			}
-			QBC = {
-				remove_state_core = 468
+			every_state = {
+				limit = {
+					OR = {
+						is_core_of = QBC
+						state = 1053
+						is_owned_or_subject_trigger = yes
+						OWNER = {
+							NOT = {
+								original_tag = NFL
+							}
+						}
+					}
+					NOT = {
+						state = 468
+					}	
+				}
+				if = {
+					limit = {
+						owns_state = PREV
+					}
+					add_state_claim = PREV
+				}	
+				transfer_state_to = QBC		
 			}
-			release = QBC
 			declare_war_on = {
 				target = QBC
 				type = annex_everything
 			}
-			add_state_claim = 466
 			QBC = {
 				set_politics = {
 					ruling_party = fascism
@@ -5368,11 +5413,6 @@ country_event = {
 					democratic = 46
 					neutrality = 16
 				}
-				add_state_claim = 332
-				add_state_claim = 465
-				add_state_claim = 464
-				add_state_core = 730
-				add_state_core = 468
 				division_template = {
 					name = "Légion de Québec Gratuite"
 					regiments = {
@@ -5406,7 +5446,7 @@ country_event = {
 						}
 					}
 				}
-				466 = {
+				capital_scope = {
 					create_unit = {
 						division = "name = \"1e Légion de Québec Gratuite\" division_template = \"Légion de Québec Gratuite\" start_experience_factor = 0.4"
 						owner = QBC
@@ -5442,16 +5482,13 @@ country_event = {
 	option = {
 		name = ww1_england.109.a
 		add_political_power = -40
-		ai_chance = {
-			factor = 100
-		}
 	}
 	#play as Quebec
 	option = {
 		name = ww1_england.109.b
-		ai_chance = {
-			factor = 0
-		}
+		trigger = {
+			is_ai = no
+		}	
 		ENG = {
 			add_political_power = -40
 		}
