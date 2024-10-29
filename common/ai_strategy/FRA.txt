@@ -67,6 +67,7 @@ FRA_defensive_if_lack_of_guns_against_GER = {
 	}
 	enable = {
 		has_war_with = GER
+		longest_war_length > 6
 		stockpile_ratio = {	## 5% of the armies equipment must be in reserves
 			archetype = infantry_equipment
 			ratio < 0.05
@@ -98,6 +99,42 @@ FRA_defensive_if_lack_of_guns_against_GER = {
 	}
 }
 
+FRA_buildup_right_before_ww1 = {
+	allowed = { 
+		original_tag = FRA 
+	}
+
+	enable = {
+		OR = { 
+			date > 1913.1.1
+			has_equipment = {
+				infantry_equipment > 1000
+			}
+			NOT = {
+				has_global_flag = great_war_ends
+			}
+			date < 1915.1.1
+		}
+		
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = build_army
+		id = infantry
+		value = 500
+	}
+	ai_strategy = {
+		type = force_build_armies
+		value = 500
+	}
+	ai_strategy = {
+		type = role_ratio
+		id = infantry
+		value = 100
+	}
+}
+
 FRA_stockpile_more_early_game_and_war = {
 	allowed = { 
 		original_tag = FRA 
@@ -116,7 +153,10 @@ FRA_stockpile_more_early_game_and_war = {
 				}
 				stockpile_ratio = {	## 5% of the armies equipment must be in reserves
 					archetype = infantry_equipment
-					ratio < 0.20
+					ratio < 0.10
+				}
+				has_army_manpower = {
+					size > 1500000
 				}
 			}
 		}
@@ -1203,6 +1243,7 @@ FRA_area_priority = {
 	}
 	enable = {
 		original_tag = FRA
+		has_war = no
 	}
 	abort = { always = no }
 
@@ -1239,7 +1280,19 @@ FRA_area_priority = {
 	ai_strategy = {
 		type = area_priority
 		id = africa
-		value = -300
+		value = -500
+	}
+
+	ai_strategy = {
+		type = front_unit_request
+		area = africa
+		value = -500
+	}
+
+	ai_strategy = {
+		type = front_unit_request
+		tag = CHI
+		value = -9999
 	}
 	
 	ai_strategy = {
@@ -1824,6 +1877,9 @@ early_tank_production = {
 		has_tech = basic_medium_tank_chassis
 	}
 	abort = {
+		NOT = {
+			has_active_mission = FRA_fufill_schneider_contract
+		}
 		OR = {
 			has_global_flag = great_war_ends
 			has_tech = basic_light_tank_chassis
@@ -1835,7 +1891,7 @@ early_tank_production = {
 	ai_strategy = {
 		type = equipment_production_factor
 		id = armor
-		value = 400 #build some
+		value = 800 #build some
 	}
 
 	ai_strategy = {
@@ -1865,6 +1921,9 @@ renault_tank_production = {
 		original_tag = FRA
 		NOT = {
 			has_global_flag = great_war_ends
+		}
+		NOT = {
+			has_active_mission = FRA_fufill_schneider_contract
 		}
 		has_tech = basic_light_tank_chassis
 		has_tech = basic_medium_tank_chassis
