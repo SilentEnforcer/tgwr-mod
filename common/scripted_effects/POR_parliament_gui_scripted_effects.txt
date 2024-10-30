@@ -1,0 +1,536 @@
+# The following scripted effect sets-up the parliament at game start.
+parliament_gui_initial = {
+	# Put simply an array stores a list of things, used here to store the list of parties and list of seats.
+
+	# parliament_seat_array stores the list of seat numbers for each party
+	add_to_array = { parliament_seat_array = regenerator_party } # Regenerator Party = 62 seats
+	add_to_array = { parliament_seat_array = progressive_party } # Progressive Party = 58 seats
+	add_to_array = { parliament_seat_array = progressive_dissidents } # Progressive Dissidents = 7 seats
+	add_to_array = { parliament_seat_array = portuguese_republican_party } # Portuguese Republican Party = 7 seats
+	add_to_array = { parliament_seat_array = liberal_regenerator_party } # Liberal Regenerator Party = 3 seats
+	add_to_array = { parliament_seat_array = nationalist_party } # Nationalist Party = 1 seats
+	add_to_array = { parliament_seat_array = independents } # Independents = 10 seats
+
+	# parliament_member_array stores the list of parties
+	# This basically assigns an id for each party, so Party A = 1, Party B = 2, etc. (must start from 1 and is in order)
+	add_to_array = { parliament_member_array = 1 } # Regenerator Party
+	add_to_array = { parliament_member_array = 2 } # Progressive Party
+	add_to_array = { parliament_member_array = 3 } # Progressive Dissidents
+	add_to_array = { parliament_member_array = 4 } # Portuguese Republican Party
+	add_to_array = { parliament_member_array = 5 } # Liberal Regenerator Party
+	add_to_array = { parliament_member_array = 6 } # Nationalist Party
+	add_to_array = { parliament_member_array = 7 } # Independents
+
+	# Set up the positions of the dots for the semicircle parliament
+	parliament_gui_positions = yes
+
+	# Modify what shows up in the gui
+	reload_parliament_gui = yes
+}
+
+# The following scripted effect does the main job of generating the gui, by adding the seats for each party in a grid.
+# This should be called every time you need to update the gui, when you add/subtract seats for example.
+# Read the comments if you're interested in how it works
+reload_parliament_gui = {
+	# Clears what's currently on the gui, if there's anything there.
+	clear_array = parliament_main_array
+
+	# The array temp_seat is duplicated from the array parliament_seat_array.
+	for_each_loop = {
+		array = parliament_seat_array
+
+		add_to_array = { temp_seat = parliament_seat_array^i }
+	}
+
+	# It's a suprise tool for later
+	set_temp_variable = { temp_index_1 = 0 }
+	set_temp_variable = { temp_index_2 = 1 }
+
+	# Set temp_size as the highest index in the array, highest index is the highest value x in temp_array^x.
+	set_temp_variable = { temp_size = temp_seat^num }
+	subtract_from_temp_variable = { temp_size = 1 }
+
+	# What this does is loop through the temp_seat array, adding the current value to the next value on the list.
+	# temp_seat^0 is the first value on the list, temp_seat^1 is the next and so forth.
+	# the loop ends when temp_index_1 is equal to the size of the array - 1 (basically the max index).
+	while_loop_effect = {
+		limit = {
+			check_variable = { temp_index_1 < temp_size }
+		}
+		# The suprise tool starts out as temp_seat^0 and temp_seat^1 and then is incremented every loop , adding the current value to the next value on the list.
+		add_to_variable = { temp_seat^temp_index_2 = temp_seat^temp_index_1 }
+		add_to_temp_variable = { temp_index_1 = 1 }
+		add_to_temp_variable = { temp_index_2 = 1 }
+	}
+
+	# resize_array fills the parliament_member_array with the id of the parliament member x amount of times where x is the number of seats the member has.
+	# so the array will look like this basically:
+	# 1,1,1,1,1,1,1,...(repeated 90 times),2,2,2,2,2,2,2(repeated 35 times),3,3,3.. etc.
+	for_loop_effect = {
+		start = 0
+		end = temp_seat^num
+
+		resize_array = { array = parliament_main_array value = parliament_member_array^v size = temp_seat^v }
+	}
+
+	# Clear the temp_seat array used previously since it's not needed anymore.
+	clear_array = temp_seat
+}
+
+# Bonus code for adding/subtracting seats
+modify_parliament_seat = {
+	subtract_from_temp_variable = { temp_member = 1 }
+
+	# check to see if result overflows
+	set_temp_variable = { temp = parliament_seat_array^temp_member }
+	add_to_temp_variable = { temp = temp_seats }
+
+	if = {
+		limit = {
+			check_variable = { temp > parliament_main_array^num }
+		}
+		subtract_from_temp_variable = { temp = parliament_main_array^num }
+		subtract_from_temp_variable = { temp_seats = temp }
+	}
+	else_if = {
+		limit = {
+			check_variable = { temp < 0 }
+		}
+		multiply_temp_variable = { temp = -1 }
+		subtract_from_temp_variable = { temp_seats = temp }
+	}
+
+	# adds all parties to temp_array
+	for_loop_effect = {
+		start = 0
+		end = parliament_seat_array^num
+
+		add_to_temp_array = { temp_array = v }
+	}
+
+	# remove from list of parties the party to be added/subtracted
+	remove_from_temp_array = { array = temp_array value = temp_member }
+
+	# give party new seat value
+	add_to_variable = { parliament_seat_array^temp_member = temp_seats }
+
+	# if its add
+	if = {
+		limit = {
+			check_variable = { temp_seats > 0 }
+		}
+		# loop until seats to be added is 0
+		while_loop_effect = {
+			limit = {
+				check_variable = { temp_seats > 0 }
+			}
+
+			# loops through remaining parties, subtracting 1 seat each time
+			for_loop_effect = {
+				start = 0
+				end = temp_array^num
+
+				if = {
+					limit = {
+						check_variable = { parliament_seat_array^temp_array^v > 0 } # party must have more than 0 seats to be subtracted
+						check_variable = { temp_seats > 0 } # seats to be added is bigger than 0 currently
+					}
+					subtract_from_variable = { parliament_seat_array^temp_array^v = 1 } # subtract from party 1 seat
+					subtract_from_temp_variable = { temp_seats = 1 } # subtract from seats to be added
+				}
+			}
+		}
+	}
+	# if its subtract
+	else_if = {
+		limit = {
+			check_variable = { temp_seats < 0 }
+		}
+		# loop until seats to be subtracted is 0
+		while_loop_effect = {
+			limit = {
+				check_variable = { temp_seats < 0 }
+			}
+
+			# loops through remaining parties, adding 1 seat each time
+			for_loop_effect = {
+				start = 0
+				end = temp_array^num
+
+				if = {
+					limit = {
+						check_variable = { parliament_seat_array^temp_array^v < parliament_main_array^num } # party must have less than max seats to be added
+						check_variable = { temp_seats < 0 } # seats to be subtracted is less than 0 currently
+					}
+					add_to_variable = { parliament_seat_array^temp_array^v = 1 } # add to party 1 seat
+					add_to_temp_variable = { temp_seats = 1 } # add to seats to be subtracted
+				}
+			}
+		}
+	}
+	# do nothing if 0
+
+	# Modify what shows up in the gui
+	reload_parliament_gui = yes
+}
+
+# Clear all arrays (for debugging)
+clear_parliament_gui_arrays = {
+	clear_array = parliament_main_array
+	clear_array = parliament_member_array
+	clear_array = parliament_seat_array
+	clear_array = parliament_x_array
+	clear_array = parliament_y_array
+}
+
+# parliament_x_array and parliament_y_array stores the list of x and y positions of the parliament dots in the grid, these are generated from this lovely tool by Flaxbeard:
+# https://github.com/Flaxbeard/hoi4-parliament-diagram
+# Seat Count: 148
+parliament_gui_positions = {
+	add_to_array = { parliament_x_array = 0 }
+	add_to_array = { parliament_y_array = 247 }
+	add_to_array = { parliament_x_array = 22 }
+	add_to_array = { parliament_y_array = 247 }
+	add_to_array = { parliament_x_array = 43 }
+	add_to_array = { parliament_y_array = 247 }
+	add_to_array = { parliament_x_array = 65 }
+	add_to_array = { parliament_y_array = 247 }
+	add_to_array = { parliament_x_array = 86 }
+	add_to_array = { parliament_y_array = 247 }
+	add_to_array = { parliament_x_array = 108 }
+	add_to_array = { parliament_y_array = 247 }
+	add_to_array = { parliament_x_array = 130 }
+	add_to_array = { parliament_y_array = 247 }
+	add_to_array = { parliament_x_array = 3 }
+	add_to_array = { parliament_y_array = 219 }
+	add_to_array = { parliament_x_array = 25 }
+	add_to_array = { parliament_y_array = 219 }
+	add_to_array = { parliament_x_array = 47 }
+	add_to_array = { parliament_y_array = 218 }
+	add_to_array = { parliament_x_array = 68 }
+	add_to_array = { parliament_y_array = 218 }
+	add_to_array = { parliament_x_array = 90 }
+	add_to_array = { parliament_y_array = 219 }
+	add_to_array = { parliament_x_array = 8 }
+	add_to_array = { parliament_y_array = 192 }
+	add_to_array = { parliament_x_array = 113 }
+	add_to_array = { parliament_y_array = 218 }
+	add_to_array = { parliament_x_array = 31 }
+	add_to_array = { parliament_y_array = 191 }
+	add_to_array = { parliament_x_array = 135 }
+	add_to_array = { parliament_y_array = 219 }
+	add_to_array = { parliament_x_array = 54 }
+	add_to_array = { parliament_y_array = 190 }
+	add_to_array = { parliament_x_array = 76 }
+	add_to_array = { parliament_y_array = 191 }
+	add_to_array = { parliament_x_array = 17 }
+	add_to_array = { parliament_y_array = 166 }
+	add_to_array = { parliament_x_array = 99 }
+	add_to_array = { parliament_y_array = 193 }
+	add_to_array = { parliament_x_array = 40 }
+	add_to_array = { parliament_y_array = 165 }
+	add_to_array = { parliament_x_array = 65 }
+	add_to_array = { parliament_y_array = 163 }
+	add_to_array = { parliament_x_array = 123 }
+	add_to_array = { parliament_y_array = 191 }
+	add_to_array = { parliament_x_array = 28 }
+	add_to_array = { parliament_y_array = 141 }
+	add_to_array = { parliament_x_array = 88 }
+	add_to_array = { parliament_y_array = 165 }
+	add_to_array = { parliament_x_array = 53 }
+	add_to_array = { parliament_y_array = 140 }
+	add_to_array = { parliament_x_array = 147 }
+	add_to_array = { parliament_y_array = 194 }
+	add_to_array = { parliament_x_array = 112 }
+	add_to_array = { parliament_y_array = 168 }
+	add_to_array = { parliament_x_array = 42 }
+	add_to_array = { parliament_y_array = 117 }
+	add_to_array = { parliament_x_array = 80 }
+	add_to_array = { parliament_y_array = 138 }
+	add_to_array = { parliament_x_array = 69 }
+	add_to_array = { parliament_y_array = 116 }
+	add_to_array = { parliament_x_array = 104 }
+	add_to_array = { parliament_y_array = 142 }
+	add_to_array = { parliament_x_array = 139 }
+	add_to_array = { parliament_y_array = 167 }
+	add_to_array = { parliament_x_array = 58 }
+	add_to_array = { parliament_y_array = 95 }
+	add_to_array = { parliament_x_array = 128 }
+	add_to_array = { parliament_y_array = 146 }
+	add_to_array = { parliament_x_array = 98 }
+	add_to_array = { parliament_y_array = 116 }
+	add_to_array = { parliament_x_array = 164 }
+	add_to_array = { parliament_y_array = 171 }
+	add_to_array = { parliament_x_array = 87 }
+	add_to_array = { parliament_y_array = 95 }
+	add_to_array = { parliament_x_array = 77 }
+	add_to_array = { parliament_y_array = 75 }
+	add_to_array = { parliament_x_array = 123 }
+	add_to_array = { parliament_y_array = 121 }
+	add_to_array = { parliament_x_array = 159 }
+	add_to_array = { parliament_y_array = 146 }
+	add_to_array = { parliament_x_array = 119 }
+	add_to_array = { parliament_y_array = 96 }
+	add_to_array = { parliament_x_array = 108 }
+	add_to_array = { parliament_y_array = 76 }
+	add_to_array = { parliament_x_array = 149 }
+	add_to_array = { parliament_y_array = 127 }
+	add_to_array = { parliament_x_array = 98 }
+	add_to_array = { parliament_y_array = 57 }
+	add_to_array = { parliament_x_array = 145 }
+	add_to_array = { parliament_y_array = 103 }
+	add_to_array = { parliament_x_array = 185 }
+	add_to_array = { parliament_y_array = 153 }
+	add_to_array = { parliament_x_array = 142 }
+	add_to_array = { parliament_y_array = 79 }
+	add_to_array = { parliament_x_array = 131 }
+	add_to_array = { parliament_y_array = 60 }
+	add_to_array = { parliament_x_array = 121 }
+	add_to_array = { parliament_y_array = 41 }
+	add_to_array = { parliament_x_array = 172 }
+	add_to_array = { parliament_y_array = 111 }
+	add_to_array = { parliament_x_array = 183 }
+	add_to_array = { parliament_y_array = 130 }
+	add_to_array = { parliament_x_array = 169 }
+	add_to_array = { parliament_y_array = 88 }
+	add_to_array = { parliament_x_array = 145 }
+	add_to_array = { parliament_y_array = 28 }
+	add_to_array = { parliament_x_array = 156 }
+	add_to_array = { parliament_y_array = 47 }
+	add_to_array = { parliament_x_array = 168 }
+	add_to_array = { parliament_y_array = 65 }
+	add_to_array = { parliament_x_array = 211 }
+	add_to_array = { parliament_y_array = 141 }
+	add_to_array = { parliament_x_array = 197 }
+	add_to_array = { parliament_y_array = 100 }
+	add_to_array = { parliament_x_array = 171 }
+	add_to_array = { parliament_y_array = 18 }
+	add_to_array = { parliament_x_array = 183 }
+	add_to_array = { parliament_y_array = 37 }
+	add_to_array = { parliament_x_array = 196 }
+	add_to_array = { parliament_y_array = 78 }
+	add_to_array = { parliament_x_array = 209 }
+	add_to_array = { parliament_y_array = 119 }
+	add_to_array = { parliament_x_array = 195 }
+	add_to_array = { parliament_y_array = 56 }
+	add_to_array = { parliament_x_array = 197 }
+	add_to_array = { parliament_y_array = 11 }
+	add_to_array = { parliament_x_array = 210 }
+	add_to_array = { parliament_y_array = 30 }
+	add_to_array = { parliament_x_array = 224 }
+	add_to_array = { parliament_y_array = 93 }
+	add_to_array = { parliament_x_array = 224 }
+	add_to_array = { parliament_y_array = 71 }
+	add_to_array = { parliament_x_array = 223 }
+	add_to_array = { parliament_y_array = 50 }
+	add_to_array = { parliament_x_array = 238 }
+	add_to_array = { parliament_y_array = 135 }
+	add_to_array = { parliament_x_array = 224 }
+	add_to_array = { parliament_y_array = 6 }
+	add_to_array = { parliament_x_array = 237 }
+	add_to_array = { parliament_y_array = 113 }
+	add_to_array = { parliament_x_array = 238 }
+	add_to_array = { parliament_y_array = 27 }
+	add_to_array = { parliament_x_array = 252 }
+	add_to_array = { parliament_y_array = 91 }
+	add_to_array = { parliament_x_array = 252 }
+	add_to_array = { parliament_y_array = 69 }
+	add_to_array = { parliament_x_array = 252 }
+	add_to_array = { parliament_y_array = 48 }
+	add_to_array = { parliament_x_array = 252 }
+	add_to_array = { parliament_y_array = 5 }
+	add_to_array = { parliament_x_array = 266 }
+	add_to_array = { parliament_y_array = 27 }
+	add_to_array = { parliament_x_array = 266 }
+	add_to_array = { parliament_y_array = 113 }
+	add_to_array = { parliament_x_array = 279 }
+	add_to_array = { parliament_y_array = 6 }
+	add_to_array = { parliament_x_array = 266 }
+	add_to_array = { parliament_y_array = 135 }
+	add_to_array = { parliament_x_array = 281 }
+	add_to_array = { parliament_y_array = 50 }
+	add_to_array = { parliament_x_array = 280 }
+	add_to_array = { parliament_y_array = 71 }
+	add_to_array = { parliament_x_array = 280 }
+	add_to_array = { parliament_y_array = 93 }
+	add_to_array = { parliament_x_array = 294 }
+	add_to_array = { parliament_y_array = 30 }
+	add_to_array = { parliament_x_array = 307 }
+	add_to_array = { parliament_y_array = 11 }
+	add_to_array = { parliament_x_array = 309 }
+	add_to_array = { parliament_y_array = 56 }
+	add_to_array = { parliament_x_array = 295 }
+	add_to_array = { parliament_y_array = 119 }
+	add_to_array = { parliament_x_array = 308 }
+	add_to_array = { parliament_y_array = 78 }
+	add_to_array = { parliament_x_array = 321 }
+	add_to_array = { parliament_y_array = 37 }
+	add_to_array = { parliament_x_array = 333 }
+	add_to_array = { parliament_y_array = 18 }
+	add_to_array = { parliament_x_array = 306 }
+	add_to_array = { parliament_y_array = 100 }
+	add_to_array = { parliament_x_array = 293 }
+	add_to_array = { parliament_y_array = 141 }
+	add_to_array = { parliament_x_array = 336 }
+	add_to_array = { parliament_y_array = 65 }
+	add_to_array = { parliament_x_array = 347 }
+	add_to_array = { parliament_y_array = 47 }
+	add_to_array = { parliament_x_array = 359 }
+	add_to_array = { parliament_y_array = 28 }
+	add_to_array = { parliament_x_array = 334 }
+	add_to_array = { parliament_y_array = 88 }
+	add_to_array = { parliament_x_array = 321 }
+	add_to_array = { parliament_y_array = 130 }
+	add_to_array = { parliament_x_array = 332 }
+	add_to_array = { parliament_y_array = 111 }
+	add_to_array = { parliament_x_array = 383 }
+	add_to_array = { parliament_y_array = 41 }
+	add_to_array = { parliament_x_array = 372 }
+	add_to_array = { parliament_y_array = 60 }
+	add_to_array = { parliament_x_array = 362 }
+	add_to_array = { parliament_y_array = 79 }
+	add_to_array = { parliament_x_array = 318 }
+	add_to_array = { parliament_y_array = 153 }
+	add_to_array = { parliament_x_array = 359 }
+	add_to_array = { parliament_y_array = 103 }
+	add_to_array = { parliament_x_array = 406 }
+	add_to_array = { parliament_y_array = 57 }
+	add_to_array = { parliament_x_array = 355 }
+	add_to_array = { parliament_y_array = 127 }
+	add_to_array = { parliament_x_array = 395 }
+	add_to_array = { parliament_y_array = 76 }
+	add_to_array = { parliament_x_array = 385 }
+	add_to_array = { parliament_y_array = 96 }
+	add_to_array = { parliament_x_array = 345 }
+	add_to_array = { parliament_y_array = 146 }
+	add_to_array = { parliament_x_array = 381 }
+	add_to_array = { parliament_y_array = 121 }
+	add_to_array = { parliament_x_array = 427 }
+	add_to_array = { parliament_y_array = 75 }
+	add_to_array = { parliament_x_array = 416 }
+	add_to_array = { parliament_y_array = 95 }
+	add_to_array = { parliament_x_array = 340 }
+	add_to_array = { parliament_y_array = 171 }
+	add_to_array = { parliament_x_array = 406 }
+	add_to_array = { parliament_y_array = 116 }
+	add_to_array = { parliament_x_array = 375 }
+	add_to_array = { parliament_y_array = 146 }
+	add_to_array = { parliament_x_array = 445 }
+	add_to_array = { parliament_y_array = 95 }
+	add_to_array = { parliament_x_array = 365 }
+	add_to_array = { parliament_y_array = 167 }
+	add_to_array = { parliament_x_array = 400 }
+	add_to_array = { parliament_y_array = 142 }
+	add_to_array = { parliament_x_array = 435 }
+	add_to_array = { parliament_y_array = 116 }
+	add_to_array = { parliament_x_array = 424 }
+	add_to_array = { parliament_y_array = 138 }
+	add_to_array = { parliament_x_array = 462 }
+	add_to_array = { parliament_y_array = 117 }
+	add_to_array = { parliament_x_array = 392 }
+	add_to_array = { parliament_y_array = 168 }
+	add_to_array = { parliament_x_array = 357 }
+	add_to_array = { parliament_y_array = 194 }
+	add_to_array = { parliament_x_array = 450 }
+	add_to_array = { parliament_y_array = 140 }
+	add_to_array = { parliament_x_array = 416 }
+	add_to_array = { parliament_y_array = 165 }
+	add_to_array = { parliament_x_array = 476 }
+	add_to_array = { parliament_y_array = 141 }
+	add_to_array = { parliament_x_array = 380 }
+	add_to_array = { parliament_y_array = 191 }
+	add_to_array = { parliament_x_array = 439 }
+	add_to_array = { parliament_y_array = 163 }
+	add_to_array = { parliament_x_array = 463 }
+	add_to_array = { parliament_y_array = 165 }
+	add_to_array = { parliament_x_array = 405 }
+	add_to_array = { parliament_y_array = 193 }
+	add_to_array = { parliament_x_array = 487 }
+	add_to_array = { parliament_y_array = 166 }
+	add_to_array = { parliament_x_array = 427 }
+	add_to_array = { parliament_y_array = 191 }
+	add_to_array = { parliament_x_array = 450 }
+	add_to_array = { parliament_y_array = 190 }
+	add_to_array = { parliament_x_array = 369 }
+	add_to_array = { parliament_y_array = 219 }
+	add_to_array = { parliament_x_array = 473 }
+	add_to_array = { parliament_y_array = 191 }
+	add_to_array = { parliament_x_array = 391 }
+	add_to_array = { parliament_y_array = 218 }
+	add_to_array = { parliament_x_array = 496 }
+	add_to_array = { parliament_y_array = 192 }
+	add_to_array = { parliament_x_array = 413 }
+	add_to_array = { parliament_y_array = 219 }
+	add_to_array = { parliament_x_array = 435 }
+	add_to_array = { parliament_y_array = 218 }
+	add_to_array = { parliament_x_array = 457 }
+	add_to_array = { parliament_y_array = 218 }
+	add_to_array = { parliament_x_array = 479 }
+	add_to_array = { parliament_y_array = 219 }
+	add_to_array = { parliament_x_array = 501 }
+	add_to_array = { parliament_y_array = 219 }
+	add_to_array = { parliament_x_array = 374 }
+	add_to_array = { parliament_y_array = 247 }
+	add_to_array = { parliament_x_array = 396 }
+	add_to_array = { parliament_y_array = 247 }
+	add_to_array = { parliament_x_array = 417 }
+	add_to_array = { parliament_y_array = 247 }
+	add_to_array = { parliament_x_array = 439 }
+	add_to_array = { parliament_y_array = 247 }
+	add_to_array = { parliament_x_array = 461 }
+	add_to_array = { parliament_y_array = 247 }
+	add_to_array = { parliament_x_array = 482 }
+	add_to_array = { parliament_y_array = 247 }
+	add_to_array = { parliament_x_array = 504 }
+	add_to_array = { parliament_y_array = 247 }
+}
+
+POR_clear_all_alliance = {
+	clr_country_flag = regenerator_party_allied
+	clr_country_flag = progressive_party_allied 
+	clr_country_flag = progressive_dissidents_allied 
+	clr_country_flag = portuguese_republican_party_allied 
+	clr_country_flag = liberal_regenerator_party_allied
+	clr_country_flag = nationalist_party_allied
+	clr_country_flag = independents_allied
+	XNM_recalculate_parliament_alliance = yes
+}
+
+XNM_recalculate_parliament_alliance = {
+    set_variable = { var = udm_alliance value = 0 } 
+	if = {
+        limit = {
+            has_country_flag = progressive_party_allied
+        }
+        add_to_variable = { var = progressive_alliance value = progressive_party }
+    }
+    if = {
+        limit = {
+            has_country_flag = progressive_dissidents_allied
+        }
+        add_to_variable = { var = progressive_alliance value = progressive_dissidents }
+    }
+    if = {
+        limit = {
+            has_country_flag = portuguese_republican_party_allied
+        }
+        add_to_variable = { var = progressive_alliance value = portuguese_republican_party }
+    }
+    if = {
+        limit = {
+            has_country_flag = independents_allied
+        }
+        add_to_variable = { var = progressive_alliance value = independents }
+    }	
+	set_variable = {
+		var = udm_alliance_percent
+		value = progressive_alliance
+	}
+	multiply_variable = {
+		progressive_alliance_percent = 100
+	}
+	divide_variable = {
+		progressive_alliance_percent = seatNumbers
+	}
+    reload_parliament_gui = yes
+}
