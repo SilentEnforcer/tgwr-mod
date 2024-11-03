@@ -1246,16 +1246,33 @@ country_event = {
 		ai_chance = {
 			base = 100
 			modifier = {
-				add = 100
-				has_autonomy_state = autonomy_dominion
-			}
-			modifier = {
 				add = -200
 				has_opinion = {
 					target = FROM
 					value < 0
 				}
 			}
+			modifier = {
+				factor = 0
+				OR = {
+					original_tag = SAF
+					has_completed_focus = CAN_seperation
+				}	
+			}
+		}
+		every_unit_leader = {
+			limit = {
+				OR = {
+					ROOT = {
+						NOT = {
+							original_tag = SAF
+						}
+					}
+					has_trait = trait_royalist
+				}				
+			}	
+			set_nationality = FROM	
+			add_unit_leader_trait = trait_royalist
 		}
 		FROM = {
 			annex_country = {
@@ -1290,7 +1307,7 @@ country_event = {
 				}
 			}
 			modifier = {
-				add = -150
+				add = 150
 				NOT = { has_government = FROM }
 			}
 		}
@@ -1355,6 +1372,9 @@ country_event = {
 	desc = ww1_england.33.d
 	picture = GFX_report_event_royal_parade
 	is_triggered_only = yes
+	trigger = {
+		is_subject_of = FROM
+	}	
 	option = {
 		name = ww1_england.33.a
 		FROM = {
@@ -5333,12 +5353,21 @@ country_event = {
 		days = 49
 	}
 	trigger = {
-		has_global_flag = great_war
 		original_tag = ENG
+		has_global_flag = great_war		
 		has_war = yes
 		OR = {
-			has_completed_focus = ENG_Imperial_Federation
-			controls_state = 466
+			AND = {
+				has_completed_focus = ENG_Imperial_Federation
+				466 = {
+					is_owned_or_subject_trigger = yes
+					is_controlled_by_ROOT_or_subject = yes
+				}
+			}	
+			AND = {
+				owns_state = 466
+				controls_state = 466
+			}	
 		}
 	}
 	immediate = {
@@ -5346,15 +5375,36 @@ country_event = {
 			news_event = {
 				id = eng_news.8
 			}
-			QBC = {
-				remove_state_core = 468
+			every_state = {
+				limit = {
+					OR = {
+						is_core_of = QBC
+						state = 1053
+						is_owned_or_subject_trigger = yes
+						OWNER = {
+							NOT = {
+								original_tag = NFL
+							}
+						}
+					}
+					NOT = {
+						state = 468
+					}	
+				}
+				ROOT = {
+					if = {
+						limit = {
+							owns_state = PREV
+						}
+						add_state_claim = PREV
+					}
+				}
+				transfer_state_to = QBC		
 			}
-			release = QBC
 			declare_war_on = {
 				target = QBC
 				type = annex_everything
 			}
-			add_state_claim = 466
 			QBC = {
 				set_politics = {
 					ruling_party = fascism
@@ -5368,11 +5418,6 @@ country_event = {
 					democratic = 46
 					neutrality = 16
 				}
-				add_state_claim = 332
-				add_state_claim = 465
-				add_state_claim = 464
-				add_state_core = 730
-				add_state_core = 468
 				division_template = {
 					name = "Légion de Québec Gratuite"
 					regiments = {
@@ -5406,7 +5451,7 @@ country_event = {
 						}
 					}
 				}
-				466 = {
+				capital_scope = {
 					create_unit = {
 						division = "name = \"1e Légion de Québec Gratuite\" division_template = \"Légion de Québec Gratuite\" start_experience_factor = 0.4"
 						owner = QBC
@@ -5442,16 +5487,13 @@ country_event = {
 	option = {
 		name = ww1_england.109.a
 		add_political_power = -40
-		ai_chance = {
-			factor = 100
-		}
 	}
 	#play as Quebec
 	option = {
 		name = ww1_england.109.b
-		ai_chance = {
-			factor = 0
-		}
+		trigger = {
+			is_ai = no
+		}	
 		ENG = {
 			add_political_power = -40
 		}
@@ -7842,6 +7884,8 @@ country_event = {
 		add_state_claim = 756
 		add_state_claim = 856
 		add_state_claim = 858
+		add_state_claim = 1060
+		add_state_claim = 1061
 		hidden_effect = {
 			news_event = { id = wtt_news.64 hours = 2 }
 		}
@@ -12986,5 +13030,60 @@ news_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_england.266.a
+	}
+}
+
+#Dominions decide how to do with the fallen empire
+country_event = {
+	id = ww1_england.268
+	title = ww1_england.268.t
+	desc = ww1_england.268.d
+	picture = GFX_report_event_generic_peaceful_annexation
+	is_triggered_only = yes
+	trigger = {
+		NOT = {
+			has_country_flag = has_british_monarchy
+		}
+	}
+	option = {
+		name = ww1_england.268.a
+		random_other_country = {
+			limit = {
+				has_country_flag = has_british_monarchy
+			}
+			ROOT = { get_current_government_type = yes }
+			set_autonomy = {
+				target = ROOT
+				autonomy_state = autonomy_dominion
+				freedom_level = 0.8
+			}
+			ROOT = { restore_previous_government_type = yes }
+		}
+		ai_chance = {
+			base = 1000
+			modifier = {
+				factor = 0
+				has_government = communism
+			}
+		}
+	}
+	option = {
+		name = ww1_england.268.b
+		random_other_country = {
+			limit = {
+				has_country_flag = has_british_monarchy
+			}
+			add_opinion_modifier = {
+				target = ROOT
+				modifier = faction_traitor
+			}
+		}
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 1000
+				has_government = communism
+			}
+		}
 	}
 }

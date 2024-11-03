@@ -342,6 +342,7 @@ country_event = {
 			add_country_leader_role = {
 				country_leader = {
 					ideology = social_liberalism
+					traits = { zemstvo_influencer }
 				}
 				promote_leader = yes
 			}
@@ -875,10 +876,11 @@ country_event = {
 				# 	days = 49
 				# }
 				#Provisional Siberian Government + czech uprising
-				country_event = {
-					id = ww1_rcw.1
-					days = 186
-				}		
+				activate_mission = SOV_czechs_leave_via_siberia
+				# country_event = {
+				# 	id = ww1_rcw.1
+				# 	days = 186
+				# }		
 				country_event = ww1_political.4
 			}
 		}
@@ -1972,21 +1974,28 @@ country_event = {
 	}
 	immediate = {
 		hidden_effect = {
+			SOV = {    
+				every_owned_state = {
+					limit = {
+						region = 150
+					}
+					set_state_owner_to = RSO
+				}
+				every_controlled_state = {
+					limit = {    
+						region = 150
+					}
+					set_state_controller_to = RSO
+				}
+			}
 			RSO = {
 				transfer_state = 214
 				every_state = {
 					limit = {
-						is_owned_by = SOV		
-						is_controlled_by = SOV
-						OR = {
-							state = 213
-							state = 214
-							state = 215
-							state = 722
-							state = 262
-						}
+						region = 150
+						is_core_of = SOV
 					}
-					transfer_state_to = PREV
+					add_core_of = PREV
 				}
 				inherit_technology = RUS
 				delete_obsolete_russian_templates = yes
@@ -2013,8 +2022,9 @@ country_event = {
 						}
 					}
 				}
-				add_ideas = RUS_idea_allied_intervention
-				add_ideas = RUS_russian_civil_war
+				add_ideas = {
+					RUS_russian_civil_war
+				}
 				declare_war_on = {
 					target = SOV
 					type = civil_war
@@ -2122,13 +2132,27 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		tag = RSO
-		NOT = { FRA = { has_country_flag = great_war_loser } }
+		has_capitulated = no
+		has_war_with = SOV
+		FRA = {
+			is_subject = no
+			has_capitulated = no
+			NOT = {
+				has_country_flag = great_war_loser
+				has_war_with = ROOT
+			}
+		}
+		is_subject = no
+		NOT = { has_government = communism }
 	}
 	mean_time_to_happen = { days = 20 }
 	option = {
 		name = rusrevolt.22.a
 		RSO = {
 			hidden_effect = {
+				add_ideas = {
+					RCW_northern_russian_expedition_idea
+				}
 				division_template = {
 					name = "Allied Expeditionary Force"
 					division_names_group = ENG_INF_01
@@ -2281,8 +2305,7 @@ country_event = {
 	}
 	fire_only_once = yes
 	immediate = {
-		RSO = {
-			remove_ideas = RUS_idea_allied_intervention
+		RSO = {			
 			add_war_support = -0.30
 			add_stability = -0.20
 			add_political_power = -200
@@ -2296,6 +2319,7 @@ country_event = {
 				division_template = "Allied Expeditionary Force"
 				disband = no
 			}
+			remove_ideas = RCW_northern_russian_expedition_idea 
 			every_other_country = {
 				limit = {
 					OR = {

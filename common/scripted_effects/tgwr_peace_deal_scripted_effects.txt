@@ -925,6 +925,8 @@ armistice_effect = {
 								state = 661
 								state = 164
 								state = 899
+								state = 1060
+								state = 1061
 							}
 						}
 						remove_claim_by = TUR
@@ -975,7 +977,7 @@ armistice_effect = {
 				ITA = { set_country_flag = italo_turkish_war_winner }
 				set_global_flag = italo_turkish_war_ends
 				448 = { set_state_name = TRIPOLI_STATE }
-				661 = { set_state_name = TRIPOLITANIA_STATE }
+				1060 = { set_state_name = TRIPOLITANIA_STATE }
 				450 = { set_state_name = BENGHAZI_STATE }
 				set_province_name = { id = 1149 name = TRIPOLI_PROV }
 				set_province_name = { id = 11954 name = BENGHAZI_PROV }
@@ -1512,7 +1514,7 @@ armistice_effect = {
 				NOT = {
 					has_government = communism
 				}
-			}			
+			}
 			if = {
 				limit = {
 					BEL = {
@@ -1522,7 +1524,7 @@ armistice_effect = {
 						}
 						exists = yes
 						NOT = { has_cosmetic_tag = BEL_GER }
-					}					
+					}
 				}
 				GER = {
 					set_autonomy = {
@@ -1807,14 +1809,10 @@ armistice_effect = {
 			}
 		}
 		# Release Albania
-		every_owned_state = {
+		every_state = {
 			limit = {
+				is_owned_by = ITA
 				is_core_of = ALB
-				NOT = {
-					ALB = {
-						has_country_flag = great_war_loser
-					}
-				}
 				NOT = {
 					is_core_of = ROOT
 				}
@@ -2477,6 +2475,38 @@ armistice_effect = {
 			}
 		}
 	}
+	if = {
+		limit = {
+			has_global_flag = irish_civil_war
+		}
+		ENG = {
+			if = {
+				limit = {
+					is_in_faction = yes
+					any_subject_country = {
+						original_tag = IRE
+						has_civil_war = yes
+					}
+				}
+				leave_faction = yes
+				random_enemy_country = {
+					limit = {
+						original_tag = IRE
+					}
+					every_enemy_country = {
+						limit = {
+							NOT = {
+								original_tag = IRE
+								original_tag = ENG
+								is_subject_of = ENG
+							}
+						}
+						white_peace = PREV
+					}
+				}
+			}
+		}
+	}
 	# Third: South Africa
 	if = {
 		limit = {
@@ -2587,6 +2617,20 @@ armistice_effect = {
 					is_in_faction = yes
 					has_country_flag = great_war_winner
 				}
+				white_peace = PREV
+			}
+		}
+	}
+	# Sixth: Assyria
+	if = {
+		limit = {
+			TUR = {
+				has_country_flag = great_war_loser
+				has_war_with = ASY
+			}
+		}
+		ASY = {
+			every_enemy_country = {
 				white_peace = PREV
 			}
 		}
@@ -2975,49 +3019,17 @@ conference_effect = {
 				}
 			}
 		}
-		BEL = {
+		every_state = {
+			limit = {
+				OR = {
+					state = 17
+					state = 863
+					state = 864
+				}
+			}
 			if = {
-				limit = {
-					is_subject_of = GER
-				}
-				if = {
-					limit = {
-						has_global_flag = german_moselland
-					}
-					every_state = {
-						limit = {
-							OR = {
-								state = 29
-								state = 865
-							}
-							OWNER = {
-								OR = {
-									tag = GER
-									has_country_flag = great_war_loser
-								}
-							}
-						}
-						transfer_state_to = PREV
-					}
-				}
-				else = {
-					every_state = {
-						limit = {
-							OR = {
-								state = 34
-								state = 865
-							}
-							OWNER = {
-								OR = {
-									tag = GER
-									has_country_flag = great_war_loser
-								}
-							}
-						}
-						transfer_state_to = PREV
-					}
-					17 = { set_demilitarized_zone = yes }
-				}
+				limit = { owner = { has_country_flag = great_war_loser } }
+				set_demilitarized_zone = yes
 			}
 		}
 		random_country = {
@@ -3153,6 +3165,7 @@ conference_effect = {
 					limit = {
 						SWE = {
 							has_country_flag = great_war_loser
+							is_subject = no
 						}				
 					}
 					GER = {
@@ -3401,11 +3414,6 @@ conference_effect = {
 								has_subject = FIN
 							}
 						}
-						SWE = {
-							NOT = {
-								has_country_flag = great_war_winner
-							}
-						}
 					}
 					every_state = {
 						limit = {
@@ -3433,6 +3441,12 @@ conference_effect = {
 							}
 						}
 						set_cosmetic_tag = FIN_kingdom
+						set_party_name = {
+							ideology = neutrality
+							long_name = FIN_regency
+							name = FIN_regency
+						}
+						FIN_set_finnish_state_names = yes
 					}
 				}
 			}
@@ -3588,6 +3602,7 @@ conference_effect = {
 							state = 273
 							state = 812
 							state = 567
+							state = 1060
 						}
 					}
 					remove_claim_by = TUR
@@ -3606,6 +3621,7 @@ conference_effect = {
 							state = 448
 							state = 661
 							state = 812
+							state = 1060
 						}
 					}
 					TUR = {
@@ -4950,20 +4966,6 @@ conference_effect = {
 				target = QBC
 			}
 		}
-		if = {
-			limit = {
-				country_exists = QBC
-			}
-			every_other_country = {
-				limit = {
-					owns_state = 331
-					NOT = { has_country_flag = great_war_loser }
-				}
-				annex_country = {
-					target = QBC
-				}
-			}
-		}
 	}
 	### JAPAN ###
 	if = {
@@ -5043,11 +5045,13 @@ conference_effect = {
 		limit = {
 			SWE = {
 				has_country_flag = great_war_winner
+				is_subject = no
 			}
 		}
 		if = {
 			limit = {
 				NOR = { has_country_flag = great_war_loser }
+				is_subject = no
 			}
 			SWE = {
 				NOR = {
@@ -5072,12 +5076,16 @@ conference_effect = {
 	}
 	if = {
 		limit = {
-			SWE = { has_country_flag = great_war_loser }
+			SWE = { 
+				has_country_flag = great_war_loser 
+				is_subject = no
+			}
 		}
 		if = {
 			limit = {
 				NOR = {
 					has_country_flag = great_war_winner
+					is_subject = no
 				}
 			}
 			NOR = {
@@ -5096,36 +5104,6 @@ conference_effect = {
 							target = PREV
 							autonomous_state = autonomy_dominion
 						}
-					}
-				}
-			}
-		}
-		else_if = {
-			limit = {
-				RUS = {
-					has_country_flag = great_war_winner
-				}
-			}
-			if = {
-				limit = {
-					RUS = {
-						owns_state = 111
-					}
-					FIN = {
-						exists = no
-					}
-				}
-				SWE = {
-					every_owned_state = {
-						limit = {
-							OR = {
-								is_core_of = RUS
-								is_claimed_by = RUS
-								is_core_of = FIN
-								is_claimed_by = FIN
-							}
-						}
-						transfer_state_to = RUS
 					}
 				}
 			}
@@ -5266,9 +5244,11 @@ conference_effect = {
 				transfer_state = 661
 				transfer_state = 812
 				transfer_state = 273
+				transfer_state = 1060
 			}
 			ENG = {
 				transfer_state = 450
+				transfer_state = 1061
 			}
 		}
 		##scenario 2 : France won alone
@@ -5291,9 +5271,11 @@ conference_effect = {
 				transfer_state = 661
 				transfer_state = 812
 				transfer_state = 273
+				transfer_state = 1060
 			}
 			LBA = {
 				transfer_state = 450
+				transfer_state = 1061
 			}
 		}
 		##scenario 2 : Great Britain won alone
@@ -5316,9 +5298,11 @@ conference_effect = {
 				transfer_state = 661
 				transfer_state = 812
 				transfer_state = 273
+				transfer_state = 1060
 			}
 			ENG = {
 				transfer_state = 450
+				transfer_state = 1061
 			}
 		}
 	}
