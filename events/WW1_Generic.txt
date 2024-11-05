@@ -312,64 +312,19 @@ country_event = {
 	}
 }
 
-# Notification event that leader has been killed in action
-unit_leader_event = {
-	id = ww1_generic.6
-	title = ww1_generic.6.t
-	desc = ww1_generic.6.d
-	
-	picture = GFX_report_event_military_planning
-
-	is_triggered_only = yes
-
-	option = {
-		name = ww1_generic.6.a
-		retire_character = FROM	
-	}	
-}
-
-# Notification event that leader has died from sickness
-unit_leader_event = {
-	id = ww1_generic.7
-	title = ww1_generic.7.t
-	desc = ww1_generic.7.d
-	
-	picture = GFX_report_event_military_planning
-
-	is_triggered_only = yes
-
-	immediate = {
-		FROM = {
-			set_character_flag = character_died
-		}	
-	}
-
-	option = {
-		name = ww1_generic.6.a
-		retire_character = FROM	
-	}	
-}
-
 #Golira Rise
 country_event = {
-	id = ww1_generic.8
+	id = ww1_generic.7
 	hidden = yes
 	fire_only_once = yes
 	trigger = {
 		tag = COG
 		is_subject = no
-		has_government = neutrality
+		has_country_leader = { name = "Spinning Gorilla" }
 		is_historical_focus_on = no
 	}
 	immediate = {
 		set_cosmetic_tag = COG_Gorilla
-		create_country_leader = {
-			name = "Spinning Gorilla"
-			picture= "GFX_golira"
-			expire="1935.1.1" 
-			ideology=anarcho_primitivism  
-			traits={ german_agent } 
-		}
 		add_manpower = 100000000
 		add_offsite_building = { type = arms_factory level = 25 }
 		295 = {
@@ -475,6 +430,12 @@ news_event = {
 			NOT = {
 				tag = RUS
 			}
+		}
+	}
+	option = {
+		name = ww1_generic.10.b
+		trigger = {
+			tag = RUS
 		}
 	}
 }
@@ -712,29 +673,37 @@ country_event = {
 	trigger = {
 		NOT = {
 			has_country_flag = farm_crisis_after_war
-			has_idea = idea_farm_crisis
-			has_idea = idea_farm_crisis_2
-			has_government = communism
-			has_idea = closed_economy
 		}
-		date > 1917.3.1
-		has_global_flag = great_war_ends
-		num_of_civilian_factories > 30
+		NOT = {
+			has_idea = idea_farm_crisis
+		}
 		OR = {
-			has_country_flag = great_war_loser
-			has_country_flag = great_war_winner
 			AND = {
-				capital_scope = {
-					is_on_continent = europe
+				date > 1920.3.1
+				GER = {
+					has_war = no
 				}
-				any_neighbor_country = {
-					OR = {
+				has_global_flag = great_war
+				NOT = {
+					any_country = {
 						has_country_flag = great_war_loser
-						has_country_flag = great_war_winner
-						has_idea = idea_farm_crisis
 					}
 				}
 			}
+			AND = {
+				date > 1917.3.1
+				has_global_flag = great_war_ends
+				any_country = {
+					has_country_flag = great_war_loser
+				}
+			}
+		}
+		num_of_civilian_factories > 30
+		NOT = {
+			has_government = communism
+		}
+		NOT = {
+			has_idea = closed_economy
 		}
 	}
 	mean_time_to_happen = {
@@ -751,9 +720,6 @@ country_event = {
 	}
 	option = {
 		name = ww1_generic.16.a
-		effect_tooltip = {
-			add_ideas = idea_farm_crisis
-		}
 	}
 }
 
@@ -945,6 +911,102 @@ country_event = {
 			modifier = {
 				factor = 0
 				has_political_power < 50
+			}
+		}
+	}
+}
+
+# Random factory events
+country_event = {
+	id = ww1_generic.20
+	hidden = yes
+	trigger = {
+		num_of_factories > 15
+		NOT = {
+			has_country_flag = random_factory_event
+		}
+		NOT = {
+			has_country_flag = fire_protection
+		}
+	}
+	mean_time_to_happen = {
+		days = 210
+	}
+	immediate = {
+		set_country_flag = {
+			flag = random_factory_event
+			days = 400
+			value = 1
+		}
+		random_list = {
+			90 = {
+				modifier = {
+					factor = 1.5
+					has_stability > 0.75
+				}
+				clr_country_flag = random_factory_event
+			}
+			5 = {
+				modifier = {
+					factor = 0.75
+					has_war_support < 0.5
+				}
+				country_event = {
+					id = ww1_generic.21
+					days = 60
+					random = 60
+				}
+			}
+			5 = {
+				country_event = {
+					id = ww1_generic.22
+					days = 60
+					random = 60
+				}
+			}
+		}
+	}
+}
+
+# FIRE ON MILITARY FACTORY
+#################
+country_event = {
+	id = ww1_generic.21
+	title = ww1_generic.21.t
+	desc = ww1_generic.21.d
+	picture = GFX_report_event_generic_ruins
+	is_triggered_only = yes
+	option = {
+		name = ww1_generic.21.a
+		random_owned_state = {
+			limit = {
+				arms_factory > 0
+			}
+			damage_building = {
+				type = arms_factory
+				damage = 1
+			}
+		}
+	}
+}
+
+# FIRE ON CIVILIAN FACTORY
+#################
+country_event = {
+	id = ww1_generic.22
+	title = ww1_generic.22.t
+	desc = ww1_generic.22.d
+	picture = GFX_report_event_generic_ruins
+	is_triggered_only = yes
+	option = {
+		name = ww1_generic.22.a
+		random_owned_state = {
+			limit = {
+				industrial_complex > 0
+			}
+			damage_building = {
+				type = industrial_complex
+				damage = 1
 			}
 		}
 	}
@@ -1449,7 +1511,7 @@ country_event = {
 				factor = 2
 			}
 			modifier = {
-				threat < 0.2
+				threat < 20
 				factor = 2
 			}
 		}
@@ -1789,7 +1851,6 @@ country_event = {
 	id = ww1_generic.113
 	picture = GFX_report_event_generic_sign_treaty1
 	trigger = {
-		has_country_flag = interbellum
 		NOT = {
 			AND = {
 				tag = AUH # Austria-hungary will be dismantled and puppies will have the event

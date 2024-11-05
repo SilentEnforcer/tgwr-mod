@@ -281,56 +281,107 @@ operations = {
 }
 foreign_politics = {
 	RUS_help_SER = {
-		icon = GFX_decision_generic_prepare_civil_war
+		icon = GFX_decision_generic_intelligence_operation
 		allowed = {
 			tag = RUS
 		}
 		target_trigger = {
 			FROM = {
-				is_major = yes
-				has_offensive_war_with = SER
-				NOT = {
-					has_war_with = ROOT
-					original_tag = TUR
-					is_in_faction_with = ROOT
-				}
-				is_balkan_nation = no
+				tag = AUH
 			}
 		}
 		visible = {
-			is_subject = no
 			NOT = {
-				has_global_flag = great_war_ends
-				has_global_flag = russian_revolution
-				has_war_with = SER
-				has_government = communism
-				SER = {
-					has_government = communism
-					is_subject = no
-				}
-				has_guaranteed = SER
+				tag = SOV
 			}
-			SER = { has_idea = SER_russian_protection }
-		}
-		available = {
-			has_capitulated = no
-			has_civil_war = no
-			OR = {
-				has_idea = idea_armistice
-				has_idea = idea_army_restrictions
-			}
-		}
-		fire_only_once = yes
-		cost = 0
-		cancel_if_not_visible = yes
-		days_remove = 45
-		war_with_target_on_remove = yes
-		remove_effect = {
+			is_subject = no
 			SER = {
-				add_to_war = {
-					targeted_alliance = ROOT
-					enemy = FROM
+				is_subject = no
+				is_faction_leader = yes
+				is_in_faction_with = BUL
+				has_war_with = AUH
+			}	
+			NOT = {
+				has_war_with = AUH 
+				is_in_faction_with = SER
+				is_in_faction_with = AUH
+			}
+		}	
+		available = {
+			SER = {
+				is_in_faction_with = BUL
+				has_war_with = AUH
+				surrender_progress > 0.1
+			}
+		}
+		ai_will_do = {
+			factor = 0
+			modifier = {
+				add = 1000
+				SER = {
+					surrender_progress > 0.5
 				}
+			}
+			modifier = {
+				add = 1000
+				GER = {
+					has_war_with = SER 
+					NOT = { is_in_faction_with = ROOT }
+				}
+			}
+			modifier = {
+				factor = 0
+				has_war = yes
+			}
+		}
+		days_remove = 10
+		war_with_target_on_timeout = yes
+		remove_effect = {
+			if = {
+				limit = {
+					is_faction_leader = yes
+				}
+				every_country = {
+					limit = {
+						OR = {
+							is_in_faction_with = SER
+							tag = SER				
+						}
+						
+					}
+					leave_faction = yes
+					ROOT = { add_to_faction = PREV }
+				}
+			}	
+			if = {
+				limit = {
+					is_faction_leader = no
+					is_in_faction = yes
+				}
+				every_country = {
+					limit = {
+						is_in_faction_with = ROOT
+						is_faction_leader = yes
+					}
+					every_country = {
+						limit = {
+							OR = {
+								is_in_faction_with = SER
+								tag = SER
+							}
+							
+						}
+						leave_faction = yes
+						PREV.PREV.PREV = { add_to_faction = PREV }
+					}
+				}
+			}
+			if = {
+				limit = {
+					is_faction_leader = no
+					is_in_faction = no
+				}
+				SER = { add_to_faction = ROOT }
 			}
 		}
 	}
@@ -1622,6 +1673,11 @@ RUS_civil_war = {
 	RUS_reunite_russia = {
 		icon = GFX_decision_SOV_place_hq
 
+		allowed = {
+			is_russian_tag = yes
+			is_cossack_tag = no
+		}
+
 		available = {
 			has_war = no
 			219 = {
@@ -1674,7 +1730,6 @@ RUS_civil_war = {
 			if = {
 				limit = {
 					tag = SIB
-					has_idea = SIB_red_partisans
 				}
 				remove_ideas = SIB_red_partisans
 			}
@@ -1693,7 +1748,7 @@ RUS_civil_war = {
 				}
 				if = {
 					limit = {
-						has_idea = SIB_red_partisans
+						tag = SIB
 					}
 					remove_ideas = SIB_red_partisans
 				}
@@ -1721,9 +1776,21 @@ RUS_civil_war = {
 			}
 		}
 	}
+	constituent_assembly_effect = {
+		visible = {
+			is_debug = yes
+		}
+		ai_will_do = {
+			factor = 0
+		}
+		complete_effect = {
+			constituent_assembly_effect = yes
+		}
+	}
 	RUS_white_terror = {	
 		icon = GFX_decision_oppression	
 		allowed = {
+			is_russian_tag = yes
 			NOT = {
 				tag = SRA
 			}
@@ -1802,9 +1869,87 @@ RUS_civil_war = {
 	# 	}
 	# }
 }
+RUS_reunite_white_generals = {
+	RUS_annex_FROM = {
+		icon = generic_ignite_civil_war	
+		allowed = {
+			is_russian_tag = yes
+		}
+		target_trigger ={
+			FROM = {
+				OR = {
+					is_russian_tag = yes
+					original_tag = CRI
+					original_tag = MOU
+					original_tag = KAZ
+					original_tag = TRK
+					NOT = {
+						tag = ROOT
+						original_tag = CER
+					}
+				}	
+			}
+		}
+		visible = {
+			always = no
+		}
+		available = {		
+			FROM = { exists = yes is_subject_of = ROOT }
+		}
+		
+		cost = 50
+		
+		days_remove = 20
+		remove_effect = {
+			ROOT = {
+				annex_country = {
+					target = FROM
+					transfer_troops = yes
+				}
+			}
+			if = {
+				limit = {
+					FROM = {
+						is_russian_tag = yes
+					}
+				}	
+				if = {
+					limit = {
+						has_character = ENG_edmund_ironside
+					}
+					ENG_edmund_ironside = { set_nationality = ENG }
+				}
+				every_character = {
+					set_nationality = ROOT
+				}
+				every_state = {
+					limit = { is_core_of = FROM }
+					remove_core_of = FROM
+					add_core_of = ROOT
+				}
+				every_state = {
+					limit = { is_claimed_by = FROM }
+					remove_claim_by = FROM
+					add_claim_by = ROOT
+				}
+			}
+		}
+		fire_only_once = yes
+		ai_will_do = {
+			factor = 10
+			modifier = {
+				factor = 100
+				ROOT = { surrender_progress > 0.4 }
+			}
+			modifier = {
+				factor = 100
+				SOV = { surrender_progress > 0.4 }
+			}
+		}
+	}
+}
 RUS_release_country = {
 	# RUS_release_FIN = {
-	# 	icon = generic_nationalism
 	# 	allowed = {
 	# 		original_tag = RUS
 	# 	}
@@ -1858,7 +2003,6 @@ RUS_release_country = {
 	# 	}
 	#}
 	RUS_release_EST = {
-		icon = generic_nationalism
 		allowed = {
 			original_tag = RUS
 		}
@@ -1875,7 +2019,6 @@ RUS_release_country = {
 				NOT = {
 					state = 191
 					state = 944
-					state = 945
 					state = 952
 				}
 			}
@@ -1895,7 +2038,6 @@ RUS_release_country = {
 					NOT = {
 						state = 191
 						state = 944
-						state = 945
 						state = 952
 					}
 				}
@@ -1917,7 +2059,6 @@ RUS_release_country = {
 		}
 	}
 	RUS_release_LAT = {
-		icon = generic_nationalism
 		allowed = {
 			original_tag = RUS
 		}
@@ -1980,7 +2121,6 @@ RUS_release_country = {
 		}
 	}
 	RUS_release_LIT = {
-		icon = generic_nationalism
 		allowed = {
 			original_tag = RUS
 		}
@@ -2032,7 +2172,6 @@ RUS_release_country = {
 		}
 	}
 	RUS_release_POL = {
-		icon = generic_nationalism
 		allowed = {
 			original_tag = RUS
 		}
@@ -2158,7 +2297,6 @@ RUS_release_country = {
 		}
 	}
 	RUS_release_UKR = {
-		icon = generic_nationalism
 		allowed = {
 			original_tag = RUS
 		}
@@ -2195,7 +2333,6 @@ RUS_release_country = {
 					state = 73
 					state = 562
 					state = 237
-					state = 1043
 				}
 				is_owned_by = ROOT
 			}
@@ -2228,7 +2365,6 @@ RUS_release_country = {
 						state = 73
 						state = 562
 						state = 237
-						state = 1043
 					} 
 				}
 				transfer_state_to = UKR
@@ -2265,7 +2401,6 @@ RUS_release_country = {
 		}
 	}
 	RUS_release_GEO = {
-		icon = generic_nationalism
 		allowed = {
 			original_tag = RUS
 		}
@@ -2306,7 +2441,6 @@ RUS_release_country = {
 		}
 	}
 	RUS_release_ARM = {
-		icon = generic_nationalism
 		allowed = {
 			original_tag = RUS
 		}
@@ -2328,7 +2462,6 @@ RUS_release_country = {
 				OR = {
 					is_core_of = ARM
 					state = 354
-					state = 1034
 				}					
 				NOT = {
 					state = 816
@@ -2344,7 +2477,6 @@ RUS_release_country = {
 					OR = {
 						is_core_of = ARM
 						state = 354
-						state = 1034
 					}					
 					NOT = {
 						state = 816
@@ -2364,7 +2496,6 @@ RUS_release_country = {
 		}
 	}
 	RUS_release_AZR = {
-		icon = generic_nationalism
 		allowed = {
 			original_tag = RUS
 		}
@@ -2384,10 +2515,7 @@ RUS_release_country = {
 			highlight_states_trigger = {
 				is_owned_by = ROOT
 				is_core_of = AZR
-				NOT = {
-					is_core_of = ARM
-					region = 116
-				}
+				NOT = { is_core_of = ARM }
 			}
 		}
 		cost = 10
@@ -2399,7 +2527,6 @@ RUS_release_country = {
 					is_core_of = AZR					
 					NOT = {
 						is_core_of = ARM
-						region = 116
 					}
 				}
 				transfer_state_to = AZR
@@ -2409,7 +2536,7 @@ RUS_release_country = {
 				set_country_flag = released_by_russia
 				hidden_effect = {
 					load_oob = "AZR_1918"
-				}
+				}			
 			}
 			add_stability = 0.03
 			puppet = AZR
@@ -2499,9 +2626,6 @@ GER_great_war = {
 					has_war_with = GER
 				}
 				original_tag = USA
-			}
-			NOT = {
-				has_war_with = RUS
 			}
 			RUS = {
 				NOT = {
@@ -2640,6 +2764,62 @@ GER_great_war = {
 			custom_effect_tooltip = rus_demobilize_army_tt
 		}
 	}
+
+	RUS_remove_aland_dmz = {
+		icon = GFX_decision_generic_operation
+		fire_only_once = yes
+		allowed = {
+			OR = {
+				tag = RUS
+				tag = SWE
+				tag = FIN
+			}
+		}
+		available = {
+			145 = {
+				is_controlled_by_ROOT_or_subject = yes
+			}	
+			OR = {
+				tag = FIN
+				tag = SWE
+				has_war_with = GER
+				145 = {
+					is_demilitarized_zone = yes
+				}
+			}
+		}
+		visible = {
+			is_subject = no
+			145 = {
+				is_controlled_by_ROOT_or_subject = yes
+			}
+			145 = {
+				has_dynamic_modifier = {
+					modifier = aland_dmz_modifier
+				}
+			}
+		}
+		complete_effect = {
+			145 = {
+				remove_dynamic_modifier = { modifier = aland_dmz_modifier }
+			}	
+		}
+		ai_will_do = {
+			factor = 0
+			modifier = {
+				add = 1000
+				date > 1916.1.1
+			}
+			modifier = {
+				add = 1000
+				tag = SWE
+			}
+			modifier = {
+				add = 1000
+				tag = FIN
+			}
+		}
+	}
 }
 
 RUS_provisional_government = {
@@ -2647,7 +2827,7 @@ RUS_provisional_government = {
 		icon = generic_ignite_civil_war
 
 		allowed = {
-			always = no
+			original_tag = RUS
 		}
 
 		available = {
@@ -2691,7 +2871,7 @@ RUS_provisional_government = {
 	RUS_lvov_universal_suffrage = {
 		icon = GFX_decision_eng_trade_unions_support
 		allowed = {
-			tag = RUS
+			original_tag = RUS
 		}
 		visible = {
 			has_country_leader = {
@@ -2727,7 +2907,7 @@ RUS_provisional_government = {
 	RUS_lvov_freedom_of_speech = {
 		icon = GFX_decision_eng_trade_unions_support
 		allowed = {
-			tag = RUS
+			original_tag = RUS
 		}
 		visible = {
 			has_country_leader = {
@@ -2763,7 +2943,7 @@ RUS_provisional_government = {
 	RUS_lvov_abolish_capital_punishment = {
 		icon = GFX_decision_eng_trade_unions_support
 		allowed = {
-			tag = RUS
+			original_tag = RUS
 		}
 		visible = {
 			has_country_leader = {
@@ -2799,7 +2979,7 @@ RUS_provisional_government = {
 	RUS_lvov_abolish_class_race_religion_restriction = {
 		icon = GFX_decision_eng_trade_unions_support
 		allowed = {
-			tag = RUS
+			original_tag = RUS
 		}
 		visible = {
 			has_country_leader = {
@@ -2836,14 +3016,13 @@ RUS_provisional_government = {
 		icon = GFX_decision_generic_political_discourse
 
 		allowed = {
-			always = no
+			original_tag = RUS
 		}
 
 		available = {
-			OR = {
-				has_war = no
-				10 = { is_controlled_by_ROOT_or_subject = yes }
-			}
+			has_war = yes
+			10 = { is_controlled_by_ROOT_or_subject = yes }
+			surrender_progress < 0.05
 		}
 		cancel_trigger = {
 			NOT = {
@@ -2888,15 +3067,13 @@ RUS_provisional_government = {
 		icon = GFX_decision_generic_political_discourse
 
 		allowed = {
-			always = no
+			original_tag = RUS
 		}
 
 		available = {
-			OR = {
-				has_war = no
-				10 = { is_controlled_by_ROOT_or_subject = yes }
-				surrender_progress < 0.05
-			}
+			has_war = yes
+			10 = { is_controlled_by_ROOT_or_subject = yes }
+			surrender_progress < 0.05
 		}
 		cancel_trigger = {
 			NOT = {
@@ -2934,7 +3111,7 @@ RUS_provisional_government = {
 		icon = GFX_decision_eng_blackshirt_march
 
 		allowed = {
-			always = no
+			original_tag = RUS
 		}
 
 		available = {
@@ -3059,7 +3236,7 @@ RUS_provisional_government = {
 		icon = generic_ignite_civil_war
 
 		allowed = {
-			always = no
+			original_tag = RUS
 		}
 
 		available = {
@@ -3090,69 +3267,6 @@ RUS_provisional_government = {
 	}
 }
 
-war_measures = {
-	RUS_remove_aland_dmz = {
-		icon = GFX_decision_generic_operation
-		fire_only_once = yes
-		allowed = {
-			OR = {
-				tag = RUS
-				tag = SWE
-				tag = FIN
-			}
-		}
-		available = {
-			145 = {
-				is_controlled_by_ROOT_or_subject = yes
-			}	
-			OR = {
-				tag = FIN
-				tag = SWE
-				has_war_with = GER
-				145 = {
-					is_demilitarized_zone = yes
-				}
-			}
-		}
-		visible = {
-			is_subject = no
-			145 = {
-				is_controlled_by_ROOT_or_subject = yes
-			}
-			145 = {
-				has_dynamic_modifier = {
-					modifier = aland_dmz_modifier
-				}
-			}
-		}
-		complete_effect = {
-			145 = {
-				remove_dynamic_modifier = { modifier = aland_dmz_modifier }
-			}	
-		}
-		highlight_states = {
-			highlight_state_targets = {
-				state = 145
-			}
-		}
-		ai_will_do = {
-			factor = 0
-			modifier = {
-				add = 1000
-				date > 1916.1.1
-			}
-			modifier = {
-				add = 1000
-				tag = SWE
-			}
-			modifier = {
-				add = 1000
-				tag = FIN
-			}
-		}
-	}
-}
-
 debug_decisions = {
 	RUS_demobilizing_army_debug = {
 		icon = GFX_decision_generic_reorganize_irregulars
@@ -3160,9 +3274,7 @@ debug_decisions = {
 		allowed = {
 			original_tag = RUS
 		}
-		available = {
-			is_ai = no
-		}
+
 		visible = {
 			is_debug = yes
 		}
@@ -3172,29 +3284,6 @@ debug_decisions = {
 				country_event = ww1_political.4
 			}
 			custom_effect_tooltip = rus_demobilize_army_tt
-		}
-	}
-	constituent_assembly_effect = {
-		allowed = {
-			OR = {
-				original_tag = RUS
-				original_tag = FER
-				original_tag = CER
-			}
-		}
-		available = {
-			is_ai = no
-		}
-		visible = {
-			is_debug = yes
-			NOT = {
-				tag = SOV
-				tag = STV
-			}
-			has_global_flag = october_revolution
-		}
-		complete_effect = {
-			constituent_assembly_effect = yes
 		}
 	}
 }
