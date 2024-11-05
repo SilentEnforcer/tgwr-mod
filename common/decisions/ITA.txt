@@ -150,42 +150,69 @@ peace_deals = {
 		is_good = no
 	}
 
-	# ITA_sue_for_peace_AUH = {	
-	# 	icon = GFX_decision_eng_trade_unions_support	
-	# 	allowed = {
-	# 		tag = ITA
-	# 	}
-	# 	available = {
-	# 		has_war_with = AUH
-	# 		has_global_flag = brothers_war
-	# 		surrender_progress > 0.1
-	# 		OR = {
-	# 			NOT = { has_global_flag = great_war }
-	# 			has_global_flag = interbellum
-	# 		}
-	# 	}
-	# 	visible = {
-	# 		has_war_with = AUH
-	# 		has_global_flag = brothers_war
-	# 		OR = {
-	# 			NOT = { has_global_flag = great_war }
-	# 			has_global_flag = interbellum
-	# 		}
-	# 	}
-	# 	fire_only_once = yes
-	# 	ai_will_do = {
-	# 		base = 0
-	# 		modifier = {
-	# 			add = 500
-	# 			OR = {
-	# 				surrender_progress > 0.3
-	# 			}
-	# 		}
-	# 	}
-	# 	complete_effect = {
-	# 		AUH = { country_event = ww1_auh.28 }
-	# 	}
-	# }
+	ITA_sue_for_peace_LBA = {
+		name = sue_for_peace_FROM
+		icon = GFX_decision_eng_trade_unions_support
+		allowed = {
+			tag = ITA
+		}
+		target_trigger = {
+			FROM = {
+				tag = LBA
+			}
+		}
+		visible = {
+			is_subject = no
+			has_war_with = FROM
+			FROM = { is_subject = no }
+			has_global_flag = great_war
+			NOT = { has_global_flag = great_war_ends }
+		}
+		available = {
+			OR = {
+				FROM = {
+					OR = {
+						controls_province = 11954 #Bengazi
+						controls_province = 1149 #Trablus
+					}
+				}
+				surrender_progress > 0.30
+			}
+		}
+		fire_only_once = yes
+		ai_will_do = {
+			base = 1000
+		}
+		complete_effect = {
+			FROM = {
+				if = {
+					limit = {
+						is_in_faction = yes
+					}
+					leave_faction = yes
+				}
+				white_peace = ROOT
+				hidden_effect = {
+					every_enemy_country = {
+						limit = {
+							is_in_faction_with = ROOT
+						}
+						white_peace = PREV
+					}
+				}
+			}
+			every_owned_state = {
+				limit = {
+					is_core_of = LBA
+					NOT = {
+						state = 448
+						state = 450
+					}
+				}
+				transfer_state_to = FROM
+			}
+		}
+	}
 	
 	ITA_return_rhodes_mission = {
 		# After Treaty of Ouchy
@@ -380,13 +407,7 @@ ITA_italian_civil_war_decisions = {
 		}
 		available = {
 			controls_state = 114
-			NOT = {
-				any_state = {
-					NOT = { state = 114 }
-					is_core_of = ROOT
-					is_controlled_by = ROOT
-				}
-			}
+			surrender_progress > 0.5
 		}
 		visible = {
 			has_global_flag = italian_civil_war
@@ -1365,6 +1386,74 @@ ITA_italian_mafia_dec_cat = {
 						remove_dynamic_modifier = { modifier = ITA_mafia_on_the_rise_no_lar }
 						add_dynamic_modifier = { modifier = ITA_established_mafia_no_lar }
 					}
+				}
+			}
+		}
+	}
+}
+
+foreign_influence = {
+	ITA_annex_TRP = {
+		name = annex_FROM
+		icon = GFX_decision_eng_trade_unions_demand
+		allowed = {
+			original_tag = ITA
+		}
+		target_trigger = {
+			FROM = {
+				tag = TRP
+				is_neighbor_of = ROOT
+				OR = {
+					is_subject = no
+					is_subject_of = ROOT
+				}
+				NOT = {
+					has_war_with = ROOT
+				}
+			}
+		}
+		available = {
+			controls_state = 448
+			is_subject = no
+			has_capitulated = no
+			OR = {
+				has_subject = FROM
+				FROM = { has_idea = TRP_civil_war }
+			}
+			hidden_trigger = {
+				NOT = {
+					has_active_mission = compiegne_armistice_mission
+					has_active_mission = frankfurt_armistice_mission
+					has_active_mission = versallies_conference
+					has_active_mission = frankfurt_conference
+				}
+			}
+		}
+		visible = {
+			NOT = {
+				has_country_flag = great_war_loser
+			}
+		}
+		fire_only_once = yes
+		complete_effect = {
+			annex_country = {
+				target = FROM
+			}
+		}
+		cost = 100
+		ai_will_do = {
+			factor = 200
+			modifier = {
+				factor = 0
+				NOT = {
+					FROM = { has_idea = TRP_civil_war }
+				}
+			}
+			modifier = {
+				factor = 0
+				NOT = {
+					has_global_flag = frankfurt_treaty
+					has_global_flag = versallies_treaty
 				}
 			}
 		}
