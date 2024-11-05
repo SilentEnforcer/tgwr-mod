@@ -769,19 +769,16 @@ country_event = {
 	id = ww1_england.100
 	title = ww1_england.100.t
 	desc = ww1_england.100.d
-	picture = GFX_report_event_europe_funeral
+	picture = GFX_report_event_edward_7_death
 	trigger = {
-		original_tag = ENG
-		date > 1910.5.1
+		has_start_date < 1914.1.1
 		OR = {
 			has_idea = edward_vii
 			has_character = ENG_edward_vii
 		}
 	}
+	is_triggered_only = yes
 	fire_only_once = yes
-	mean_time_to_happen = {
-		days = 7
-	}
 	immediate = {
 		hidden_effect = {
 			if = {
@@ -804,10 +801,53 @@ country_event = {
 		}
 	}
 	option = {
-		name = britain.16.a
+		name = ww1_england.100.a
 		effect_tooltip = {
-			remove_ideas = edward_vii
-			add_ideas = george_v
+			swap_ideas = {
+				remove_idea = edward_vii
+				add_idea = george_v
+			}
+		}
+		hidden_effect = {
+			news_event = ww1_england.1000
+		}
+	}
+}
+
+#Edward 7 death global
+news_event = {
+	id = ww1_england.1000
+	title = ww1_england.100.t
+	desc = ww1_england.1000.d
+	picture = GFX_news_event_edward_7_death
+	major = yes
+	is_triggered_only = yes
+	option = {
+		name = ww1_england.1000.a
+		trigger = {		
+			NOT = {
+				tag = ENG
+				AND = {
+					is_subject_of = ENG
+					NOT = {
+						has_country_flag = protectorate
+					}
+				}			
+			}
+		}
+	}
+	option = {
+		name = ww1_england.100.a
+		trigger = {		
+			OR = {
+				tag = ENG
+				AND = {
+					is_subject_of = ENG
+					NOT = {
+						has_country_flag = protectorate
+					}				
+				}			
+			}
 		}
 	}
 }
@@ -821,17 +861,6 @@ news_event = {
 	picture = EVENT_hoi4tgw_south_africa_act
 	major = yes
 	is_triggered_only = yes
-	immediate = {
-		set_global_flag = kis_south_africa_act
-		hidden_effect = {
-			SAF = {
-				drop_cosmetic_tag = yes
-				promote_character = SAF_louis_botha
-				load_oob = "SAF_1910"
-				set_country_flag = saf_release
-			}
-		}
-	}
 	option = {
 		name = ww1_england.101.b
 		ai_chance = {
@@ -1180,70 +1209,28 @@ country_event = {
 	}
 }
 
-#Dervish State
+#Dervish War
 country_event = {
 	id = ww1_england.30
 	title = ww1_england.30.t
 	desc = ww1_england.30.d
 	picture = GFX_report_event_ETH_ethiopian_warriors
-	fire_only_once = yes
-	trigger = {
-		original_tag = ENG
-		owns_state = 269
-		NOT = {
-			has_global_flag = dervish_state
-			has_subject = SOM
-			is_in_faction_with = SOM
-		}
-		has_war_with = TUR
-	}
-	mean_time_to_happen = {
-		days = 65
-	}
+	is_triggered_only = yes
 	immediate = {
 		hidden_effect = {
-			set_global_flag = dervish_state
-			SOM = {
-				transfer_state = 269
-				division_template = {
-					name = "Maleeshiyada Daraawiishta"
-					regiments = {
-						militia = {
-							x = 0
-							y = 0
-						}
-						militia = {
-							x = 0
-							y = 1
-						}
-					}
-				}
-				269 = {
-					create_unit = {
-						division = "name = \"Ilaalada Xasan\" division_template = \"Maleeshiyada Daraawiishta\" start_experience_factor = 0.3"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"Maleeshiyaadka Islaamiga-ah\" division_template = \"Maleeshiyada Daraawiishta\" start_experience_factor = 0.1"
-						owner = PREV
-					}
-					create_unit = {
-						division = "name = \"Wadaniyiin\" division_template = \"Maleeshiyada Daraawiishta\" start_experience_factor = 0.1"
-						owner = PREV
-					}
-				}
-			}
+			set_global_flag = somaliland_campaign
 		}
 	}
 	option = {
 		name = ww1_england.30.a
-		add_state_claim = 269
-		SOM = {
-			declare_war_on = {
-				target = ENG
-				type = annex_everything
-			}
-		}		
+		effect_tooltip = {
+			SOM = {
+				declare_war_on = {
+					target = ENG
+					type = independence_wargoal
+				}
+			}	
+		}			
 	}
 }
 
@@ -1259,16 +1246,33 @@ country_event = {
 		ai_chance = {
 			base = 100
 			modifier = {
-				add = 100
-				has_autonomy_state = autonomy_dominion
-			}
-			modifier = {
 				add = -200
 				has_opinion = {
 					target = FROM
 					value < 0
 				}
 			}
+			modifier = {
+				factor = 0
+				OR = {
+					original_tag = SAF
+					has_completed_focus = CAN_seperation
+				}	
+			}
+		}
+		every_unit_leader = {
+			limit = {
+				OR = {
+					ROOT = {
+						NOT = {
+							original_tag = SAF
+						}
+					}
+					has_trait = trait_royalist
+				}				
+			}	
+			set_nationality = FROM	
+			add_unit_leader_trait = trait_royalist
 		}
 		FROM = {
 			annex_country = {
@@ -1303,7 +1307,7 @@ country_event = {
 				}
 			}
 			modifier = {
-				add = -150
+				add = 150
 				NOT = { has_government = FROM }
 			}
 		}
@@ -1368,6 +1372,9 @@ country_event = {
 	desc = ww1_england.33.d
 	picture = GFX_report_event_royal_parade
 	is_triggered_only = yes
+	trigger = {
+		is_subject_of = FROM
+	}	
 	option = {
 		name = ww1_england.33.a
 		FROM = {
@@ -1521,6 +1528,7 @@ country_event = {
 		name = ww1_england.36.a
 		add_ideas = ENG_general_strike
 		hidden_effect = {
+			set_country_flag = dont_trigger_political_event
 			add_stability = -0.35
 			add_war_support = -0.2
 			add_popularity = {
@@ -2485,6 +2493,14 @@ country_event = {
 			long_name = ENG_stupid_complicated_name_long
 			name = ENG_stupid_complicated_name
 		}
+		hidden_effect = {
+			every_possible_country = {
+				limit = { has_character = ENG_rotha_lintornorman }
+				ENG_rotha_lintornorman = {
+					set_nationality = ROOT
+				}
+			}
+		}
 		ENG_rotha_lintornorman = {
 			if = {
 				limit = {
@@ -2695,6 +2711,7 @@ country_event = {
 	trigger = {
 		tag = ENG
 		date > 1911.9.1
+		has_start_date < 1914.1.1	
 		NOT = {
 			has_government = communism
 			has_completed_focus = ENG_Formation_Labour_Party
@@ -3773,72 +3790,62 @@ country_event = {
 		effect_tooltip = {
 			release = SAF
 			release = ZIM
-			release = BOT
 		}
 		hidden_effect = {
 			# Walvis Bay
 			if = {
 				limit = {
-					789 = {
-						owns_or_subject_of = yes
-					}
+					owns_state = 789
 				}
-				random_other_country = {
-					limit = {
-						owns_state = 541
-						NOT = { has_country_flag = great_war_loser } 
+				541 = {
+					owner = {
+						transfer_state = 789
 					}
-					transfer_state = 789
 				}
 			}
-
 			# Rhodesia
-			if = {
-				limit = {
-					545 = {
-						owns_or_subject_of = yes
-					}
-				}
-				545 = { transfer_state_to = ZIM }
-				release = ZIM
-				end_puppet = ZIM
-				ZIM = {
-					leave_faction = yes
-					inherit_technology = SAF
-					set_politics = {
-						ruling_party = democratic
-						elections_allowed = no
-					}
-					set_popularities = {
-						democratic = 51
-						fascism = 1
-						communism = 0
-						neutrality = 48
-					}
-				}
-			}
+			# if = {
+			# 	limit = {
+			# 		545 = {
+			# 			owns_or_subject_of = yes
+			# 		}
+			# 	}
+			# 	545 = { transfer_state_to = ZIM }
+			# 	release = ZIM
+			# 	end_puppet = ZIM
+			# 	ZIM = {
+			# 		leave_faction = yes
+			# 		inherit_technology = SAF
+			# 		set_politics = {
+			# 			ruling_party = democratic
+			# 			elections_allowed = no
+			# 		}
+			# 		set_popularities = {
+			# 			democratic = 51
+			# 			fascism = 1
+			# 			communism = 0
+			# 			neutrality = 48
+			# 		}
+			# 	}
+			# }
 
 			# Bostwana
-			if = {
-				limit = {
-					542 = {
-						owns_or_subject_of = yes
-					}
-				}
-				542 = { transfer_state_to = BOT }
-				release = BOT
-				end_puppet = BOT
-				# random_other_country = {
-				# 	limit = {
-				# 		owns_state = 681
-				# 		OR = {
-				# 			NOT = { has_country_flag = great_war_loser }
-				# 			original_tag = SAF
-				# 		}
-				# 	}
-				# 	transfer_state = 542
-				# }
-			}
+			# if = {
+			# 	limit = {
+			# 		542 = {
+			# 			owns_or_subject_of = yes
+			# 		}
+			# 	}
+			# 	542 = { transfer_state_to = BOT }
+			# 	release = BOT
+			# 	end_puppet = BOT
+			# 	random_other_country = {
+			# 	 	limit = {
+			# 	 		owns_state = 681
+			# 	 	}
+			# 	 	transfer_state = 542
+			# 	}
+			# }
 
 			# Chinde
 			if = {
@@ -3847,11 +3854,10 @@ country_event = {
 						owns_or_subject_of = yes
 					}
 				}
-				random_other_country = {
-					limit = {
-						owns_state = 971
+				971 = {
+					owner = {
+						transfer_state = 924
 					}
-					transfer_state = 924
 				}
 			}
 
@@ -3867,7 +3873,22 @@ country_event = {
 				}
 				release = SAF
 				end_puppet = SAF
+				every_state = {
+					limit = {
+						is_owned_or_subject_trigger = yes
+						OR = {
+							region = 139
+							state = 542
+							state = 545
+						}
+					}
+					transfer_state_to = SAF
+				}
 				SAF = {
+					if = {
+						limit = { has_cosmetic_tag = SAF_CAP }
+						drop_cosmetic_tag = yes
+					}
 					add_state_claim = 542
 					add_state_claim = 545
 					leave_faction = yes
@@ -3875,8 +3896,13 @@ country_event = {
 						ideology = fascism
 						size = 0.2
 						navy_ratio = 0
-						states = {
-							275 719
+						states_filter = {
+							is_owned_by = SAF
+							NOT = {
+								state = 541
+								state = 545
+								state = 681
+							}
 						}
 						keep_unit_leaders_trigger = {
 							has_trait = trait_royalist
@@ -4415,6 +4441,7 @@ country_event = {
 		original_tag = ENG
 		has_war = no
 		date > 1911.01.01
+		has_start_date < 1914.1.1	
 		NOT = {
 			country_exists = IRE
 			has_country_flag = eng_Parliament_Debates_Irish_Home_Rule
@@ -4445,6 +4472,7 @@ country_event = {
 		original_tag = ENG
 		has_war = no
 		date > 1913.07.12
+		has_start_date < 1914.1.1
 		NOT = {
 			country_exists = IRE
 		}
@@ -4499,6 +4527,7 @@ country_event = {
 	trigger = {
 		original_tag = ENG
 		date > 1914.01.01
+		has_start_date < 1914.6.14
 		owns_state = 119
 		NOT = {
 			has_government = communism
@@ -4637,10 +4666,10 @@ country_event = {
 							x = 0
 							y = 4
 						}
-						infantry = {
-							x = 0
-							y = 5
-						}
+						# infantry = {
+						# 	x = 0
+						# 	y = 5
+						# }
 						cavalry = {
 							x = 1
 							y = 0
@@ -5319,12 +5348,21 @@ country_event = {
 		days = 49
 	}
 	trigger = {
-		has_global_flag = great_war
 		original_tag = ENG
+		has_global_flag = great_war		
 		has_war = yes
 		OR = {
-			has_completed_focus = ENG_Imperial_Federation
-			controls_state = 466
+			AND = {
+				has_completed_focus = ENG_Imperial_Federation
+				466 = {
+					is_owned_or_subject_trigger = yes
+					is_controlled_by_ROOT_or_subject = yes
+				}
+			}	
+			AND = {
+				owns_state = 466
+				controls_state = 466
+			}	
 		}
 	}
 	immediate = {
@@ -5332,15 +5370,36 @@ country_event = {
 			news_event = {
 				id = eng_news.8
 			}
-			QBC = {
-				remove_state_core = 468
+			every_state = {
+				limit = {
+					OR = {
+						is_core_of = QBC
+						state = 1053
+						is_owned_or_subject_trigger = yes
+						OWNER = {
+							NOT = {
+								original_tag = NFL
+							}
+						}
+					}
+					NOT = {
+						state = 468
+					}	
+				}
+				ROOT = {
+					if = {
+						limit = {
+							owns_state = PREV
+						}
+						add_state_claim = PREV
+					}
+				}
+				transfer_state_to = QBC		
 			}
-			release = QBC
 			declare_war_on = {
 				target = QBC
 				type = annex_everything
 			}
-			add_state_claim = 466
 			QBC = {
 				set_politics = {
 					ruling_party = fascism
@@ -5354,11 +5413,6 @@ country_event = {
 					democratic = 46
 					neutrality = 16
 				}
-				add_state_claim = 332
-				add_state_claim = 465
-				add_state_claim = 464
-				add_state_core = 730
-				add_state_core = 468
 				division_template = {
 					name = "Légion de Québec Gratuite"
 					regiments = {
@@ -5382,17 +5436,17 @@ country_event = {
 							x = 0
 							y = 4
 						}
-						infantry = {
-							x = 0
-							y = 5
-						}
+						# infantry = {
+						# 	x = 0
+						# 	y = 5
+						# }
 						cavalry = {
 							x = 1
 							y = 0
 						}
 					}
 				}
-				466 = {
+				capital_scope = {
 					create_unit = {
 						division = "name = \"1e Légion de Québec Gratuite\" division_template = \"Légion de Québec Gratuite\" start_experience_factor = 0.4"
 						owner = QBC
@@ -5428,16 +5482,13 @@ country_event = {
 	option = {
 		name = ww1_england.109.a
 		add_political_power = -40
-		ai_chance = {
-			factor = 100
-		}
 	}
 	#play as Quebec
 	option = {
 		name = ww1_england.109.b
-		ai_chance = {
-			factor = 0
-		}
+		trigger = {
+			is_ai = no
+		}	
 		ENG = {
 			add_political_power = -40
 		}
@@ -5465,6 +5516,7 @@ country_event = {
 				owns_state = 418
 				owns_state = 414
 				owns_state = 411
+				has_subject = ARB
 			}
 		}
 	}
@@ -5475,6 +5527,23 @@ country_event = {
 	immediate = {
 		ENG = {
 			end_puppet = PER
+			if = {
+				limit = {
+					has_subject = ARB
+					country_exists = PER
+				}
+				ARB = {
+					get_current_government_type = yes
+					PER = {
+						set_autonomy = {
+							target = ARB
+							autonomous_state = autonomy_integrated_puppet
+							freedom_level = 0.9
+						}
+					}	
+					restore_previous_government_type = yes
+				}			
+			}
 		}
 		if = {
 			limit = {
@@ -5490,6 +5559,16 @@ country_event = {
 			}
 			diplomatic_relation = {
 				country = PER
+				relation = guarantee
+				active = no
+			}
+			diplomatic_relation = {
+				country = ARB
+				relation = military_access
+				active = no
+			}
+			diplomatic_relation = {
+				country = ARB
 				relation = guarantee
 				active = no
 			}
@@ -6147,6 +6226,13 @@ country_event = {
 			}
 			541 = { transfer_state_to = SAF } 
 		}
+		if = {
+			limit = {
+				owns_state = 1050
+				has_subject = SAF
+			}
+			1050 = { transfer_state_to = SAF } 
+		}
 	}
 	#Bothaland
 	option = {
@@ -6167,6 +6253,13 @@ country_event = {
 				has_subject = SAF
 			}
 			541 = { transfer_state_to = SAF } 
+		}
+		if = {
+			limit = {
+				owns_state = 1050
+				has_subject = SAF
+			}
+			1050 = { transfer_state_to = SAF } 
 		}
 	}
 }
@@ -6232,7 +6325,7 @@ country_event = {
 			target = POR
 			type = take_state_focus
 			generator = {
-				541
+				540
 			}
 		}
 		hidden_effect = {
@@ -6512,17 +6605,8 @@ country_event = {
 			has_country_flag = great_war_winner
 			owns_state = 544
 		}
-		OR = {
-			owns_state = 541
-			SAF = {
-				owns_state = 541
-			}
-		}
-		OR = {
-			has_country_flag = tanganyika_is_british
-			NOT = {
-				owns_state = 546
-			}
+		541 = {
+			is_owned_or_subject_trigger = yes
 		}
 	}
 	mean_time_to_happen = {
@@ -6625,6 +6709,14 @@ country_event = {
 		}
 		POR = {
 			transfer_state = 541
+			if = {
+				limit = {
+					PREV = { 
+						1050 = { is_owned_or_subject_trigger = yes }
+					}
+				}
+				transfer_state = 1050
+			}
 		}
 	}
 }
@@ -6686,8 +6778,23 @@ country_event = {
 			factor = 0
 		}
 		POR = {
-			transfer_state = 789
 			transfer_state = 541
+			if = {
+				limit = {
+					PREV = { 
+						789 = { is_owned_or_subject_trigger = yes }
+					}
+				}
+				transfer_state = 789
+			}
+			if = {
+				limit = {
+					PREV = { 
+						1050 = { is_owned_or_subject_trigger = yes }
+					}
+				}
+				transfer_state = 1050
+			}
 		}
 		country_event = {
 			id = ww1_england.129
@@ -7772,6 +7879,8 @@ country_event = {
 		add_state_claim = 756
 		add_state_claim = 856
 		add_state_claim = 858
+		add_state_claim = 1060
+		add_state_claim = 1061
 		hidden_effect = {
 			news_event = { id = wtt_news.64 hours = 2 }
 		}
@@ -8639,6 +8748,7 @@ country_event = {
 				is_historical_focus_on = yes
 			}
 		}
+		custom_effect_tooltip = historical_tt
 		set_party_name = {
 			ideology = democratic
 			long_name = ENG_democratic_party_conservative
@@ -8748,6 +8858,7 @@ country_event = {
 				is_historical_focus_on = yes
 			}
 		}
+		custom_effect_tooltip = historical_tt
 		set_party_name = {
 			ideology = democratic
 			long_name = ENG_labour_party
@@ -8909,6 +9020,7 @@ country_event = {
 				is_historical_focus_on = yes
 			}
 		}
+		custom_effect_tooltip = historical_tt
 		country_event = {
 			id = ww1_england.186
 			days = 5
@@ -9029,11 +9141,8 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		original_tag = ENG
-		OR = {
-			owns_state = 541
-			SAF = {
-				owns_state = 541
-			}
+		541 = {
+			is_owned_or_subject_trigger = yes
 		}
 	}
 	immediate = {
@@ -9066,6 +9175,12 @@ country_event = {
 		}
 		NMB = {
 			transfer_state = 541
+			if = {
+				limit = {
+					PREV = { owns_state = 1050 }
+				}
+				transfer_state = 1050
+			}	
 			add_popularity = {
 				ideology = democratic
 				popularity = 0.9
@@ -10089,6 +10204,7 @@ country_event = {
 		tag = ENG
 		date > 1911.10.1
 		date < 1916.11.11
+		has_start_date < 1914.1.1	
 		has_character = ENG_arthur_connaught
 		has_subject = CAN
 		NOT = {
@@ -10831,6 +10947,7 @@ country_event = {
 		original_tag = ENG
 		has_government = democratic
 		date > 1910.12.3
+		has_start_date < 1914.1.1
 		has_completed_focus = ENG_balfours_folly
 	}
 	fire_only_once = yes
@@ -10865,6 +10982,9 @@ country_event = {
 				has_country_flag = long_is_tory_leader
 			}
 			promote_character = ENG_walter_long
+		}
+		hidden_effect = {
+			news_event = ww1_england.266
 		}
 	}
 }
@@ -11560,7 +11680,12 @@ country_event = {
 						is_core_of = SOM
 					}
 				}
-				release = SOM
+				every_owned_state = {
+					limit = {
+						is_core_of = SOM
+					}
+					transfer_state_to = SOM
+				}	
 			}
 			every_owned_state = {
 				limit = {
@@ -11599,10 +11724,12 @@ country_event = {
 						OR = {
 							is_core_of = UAE
 							is_core_of = KUW
+							is_claimed_by = KUW
 							is_core_of = QAT
+							is_core_of = BHR
 						}
 					}
-					transfer_state_to = EGY
+					transfer_state_to = TUR
 				}
 			}
 
@@ -12280,6 +12407,7 @@ country_event = {
 			character = ENG_herbert_henry_asquith
 		}		
 		date > 1912.07.1
+		has_start_date < 1914.1.1	
 	}
 	fire_only_once = yes
 	mean_time_to_happen = {
@@ -12402,6 +12530,11 @@ country_event = {
 	}
 	option = {
 		name = ww1_england.252.a
+		add_political_power = -200
+		add_popularity = {
+			ideology = democratic
+			popularity = -0.10
+		}
 		suspend_elections = yes
 		ENG_fallen_government = {
 			if = {
@@ -12785,6 +12918,7 @@ country_event = {
 		}
 	}
 }
+
 #Fao captured ottomans
 country_event = {
 	id = ww1_england.263
@@ -12801,150 +12935,150 @@ country_event = {
 		}
 	}
 }
-#Ottomans Surrender
+
+# post-war election - great war lost
 country_event = {
 	id = ww1_england.264
 	title = ww1_england.264.t
 	desc = ww1_england.264.d
-	picture = GFX_report_event_fao
-	is_triggered_only = yes
+	picture = GFX_report_event_generic_parliament
 	fire_only_once = yes
+	trigger = {
+		original_tag = ENG
+		has_country_flag = great_war_loser
+		has_civil_war = no
+		is_subject = no
+		has_government = democratic
+		NOT = {
+			any_other_country = {
+				original_tag = ROOT
+			}
+		}
+	}
+	#cabinet falls
 	option = {
 		name = ww1_england.264.a
-		hidden_effect = {
-			TUR = {
-				if = {
-					limit = {
-						has_war_together_with = GER
+		suspend_elections = yes
+		ENG_fallen_government = {
+			if = {
+				limit = { has_ideology = libertarianism }
+				promote_character = libertarianism
+			}
+			else = {
+				add_country_leader_role = {
+					promote_leader = yes
+					country_leader = {
+						ideology = libertarianism
+						traits = { cabinet_crisis }
 					}
-					set_country_flag = member_of_central_powers
-				}
-				else = {
-					set_country_flag = member_of_central_powers
-				}
-				every_country = {
-					limit = { is_subject_of = PREV }
-					clr_country_flag = protectorate
-					PREV = { end_puppet = PREV }
-					leave_faction = yes
-					ENG = {
-						faction_leader = { white_peace = PREV.PREV }
-					}
-				}
-				add_ideas = TUR_diplomatic_isolation
-				set_country_flag = great_war_loser 
-				leave_faction = yes
-				every_country = {
-					limit = {
-						has_war_with = TUR
-					}
-					white_peace = PREV
-				}
-				every_state = {
-					limit = {
-						owner = { has_country_flag = great_war_loser }
-						is_core_of = PER
-					}
-					transfer_state_to = PER
-				}
-				if = {
-					limit = {
-						ARM = {
-							exists = yes
-						}
-					}
-					ARM = {
-						transfer_state = 939
-						transfer_state = 806
-						transfer_state = 787
-					}
-				}
-				if = {
-					limit = {
-						GEO = {
-							exists = yes
-						}
-					}
-					GEO = {
-						transfer_state = 816
-						transfer_state = 748
-						transfer_state = 855
-					}
-				}
-				give_military_access = ENG
-				give_military_access = FRA
-				give_military_access = ITA
-				every_state = {
-					limit = {
-						owner = { has_country_flag = great_war_loser }
-						is_core_of = SYR
-						NOT = {
-							state = 852
-							state = 859
-							state = 677
-							state = 680
-							state = 884
-							state = 454
-							state = 856
-							state = 858
-						}
-					}
-					transfer_state_to = SYR
-				}
-				every_state = {
-					limit = {
-						owner = { has_country_flag = great_war_loser }
-						is_core_of = HJZ
-						# NOT = {
-						# 	state = 859
-						# }
-					}
-					transfer_state_to = HJZ
-				}
-				every_state = {
-					limit = {
-						owner = { has_country_flag = great_war_loser }
-						is_core_of = YEM
-						# NOT = {
-						# 	state = 859
-						# }
-					}
-					transfer_state_to = YEM
-				}
-				every_state = {
-					limit = {
-						owner = { has_country_flag = great_war_loser }
-						NOT = {
-							state = 676
-							state = 879
-						}
-						OR = {
-							is_core_of = IRQ
-							state = 852
-							state = 856
-							state = 454
-							state = 858
-						}
-					}
-					transfer_state_to = ENG
-				}
-				FRA = {
-					transfer_state = 553
 				}
 			}
 		}
-		white_peace = TUR
-		ai_chance = {
-			base = 100
+	}
+}
+#1910 election, liberal victory
+country_event = {
+	id = ww1_england.267
+	title = ww1_england.267.t
+	desc = ww1_england.267.d
+	picture = GFX_report_event_election_vote
+	trigger = {
+		original_tag = ENG
+		has_government = democratic
+		date > 1910.12.3
+		has_start_date < 1914.1.1
+		NOT = {
+			has_completed_focus = ENG_balfours_folly
 		}
 	}
+	fire_only_once = yes
 	option = {
-		name = ww1_england.264.b
-		add_war_support = -0.25
-		add_stability = -0.25
-		ai_chance = {
-			base = 0
+		name = ww1_england.267.a
+		add_political_power = 100
+		add_popularity = {
+			ideology = democratic
+			popularity = 0.05
+		}
+		hidden_effect = {
+			news_event = ww1_england.265
 		}
 	}
 }
 
+news_event = {
+	id = ww1_england.265
+	title = ww1_england.265.t
+	desc = ww1_england.265.d
+	major = yes
+	is_triggered_only = yes
+	picture = GFX_news_event_uk_elections_1910
+	option = {
+		name = ww1_england.265.a
+	}
+}
+news_event = {
+	id = ww1_england.266
+	title = ww1_england.266.t
+	desc = ww1_england.266.d
+	picture = GFX_news_event_uk_elections_1910
+	major = yes
+	is_triggered_only = yes
+	option = {
+		name = ww1_england.266.a
+	}
+}
+
+#Dominions decide how to do with the fallen empire
+country_event = {
+	id = ww1_england.268
+	title = ww1_england.268.t
+	desc = ww1_england.268.d
+	picture = GFX_report_event_generic_peaceful_annexation
+	is_triggered_only = yes
+	trigger = {
+		NOT = {
+			has_country_flag = has_british_monarchy
+		}
+	}
+	option = {
+		name = ww1_england.268.a
+		random_other_country = {
+			limit = {
+				has_country_flag = has_british_monarchy
+			}
+			ROOT = { get_current_government_type = yes }
+			set_autonomy = {
+				target = ROOT
+				autonomy_state = autonomy_dominion
+				freedom_level = 0.8
+			}
+			ROOT = { restore_previous_government_type = yes }
+		}
+		ai_chance = {
+			base = 1000
+			modifier = {
+				factor = 0
+				has_government = communism
+			}
+		}
+	}
+	option = {
+		name = ww1_england.268.b
+		random_other_country = {
+			limit = {
+				has_country_flag = has_british_monarchy
+			}
+			add_opinion_modifier = {
+				target = ROOT
+				modifier = faction_traitor
+			}
+		}
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 1000
+				has_government = communism
+			}
+		}
+	}
+}

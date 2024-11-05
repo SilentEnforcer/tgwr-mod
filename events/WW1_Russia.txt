@@ -146,6 +146,7 @@ country_event = {
 	trigger = {		
 		tag = RUS
 		date > 1911.9.1
+		has_start_date < 1914.1.1	
 		has_government = neutrality
 		has_idea = RUS_pyotr_stolypin
 		NOT = {
@@ -548,6 +549,7 @@ country_event = {
 						is_core_of = ARM
 						is_core_of = PER
 						region = 134
+						region = 129
 					}
 					NOT = {
 						state = 233
@@ -1670,6 +1672,7 @@ country_event = {
 			has_government = fascism
 		}
 		date > 1913.10.20
+		has_start_date < 1914.1.1
 		NOT = {
 			has_completed_focus = RUS_russification_of_non_titular_nations
 		}
@@ -3407,15 +3410,18 @@ country_event = {
 		has_war = no
 		is_subject = no
 		has_completed_focus = RUS_unite_poland
-		NOT = {
-			country_exists = POL
+		OR = {
+			NOT = {
+				country_exists = POL
+			}
+			has_subject = POL
 		}
 		OR = {
-			owns_state = 85
-			owns_state = 86
-			owns_state = 762
+			85 = { is_owned_or_subject_trigger = yes }
+			86 = { is_owned_or_subject_trigger = yes }
+			762 = { is_owned_or_subject_trigger = yes }
 		}
-		owns_state = 10
+		10 = { is_owned_or_subject_trigger = yes }
 		OR = {
 			has_global_flag = versallies_treaty
 			has_global_flag = frankfurt_treaty
@@ -3457,57 +3463,101 @@ country_event = {
 			ROOT = {
 				remove_state_claim = PREV
 			}
+			set_demilitarized_zone = no
 		}
-		set_global_flag = poland_released
-		POL = {
-			set_country_flag = released_by_russia
-			set_cosmetic_tag = POL_RUS
+		hidden_effect = {
+			set_global_flag = poland_released
+			POL = {
+				set_country_flag = released_by_russia
+				set_country_flag = monarchist_puppet
+				set_cosmetic_tag = POL_RUS
+			}
+			RUS = {
+				set_autonomy = {
+					target = POL
+					autonomy_state = autonomy_tgwr_personal_union
+				}
+			}
+			if = {
+				limit = {
+					has_government = neutrality
+				}
+				POL = {
+					POL_roman_dmowski = {
+						promote_character = {
+							Ideology = authoritarian_democracy
+						}
+					}
+					set_party_name = {
+						ideology = neutrality
+						name = POL_fascism_party
+						long_name = POL_fascism_party_long
+					}
+				}
+			}
+			if = {
+				limit = {
+					has_government = democratic
+				}
+				POL = {
+					POL_roman_dmowski = {
+						promote_character = {
+							Ideology = conservatism
+						}
+					}
+					set_party_name = {
+						ideology = democratic
+						name = POL_fascism_party
+						long_name = POL_fascism_party_long
+					}
+				}
+			}
+			if = {
+				limit = {
+					has_government = communism
+				}
+				POL = {
+					clr_country_flag = monarchist_puppet
+					POL_felix_dzerzhinsky = {
+						if = {
+							limit = { has_ideology = vanguardism }
+							promote_character = vanguardism
+						}
+						else = {
+							add_country_leader_role = {
+								promote_leader = yes
+								country_leader = {
+									ideology = vanguardism
+									traits = { prince_of_terror }
+								}
+							}
+						}
+					}
+					set_cosmetic_tag = POL_SOVIET
+					set_party_name = { 
+						ideology = communism 
+						long_name = POL_polrewkom_party_long
+						name = POL_polrewkom_party 
+					}
+					unlock_national_focus = POL_declare_a_republic
+					unlock_national_focus = POL_red_tram_goes_on
+					unlock_national_focus = POL_alliance_with_bolsheviks
+				}
+			}
+			POL = {
+				load_oob = "POL_divisions"
+			}
+			if = {
+				limit = { owns_state = 237 }
+				237 = { set_demilitarized_zone = no }
+			}
 		}
-		RUS = {
+		effect_tooltip = {
 			set_autonomy = {
 				target = POL
 				autonomy_state = autonomy_dominion
 			}
 		}
-		if = {
-			limit = {
-				has_government = neutrality
-			}
-			POL = {
-				POL_roman_dmowski = {
-					promote_character = {
-						Ideology = authoritarian_democracy
-					}
-				}
-				set_party_name = {
-					ideology = neutrality
-					name = POL_fascism_party
-					long_name = POL_fascism_party_long
-				}
-			}
-		}
-		if = {
-			limit = {
-				has_government = democratic
-			}
-			POL = {
-				POL_roman_dmowski = {
-					promote_character = {
-						Ideology = conservatism
-					}
-				}
-				set_party_name = {
-					ideology = democratic
-					name = POL_fascism_party
-					long_name = POL_fascism_party_long
-				}
-			}
-		}
-		hidden_effect = {
-			POL = {
-				load_oob = "POL_divisions"
-			}	
-		}		
 		add_stability = 0.05
 		country_event = ww1_poland.12
 	}
@@ -3515,6 +3565,14 @@ country_event = {
 		name = ww1_russia.97.b
 		trigger = {
 			is_ai = no
+		}
+		if = {
+			limit = {
+				has_subject = POL
+			}
+			annex_country = {
+				target = POL
+			}
 		}
 		add_stability = -0.3
 		add_political_power = -200
@@ -3826,9 +3884,6 @@ news_event = {
 					NOT = { country_exists = FIN }
 				}
 				set_global_flag = finland_released_by_germany
-				RUS = {
-					retire_character = RUS_gustav_karlovich
-				}
 			}
 			every_state = {
 				limit = {
@@ -4183,7 +4238,11 @@ news_event = {
 							}
 							transfer_state_to = TUR
 						}
-						puppet = ARM
+						set_autonomy = {
+							target = ARM
+							autonomy_state = autonomy_integrated_puppet
+							freedom_level = 0.8
+						}
 						ARM = {
 							set_politics = {
 								ruling_party = democratic
@@ -4580,16 +4639,17 @@ country_event = {
 			RUS_demobilizing_army
 		}
 		hidden_effect = {
-			country_lock_all_division_template = no		
-			#every_state = {
-			#	PREV = {
-			#		delete_unit = {						
-			#			state = PREV
-			#			disband = yes
-			#		}
-			#	}
-			#}
-			set_country_flag = sov_militia_recruitment
+			# country_lock_all_division_template = no		
+			# This has been reverted because soviets can retain up to 100 divs in some cases
+			every_state = {
+				PREV = {
+					delete_unit = {						
+						state = PREV
+						disband = yes
+					}
+				}
+			}
+			set_equipment_fraction = 0.8
 			delete_unit_template_and_units = {
 				division_template = "Pekhotnaya Diviziya"
 			}
@@ -4610,7 +4670,7 @@ country_event = {
 			}	
 			division_template = {
 				name = "Krasnaya Gvardiya"
-				is_locked = no
+				is_locked = yes
 				division_names_group = SOV_INF_01
 				template_counter = 69
 				regiments = {
@@ -4683,7 +4743,6 @@ country_event = {
 					count = 4
 				}
 			}
-			unlock_decision_tooltip = SOV_recruit_militia
 		}
 		custom_effect_tooltip = red_guard_mobilized_tt
 		ai_chance = {

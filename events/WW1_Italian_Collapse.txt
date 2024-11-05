@@ -1,4 +1,5 @@
 add_namespace = garibaldi
+
 #Victor Emmannuel abdicates
 country_event = {
 	id = garibaldi.1
@@ -227,10 +228,10 @@ country_event = {
 				limit = {
 					OR = {
 						state = 158
-						state = 159
+						# state = 159
 						state = 161
 						state = 162
-						state = 160
+						# state = 160
 						state = 833
 						state = 39
 						state = 834
@@ -416,6 +417,18 @@ country_event = {
 						}
 					}
 				}
+				if = {
+					limit = {
+						159 = { owner = { original_tag = ITA } }
+					}
+					set_state_controller = 159
+				}
+				if = {
+					limit = {
+						160 = { owner = { original_tag = ITA } }
+					}
+					set_state_controller = 160
+				}
 			}
 		}
 	}
@@ -496,14 +509,23 @@ country_event = {
 					promote_leader = yes
 					country_leader = {
 						ideology = semi_constitutional_monarchy
+						traits = { duke_of_aosta }
 					}
 				}
+			}
+			ITA_amedeo_di_savoy_aosta = {
+				set_nationality = SRD
 			}
 			ITA_luigi_amedeo = {
 				set_nationality = SRD
 			}
-			ITA_vittorio_emanuele_di_savoy_aosta = {
-				set_nationality = SRD
+			if = {
+				limit = { #he can be a king of albania
+					has_character = ITA_vittorio_emanuele_di_savoy_aosta
+				}
+				ITA_vittorio_emanuele_di_savoy_aosta = {
+					set_nationality = SRD
+				}
 			}
 			ITA_umberto_ii = {
 				set_nationality = SRD
@@ -601,6 +623,9 @@ country_event = {
 						state = 117
 						state = 156
 						state = 157
+						state = 163
+						state = 513
+						state = 1006
 					}
 					is_controlled_by = ROI
 				}
@@ -648,6 +673,13 @@ country_event = {
 					set_province_controller = 923
 					set_province_controller = 11882
 				}
+				if = {
+					limit = {
+						country_exists = PAP
+					}
+					give_guarantee = PAP
+				}
+
 				ROOT = {
 					every_unit_leader = {
 						limit = {
@@ -1156,6 +1188,26 @@ country_event = {
 			random_other_country = {
 				limit = { controls_province = 9904 }
 				set_state_owner = 2
+			}
+			if = {
+				limit = {
+					has_guaranteed = SMR
+				}
+				diplomatic_relation = {
+					country = SMR
+					relation = guarantee
+					active = no
+				}
+			}
+			if = {
+				limit = {
+					has_guaranteed = PAP
+				}
+				diplomatic_relation = {
+					country = PAP
+					relation = guarantee
+					active = no
+				}
 			}
 		}
 	}
@@ -3312,5 +3364,240 @@ news_event = {
 	}
 	option = {
 		name = garibaldi.33.a
+	}
+}
+
+# Socialist San Marino?
+country_event = {
+	id = garibaldi.34
+	title = garibaldi.34.t
+	desc = garibaldi.34.d
+	picture = GFX_report_event_ITA_partisans
+	trigger = {
+		original_tag = ITA
+		has_government = communism
+		SMR = {
+			is_subject = no
+			is_neighbor_of = ROOT
+			NOT = {
+				has_war_with = ROOT
+				has_government = communism
+				has_country_leader_ideology = social_democracy
+			}
+		}
+	}
+	fire_only_once = yes
+	option = {
+		name = garibaldi.34.a
+		SMR = {
+			custom_effect_tooltip = if_they_accept_newline_tt
+			effect_tooltip = {
+				meta_effect = {
+					text = {
+						set_politics = {
+							ruling_party = democratic
+							last_election = "[CURRENT_DATE]"
+							elections_allowed = yes
+						}
+					}
+					CURRENT_DATE = "[?global.date.GetDateStringNoHour]"
+				}
+				set_country_leader_ideology = social_democracy
+				ROOT = {
+					give_guarantee = PREV
+					give_market_access = PREV
+				}
+				every_other_country = {
+					limit = {
+						is_italian_nation = yes
+						NOT = {
+							has_government = communism
+							has_country_leader_ideology = social_democracy
+						}
+					}
+					PREV = { send_embargo = PREV }
+				}
+			}
+			custom_effect_tooltip = if_they_refuse_newline_tt
+			effect_tooltip = {
+				ROOT = {
+					add_state_core = 999
+					create_wargoal = {
+						target = PREV
+						type = annex_everything
+					}
+				}
+			}
+			hidden_effect = {
+				country_event = {
+					id = garibaldi.35
+					hours = 3
+				}
+			}
+		}
+	}
+}
+
+# Socialist Italy demands socialist San Marino
+country_event = {
+	id = garibaldi.35
+	title = garibaldi.35.t
+	desc = garibaldi.35.d
+	picture = GFX_report_event_ITA_partisans
+	is_triggered_only = yes
+	option = {
+		name = garibaldi.35.a
+		ai_chance = {
+			factor = 70
+			modifier = {
+				factor = 0
+				OR = {
+					has_government = neutrality
+					has_government = fascism
+				}
+			}
+		}
+		meta_effect = {
+			text = {
+				set_politics = {
+					ruling_party = democratic
+					last_election = "[CURRENT_DATE]"
+					elections_allowed = yes
+				}
+			}
+			CURRENT_DATE = "[?global.date.GetDateStringNoHour]"
+		}
+		set_country_leader_ideology = social_democracy
+		FROM = {
+			give_guarantee = ROOT
+			give_market_access = ROOT
+			hidden_effect = {
+				add_opinion_modifier = {
+					target = ROOT
+					modifier = HOI4TGW_Opinion_diplomats_bonus
+				}
+			}
+		}
+		every_other_country = {
+			limit = {
+				is_italian_nation = yes
+				NOT = {
+					has_government = communism
+					has_country_leader_ideology = social_democracy
+				}
+			}
+			PREV = { send_embargo = PREV }
+		}
+	}
+	option = {
+		name = garibaldi.35.b
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 70
+				OR = {
+					has_government = neutrality
+					has_government = fascism
+				}
+			}
+		}
+		FROM = {
+			add_state_core = 999
+			create_wargoal = {
+				target = ROOT
+				type = annex_everything
+			}
+		}
+	}
+}
+
+# Emanuele Filiberto Dies
+country_event = {
+	id = garibaldi.36
+	title = {
+		text = garibaldi.36.t
+		trigger = {
+			NOT = {
+				has_country_leader = {
+					character = ITA_emanuele_filiberto
+					ruling_only = yes
+				}
+			}
+		}
+	}
+	title = {
+		text = garibaldi.36.c
+		trigger = {
+			has_country_leader = {
+				character = ITA_emanuele_filiberto
+				ruling_only = yes
+			}
+		}
+	}
+	desc = {
+		text = garibaldi.36.d
+		trigger = {
+			NOT = {
+				has_country_leader = {
+					character = ITA_emanuele_filiberto
+					ruling_only = yes
+				}
+			}
+		}
+	}
+	desc = {
+		text = garibaldi.36.e
+		trigger = {
+			has_country_leader = {
+				character = ITA_emanuele_filiberto
+				ruling_only = yes
+			}
+		}
+	}
+	picture = GFX_report_event_europe_funeral
+	fire_only_once = yes
+	trigger = {
+		has_character = ITA_emanuele_filiberto
+		date > 1931.6.1
+	}
+	mean_time_to_happen = {
+		days = 30
+	}
+	option = {
+		name = garibaldi.36.a
+		trigger = {
+			NOT = {
+				has_country_leader = {
+					character = ITA_emanuele_filiberto
+					ruling_only = yes
+				}
+			}
+		}
+		retire_character = ITA_emanuele_filiberto
+	}
+	option = {
+		name = garibaldi.36.b
+		trigger = {
+			has_country_leader = {
+				character = ITA_emanuele_filiberto
+				ruling_only = yes
+			}
+		}
+		hidden_effect = {
+			ITA_amedeo_di_savoy_aosta = {
+				add_country_leader_role = {
+					promote_leader = yes
+					country_leader = {
+						ideology = semi_constitutional_monarchy
+						traits = { duke_of_aosta }
+					}
+				}
+			}
+		}
+		retire_character = ITA_emanuele_filiberto
+		promote_character = ITA_amedeo_di_savoy_aosta
+		ITA_amedeo_di_savoy_aosta = {
+			set_character_name = ITA_amedeo_i
+		}
 	}
 }
