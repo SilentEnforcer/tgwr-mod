@@ -1386,7 +1386,9 @@ peace_deals = {
 				}
 				ITA = {
 					has_full_control_of_state = 448
+					has_full_control_of_state = 1060
 					has_full_control_of_state = 450
+					has_full_control_of_state = 1061
 					has_full_control_of_state = 661
 				}
 			}
@@ -1423,40 +1425,67 @@ peace_deals = {
 		is_good = no
 	}
 
-	ITA_sue_for_peace_AUH = {	
-		icon = GFX_decision_eng_trade_unions_support	
+	ITA_sue_for_peace_LBA = {
+		name = sue_for_peace_FROM
+		icon = GFX_decision_eng_trade_unions_support
 		allowed = {
 			tag = ITA
 		}
-		available = {
-			has_war_with = AUH
-			has_global_flag = brothers_war
-			surrender_progress > 0.1
-			OR = {
-				NOT = { has_global_flag = great_war }
-				has_global_flag = interbellum
+		target_trigger = {
+			FROM = {
+				tag = LBA
 			}
 		}
 		visible = {
-			has_war_with = AUH
-			has_global_flag = brothers_war
+			is_subject = no
+			has_war_with = FROM
+			FROM = { is_subject = no }
+			has_global_flag = great_war
+			NOT = { has_global_flag = great_war_ends }
+		}
+		available = {
 			OR = {
-				NOT = { has_global_flag = great_war }
-				has_global_flag = interbellum
+				FROM = {
+					OR = {
+						controls_province = 11954 #Bengazi
+						controls_province = 1149 #Trablus
+					}
+				}
+				surrender_progress > 0.30
 			}
 		}
 		fire_only_once = yes
 		ai_will_do = {
-			base = 0
-			modifier = {
-				add = 500
-				OR = {
-					surrender_progress > 0.3
-				}
-			}
+			base = 1000
 		}
 		complete_effect = {
-			AUH = { country_event = ww1_auh.28 }
+			FROM = {
+				if = {
+					limit = {
+						is_in_faction = yes
+					}
+					leave_faction = yes
+				}
+				white_peace = ROOT
+				hidden_effect = {
+					every_enemy_country = {
+						limit = {
+							is_in_faction_with = ROOT
+						}
+						white_peace = PREV
+					}
+				}
+			}
+			every_owned_state = {
+				limit = {
+					is_core_of = LBA
+					NOT = {
+						state = 448
+						state = 450
+					}
+				}
+				transfer_state_to = FROM
+			}
 		}
 	}
 	
@@ -2380,9 +2409,9 @@ interwar_decisions = {
 				ITA = { country_event = ww1_fiume.3 }
 			}
 			hidden_effect = {
-				set_global_flag = treaty_of_rapallo_1920
 				if = {
 					limit = { tag = ITA }
+					set_global_flag = treaty_of_rapallo_1920
 					country_event = ww1_fiume.3
 				}
 			}
@@ -2624,6 +2653,225 @@ interwar_decisions = {
 							ruling_only = yes
 						}
 					}
+				}
+			}
+		}
+	}
+}
+
+ITA_italian_mafia_dec_cat = {
+	ITA_suppress_mafia_in_state = {
+		icon = GFX_decision_oppression
+		target_trigger = {
+			FROM = {
+				ITA_state_has_any_version_of_mafia_rising_modifier = yes
+			}
+		}
+		target_root_trigger = {
+			any_controlled_state = {
+				ITA_state_has_any_version_of_mafia_rising_modifier = yes
+			}
+			OR = {
+				NOT = { has_focus_tree = italian_focus }
+				has_country_flag = ITA_monarchist_italy_flag
+				has_completed_focus = ITA_fight_against_mafia
+			}
+		}
+		state_target = yes
+		on_map_mode = map_only
+
+		custom_cost_trigger = {
+			has_equipment = {
+				infantry_equipment > 499
+			}
+			has_manpower > 999
+			command_power > 24
+		}
+		custom_cost_text = decision_cost_ie_500_MP_500_CP_25
+
+		days_remove = 90
+
+		available = {
+			FROM = {
+				ITA_state_has_any_version_of_mafia_rising_modifier = yes
+			}
+		}
+
+		complete_effect = {
+			hidden_effect = {
+				add_equipment_to_stockpile = { 
+					type = infantry_equipment
+					amount = -500
+				}
+				add_manpower = -1000
+				add_command_power = -25
+			}
+		}
+
+		remove_effect = {
+			FROM = {
+				if = {
+					limit = {
+						has_dynamic_modifier = { modifier = ITA_mafia_on_the_rise }
+					}
+					remove_dynamic_modifier = { modifier = ITA_mafia_on_the_rise }
+				}
+				else = {
+					remove_dynamic_modifier = { modifier = ITA_mafia_on_the_rise_no_lar }
+				}
+			}
+		}
+
+		ai_will_do = {
+			base = 0.1
+		}
+	}
+	ITS_remove_mafia = {
+		icon = GFX_decision_SWI_expand_covert_operations
+		allowed = {
+			original_tag = ITA
+		}
+		available = {
+			has_country_flag = ITA_monarchist_italy_flag
+			has_idea = ITA_idea_mafia
+		}
+		visible = {
+			has_country_flag = ITA_monarchist_italy_flag
+			has_idea = ITA_idea_mafia
+		}
+		cost = 100
+		fire_only_once = no
+		days_remove = 180
+		ai_will_do = {
+			factor = 10
+		}
+		remove_effect = {
+			remove_ideas = ITA_idea_mafia
+		}
+	}
+	ITS_cooperate_mafia = {
+		name = ITA_cooperate_with_the_mafia
+		desc = ITA_cooperate_with_the_mafia_desc
+		icon = GFX_decision_SWI_expand_covert_operations
+		allowed = {
+			original_tag = ITA
+		}
+		available = {
+		}
+		visible = {
+			has_country_flag = ITA_monarchist_italy_flag
+			any_controlled_state = {
+				ITA_state_has_any_version_of_mafia_rising_modifier = yes
+			}
+		}
+		cancel_if_not_visible = yes
+		cost = 100
+		fire_only_once = no
+		days_remove = 180
+		ai_will_do = {
+			factor = 10
+		}
+		remove_effect = {
+			custom_effect_tooltip = ITA_cooperate_with_the_mafia_dm_tt
+			if = {
+				limit = {
+					has_dlc = "La Resistance"
+				}
+				effect_tooltip = {
+					remove_dynamic_modifier = { modifier = ITA_mafia_on_the_rise }
+					add_dynamic_modifier = { modifier = ITA_established_mafia }
+				}
+				hidden_effect = {
+					every_controlled_state = {
+						limit = {
+							has_dynamic_modifier = { modifier = ITA_mafia_on_the_rise }
+						}
+						remove_dynamic_modifier = { modifier = ITA_mafia_on_the_rise }
+						add_dynamic_modifier = { modifier = ITA_established_mafia }
+					}
+				}
+			}
+			else = {
+				effect_tooltip = {
+					remove_dynamic_modifier = { modifier = ITA_mafia_on_the_rise_no_lar }
+					add_dynamic_modifier = { modifier = ITA_established_mafia_no_lar }
+				}
+				hidden_effect = {
+					every_controlled_state = {
+						limit = {
+							has_dynamic_modifier = { modifier = ITA_mafia_on_the_rise_no_lar }
+						}
+						remove_dynamic_modifier = { modifier = ITA_mafia_on_the_rise_no_lar }
+						add_dynamic_modifier = { modifier = ITA_established_mafia_no_lar }
+					}
+				}
+			}
+		}
+	}
+}
+
+foreign_influence = {
+	ITA_annex_TRP = {
+		name = annex_FROM
+		icon = GFX_decision_eng_trade_unions_demand
+		allowed = {
+			original_tag = ITA
+		}
+		target_trigger = {
+			FROM = {
+				tag = TRP
+				is_neighbor_of = ROOT
+				OR = {
+					is_subject = no
+					is_subject_of = ROOT
+				}
+				NOT = {
+					has_war_with = ROOT
+				}
+			}
+		}
+		available = {
+			controls_state = 448
+			is_subject = no
+			has_capitulated = no
+			OR = {
+				has_subject = FROM
+				FROM = { has_idea = TRP_civil_war }
+			}
+			hidden_trigger = {
+				NOT = {
+					has_active_mission = compiegne_armistice_mission
+					has_active_mission = frankfurt_armistice_mission
+					has_active_mission = versallies_conference
+					has_active_mission = frankfurt_conference
+				}
+			}
+		}
+		visible = {
+			NOT = {
+				has_country_flag = great_war_loser
+			}
+		}
+		fire_only_once = yes
+		complete_effect = {
+			annex_country = {
+				target = FROM
+			}
+		}
+		cost = 100
+		ai_will_do = {
+			factor = 200
+			modifier = {
+				factor = 0
+				NOT = {
+					FROM = { has_idea = TRP_civil_war }
+				}
+			}
+			modifier = {
+				factor = 0
+				NOT = {
+					has_global_flag = frankfurt_treaty
+					has_global_flag = versallies_treaty
 				}
 			}
 		}
