@@ -72,4 +72,4 @@ tags={
 }
 name="The Great War Redux - Beta"
 version="0.12.2"
-supported_version="1.14.*"
+supported_version="1.15.*"
