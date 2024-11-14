@@ -69,6 +69,7 @@ tags={
 	"Events"
 	"Technologies"
 }
-name="The Great War Redux - Beta"
-version="0.12.2"
+name="The Great War Redux"
+version="0.13.1"
 supported_version="1.15.*"
+remote_file_id="3365515312"
