@@ -64,4 +64,4 @@ tags={
 name="The Great War Redux"
 version="0.12.2"
 supported_version="1.14.*"
-remote_file_id="1946557392"
+remote_file_id="3365515312"
