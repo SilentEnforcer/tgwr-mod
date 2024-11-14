@@ -123,3 +123,14 @@ NDefines.NNavy.TRAINING_MAX_DAILY_COUNTRY_EXP = 1.0 -- Vanilla is 3.5
 NDefines.NAir.CARRIER_SIZE_STAT_INCREMENT = 4					-- Each Point of carrier_size state adds capacity for this many planes
 
 NDefines.NProduction.PRODUCTION_RESOURCE_LACK_PENALTY = -0.10  -- increased so the player research stuff
+
+NDefines.NCountry.FEMALE_UNIT_LEADER_BASE_CHANCE = {
+    -- applies as a factor to female unit leader randomization
+    -- the values needs to be zero if you don't actually have random portraits
+    0, -- country leaders
+    0, -- army leaders
+    0, -- navy leaders
+    0, -- air leaders
+    0.3, -- operatives
+    0.1, -- scientists
+}
