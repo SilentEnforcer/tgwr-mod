@@ -71,5 +71,5 @@ tags={
 }
 name="The Great War Redux - 1.15.*"
 version="0.13.15"
-supported_version="1.15.*"
+supported_version="1.16.*"
 remote_file_id="3365515312"
