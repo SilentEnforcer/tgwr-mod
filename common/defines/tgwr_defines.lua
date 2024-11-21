@@ -89,6 +89,11 @@ NDefines.NAI.COMMUNISTS_BEFRIEND_COMMUNISTS = 25							-- Vanilla is 25
 NDefines.NAI.COMMUNISTS_ALLY_COMMUNISTS = 10								-- Vanilla is 0
 NDefines.NAI.COMMUNISTS_ANTAGONIZE_COMMUNISTS = -10							-- Vanilla is -10
 
+NDefines.NAI.PROPOSE_LEND_LEASE_AIDESIRE_SAME_IDEOLOGY = 0				-- Added to AI desire to propose lend lease if recipent is same ideology (and AI can't declare war on recipient)
+NDefines.NAI.PROPOSE_LEND_LEASE_AIDESIRE_SAME_IDEOLOGY_CIVIL_WAR = 0	-- Added to AI desire to propose lend lease if recipent is same ideology and they are currently in civil war
+NDefines.NAI.SEND_VOLUNTEER_AIDESIRE_SAME_IDEOLOGY = 0					-- Added to AI desire to send volunteers if recipent is same ideology (and AI can't declare war on recipient)
+NDefines.NAI.SEND_VOLUNTEER_AIDESIRE_SAME_IDEOLOGY_CIVIL_WAR = 0		-- Added to AI desire to send volunteers if recipent is same ideology and they are currently in civil war
+
 NDefines.NMilitary.UNIT_DIGIN_SPEED = 0.5
 
 NDefines.NAI.MAX_DISTANCE_NAVAL_INVASION = 150.0
@@ -127,10 +132,10 @@ NDefines.NProduction.PRODUCTION_RESOURCE_LACK_PENALTY = -0.10  -- increased so t
 NDefines.NCountry.FEMALE_UNIT_LEADER_BASE_CHANCE = {
     -- applies as a factor to female unit leader randomization
     -- the values needs to be zero if you don't actually have random portraits
-    0, -- country leaders
-    0, -- army leaders
-    0, -- navy leaders
-    0, -- air leaders
+    0.1, -- country leaders
+    0.1, -- army leaders
+    0.1, -- navy leaders
+    0.1, -- air leaders
     0.3, -- operatives
     0.1, -- scientists
 }
