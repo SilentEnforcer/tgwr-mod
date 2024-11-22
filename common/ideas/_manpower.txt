@@ -8,6 +8,9 @@ ideas = {
 			removal_cost = -1
 			level = 7
 			
+			allowed = {
+				always = no
+			}
 			available = {
 				hidden_trigger = { always = no }
 			}
@@ -20,10 +23,40 @@ ideas = {
 			research_bonus = {
 				infantry_weapons = -0.2
 				artillery = -0.2
-				land_doctrine = -0.2
 			}
 			modifier = {
+				land_doctrine_cost_factor = 0.2
 				conscription = 0.005
+			}
+			allowed_to_remove = {
+				NOT = { has_idea = idea_army_restrictions }
+				if = {
+					limit = {
+						original_tag = FIN
+					}
+					NOT = {
+						AND = {
+							has_country_flag = monarchist_puppet
+							is_subject = yes
+						}
+					}	
+				}
+				else_if = {
+					limit = {
+						original_tag = EGY
+					}
+					NOT = {
+						has_idea = EGY_british_colonial_interference
+					}	
+				}
+				if = {
+					limit = {
+						has_autonomy_state = autonomy_tgwr_integrated_protectorate
+					}
+					NOT = {
+						has_autonomy_state = autonomy_tgwr_integrated_protectorate
+					}	
+				}			
 			}
 			cancel_if_invalid = no
 			ai_will_do = {
@@ -37,22 +70,49 @@ ideas = {
 			level = 6
 			
 			available = {
-				NOT = { has_idea = undisturbed_isolation }
-				NOT = { has_idea = isolation }
+				NOT = { has_idea = undisturbed_isolation }	
 				if = {
 					limit = { original_tag = USA }
 					has_completed_focus = USA_volunteer_act
 				}
-				if = {
+				else_if = {
 					limit = {
+						original_tag = SWE
 						has_completed_focus = SWE_disarm_nation
 						has_idea = disarmed_nation
 					}
 					OR = {
 						NOT = {
-							has_country_leader = { name = "Karl Staaff" ruling_only = yes }
+							has_country_leader = { character = SWE_karl_staaff }
 						}
 						has_war = yes
+					}
+				}
+				else_if = {
+					limit = { has_idea = SOV_idea_red_guard }
+					NOT = { has_idea = SOV_idea_red_guard }
+				}
+				if = {
+					limit = {
+						tag = BEL
+					}
+					NOT = {
+						has_idea = BEL_outdated_military
+					}
+				}
+				if = {
+					limit = { has_idea = SRA_marching_army }
+					NOT = { has_idea = SRA_marching_army }
+				}
+				else_if = {
+					limit = { original_tag = LUX }
+					if = {
+						limit = {
+							has_idea = LUX_occupation
+						}
+						NOT = {
+							has_idea = LUX_occupation
+						}
 					}
 				}
 			}
@@ -66,7 +126,11 @@ ideas = {
 			cancel_if_invalid = no
 			
 			ai_will_do = {
-				factor = 100
+				base = 0
+				modifier = {
+					add = 100
+					has_idea = disarmed_nation
+				}
 				modifier = {
 					factor = 0
 					NOT = { has_idea = disarmed_nation }
@@ -85,36 +149,70 @@ ideas = {
 					has_manpower < 1000
 				}
 				NOT = { has_idea = undisturbed_isolation }
-				NOT = { has_idea = isolation }
 				if = {
 					limit = { original_tag = AST }
 					NOT = { has_idea = AST_idea_Citizen_Army } 
 				}
-				if = {
-					limit = { original_tag = ENG }
+				else_if = {
+					limit = { 
+						original_tag = ENG 
+						has_government = democratic
+					}
 					OR = {
 						has_global_flag = great_war
 						surrender_progress > 0					
 					}			
 				}
-				if = {
+				else_if = {
 					limit = { original_tag = USA }
 					has_completed_focus = USA_continental_corps
 				}
-				if = {
+				else_if = {
 					limit = { original_tag = RUS has_idea = RUS_idea_volunteer_army }
 					has_war_support > 0.8
 				}
-				if = {
+				else_if = {
 					limit = {
+						original_tag = SWE
 						has_completed_focus = SWE_disarm_nation
 						has_idea = disarmed_nation
 					}
 					OR = {
 						NOT = {
-							has_country_leader = { name = "Karl Staaff" ruling_only = yes }
+							has_country_leader = { character = SWE_karl_staaff }
 						}
 						has_war = yes
+					}
+				}
+				else_if = {
+					limit = { has_idea = SOV_idea_red_guard }
+					NOT = { has_idea = SOV_idea_red_guard }
+				}
+				else_if = {
+					limit = { original_tag = BEL }
+					NOT = {
+						has_idea = BEL_outdated_military
+					}				
+				}
+				else_if = {
+					limit = { has_idea = SRA_marching_army }
+					NOT = { has_idea = SRA_marching_army }
+				}
+				else_if = {
+					limit = { original_tag = LUX }
+					OR = {
+						has_war = yes
+						NOT = {
+							has_idea = LUX_minor_army
+						}
+					}
+					if = {
+						limit = {
+							has_idea = LUX_occupation
+						}
+						NOT = {
+							has_idea = LUX_occupation
+						}
 					}
 				}
 			}
@@ -126,24 +224,25 @@ ideas = {
 			cancel_if_invalid = no
 			
 			ai_will_do = {
-				factor = 200
+				base = 0
+				modifier = {
+					add = 2000
+					has_idea = volunteer_only
+				}
+				modifier = {
+					add = 5000
+					has_idea = volunteer_only
+					has_manpower < 10000
+				}
+				modifier = {
+					add = 5000
+					has_idea = volunteer_only
+					is_major = yes
+					has_manpower < 150000
+				}
 				modifier = {
 					factor = 0
 					NOT = { has_idea = volunteer_only }
-				}
-				modifier = {
-					factor = 0
-					NOT = { check_variable = { target_conscription_amount = current_conscription_amount } }
-				}
-				modifier = {
-					factor = 0
-					has_war = yes
-					enemies_strength_ratio < 0.5
-					has_manpower > 0
-				}
-				modifier = {
-					factor = 0
-					check_variable = { manpower_k > num_battalions }
 				}
 			}
 		}
@@ -156,7 +255,7 @@ ideas = {
 					has_government = fascism
 					custom_trigger_tooltip = {
     					tooltip = has_government_vanguardism_tt
-    					has_country_leader_with_trait = trait_vanguardism
+    					has_country_leader_ideology = vanguardism
 					}
 					AND = {
 						has_war = yes
@@ -169,37 +268,69 @@ ideas = {
 				}
 				NOT = {
 					has_idea = undisturbed_isolation
-					has_idea = isolation
 				}
 				if = {
 					limit = { original_tag = ENG }
 					OR = {
 						has_global_flag = great_war
+						threat > 0.5
 						surrender_progress > 0					
 					}
 				}
-				if = {
+				else_if = {
 					limit = { original_tag = AST }
 					NOT = { has_idea = AST_idea_Citizen_Army } 
 				}
-				if = {
+				else_if = {
 					limit = { original_tag = USA }
 					has_completed_focus = USA_continental_corps
 				}
-				if = {
+				else_if = {
 					limit = { original_tag = RUS has_idea = RUS_idea_volunteer_army }
 					has_war_support > 0.8
 				}
-				if = {
+				else_if = {
 					limit = {
+						original_tag = SWE
 						has_completed_focus = SWE_disarm_nation
 						has_idea = disarmed_nation
 					}
 					OR = {
 						NOT = {
-							has_country_leader = { name = "Karl Staaff" ruling_only = yes }
+							has_country_leader = { character = SWE_karl_staaff }
 						}
 						has_war = yes
+					}
+				}
+				else_if = {
+					limit = { has_idea = SOV_idea_red_guard }
+					NOT = { has_idea = SOV_idea_red_guard }
+				}
+				else_if = {
+					limit = { original_tag = BEL }
+					NOT = {
+						has_idea = BEL_outdated_military
+					}				
+				}
+				else_if = {
+					limit = { has_idea = SRA_marching_army }
+					NOT = { has_idea = SRA_marching_army }
+				}
+				else_if = {
+					limit = { original_tag = LUX }
+					OR = {
+						has_war = yes
+						NOT = {
+							has_idea = LUX_minor_army
+						}
+					}
+					if = {
+						limit = {
+							has_idea = LUX_occupation
+						}
+						NOT = {
+							has_idea = LUX_occupation
+						}
 					}
 				}
 			}
@@ -216,35 +347,27 @@ ideas = {
 				training_time_factor = 0.1
 			}
 			ai_will_do = {
-				factor = 400
+				base = 1
 				modifier = {
-					factor = 0
-					NOT = { has_idea = limited_conscription }
+					add = 400
+					has_idea = limited_conscription
 				}
 				modifier = {
-					factor = 0
-					check_variable = { manpower_k > num_battalions }
+					add = 40000
+					has_idea = limited_conscription
+					has_manpower < 10000
 				}
 				modifier = {
-					factor = 0
-					NOT = { check_variable = { target_conscription_amount = current_conscription_amount } }
-				}
-				modifier = { #much stronger than the enemy, unless at zero manpower
-					factor = 0
-					has_war = yes
-					enemies_strength_ratio < 0.5
-					has_manpower > 0
+					add = 99999
+					has_idea = limited_conscription
+					is_major = yes
+					has_manpower < 150000
 				}
 				modifier = {
-					factor = 0
-					NOT = {
-						original_tag = FRA
-						original_tag = TUR
-						original_tag = GER
-						original_tag = AUH
-					}	
-					has_manpower > 500000
-					manpower_per_military_factory >  800
+					add = 500000
+					has_idea = limited_conscription
+					is_major = yes
+					has_manpower < 100
 				}
 			}
 			
@@ -260,7 +383,7 @@ ideas = {
 					has_government = fascism
 					custom_trigger_tooltip = {
     					tooltip = has_government_vanguardism_tt
-    					has_country_leader_with_trait = trait_vanguardism
+    					has_country_leader_ideology = vanguardism
 					}
 					has_war_support > 0.6
 					enemies_strength_ratio > 0.6
@@ -269,45 +392,73 @@ ideas = {
 				}
 				NOT = {
 					has_idea = undisturbed_isolation
-					has_idea = isolation
 				}
 				if = {
 					limit = { original_tag = ENG }
 					OR = {
 						has_global_flag = great_war
+						threat > 0.7
 						surrender_progress > 0					
 					}
 				}
-				if = {
+				else_if = {
 					limit = { original_tag = AST }
 					NOT = { has_idea = AST_idea_Citizen_Army } 
 				}
-				if = {
+				else_if = {
 					limit = { original_tag = USA }
 					has_completed_focus = USA_continental_corps
 					NOT = { has_idea = undisturbed_isolation }
 					NOT = { has_idea = isolation }
 				}
-				if = {
+				else_if = {
 					limit = { original_tag = RUS has_idea = RUS_idea_volunteer_army }
 					has_war_support > 0.8
 				}
-				if = {
+				else_if = {
 					limit = {
+						original_tag = SWE
 						has_completed_focus = SWE_disarm_nation
 						has_idea = disarmed_nation
 					}
 					OR = {
 						NOT = {
-							has_country_leader = { name = "Karl Staaff" ruling_only = yes }
+							has_country_leader = { character = SWE_karl_staaff }
 						}
 						has_war = yes
 					}
 				}
-			}
-
-			cancel = {
-				has_war = no
+				else_if = {
+					limit = { has_idea = SOV_idea_red_guard }
+					NOT = { has_idea = SOV_idea_red_guard }
+				}
+				else_if = {
+					limit = { original_tag = BEL }
+					NOT = {
+						has_idea = BEL_outdated_military
+					}					
+				}
+				else_if = {
+					limit = { has_idea = SRA_marching_army }
+					NOT = { has_idea = SRA_marching_army }
+				}
+				else_if = {
+					limit = { original_tag = LUX }
+					OR = {
+						has_war = yes
+						NOT = {
+							has_idea = LUX_minor_army
+						}
+					}
+					if = {
+						limit = {
+							has_idea = LUX_occupation
+						}
+						NOT = {
+							has_idea = LUX_occupation
+						}
+					}
+				}
 			}
 			
 			cost = 150
@@ -322,24 +473,57 @@ ideas = {
 				training_time_factor = 0.2
 			}
 			ai_will_do = {
-				factor = 600
+				base = 0
 				modifier = {
-					factor = 0
-					NOT = { has_idea = extensive_conscription }
+					add = 9999
+					has_war = yes
+					OR = {
+						tag = GER	# we need this no matter what
+						tag = FRA
+					}
 				}
 				modifier = {
-					factor = 0
-					NOT = { has_idea = extensive_conscription }
+					add = 1000
+					has_war = yes
+					has_idea = extensive_conscription
 				}
 				modifier = {
-					factor = 0
-					check_variable = { manpower_k > num_battalions }
+					add = 10000
+					has_manpower < 150000
+					is_major = yes
+					has_idea = extensive_conscription
 				}
-				modifier = { #much stronger than the enemy, unless at zero manpower
+				modifier = {
+					add = 20000
+					has_idea = extensive_conscription
+					has_war = yes
+					has_manpower < 50000 
+				}
+				modifier = {
+					add = 9999
+					has_war = yes
+					has_idea = extensive_conscription
+					has_global_flag = kis_franzferdinand_murdered
+					NOT = {
+						has_global_flag = great_war_ends
+					}
+					has_manpower < 1000000
+				}
+				modifier = {
+					add = 1000
+					has_manpower < 75000
+					is_major = no
+					has_idea = extensive_conscription
+				}
+				modifier = {
+					add = 1000
+					check_variable = { manpower_k < num_battalions }
+				}
+				modifier = { #much stronger than the enemy
 					factor = 0
 					has_war = yes
-					enemies_strength_ratio < 0.5
-					has_manpower > 0
+					enemies_strength_ratio > 0.5
+					has_manpower > 100000
 				}
 				modifier = {
 					factor = 0
@@ -354,16 +538,6 @@ ideas = {
 				}
 				modifier = {
 					factor = 0
-					NOT = { check_variable = { target_conscription_amount = current_conscription_amount } }
-				}
-				modifier = { #much stronger than the enemy, unless at zero manpower
-					factor = 0
-					has_war = yes
-					enemies_strength_ratio < 0.5
-					has_manpower > 0
-				}
-				modifier = {
-					factor = 0
 					original_tag = TUR
 					NOT = {
 						has_global_flag = great_war
@@ -375,7 +549,16 @@ ideas = {
 						}
 					}
 				}
+				modifier = {
+					factor = 0
+					NOT = { has_idea = extensive_conscription }
+				}
 			}		
+
+			cancel = {
+				has_war = no
+			}
+
 			cancel_if_invalid = no
 		}
 		
@@ -390,7 +573,7 @@ ideas = {
 							has_government = fascism
 							custom_trigger_tooltip = {
     							tooltip = has_government_vanguardism_tt
-    							has_country_leader_with_trait = trait_vanguardism
+    							has_country_leader_ideology = vanguardism
 							}
 						}	
 					}			
@@ -400,45 +583,73 @@ ideas = {
 				}
 				NOT = {
 					has_idea = undisturbed_isolation
-					has_idea = isolation
 				}
 				if = {
 					limit = { original_tag = ENG }
 					OR = {
 						has_global_flag = great_war
+						threat > 0.9
 						surrender_progress > 0					
 					}
 				}
-				if = {
+				else_if = {
 					limit = { original_tag = AST }
 					NOT = { has_idea = AST_idea_Citizen_Army } 
 				}
-				if = {
+				else_if = {
 					limit = { original_tag = RUS has_idea = RUS_idea_volunteer_army }
 					has_war_support > 0.8
 				}
-				if = {
+				else_if = {
 					limit = { original_tag = USA }
 					has_completed_focus = USA_continental_corps
 					NOT = { has_idea = undisturbed_isolation }
 					NOT = { has_idea = isolation }
 				}
-				if = {
+				else_if = {
 					limit = {
+						original_tag = SWE
 						has_completed_focus = SWE_disarm_nation
 						has_idea = disarmed_nation
 					}
 					OR = {
 						NOT = {
-							has_country_leader = { name = "Karl Staaff" ruling_only = yes }
+							has_country_leader = { character = SWE_karl_staaff }
 						}
 						has_war = yes
 					}
 				}
-			}
-
-			cancel = {
-				has_war = no
+				else_if = {
+					limit = { has_idea = SOV_idea_red_guard }
+					NOT = { has_idea = SOV_idea_red_guard }
+				}
+				else_if = {
+					limit = { original_tag = BEL }
+					NOT = {
+						has_idea = BEL_outdated_military
+					}					
+				}
+				else_if = {
+					limit = { has_idea = SRA_marching_army }
+					NOT = { has_idea = SRA_marching_army }
+				}
+				else_if = {
+					limit = { original_tag = LUX }
+					OR = {
+						has_war = yes
+						NOT = {
+							has_idea = LUX_minor_army
+						}
+					}
+					if = {
+						limit = {
+							has_idea = LUX_occupation
+						}
+						NOT = {
+							has_idea = LUX_occupation
+						}
+					}
+				}
 			}
 		
 			cost = 150
@@ -454,7 +665,7 @@ ideas = {
 				training_time_factor = 0.3
 			}
 			ai_will_do = {
-				factor = 800
+				factor = 80
 				modifier = {
 					factor = 0
 					NOT = { has_idea = service_by_requirement }
@@ -482,13 +693,12 @@ ideas = {
 				}
 				modifier = {
 					factor = 0
-					NOT = { check_variable = { target_conscription_amount = current_conscription_amount } }
+					has_manpower > 100000
 				}
-				modifier = {
-					factor = 0
-					original_tag = RUS
-					has_manpower > 0
-				}
+			}
+
+			cancel = {
+				has_war = no
 			}
 			
 			cancel_if_invalid = no
@@ -505,7 +715,7 @@ ideas = {
 							has_government = fascism
 							custom_trigger_tooltip = {
     							tooltip = has_government_vanguardism_tt
-    							has_country_leader_with_trait = trait_vanguardism
+    							has_country_leader_ideology = vanguardism
 							}
 						}	
 					}
@@ -515,43 +725,71 @@ ideas = {
 				}		
 				NOT = {
 					has_idea = undisturbed_isolation
-					has_idea = isolation
 				}
 				if = {
 					limit = { original_tag = AST }
 					NOT = { has_idea = AST_idea_Citizen_Army } 
 				}
-				if = {
+				else_if = {
 					limit = { original_tag = ENG }
 					OR = {
 						has_global_flag = great_war
+						threat > 0.99
 						surrender_progress > 0					
 					}
 				}
-				if = {
+				else_if = {
 					limit = { original_tag = USA }
 					has_completed_focus = USA_continental_corps
 				}
-				if = {
+				else_if = {
 					limit = { original_tag = RUS has_idea = RUS_idea_volunteer_army }
 					has_war_support > 0.8
 				}
-				if = {
+				else_if = {
 					limit = {
+						original_tag = SWE
 						has_completed_focus = SWE_disarm_nation
 						has_idea = disarmed_nation
 					}
 					OR = {
 						NOT = {
-							has_country_leader = { name = "Karl Staaff" ruling_only = yes }
+							has_country_leader = { character = SWE_karl_staaff }
 						}
 						has_war = yes
 					}
 				}
-			}
-
-			cancel = {
-				has_war = no
+				else_if = {
+					limit = { has_idea = SOV_idea_red_guard }
+					NOT = { has_idea = SOV_idea_red_guard }
+				}
+				else_if = {
+					limit = { original_tag = BEL }
+					NOT = {
+						has_idea = BEL_outdated_military
+					}				
+				}
+				else_if = {
+					limit = { has_idea = SRA_marching_army }
+					NOT = { has_idea = SRA_marching_army }
+				}
+				else_if = {
+					limit = { original_tag = LUX }
+					OR = {
+						has_war = yes
+						NOT = {
+							has_idea = LUX_minor_army
+						}
+					}
+					if = {
+						limit = {
+							has_idea = LUX_occupation
+						}
+						NOT = {
+							has_idea = LUX_occupation
+						}
+					}
+				}
 			}
 			
 			cost = 150
@@ -571,10 +809,6 @@ ideas = {
 					factor = 0
 					NOT = { has_idea = all_adults_serve }
 				}
-				modifier = { #already mobilising
-					factor = 0
-					NOT = { check_variable = { target_conscription_amount = current_conscription_amount } }
-				}
 				modifier = {
 					factor = 0
 					check_variable = { manpower_k > num_battalions }
@@ -589,8 +823,77 @@ ideas = {
 					factor = 0
 					original_tag = RUS
 				}
+				modifier = {
+					factor = 0
+					has_manpower > 100000
+				}
+			}
+
+			cancel = {
+				has_war = no
 			}
 			
+			cancel_if_invalid = no
+		}
+		
+		### Ethiopian National Levy
+		ETH_chitet_law = {
+			picture = ETH_chitet_law
+			cost = 150
+			removal_cost = -1
+			level = 6
+
+			allowed = {
+				always = no
+			}
+			allowed_to_remove = {
+				always = no
+			}
+
+			ai_will_do = {
+   				factor = 0
+			}
+
+			modifier = {
+				conscription = 0.045
+				custom_modifier_tooltip = ETH_chitet_law_tt
+				industrial_capacity_factory = -0.05
+				industrial_capacity_dockyard = -0.05
+				production_speed_buildings_factor = -0.05
+			}
+
+			default = yes
+
+			cancel_if_invalid = no
+		}
+		ETH_chitet_law_peace_time = {
+			picture = ETH_chitet_law
+
+			cost = 150
+			removal_cost = -1
+			level = 6
+
+			allowed = {
+				always = no
+			}
+			allowed_to_remove = {
+				always = no
+			}
+
+			ai_will_do = {
+   				factor = 0
+			}
+
+			modifier = {
+				conscription = 0.005
+				custom_modifier_tooltip = ETH_chitet_law_tt
+				industrial_capacity_factory = 0.05
+				industrial_capacity_dockyard = 0.05
+				production_speed_buildings_factor = 0.05
+			}
+
+			default = yes
+
 			cancel_if_invalid = no
 		}
 	}
