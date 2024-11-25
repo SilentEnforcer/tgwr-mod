@@ -420,6 +420,9 @@ focus_tree = {
 			add_state_claim = 200
 			add_state_claim = 756
 			add_opinion_modifier = { target = TUR modifier = small_decrease }
+			hidden_effect = {
+				set_country_flag = BUL_TUR_fail
+			}
 		}
 		mutually_exclusive = {
 			focus = BUL_successful_rapprochment
@@ -486,7 +489,7 @@ focus_tree = {
 		id = BUL_successful_negotiations
 		icon = GFX_focus_balkan_league_defense
 		relative_position_id = BUL_the_macedonian_question
-		x = -2
+		x = -1
 		y = 1
 		cost = 1
 		search_filters = {
@@ -511,12 +514,125 @@ focus_tree = {
 			unlock_decision_category_tooltip = balkan_league
 		}
 	}
+	#Formation of the Balkan League
+	focus = {
+		id = BUL_formation_balkan_league
+		icon = GFX_focus_balkan_league_defense
+		cost = 0
+		relative_position_id = BUL_successful_negotiations
+		x = 0
+		y = 1
+		search_filters = {
+			FOCUS_FILTER_HISTORICAL
+			FOCUS_FILTER_POLITICAL
+		}
+		prerequisite = {
+			focus = BUL_successful_negotiations
+		}
+		available = {
+			always = no
+			custom_trigger_tooltip = {
+				tooltip = autocomplete_balkan_league.tt
+			}
+		}
+		completion_reward = { 
+			hidden_effect = {
+				set_country_flag = balkan_league_success
+			}
+			unlock_decision_category_tooltip = balkan_league_dec
+		}
+	}
+	#Lozengradska Operacija
+	focus = {
+		id = BUL_lozengradska_operacija
+		icon = GFX_focus_generic_provoke_border_clashes
+		cost = 2
+		relative_position_id = BUL_formation_balkan_league
+		x = 1
+		y = 1
+		search_filters = {
+			FOCUS_FILTER_ANNEXATION
+			FOCUS_FILTER_HISTORICAL
+			FOCUS_FILTER_POLITICAL
+		}
+		prerequisite = {
+			focus = BUL_lone_liberator
+			focus = BUL_formation_balkan_league
+			focus = BUL_bul_lead_crusade
+		}
+		available = {
+			has_war_with = TUR
+		}
+		completion_reward = {
+			if = {
+				limit = {
+					has_war_with = TUR
+				}
+				add_ideas = BUL_idea_lozengradska_operacija
+			}
+			else = {
+				custom_effect_tooltip = BUL_bonus_for_balkan_war_only_bulgaria
+				show_ideas_tooltip = BUL_idea_lozengradska_operacija
+				set_country_flag = lozengradska_operacija
+			}
+			if = {
+				limit = {
+					has_completed_focus = BUL_lone_liberator
+				}
+				custom_effect_tooltip = agree_effect_tooltip
+				effect_tooltip = {
+					every_state = {
+						limit = {
+							is_owned_by = TUR
+							OR = {
+								is_claimed_by = ROOT
+								is_core_of = ROOT
+							}
+						}
+						transfer_state_to = ROOT
+					}
+					every_state = {
+						limit = {
+							is_owned_by = TUR
+							OR = {
+								region = 24
+								region = 25
+								region = 26
+							}
+						}
+						set_demilitarized_zone = yes
+					}
+					set_truce = {
+						target = TUR
+						days = 365
+					}
+				}
+				custom_effect_tooltip = disagree_effect_tooltip
+				effect_tooltip = {
+					create_wargoal = {
+						target = TUR
+						type = take_claimed_state
+						generator = {788 451 200 756 849 759 106 203 184 757 345 225 731}
+					}
+				}
+				hidden_effect = {
+					TUR = {
+						country_event = {
+							id = ww1_bulgaria.64
+							hours = 10
+							random_hours = 10
+						}
+					}
+				}
+			}
+		}
+	}
 	#Failed Negotiations
 	focus = {
 		id = BUL_failed_negotiations
 		icon = GFX_focus_renounce_the_treaty_of_trianon
 		relative_position_id = BUL_the_macedonian_question
-		x = 2
+		x = 1
 		y = 1
 		cost = 1
 		search_filters = {
@@ -545,6 +661,63 @@ focus_tree = {
 		}
 		completion_reward = {
 			add_political_power = 150
+		}
+	}
+
+	#Lone Liberator
+	focus = {
+		id = BUL_lone_liberator
+		icon = GFX_focus_bul_lone_liberator
+		cost = 10
+		relative_position_id = BUL_failed_negotiations
+		x = -1
+		y = 1
+		search_filters = {
+			FOCUS_FILTER_POLITICAL
+			FOCUS_FILTER_ANNEXATION
+		}
+		prerequisite = {
+			focus = BUL_failed_negotiations
+		}
+		mutually_exclusive = {
+			focus = BUL_bul_lead_crusade
+		}
+		available = {
+			has_country_flag = balkan_league_fail
+			is_subject = no
+		}
+		completion_reward = { 
+			add_political_power = 100
+			declare_war_on = {
+				target = TUR
+			}
+		}
+	}
+
+	#Bulgarian Lead Crusade
+	focus = {
+		id = BUL_bul_lead_crusade
+		icon = x
+		cost = 10
+		relative_position_id = BUL_lone_liberator
+		x = 2
+		y = 0
+		search_filters = {
+			FOCUS_FILTER_POLITICAL
+			FOCUS_FILTER_ANNEXATION
+		}
+		prerequisite = {
+			focus = BUL_failed_negotiations
+		}
+		mutually_exclusive = {
+			focus = BUL_lone_liberator
+		}
+		available = {
+			has_country_flag = balkan_leage_fail
+			is_subject = no
+		}
+		completion_reward = { 
+			add_political_power = 100
 		}
 	}
 	#Realize the Yield of Agrarianism
