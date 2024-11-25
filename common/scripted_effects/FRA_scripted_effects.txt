@@ -23,7 +23,7 @@ FRA_clear_all_alliance = {
 	clr_country_flag = independent_radicals_allied
 	clr_country_flag = popular_liberal_action_allied
 	clr_country_flag = nationalists_allied
-	FRA_recalculate_parliament_alliance = yes
+	reload_parliament_gui = yes
 }
 
 FRA_recalculate_parliament_alliance = {
@@ -106,7 +106,99 @@ FRA_recalculate_parliament_alliance = {
 	divide_variable = {
 		democrat_alliance_percent = seatNumbers
 	}
+	build_opposite_coalition = yes
 	reload_parliament_gui = yes
+}
+
+build_opposite_coalition = {
+	#cleanup the opposition coalition
+	clr_country_flag = SFIO_opposed
+	clr_country_flag = independent_socialist_opposed
+	clr_country_flag = radical_party_opposed
+	clr_country_flag = independent_radicals_opposed
+	clr_country_flag = democratic_republican_alliance_opposed
+	clr_country_flag = republicain_federation_opposed
+	clr_country_flag = conservatives_opposed
+	clr_country_flag = independent_republicans_opposed
+	clr_country_flag = popular_liberal_action_opposed
+	clr_country_flag = nationalists_opposed
+	clr_country_flag = player_coalition_is_minority
+	set_variable = {
+		alternative_coalition_seats = 0
+	}
+	if = {
+		limit = {
+			check_variable = {
+				democrat_alliance < 300	#if player dont have the majority, he will see an alternative coalition if its exists
+			}
+		}
+		if = {
+			limit = {
+				NOT = {
+					has_country_flag = radical_party_allied #radical party is a coalition leader for center parties
+				}
+			}
+			add_to_variable = { alternative_coalition_seats = radical_party }
+			set_country_flag = radical_party_opposed
+			if = {
+				limit = {
+					NOT = {
+						has_country_flag = democratic_republican_alliance_allied #they would join forces
+					}
+				}
+				add_to_variable = { alternative_coalition_seats = democratic_republican_alliance }
+				set_country_flag = democratic_republican_alliance_opposed
+			}
+			if = {
+				limit = {
+					NOT = {
+						has_country_flag = independent_radicals_allied #they would join forces
+					}
+				}
+				add_to_variable = { alternative_coalition_seats = independent_radicals }
+				set_country_flag = independent_radicals_opposed
+			}
+			if = {
+				limit = {
+					check_variable = {
+						alternative_coalition_seats > democrat_alliance
+					}
+				}
+				set_temp_variable = {
+					v = 4 #its the party array, used to get the party name =)
+				}
+				#useful for debug to see how big the rival majority is 
+				#custom_effect_tooltip = radical_party_form_an_alternative_coalition
+				set_country_flag = player_coalition_is_minority
+				else = {
+					clr_country_flag = radical_party_opposed
+					clr_country_flag = independent_radicals_opposed
+					clr_country_flag = democratic_republican_alliance_opposed
+				}
+			}
+		}
+	}
+}
+
+imagine_radical_socialist_opposite_coalition = {
+	set_temp_variable = {
+		alternative_coalition_seats = 0
+	}
+	add_to_temp_variable = { alternative_coalition_seats = democratic_republican_alliance }
+	add_to_temp_variable = { alternative_coalition_seats = radical_party }
+	add_to_temp_variable = { alternative_coalition_seats = independent_radicals }
+	if = {
+		limit = {
+			check_variable = {
+				alternative_coalition_seats > 250
+			}
+		}
+		
+		set_temp_variable = {
+			v = 4 #its the party array, used to get the party name =)
+		}
+		custom_effect_tooltip = radical_party_form_an_alternative_coalition
+	}
 }
 
 FRA_remove_all_ideas = {
