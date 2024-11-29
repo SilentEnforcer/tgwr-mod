@@ -64,6 +64,7 @@ focus_tree = {
 	shared_focus = AUH_hungarian_politics
 	shared_focus = AUH_hungarian_aluminium_production
 	shared_focus = AUH_croatian_industrialisation
+	shared_focus = AUH_hungarian_universal_franchise
 
 
 	############################################################################
@@ -905,7 +906,7 @@ focus = {
 	id = AUH_true_personality_amidst_the_inanity
 	icon = GFX_focus_Austrian_Crown
 	cost = 10
-	x = -17
+	x = -16
 	y = 0
 	available = {
 		always = no
@@ -962,6 +963,9 @@ focus = {
 			}
 		}
 		has_subject = HUN
+		HUN = {
+			has_government = neutrality
+		}
 	}
 	search_filters = {
 		FOCUS_FILTER_INTERNAL_AFFAIRS
@@ -975,80 +979,59 @@ focus = {
 	prerequisite = {
 		focus = AUH_hungarian_politics
 	}
-	bypass = {
-		NOT = {
-			has_idea = AUH_hungarian_opposition
-			has_idea = AUH_hungarian_opposition_2
-		}
-	}
+	# bypass = {
+	# 	NOT = {
+	# 		has_idea = AUH_hungarian_opposition
+	# 		has_idea = AUH_hungarian_opposition_2
+	# 	}
+	# }
 	completion_reward = {
 		HUN = {
-			add_autonomy_score = {
-				value = -500
-				localization = AUH_bend_budapest_knee
+			if = {
+				limit = {
+					ROOT = {
+						has_country_leader = {
+							character = AUH_karl_i
+						}
+					}					
+				}
+				if = {
+					limit = {
+						has_idea = HUN_istvan_tisza
+					}
+					deactivate_advisor = HUN_istvan_tisza				
+				}
+				promote_character = HUN_sandor_wekerle
+				set_party_name = {
+					ideology = neutrality
+					long_name = HUN_compromise_party
+					name = HUN_compromise_party
+				}			
 			}
-		}
-		if = {
-			limit = {
-				AUH_karl_i = {
-					is_country_leader = yes
+			else_if = {
+				limit = { has_idea = HUN_franz_ferdinand_i }
+				swap_ideas = {
+					remove_idea = HUN_franz_ferdinand_i 
+					add_idea = HUN_franz_ferdinand_i_2
 				}
 			}
-			country_event = {
-				id = ww1_auh.128
-				days = 2
-			}
-		}
-	}
-	ai_will_do = { factor = 20 }
-}
-
-focus = {
-	id = AUH_hungarian_universal_franchise
-	icon = GFX_focus_generic_treaty
-	cost = 10
-	x = 0
-	y = 1
-	available = {
-		OR = {
-			has_country_leader = {
-				character = AUH_karl_i
-			}
-			has_country_leader = {
-				character = AUH_franz_ferdinand_i
-			}
-		}
-		has_subject = HUN
-	}
-	search_filters = {
-		FOCUS_FILTER_INTERNAL_AFFAIRS
-	}
-	relative_position_id = AUH_bend_budapest_knee
-	prerequisite = {
-		focus = AUH_bend_budapest_knee
-	}
-	completion_reward = {
-		# if = {
-		# 	limit = {
-		# 		OR = {
-		# 			has_idea = AUH_hungarian_opposition
-		# 			has_idea = AUH_hungarian_opposition_2
-		# 		}
-		# 	}
-		# 	custom_effect_tooltip = AUH_this_focus_will_remove_hungarian_prime_ministers_and_advisor_because_hungarian_opposition_idea_affect_the_country
-		# 	set_country_flag = AUH_HUN_advisors_banned
-			
-		# }
-		HUN = {
-			add_popularity = {
-				ideology = democratic
-				popularity = 0.05
-			}
 			add_autonomy_score = {
 				value = -500
 				localization = AUH_bend_budapest_knee
 			}
-		}	
+		}
+		
+		# if = {
+		# 	limit = {
+		# 		AUH_karl_i = {
+		# 			is_country_leader = yes
+		# 		}
+		# 	}
+		# 	country_event = {
+		# 		id = ww1_auh.128
+		# 		days = 2
+		# 	}
+		# }
 	}
 	ai_will_do = { factor = 20 }
 }
@@ -1057,40 +1040,52 @@ focus = {
 	id = AUH_crush_hungarian_opposition
 	icon = GFX_goal_demand_sudetenland
 	cost = 10
-	x = 0
+	x = -1
 	y = 1
 	available = {
-		OR = {
-			has_country_leader = {
-				character = AUH_karl_i
-			}
-			has_country_leader = {
-				character = AUH_franz_ferdinand_i
-			}
+		has_country_leader = {
+			character = AUH_franz_ferdinand_i
 		}
 		has_subject = HUN
+		HUN = {
+			has_government = neutrality
+		}
 	}
 	search_filters = {
 		FOCUS_FILTER_INTERNAL_AFFAIRS
 	}
-	relative_position_id = AUH_hungarian_universal_franchise
+	relative_position_id = AUH_bend_budapest_knee
 	prerequisite = {
+		focus = AUH_bend_budapest_knee
+	}
+	mutually_exclusive = {
 		focus = AUH_hungarian_universal_franchise
 	}
 	completion_reward = {
-		# if = {
-		# 	limit = {
-		# 		has_idea = AUH_hungarian_opposition
-		# 	}
-		# 	remove_ideas = AUH_hungarian_opposition
-		# 	else = {
-		# 		remove_ideas = AUH_hungarian_opposition_2
-		# 	}
-		# }
-		set_autonomy = {
-			target = HUN
-			autonomous_state = autonomy_tgwr_governorate_general
-			freedom_level = 0.9
+		HUN = {
+			if = {
+				limit = {
+					has_character = AUH_joseph_august_von_osterreich
+				}
+				promote_character = AUH_joseph_august_von_osterreich
+				else = {
+					every_possible_country = {
+						limit = {
+							has_character = AUH_joseph_august_von_osterreich
+						}
+						AUH_joseph_august_von_osterreich = {
+							set_nationality = HUN
+							set_character_name = HUN_joseph_august
+							promote_character = semi_constitutional_monarchy
+						}
+					}
+				}
+			}
+			set_party_name = {
+				ideology = neutrality
+				long_name = HUN_viceroy_council_party_long
+				name = HUN_viceroy_council_party
+			}
 		}
 		hidden_effect = {
 			country_event = {
@@ -5627,9 +5622,6 @@ focus = {
 		search_filters = {
 			FOCUS_FILTER_HISTORICAL
 			FOCUS_FILTER_STABILITY
-		}
-		mutually_exclusive = {
-			focus = AUH_F48P_victory
 		}	
 		prerequisite = {
 		 	focus = AUH_stabilize_the_empire
@@ -5953,29 +5945,35 @@ focus = {
 			}
 		}
 		prerequisite = {
-			focus = AUH_hungarian_politics
+			focus = AUH_army_question_statemate
 		}
 		bypass = {
 			has_country_flag = HUN_1910_elections_F48P
 		}
-		relative_position_id = AUH_hungarian_politics
+		relative_position_id = AUH_army_question_statemate
 		search_filters = {
 			FOCUS_FILTER_HISTORICAL
 			FOCUS_FILTER_INTERNAL_AFFAIRS
 		}
 		completion_reward_joint_originator = {
-			AUH = {
-				swap_ideas = {
-					remove_idea = AUH_hungarian_opposition
-					add_idea = AUH_hungarian_opposition_2
-				}
-			}
+			# AUH = {
+			# 	swap_ideas = {
+			# 		remove_idea = AUH_hungarian_opposition
+			# 		add_idea = AUH_hungarian_opposition_2
+			# 	}
+			# }
 			HUN = {
 				add_political_power = 50						
 				add_popularity = {
 					ideology = neutrality
 					popularity = 0.1
 				}	
+				if = {
+					limit = {
+						has_idea = HUN_istvan_tisza
+					}
+					deactivate_advisor = HUN_istvan_tisza				
+				}
 				promote_character = HUN_istvan_tisza
 			}
 			
@@ -5990,7 +5988,7 @@ focus = {
 		icon = GFX_focus_AUH_the_army_question
 		text_icon = NORDIC_focus_style
 		cost = 5
-		x = -2
+		x = 0
 		y = 1
 		available = {
 			any_state = {
@@ -6007,6 +6005,16 @@ focus = {
 		}
 		relative_position_id = AUH_hungarian_politics
 		completion_reward_joint_originator = {
+			HUN = {
+				if = {
+					limit = {
+						has_country_leader = {
+							character = HUN_karoly_khuen_hedervary
+						}
+					}
+					promote_character = HUN_laszlo_luckacs
+				}			
+			}
 			AUH = {
 				custom_effect_tooltip = AUH_unlock_military_focuses	
 				country_event = {
@@ -6026,7 +6034,7 @@ focus = {
 		icon = GFX_focus_POL_beck_ribbentrop
 		text_icon = NORDIC_focus_style
 		cost = 5
-		x = 1
+		x = 0
 		y = 1
 		available = {
 			any_state = {
@@ -6037,10 +6045,7 @@ focus = {
 		prerequisite = {
 			focus = AUH_Tiszas_Silent_Coup
 		}
-		prerequisite = {
-			focus = AUH_army_question_statemate
-		}
-		relative_position_id = AUH_army_question_statemate
+		relative_position_id = AUH_Tiszas_Silent_Coup
 		completion_reward_joint_originator = {
 			HUN = {
 				add_political_power = 120
@@ -6066,6 +6071,11 @@ focus = {
 			any_state = {
 				is_core_of = HUN
 				is_controlled_by_ROOT_or_subject = yes
+			}
+			HUN = {
+				has_country_leader = {
+					character = HUN_istvan_tisza
+				}
 			}
 		}
 		prerequisite = {
@@ -6097,6 +6107,11 @@ focus = {
 				is_core_of = HUN
 				is_controlled_by_ROOT_or_subject = yes
 			}
+			HUN = {
+				has_country_leader = {
+					character = HUN_istvan_tisza
+				}
+			}
 		}
 		prerequisite = {
 			focus = AUH_act_of_protection
@@ -6124,19 +6139,21 @@ focus = {
 		cost = 10
 		x = 0
 		y = 1
-		bypass = {
-			NOT = {
-				has_idea = AUH_hungarian_opposition
-				has_idea = AUH_hungarian_opposition_2
-			}
-		}
+		# bypass = {
+		# 	NOT = {
+		# 		has_idea = AUH_hungarian_opposition
+		# 		has_idea = AUH_hungarian_opposition_2
+		# 	}
+		# }
 		available = {
 			is_subject = no
-			NOT = {
-				has_country_leader = {
-					character = AUH_franz_ferdinand_i
+			AUS = {
+				NOT = {
+					has_country_leader = {
+						character = AUH_franz_ferdinand_i
+					}
 				}
-			}
+			}		
 		}
 		prerequisite = {
 			focus = AUH_Tiszas_Silent_Coup
@@ -6145,35 +6162,9 @@ focus = {
 			focus = AUH_erase_romanian_nationalism
 		}
 		relative_position_id = AUH_erase_romanian_nationalism
-		completion_reward_joint_originator = {
-			AUH = {
-				if = {
-					limit = {
-						has_idea = AUH_hungarian_opposition
-					}
-					remove_ideas = AUH_hungarian_opposition
-					else = {
-						if = {
-							limit = {
-								has_idea = AUH_hungarian_opposition_2
-							}
-							remove_ideas = AUH_hungarian_opposition_2
-							else = {
-								every_possible_country = {
-									limit = {
-										OR = {
-											tag = AUH
-											tag = HUN
-										}
-									}
-									add_stability = 0.05
-									add_political_power = 75
-								}
-							}
-						}
-					}
-				}
-			}			
+		completion_reward = {
+			add_stability = 0.05
+			add_political_power = 75		
 		}
 		search_filters = {
 			FOCUS_FILTER_HISTORICAL
@@ -6531,4 +6522,93 @@ joint_focus = {
 		
 	}
 	ai_will_do = { factor = 100 }
+}
+
+joint_focus = {
+	id = AUH_hungarian_universal_franchise
+	icon = GFX_focus_generic_treaty
+	text_icon = NORDIC_focus_style
+	cost = 10
+	x = 1
+	y = 1
+	offset = {
+		x = -1
+		y = 0
+		trigger = {
+			tag = HUN
+		}
+	}
+	available = {
+		HUN = {
+			has_war = no
+			has_country_leader = {
+				character = HUN_sandor_wekerle
+			}
+			is_subject_of = AUS
+		}
+	}
+	bypass = {
+		HUN = {
+			has_government = democratic
+		}
+	}
+	search_filters = {
+		FOCUS_FILTER_INTERNAL_AFFAIRS
+	}
+	relative_position_id = AUH_bend_budapest_knee
+	prerequisite = {
+		focus = AUH_bend_budapest_knee
+		focus = HUN_compromise_government
+	}
+	mutually_exclusive = {
+		focus = AUH_crush_hungarian_opposition
+	}
+	completion_reward = {
+		HUN = {
+			set_politics = {
+				ruling_party = democratic
+				elections_allowed = yes
+				long_name = HUN_democratic_party_long
+				name = HUN_democratic_party
+			}
+			if = {
+				limit = {
+					has_country_flag = HUN_1910_elections_F48P
+				}			
+				if = {
+					limit = {
+						has_character = HUN_ferenc_kossuth
+					}
+					hidden_effect = {
+						promote_character = HUN_albert_apponyi
+					}
+					promote_character = HUN_ferenc_kossuth
+					else = {
+						promote_character = HUN_albert_apponyi
+					}
+				}			
+			}
+			else = {
+				if = {
+					limit = {
+						has_character = HUN_gyula_justh
+					}
+					hidden_effect = {
+						promote_character = HUN_mihaly_karolyi
+					}
+					promote_character = HUN_gyula_justh
+					else = {
+						promote_character = HUN_mihaly_karolyi
+					}
+				}		
+			}		
+			if = {
+				limit = {
+					has_idea = HUN_compromise_government3
+				}
+				remove_ideas = HUN_compromise_government3
+			}
+		}	
+	}
+	ai_will_do = { factor = 20 }
 }

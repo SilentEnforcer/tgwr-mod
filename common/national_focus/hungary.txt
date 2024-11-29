@@ -12,6 +12,7 @@ focus_tree = {
 	shared_focus = state_of_the_country_army
 	shared_focus = AUH_hungarian_aluminium_production
 	shared_focus = AUH_croatian_industrialisation
+	shared_focus = AUH_hungarian_universal_franchise
 
 	############################################################################
 	##
@@ -29,7 +30,7 @@ focus_tree = {
 		id = HUN_unite_F48P
 		icon = GFX_focus_generic_diplomatic_treaty
 		cost = 5
-		x = -10
+		x = -7
 		y = 0
 		available = {
 			NOT = {
@@ -39,11 +40,22 @@ focus_tree = {
 		mutually_exclusive = {
 			focus = HUN_merge_liberal_parties
 		}
-		completion_reward = {		
-			custom_effect_tooltip = HUN_unite_F48P_tt
+		completion_reward = {
+			add_popularity = {
+				ideology = democratic
+				popularity = 0.15
+			}	
+			custom_effect_tooltip = HUN_merge_liberal_parties_tt
 			effect_tooltip = {
-				remove_ideas = HUN_minority_government
-			}
+				swap_ideas = {
+					remove_idea = HUN_minority_government
+					add_idea = HUN_minority_government2
+				}
+			}	
+			# custom_effect_tooltip = HUN_unite_F48P_tt
+			# effect_tooltip = {
+			# 	remove_ideas = HUN_minority_government
+			# }
 		}
 		search_filters = {
 			FOCUS_FILTER_INTERNAL_AFFAIRS
@@ -55,7 +67,7 @@ focus_tree = {
 		id = HUN_merge_liberal_parties
 		icon = GFX_focus_generic_home_defense
 		cost = 5
-		x = -8
+		x = -5
 		y = 0
 		mutually_exclusive = {
 			focus = HUN_unite_F48P
@@ -64,6 +76,10 @@ focus_tree = {
 			has_country_flag = HUN_1910_elections_NMP
 		}
 		completion_reward = {		
+			add_popularity = {
+				ideology = neutrality
+				popularity = 0.15
+			}
 			custom_effect_tooltip = HUN_merge_liberal_parties_tt
 			effect_tooltip = {
 				remove_ideas = HUN_minority_government
@@ -77,31 +93,14 @@ focus_tree = {
 	}
 
 	focus = {
-		id = AUH_F48P_victory
+		id = HUN_compromise_government
 		icon = GFX_focus_AUH_great_hungary
 		cost = 5
 		x = -2
-		y = 1
-		# allow_branch = {
-		# 	if = {
-		# 		limit = {
-		# 			has_game_rule = {
-		# 				rule = obsolete_focus_branches_visibility
-		# 				option = HIDE
-		# 			}				
-		# 		}
-		# 		OR = {
-		# 			has_country_flag = trialism_has_failed
-		# 			has_global_flag = HUN_want_independence	
-		# 			NOT = {
-		# 				has_global_flag = HUN_national_work_party_elected
-		# 			}								
-		# 		}			
-		# 		HUN = {
-		# 			exists = no
-		# 		}		
-		# 	}
-		# }
+		y = 2
+		allow_branch = {
+			tag = HUN
+		}	
 
 		# offset = {
 		# 	x = 22
@@ -141,18 +140,48 @@ focus_tree = {
 			has_country_flag = HUN_1910_elections_F48P
 		}
 		dynamic = yes
-		bypass = {
-			has_global_flag = HUN_want_independence
-		}
-		mutually_exclusive = {
+		prerequisite = {
 			focus = AUH_hungarian_politics
 		}
-		prerequisite = {
-		 	focus = HUN_unite_F48P
+		bypass = {
+			OR = {
+				has_government = democratic
+				has_country_leader = {
+					character = HUN_sandor_wekerle
+				}
+			}		
 		}
 		relative_position_id = HUN_unite_F48P
 		completion_reward = {		
-			custom_effect_tooltip = AUH_focus_will_be_completed_once_F48P_is_elected_in_hungary
+			promote_character = HUN_sandor_wekerle
+			set_party_name = {
+				ideology = neutrality
+				long_name = HUN_compromise_party
+				name = HUN_compromise_party
+			}	
+			if = {
+				limit = {
+					has_idea = HUN_minority_government2
+				}
+				swap_ideas = {
+					remove_idea = HUN_minority_government2
+					add_idea = HUN_minority_government3
+				}
+				else = {
+					effect_tooltip = {
+						swap_ideas = {
+							remove_idea = HUN_minority_government2
+							add_idea = HUN_minority_government3
+						}
+					}
+				}
+			}
+			if = {
+				limit = {
+					has_idea = HUN_istvan_tisza
+				}
+				deactivate_advisor = HUN_istvan_tisza				
+			}
 		}
 		search_filters = {
 			FOCUS_FILTER_INTERNAL_AFFAIRS
@@ -167,19 +196,30 @@ focus_tree = {
 		icon = GFX_focus_AUH_collapse
 		cost = 10
 		x = 0
-		y = 1
-		prerequisite = {
-			focus = AUH_F48P_victory
+		y = 2
+		allow_branch = {
+			is_subject_of = AUS
 		}
 		available = {
-			is_subject_of = AUH
+			is_subject_of = AUS
+			has_autonomy_state = autonomy_tgwr_real_union
+			has_HUN_F48P_government = yes
 		}
-		relative_position_id = AUH_F48P_victory
-		completion_reward = {		
-			HUN = {
-				add_war_support = 0.15
-				add_political_power = 150
+		bypass = {
+			has_autonomy_state = autonomy_tgwr_personal_union
+		}
+		relative_position_id = HUN_compromise_government
+		completion_reward = {	
+			get_current_government_type = yes
+			OVERLORD = {
+				set_autonomy = {
+					target = ROOT
+					autonomous_state = autonomy_tgwr_personal_union
+					end_wars = no
+					end_civil_wars = no
+				}
 			}
+			restore_previous_government_type = yes
 		}
 		search_filters = {
 			FOCUS_FILTER_WAR_SUPPORT
@@ -199,12 +239,17 @@ focus_tree = {
 
 	focus = {
 		id = AUH_radicalize_the_front
-		icon = GFX_focus_revolution
+		icon = GFX_focus_AUH_great_hungary
 		cost = 10
 		x = 0
 		y = 1
 		available = {
 			is_subject_of = AUH
+			has_war = no
+			NOT = {
+				has_country_flag = great_war_winner
+			}
+			has_HUN_F48P_government = yes
 		}
 		prerequisite = {
 			focus = AUH_promote_independence
@@ -246,6 +291,7 @@ focus_tree = {
 		}
 		available = {
 			is_subject_of = AUH
+			has_HUN_F48P_government = yes
 		}
 		relative_position_id = AUH_radicalize_the_front
 		completion_reward = {	
@@ -282,6 +328,7 @@ focus_tree = {
 		y = 1
 		available = {
 			is_subject_of = AUH
+			has_HUN_F48P_government = yes
 		}
 		prerequisite = {
 			focus = AUH_radicalize_the_front
@@ -316,6 +363,13 @@ focus_tree = {
 		y = 1
 		available = {
 			is_subject_of = AUH
+			has_HUN_F48P_government = yes
+			OR = {
+				NOT = {
+					has_completed_focus = AUH_invalidate_croatian_constitution
+				}
+				has_completed_focus = AUH_the_new_croatian_constituation
+			}
 		}
 		prerequisite = {
 			focus = AUH_radicalize_the_front
@@ -349,14 +403,14 @@ focus_tree = {
 		y = 1
 		available = {
 			is_subject_of = AUH
+			has_HUN_F48P_government = yes
 		}
 		prerequisite = {
 			focus = AUH_assure_croatian_support
-		}
-		prerequisite = {
 			focus = AUH_prepare_the_milicias
 		}
 		prerequisite = {
+			focus = AUH_assure_croatian_support
 			focus = AUH_crack_the_reserves
 		}
 		search_filters = {
@@ -398,13 +452,13 @@ focus_tree = {
 		x = 0
 		y = 1
 		relative_position_id = AUH_independence_or_war
-		# prerequisite = {
-		# 	focus = AUH_independence_or_war
-		# }
 		available = {
 			has_capitulated = no
 			has_war_with = AUS
 			
+		}
+		allow_branch = {
+			has_war_with = AUS
 		}
 		completion_reward = {		
 			add_timed_idea = {
