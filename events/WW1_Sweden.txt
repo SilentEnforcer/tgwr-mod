@@ -5,25 +5,53 @@ country_event = {
 	title = ww1_generic.1.t
 	desc = ww1_generic.1.d
 	picture = GFX_report_event_election_vote
-
+	
 	trigger = {
+		original_tag = SWE
 		has_government = democratic
-		
+		NOT = { has_completed_focus = SWE_second_karl_staaff_regeringen }
 	}
+	
 	is_triggered_only = yes
+	fire_only_once = yes
+	
+	immediate = {
+		hidden_effect = {
+			retire_character = SWE_arvid_lindman
+			promote_character = SWE_karl_staaff
+			unlock_national_focus = SWE_second_karl_staaff_regeringen
+			country_event = { id = ww_sverige.3 days = 65 }	# Fbåten mission triggers
+		}
+	}
 	
 	option = {
 		name = ww1_generic.1.a
-		ai_chance = { factor = 100 }
-		retire_character = SWE_arvid_lindman
-		promote_character = SWE_karl_staaff
-		set_party_name = { 
-			ideology = democratic 
+		effect_tooltip = {
+			retire_character = SWE_arvid_lindman
+			promote_character = SWE_karl_staaff
+		}
+		set_party_name = {
+			ideology = democratic
 			long_name = SWE_democratic_liberal_party_long 
 			name = SWE_democratic_liberal_party 
 		}
-		add_ideas = SWE_hated_by_conservatives_1
-		activate_mission = SWE_conservative_revolt
+		set_power_balance = {
+			id = SWE_staaf_approval
+			left_side = SWE_disapproval_side
+			right_side = SWE_approval_side
+		}
+		hidden_effect = {
+			# Choice to form minority government (historical) or a coalition with SAP (a-historical, will anger right more)
+			country_event = { id = ww_sverige.1001 hours = 1 }
+			if = {
+				limit = { has_idea = SWE_status_quo_politics }
+				country_event = { id = ww_sverige.0 days = 21 }
+			}
+			add_power_balance_value = {	# Temporary fix
+				id = SWE_staaf_approval
+				value = 1
+			}
+		}
 	}
 }
 
@@ -34,22 +62,9 @@ country_event = {
 	desc = ww1_sweden.2.d
 	picture = GFX_report_event_generic_battle
 	fire_only_once = yes
-	trigger = {
-		tag = SWE
-		has_war = no
-		NOT = {
-			has_government = communism
-		}
-		OR = {
-			has_global_flag = finnish_civil_war
-			FIN = { has_civil_war = yes }
-		}
-		any_country = {
-			original_tag = FIN
-			owns_state = 145
-		}
-	}
-	mean_time_to_happen = { days = 10 }
+	
+	is_triggered_only = yes
+	
 	option = {
 		name = ww1_sweden.2.a
 		custom_effect_tooltip = historical_tt
@@ -73,7 +88,7 @@ country_event = {
 	title = ww1_sweden.3.t
 	desc = ww1_sweden.3.d
 	picture = GFX_report_event_german_inspect_troops
-	fire_only_once = yes
+	
 	trigger = {
 		tag = GER
 		has_global_flag = ostsee_division
@@ -95,7 +110,11 @@ country_event = {
 			has_global_flag = GER_capitulation
 		}
 	}
+	
 	mean_time_to_happen = { days = 10 }
+	
+	fire_only_once = yes
+	
 	option = {
 		name = ww1_sweden.3.a
 		ai_chance = { factor = 100 }
@@ -128,11 +147,8 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = ww1_sweden.4.a
-		swap_ideas = {
-			remove_idea = SWE_gustaf_v
-			add_idea = SWE_gustaf_v_2
-		}
 		unlock_national_focus = SWE_courtyard_speech
+		set_country_flag = collapse_of_left
 		SWE_riksdag = {
 			if = {
 				limit = { has_ideology = conservatism }
@@ -146,6 +162,21 @@ country_event = {
 						traits = { cabinet_crisis }
 					}
 				}
+			}
+		}
+		# Event to suggest a coup (follow up)
+			# Hidin will suggest coup
+			# Doing so will allow a monarchist government to form
+				# Doing so will turn government proto-fascist under Monarkins arbetarparti
+				# However follow-up event will give warning if either stab is too low or if total authoritarian/protofascist support is too low a civil war will occur
+		custom_effect_tooltip = will_be_able_to_form_a_new_government
+		# Event to appoint government
+			# Conservative or Reactionary
+			# Parliamentalism should be theme
+		hidden_effect = {
+			country_event = { id = ww_sverige.9 days = 1 }
+			remove_power_balance = {
+				id = SWE_staaf_approval
 			}
 		}
 	}
@@ -168,9 +199,9 @@ country_event = {
 			ruling_party = communism
 			elections_allowed = no
 		}
-		unlock_national_focus = SWE_folkhemmet
+		#unlock_national_focus = SWE_folkhemmet
 		swap_ideas = {
-			remove_idea = SWE_gustaf_v_2
+			remove_idea = SWE_gustaf_v
 			add_idea = SWE_gustaf_v_evil
 		}
 	}
@@ -409,6 +440,8 @@ news_event = {
 }
 
 #Ernst Trygger abandons anti-parliamentarianism (historical)
+#Make event only occur if Sweden accepts parliamentalism in some way
+#Namely: Staaff somehow winning, the acceptance of Hjalmarskjöld government and awaiting election or something else
 country_event = {
 	id = ww1_sweden.15
 	title = ww1_sweden.15.t
@@ -418,14 +451,29 @@ country_event = {
 		tag = SWE
 		has_government = democratic
 		has_character = SWE_ernst_trygger
+		NOT = { has_country_flag = swe_civil_war }
+		NOT = {
+			has_idea = SWE_unofficial_parliamentalism
+			has_idea = SWE_restricted_parliamentalism
+		}
 		date > 1923.04.01
 	}
 	fire_only_once = yes
 	option = {
 		name = ww1_sweden.15.a
+		remove_trait = {
+			character = SWE_ernst_trygger
+			ideology = conservatism
+			trait = SWE_anti_parliamentalist
+		}
 		remove_country_leader_role = {
 			character = SWE_ernst_trygger
 			ideology = fundamentalism
+		}
+		SWE_ernst_trygger = {
+			remove_advisor_role = {
+				slot = political_advisor
+			}
 		}
 		add_popularity = {
 			ideology = fascism
@@ -461,6 +509,7 @@ country_event = {
 		has_country_flag = great_war_loser
 	}
 	fire_only_once = yes
+	is_triggered_only = yes
 	#protests!
 	option = {
 		name = ww1_sweden.16.a
@@ -617,7 +666,7 @@ country_event = {
 		}
 	}
 }
-#Swedish Civil War
+#Swedish Civil War (lost gw)
 country_event = {
 	id = ww1_sweden.22
 	title = ww1_sweden.22.t
@@ -638,11 +687,39 @@ country_event = {
 		start_civil_war = {
 			ruling_party = fascism
 			ideology = communism
-			size = 0.6
+			size = 0.4
 			states = { 
-				141
+				141 138
 			}
-			keep_political_party_members = no
+			keep_political_party_members = yes
+		}
+		hidden_effect = {
+			random_country = {
+				limit = {
+					original_tag = SWE
+					has_government = communism
+				}
+				add_ideas = standing_alone
+				add_popularity = {
+					ideology = fascism
+					popularity = -1
+				}
+				add_popularity = {
+					ideology = neutrality
+					popularity = -1
+				}
+			}
+			random_country = {
+				limit = {
+					original_tag = SWE
+					has_government = fascism
+				}
+				add_ideas = standing_alone
+				add_popularity = {
+					ideology = communism
+					popularity = -1
+				}
+			}
 		}
 	}
 	#for the revolution!
@@ -652,12 +729,40 @@ country_event = {
 		start_civil_war = {
 			ruling_party = communism
 			ideology = fascism
-			size = 0.4
+			size = 0.6
 			states = { 
-				38 124 138 139 140 666
+				38 124 139 140 666
 			}
 			capital = 140
-			keep_political_party_members = no
+			keep_political_party_members = yes
+		}
+		hidden_effect = {
+			random_country = {
+				limit = {
+					original_tag = SWE
+					has_government = communism
+				}
+				add_ideas = standing_alone
+				add_popularity = {
+					ideology = fascism
+					popularity = -1
+				}
+				add_popularity = {
+					ideology = neutrality
+					popularity = -1
+				}
+			}
+			random_country = {
+				limit = {
+					original_tag = SWE
+					has_government = fascism
+				}
+				add_ideas = standing_alone
+				add_popularity = {
+					ideology = communism
+					popularity = -1
+				}
+			}
 		}
 	}
 }
@@ -690,6 +795,7 @@ country_event = {
 		has_country_flag = great_war_loser
 	}
 	fire_only_once = yes
+	is_triggered_only = yes
 	mean_time_to_happen = { days = 250 }
 	option = {
 		name = ww1_sweden.19.a
@@ -1140,7 +1246,9 @@ country_event = {
 			has_government = communism
 		}
 	}
-	fire_only_once = yes
+	
+	is_triggered_only = yes
+	
 	#we will keep our mother of scandinavia!
 	option = {
 		name = ww1_sweden.32.a

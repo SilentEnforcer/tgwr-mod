@@ -1,0 +1,487 @@
+# WW1 Tree
+# Very simplistic
+shared_focus = {
+	id = SWE_swedish_place_in_the_world
+	icon = GFX_goal_generic_construct_infrastructure
+	x = 24
+	y = 10
+	
+	cost = 5
+	
+	available = {
+		has_civil_war = no
+		OR = {
+			threat > 0.1
+			has_global_flag = kis_war
+		}
+		NOT = { has_country_leader_with_trait = hogerns_landsforradare }
+		NOT = {
+			has_country_leader = {
+				character = SWE_arvid_lindman
+				ruling_only = yes
+			}
+		}
+	}
+	
+	available_if_capitulated = yes
+	
+	search_filters = { FOCUS_FILTER_HISTORICAL }
+	
+	completion_reward = {
+		add_political_power = 100
+	}
+}
+# Focus for Non-Aggreession + Mutual guarantee with Sweden/Norway/Denmark.
+# In future make this have shared focuses between each Nordic country
+shared_focus = {
+	id = SWE_entente_agreements
+	icon = GFX_goal_generic_construct_infrastructure
+	prerequisite = { focus = SWE_swedish_place_in_the_world }
+	relative_position_id = SWE_swedish_place_in_the_world
+	x = -1
+	y = 1
+	
+	cost = 5
+	
+	available = {
+		NOT = {
+			has_country_leader_with_trait = germanophile
+			has_country_leader = {
+				character = SWE_hjalmar_hammarskjold
+				ruling_only = yes
+			}
+		}
+		NOT = { has_war_with = FRA }
+		NOT = {
+			has_idea = idea_armistice
+		}
+	}
+	
+	available_if_capitulated = yes
+	
+	search_filters = { FOCUS_FILTER_HISTORICAL }
+	
+	completion_reward = {
+		set_country_flag = SWE_entente_diplomacy
+		custom_effect_tooltip = unlocks_decisions_related_to_entente
+		# Import food for crisis
+		# Trade agreement
+		# Invite officers
+		# Invite investment
+		# Limit German Trade
+		# After doing at least 3 of the above
+			# Unlock decision to suggest an official joining of the Entente
+	}
+}
+shared_focus = {
+	id = SWE_central_powers_agreements
+	icon = GFX_goal_generic_construct_infrastructure
+	prerequisite = { focus = SWE_swedish_place_in_the_world }
+	relative_position_id = SWE_swedish_place_in_the_world
+	x = 1
+	y = 1
+	
+	cost = 8
+	
+	available = {
+		NOT = { has_war_with = GER }
+		NOT = {
+			has_idea = idea_armistice
+		}
+	}
+	
+	available_if_capitulated = yes
+	
+	search_filters = { FOCUS_FILTER_HISTORICAL }
+	
+	completion_reward = {
+		set_country_flag = SWE_central_powers_diplomacy
+		custom_effect_tooltip = unlocks_decisions_related_to_cp
+		# Import food for crisis
+		# Invite officers
+		# Invite investment
+		# Promises of Non-Aggression
+		# Embargo Entente
+		# After doing at least 3 of the above
+			# Unlock decision to suggest an official joining of the Entente
+			# This will be in exchange for some colonies from Germany
+	}
+}
+shared_focus = {
+	id = SWE_join_the_entente
+	icon = GFX_goal_generic_construct_infrastructure
+	prerequisite = { focus = SWE_entente_agreements }
+	mutually_exclusive = {
+		focus = SWE_join_the_central_powers
+		focus = SWE_svensk_sjalvstandigt
+	}
+	relative_position_id = SWE_swedish_place_in_the_world
+	x = -1
+	y = 2
+	
+	cost = 10
+	
+	available = {
+		has_civil_war = no
+		NOT = {
+			has_country_leader_with_trait = likes_germany
+			has_country_leader_with_trait = germanophile
+			has_country_leader = {
+				character = SWE_hjalmar_hammarskjold
+				ruling_only = yes
+			}
+		}
+		has_country_flag = pact_with_france
+		FRA = {
+			is_faction_leader = yes
+			NOT = { has_country_flag = great_war_loser }
+			NOT = { has_war_with = ROOT }
+		}
+		NOT = {
+			has_country_flag = great_war_loser
+			has_idea = idea_armistice
+		}
+	}
+	
+	available_if_capitulated = yes
+	
+	completion_reward = {
+		remove_ideas = neutrality_idea
+		if = {
+			limit = {
+				is_in_faction = no
+			}
+			FRA = {
+				add_ai_strategy = {
+					type = alliance
+					id = ROOT
+					value = 200
+				}
+				country_event = {
+					id = generic.2
+					days = 2
+				}
+			}
+		}			
+		add_state_claim = 777
+		add_state_claim = 737
+		add_state_claim = 684
+		add_state_claim = 541
+		if = {
+			limit = {
+				GER = {
+					owns_state = 290
+				}
+			}
+			add_state_claim = 290
+		}
+	}
+}
+shared_focus = {
+	id = SWE_pressure_a_denmark_front
+	icon = GFX_goal_generic_construct_infrastructure
+	prerequisite = { focus = SWE_join_the_entente }
+	relative_position_id = SWE_swedish_place_in_the_world
+	will_lead_to_war_with = DEN
+	x = -1
+	y = 3
+	
+	cost = 10
+	
+	available = {
+		has_civil_war = no
+		is_in_faction_with = FRA
+		DEN = {
+			OR = {
+				is_in_faction = no
+				is_in_faction_with = GER
+			}
+		}
+		NOT = {
+			has_country_flag = great_war_loser
+			has_idea = idea_armistice
+		}
+	}
+	bypass = {
+		OR = {
+			is_in_faction_with = DEN
+			has_war_with = DEN
+		}
+	}
+	
+	available_if_capitulated = no
+	
+	completion_reward = {
+		# Event which forces Denmark to either
+			# Join war on Entente side
+			# Join war on CP side (Germany must agree)
+				# If Germany declines to back them, Denmark can resist on their own
+		# Sweden will be given a mission to get Denmark to 30% surrender limit within 50 days
+			# Success will offer ceasefire in exchange for swapping side
+			# Failure will give Denmark second chance to join CP
+	}
+}
+shared_focus = {
+	id = SWE_join_the_central_powers
+	icon = GFX_goal_generic_construct_infrastructure
+	prerequisite = { focus = SWE_central_powers_agreements }
+	mutually_exclusive = {
+		focus = SWE_join_the_entente
+		focus = SWE_svensk_sjalvstandigt
+	}
+	relative_position_id = SWE_swedish_place_in_the_world
+	x = 1
+	y = 2
+	
+	cost = 10
+	
+	available = {
+		has_civil_war = no
+		NOT = {
+			# Probably wouldn't join CP I presume
+			has_government = communism
+			has_country_leader_ideology = socialism
+			has_country_leader_ideology = social_liberalism
+		}
+		has_country_flag = pact_with_germany
+		GER = {
+			is_faction_leader = yes
+			NOT = { has_country_flag = great_war_loser }
+			NOT = { has_war_with = ROOT }
+		}
+		NOT = {
+			has_country_flag = great_war_loser
+			has_idea = idea_armistice
+		}
+	}
+	
+	available_if_capitulated = yes
+	
+	completion_reward = {
+		remove_ideas = neutrality_idea
+		if = {
+			limit = {
+				is_in_faction = no
+			}
+			GER = {
+				add_ai_strategy = {
+					type = alliance
+					id = ROOT
+					value = 200
+				}
+				country_event = {
+					id = generic.2
+					days = 2
+				}
+			}
+		}
+		add_state_core = 145
+		every_state = {
+			limit = {
+				is_core_of = FIN
+				NOT  = {
+					state = 145
+				}
+			}
+			add_claim_by = ROOT
+		}
+	}
+}
+shared_focus = {
+	id = SWE_restore_the_union
+	icon = GFX_goal_generic_construct_infrastructure
+	prerequisite = { focus = SWE_join_the_central_powers }
+	relative_position_id = SWE_swedish_place_in_the_world
+	will_lead_to_war_with = NOR
+	x = 1
+	y = 3
+	
+	cost = 10
+	
+	available = {
+		has_civil_war = no
+		OR = {
+			NOT = { has_government = democratic }
+			has_country_leader_ideology = conservatism
+		}
+		NOT = {
+			is_in_faction_with = NOR
+			has_country_flag = great_war_loser
+			has_idea = idea_armistice
+		}
+	}
+	bypass = {
+		OR = {
+			has_war_with = NOR
+			has_subject = NOR
+		}
+	}
+	
+	available_if_capitulated = yes
+	
+	completion_reward = {
+		create_wargoal = {
+			type = annex_everything
+			target = NOR
+		}
+	}
+}
+shared_focus = {
+	id = SWE_svensk_sjalvstandigt
+	icon = GFX_goal_generic_construct_infrastructure
+	prerequisite = {
+		focus = SWE_entente_agreements
+		focus = SWE_central_powers_agreements
+		focus = SWE_prioritize_our_safety
+	}
+	mutually_exclusive = {
+		focus = SWE_join_the_entente
+		focus = SWE_join_the_central_powers
+	}
+	relative_position_id = SWE_swedish_place_in_the_world
+	x = 3
+	y = 2
+	
+	cost = 10
+	
+	available = {
+		has_civil_war = no
+		is_in_faction = no
+	}
+	
+	available_if_capitulated = yes
+	
+	search_filters = { FOCUS_FILTER_HISTORICAL }
+	
+	completion_reward = {
+		add_ideas = idea_sell_weapons
+	}
+}
+shared_focus = {
+	id = SWE_prioritize_our_safety
+	icon = GFX_goal_generic_construct_infrastructure
+	prerequisite = { focus = SWE_swedish_place_in_the_world }
+	relative_position_id = SWE_swedish_place_in_the_world
+	x = 5
+	y = 1
+	
+	cost = 5
+	
+	available = {
+		has_civil_war = no
+		threat > 0.1
+		NOT = { has_country_leader_with_trait = hogerns_landsforradare }
+	}
+	
+	available_if_capitulated = yes
+	
+	search_filters = { FOCUS_FILTER_HISTORICAL }
+	
+	completion_reward = {
+		add_war_support = 0.05
+	}
+}
+shared_focus = {
+	id = SWE_military_preparation
+	icon = GFX_goal_generic_construct_infrastructure
+	prerequisite = { focus = SWE_prioritize_our_safety }
+	mutually_exclusive = { focus = SWE_defensive_posture }
+	relative_position_id = SWE_swedish_place_in_the_world
+	x = 5
+	y = 2
+	
+	cost = 10
+	
+	available = {
+		has_civil_war = no
+		NOT = {
+			has_country_leader = {
+				character = SWE_karl_staaff
+				ruling_only = yes
+			}
+		}
+		has_completed_focus = SWE_swedish_rearmament
+	}
+	
+	available_if_capitulated = yes
+	
+	completion_reward = {
+		army_experience = 10
+		navy_experience = 10
+		add_ideas = idea_mobilization
+	}
+}
+shared_focus = {
+	id = SWE_defensive_posture
+	icon = GFX_goal_generic_construct_infrastructure
+	prerequisite = { focus = SWE_prioritize_our_safety }
+	mutually_exclusive = { focus = SWE_military_preparation }
+	relative_position_id = SWE_swedish_place_in_the_world
+	x = 7
+	y = 2
+	
+	cost = 10
+	
+	available = {
+		has_civil_war = no
+		NOT = {
+			has_government = fascism
+		}
+		has_completed_focus = SWE_swedish_rearmament
+	}
+	
+	available_if_capitulated = yes
+	
+	completion_reward = {
+		add_war_support = 0.05
+		add_ideas = idea_home_defense
+	}
+}
+shared_focus = {
+	id = SWE_secure_the_homefront
+	icon = GFX_goal_generic_construct_infrastructure
+	prerequisite = {
+		focus = SWE_defensive_posture
+		focus = SWE_military_preparation
+	}
+	relative_position_id = SWE_swedish_place_in_the_world
+	x = 6
+	y = 3
+	
+	cost = 10
+	
+	available = {
+		OR = {
+			threat > 0.4
+			has_global_flag = kis_war
+		}
+	}
+	
+	available_if_capitulated = yes
+	
+	completion_reward = {
+		if = {
+			limit = {
+				has_idea = idea_home_defense
+			}
+			swap_ideas = {
+				add_idea = SWE_homefront_alt
+				remove_idea = idea_home_defense
+			}
+		}
+		if = {
+			limit = {
+				has_idea = idea_mobilization
+			}
+			swap_ideas = {
+				add_idea = SWE_homefront
+				remove_idea = idea_mobilization
+			}
+		}
+		else = {
+			effect_tooltip = {
+				add_ideas = SWE_homefront_tt
+			}
+		}
+	}
+}
