@@ -386,6 +386,46 @@ ROM_military_category = {
 			set_country_flag = ROM_khotyn_uprising_suppressed
 		}
 	}
+	ROM_artillery_modernization_decision = {
+		icon = GFX_decision_generic_artillery_icon
+		allowed = {
+			original_tag = ROM
+		}
+		visible = {
+			has_completed_focus = ROM_artillery_modernization_focus
+		}
+		available = {
+			has_completed_focus = ROM_artillery_modernization_focus
+		}
+		fire_only_once = yes
+		custom_cost_trigger = {
+			has_army_experience > 15
+		}
+		custom_cost_text = ROM_arty_modern_dec
+		days_remove = 30
+		ai_will_do = {
+			base = 0
+			modifier = {
+				factor = 5
+				has_army_experience > 15
+			}
+		}
+		complete_effect = {
+		}
+		remove_effect = {
+			add_tech_bonus = {
+				bonus = 0.5
+				uses = 2
+				category = mio_cat_all_artillery_equipment
+				name = ROM_artillery_modernization_focus
+			}
+			add_equipment_to_stockpile = {
+    			type = artillery_equipment
+    			amount = 75
+    			producer = ROM
+			}
+		}
+	}
 }
 
 political_actions = {
@@ -1101,6 +1141,7 @@ GER_great_war = {
 			add_dynamic_modifier = {
 				modifier = ROM_occupation_costs
 			}
+			add_ideas = standing_alone
 			GER = {
 				add_ideas = ROM_occupation_costs_rom2
 			}
@@ -1115,14 +1156,16 @@ GER_great_war = {
 				}
 				set_country_flag = ROM_armistice_of_focsani_completed
 				give_military_access = RUS
-				white_peace = {
-					tag = GER
-				}
-				white_peace = {
-					tag = AUS
-				}
-				white_peace = {
-					tag = BUL
+				every_country = {
+					limit = {
+						OR = {
+							tag = GER
+							is_in_faction_with = GER
+						}
+					}
+					ROM = {
+						white_peace = PREV
+					}
 				}
 				if = {
 					limit = {
@@ -1133,31 +1176,18 @@ GER_great_war = {
 					leave_faction = yes
 				}
 			}
-			866 = {
-				transfer_state_to = GER
-			}
-			81 = {
-				transfer_state_to = GER
-			}
-			46 = {
-				transfer_state_to = GER
-			}
-			805 = {
-				transfer_state_to = ROM
-				set_demilitarized_zone = yes
-			}
-			846 = {
-				transfer_state_to = GER
-			}
-			if = {
+			every_owned_state = {
 				limit = {
-					ROM = {
-						owns_state = 77
+					OR = {
+						state = 46
+						state = 77
+						state = 81
+						state = 805
+						state = 846
+						state = 866
 					}
 				}
-				77 = {
-					transfer_state_to = GER
-				}
+				transfer_state_to = GER
 			}
 			custom_effect_tooltip = ROM_armistice_of_focsani.tt
 		}
@@ -1273,7 +1303,10 @@ GER_great_war = {
 		war_with_on_remove = GER
 		remove_effect = {
 			set_country_flag = ROM_treaty_of_bucharest_violated
-			remove_ideas = idea_armistice
+			remove_ideas = {
+				idea_armistice
+				standing_alone
+			}
 			FRA = {
 				if = {
 					limit = {
@@ -1533,6 +1566,33 @@ economy_decisions = {
 }
 
 political_actions = {
+	ROM_law_on_southern_dobruja_decision = {
+		icon = GFX_decision_generic_political_discourse
+		cost = 50
+		days_remove = 30
+		allowed = {
+			original_tag = ROM
+		}
+		available = {
+			has_completed_focus = ROM_law_on_southern_dobruja
+		}
+		visible = {
+			has_completed_focus = ROM_law_on_southern_dobruja
+			NOT = {
+				77 = {
+					is_core_of = ROM
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 100
+		}
+		remove_effect = {
+			77 = {
+				add_core_of = ROM
+			}
+		}
+	}
 	ROM_encourage_aromanian_migration = {
 		icon = GFX_none
 		cost = 10
