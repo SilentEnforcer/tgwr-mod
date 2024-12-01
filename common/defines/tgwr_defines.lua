@@ -35,7 +35,7 @@ NDefines.NDiplomacy.FRONT_IS_DANGEROUS = 0									-- Vanilla is -100
 -- Buildings
 
 NDefines.NBuildings.INFRASTRUCTURE_RESOURCE_BONUS = 0.1 -- multiplicative resource bonus for each level of (non damaged) infrastructure
-NDefines.NBuildings.SUPPLY_ROUTE_RESOURCE_BONUS = 0.1   -- multiplicative resource bonus for having a railway/naval connection to the capital
+NDefines.NBuildings.SUPPLY_ROUTE_RESOURCE_BONUS = 0.2   -- multiplicative resource bonus for having a railway/naval connection to the capital
 
 -- Peace Conferences
 NDefines.NAI.PEACE_AI_EVALUATE_OTHER_ALWAYS = true							-- Vanilla is false
