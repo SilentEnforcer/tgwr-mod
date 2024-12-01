@@ -386,6 +386,46 @@ ROM_military_category = {
 			set_country_flag = ROM_khotyn_uprising_suppressed
 		}
 	}
+	ROM_artillery_modernization_decision = {
+		icon = GFX_decision_generic_artillery_icon
+		allowed = {
+			original_tag = ROM
+		}
+		visible = {
+			has_completed_focus = ROM_artillery_modernization_focus
+		}
+		available = {
+			has_completed_focus = ROM_artillery_modernization_focus
+		}
+		fire_only_once = yes
+		custom_cost_trigger = {
+			has_army_experience > 15
+		}
+		custom_cost_text = ROM_arty_modern_dec
+		days_remove = 30
+		ai_will_do = {
+			base = 0
+			modifier = {
+				factor = 5
+				has_army_experience > 15
+			}
+		}
+		complete_effect = {
+		}
+		remove_effect = {
+			add_tech_bonus = {
+				bonus = 0.5
+				uses = 2
+				category = mio_cat_all_artillery_equipment
+				name = ROM_artillery_modernization_focus
+			}
+			add_equipment_to_stockpile = {
+    			type = artillery_equipment
+    			amount = 75
+    			producer = ROM
+			}
+		}
+	}
 }
 
 political_actions = {
@@ -1101,6 +1141,7 @@ GER_great_war = {
 			add_dynamic_modifier = {
 				modifier = ROM_occupation_costs
 			}
+			add_ideas = standing_alone
 			GER = {
 				add_ideas = ROM_occupation_costs_rom2
 			}
@@ -1115,14 +1156,16 @@ GER_great_war = {
 				}
 				set_country_flag = ROM_armistice_of_focsani_completed
 				give_military_access = RUS
-				white_peace = {
-					tag = GER
-				}
-				white_peace = {
-					tag = AUS
-				}
-				white_peace = {
-					tag = BUL
+				every_country = {
+					limit = {
+						OR = {
+							tag = GER
+							is_in_faction_with = GER
+						}
+					}
+					ROM = {
+						white_peace = PREV
+					}
 				}
 				if = {
 					limit = {
@@ -1133,31 +1176,18 @@ GER_great_war = {
 					leave_faction = yes
 				}
 			}
-			866 = {
-				transfer_state_to = GER
-			}
-			81 = {
-				transfer_state_to = GER
-			}
-			46 = {
-				transfer_state_to = GER
-			}
-			805 = {
-				transfer_state_to = ROM
-				set_demilitarized_zone = yes
-			}
-			846 = {
-				transfer_state_to = GER
-			}
-			if = {
+			every_owned_state = {
 				limit = {
-					ROM = {
-						owns_state = 77
+					OR = {
+						state = 46
+						state = 77
+						state = 81
+						state = 805
+						state = 846
+						state = 866
 					}
 				}
-				77 = {
-					transfer_state_to = GER
-				}
+				transfer_state_to = GER
 			}
 			custom_effect_tooltip = ROM_armistice_of_focsani.tt
 		}
@@ -1273,7 +1303,10 @@ GER_great_war = {
 		war_with_on_remove = GER
 		remove_effect = {
 			set_country_flag = ROM_treaty_of_bucharest_violated
-			remove_ideas = idea_armistice
+			remove_ideas = {
+				idea_armistice
+				standing_alone
+			}
 			FRA = {
 				if = {
 					limit = {
@@ -1533,6 +1566,33 @@ economy_decisions = {
 }
 
 political_actions = {
+	ROM_law_on_southern_dobruja_decision = {
+		icon = GFX_decision_generic_political_discourse
+		cost = 50
+		days_remove = 30
+		allowed = {
+			original_tag = ROM
+		}
+		available = {
+			has_completed_focus = ROM_law_on_southern_dobruja
+		}
+		visible = {
+			has_completed_focus = ROM_law_on_southern_dobruja
+			NOT = {
+				77 = {
+					is_core_of = ROM
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 100
+		}
+		remove_effect = {
+			77 = {
+				add_core_of = ROM
+			}
+		}
+	}
 	ROM_encourage_aromanian_migration = {
 		icon = GFX_none
 		cost = 10
@@ -1631,9 +1691,309 @@ ROM_postwar_cat = {
 			}
 		}
 	}
+	ROM_suppress_szekelyfold_rebels = {
+		icon = GFX_decision_oppression
+		cost = 20
+		days_remove = 15
+		allowed = {
+			original_tag = ROM
+		}
+		available = {
+			NOT = {
+				778 = {
+					is_core_of = ROM
+				}
+			}
+		}
+		visible = {
+			has_completed_focus = ROM_suppress_szekelyfold_hungarians
+			NOT = {
+				778 = {
+					is_core_of = ROM
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 3
+		}
+		remove_effect = {
+			778 = {
+				add_resistance = -10
+			}
+			custom_effect_tooltip = ROM_chance_of_violent_clash
+			hidden_effect = {
+				random_list = {
+					85 = {
+					}
+					15 = {
+						country_event = {
+							id = ww1_romania.148
+							days = 1
+						}
+					}
+				}
+			}
+		}
+	}
+	ROM_increase_szekelyfold_autonomy = {
+		icon = GFX_decision_eng_trade_unions_support
+		cost = 20
+		days_remove = 15
+		allowed = {
+			original_tag = ROM
+		}
+		available = {
+			NOT = {
+				778 = {
+					is_core_of = ROM
+					custom_trigger_tooltip = {
+						tooltip = ROM_szekelyfold_higher_autonomy
+						trigger = {
+							has_dynamic_modifier = {
+								modifier = ROM_szekelyfold_autonomy_higher
+							}
+						}
+					}
+				}
+			}
+		}
+		visible = {
+			has_completed_focus = ROM_grant_szekelyfold_autonomy
+			NOT = {
+				778 = {
+					is_core_of = ROM
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 3
+		}
+		remove_effect = {
+			if = {
+				limit = {
+					778 = {
+						has_dynamic_modifier = {
+							modifier = ROM_szekelyfold_autonomy
+						}
+					}
+				}
+				custom_effect_tooltip = ROM_raise_szekelyfold_autonomy.tt
+				hidden_effect = {
+					778 = {
+						remove_dynamic_modifier = {
+							modifier = ROM_szekelyfold_autonomy
+						}
+						add_dynamic_modifier = {
+							modifier = ROM_szekelyfold_autonomy_higher
+						}
+					}
+				}
+			}
+			else = {
+				custom_effect_tooltip = ROM_raise_szekelyfold_autonomy.tt
+				hidden_effect = {
+					778 = {
+						remove_dynamic_modifier = {
+							modifier = ROM_szekelyfold_autonomy_lower
+						}
+						add_dynamic_modifier = {
+							modifier = ROM_szekelyfold_autonomy
+						}
+					}
+				}
+			}
+		}
+	}
+	ROM_decrease_szekelyfold_autonomy = {
+		icon = GFX_decision_generic_nationalism
+		cost = 15
+		days_remove = 15
+		allowed = {
+			original_tag = ROM
+		}
+		available = {
+			NOT = {
+				778 = {
+					is_core_of = ROM
+					custom_trigger_tooltip = {
+						tooltip = ROM_szekelyfold_lower_autonomy
+						trigger = {
+							has_dynamic_modifier = {
+								modifier = ROM_szekelyfold_autonomy_lower
+							}
+						}
+					}
+				}
+			}
+		}
+		visible = {
+			has_completed_focus = ROM_grant_szekelyfold_autonomy
+			NOT = {
+				778 = {
+					is_core_of = ROM
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 3
+		}
+		remove_effect = {
+			add_war_support = 0.05
+			add_political_power = 20
+			if = {
+				limit = {
+					778 = {
+						has_dynamic_modifier = {
+							modifier = ROM_szekelyfold_autonomy
+						}
+					}
+				}
+				custom_effect_tooltip = ROM_lower_szekelyfold_autonomy.tt
+				hidden_effect = {
+					778 = {
+						remove_dynamic_modifier = {
+							modifier = ROM_szekelyfold_autonomy
+						}
+						add_dynamic_modifier = {
+							modifier = ROM_szekelyfold_autonomy_lower
+						}
+					}
+				}
+			}
+			else = {
+				custom_effect_tooltip = ROM_lower_szekelyfold_autonomy.tt
+				hidden_effect = {
+					778 = {
+						remove_dynamic_modifier = {
+							modifier = ROM_szekelyfold_autonomy_higher
+						}
+						add_dynamic_modifier = {
+							modifier = ROM_szekelyfold_autonomy
+						}
+					}
+				}
+			}
+		}
+	}
+	ROM_clamp_down_on_the_resistance = {
+		icon = GFX_decision_generic_nationalism
+		cost = 35
+		days_remove = 30
+		allowed = {
+			original_tag = ROM
+		}
+		available = {
+			NOT = {
+				778 = {
+					is_core_of = ROM
+				}
+			}
+		}
+		visible = {
+			has_completed_focus = ROM_suppress_szekelyfold_hungarians
+			has_completed_focus = ROM_promote_romanian_language
+			NOT = {
+				778 = {
+					is_core_of = ROM
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 3
+		}
+		custom_cost_trigger = {
+			has_equipment = { infantry_equipment > 2000 }
+		}
+		custom_cost_text = 2000_infantry_equipment_1
+		modifier = {
+			political_power_cost = 0.25
+		}
+		remove_effect = {
+			hidden_effect = {
+				778 = {
+					remove_dynamic_modifier = {
+						modifier = ROM_hungarian_opposition
+					}
+					add_dynamic_modifier = {
+						modifier = ROM_hungarian_opposition_weakened
+					}
+				}
+			}
+			custom_effect_tooltip = ROM_hungarian_opposition_weakened.tt
+			add_equipment_to_stockpile = {
+				type = infantry_equipment
+				amount = -2000
+			}
+		}
+	}
+	ROM_concessions_to_hungarians = {
+		icon = GFX_decision_generic_political_discourse
+		cost = 25
+		days_remove = 15
+		allowed = {
+			original_tag = ROM
+		}
+		available = {
+			NOT = {
+				778 = {
+					is_core_of = ROM
+				}
+				has_war_with = HUN
+			}
+		}
+		visible = {
+			has_completed_focus = ROM_suppress_szekelyfold_hungarians
+			NOT = {
+				778 = {
+					is_core_of = ROM
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 3
+		}
+		modifier = {
+			political_power_cost = 0.25
+		}
+		remove_effect = {
+			778 = {
+				add_compliance = 15
+			}
+		}
+	}
+	ROM_rename_szekelyfold = {
+		icon = GFX_decision_generic_nationalism
+		cost = 10
+		days_remove = 15
+		allowed = {
+			original_tag = ROM
+		}
+		available = {
+		}
+		visible = {
+			has_completed_focus = ROM_suppress_szekelyfold_hungarians
+			has_completed_focus = ROM_promote_romanian_language
+		}
+		ai_will_do = {
+			factor = 3
+		}
+		remove_effect = {
+			add_war_support = 0.05
+			add_political_power = 25
+			778 = {
+				set_state_name = SZEKELYFOLD_STATE
+			}
+			hidden_effect = {
+				country_event = {
+					id = ww1_romania.147
+					days = 2
+				}
+			}
+		}
+	}
 }
 
-ROM_repay_defeat_war_debts = {
+ROM_the_romanian_economy_cat = {
 	ROM_repay_war_debt_bulk = {
 		icon = GFX_decision_eng_trade_unions_support
 		cost = 200
@@ -1751,6 +2111,129 @@ ROM_repay_defeat_war_debts = {
 				ROM_eco_stability = 0.04
 			}
 			custom_effect_tooltip = ROM_small_pay_debt_decision.tt
+		}
+	}
+	ROM_open_transylvanian_coal_mines = {
+		icon = GFX_decision_generic_construction
+		cost = 30
+		days_remove = 30
+		fire_only_once = no
+		highlight_states = {
+			highlight_states_trigger = {
+				state = 84
+			}
+		}
+		allowed = {
+			original_tag = ROM
+		}
+		available = {
+			84 = {
+				is_owned_and_controlled_by = ROM
+			}
+		}
+		visible = {
+			has_completed_focus = ROM_expansion_of_the_coal_industry
+			84 = {
+				is_owned_and_controlled_by = ROM
+			}
+		}
+		modifier = {
+			civilian_factory_use = 1
+		}
+		remove_effect = {
+			84 = {
+				add_resource = {
+					type = steel
+					amount = 3
+				}
+			}
+			custom_effect_tooltip = ROM_ice.tt
+			add_to_variable = {
+				ROM_consumer_goods = -0.05
+			}
+		}
+	}
+	ROM_takeover_resita_steel_works = {
+		icon = GFX_decision_steel
+		cost = 30
+		days_remove = 50
+		fire_only_once = no
+		highlight_states = {
+			highlight_states_trigger = {
+				state = 82
+			}
+		}
+		allowed = {
+			original_tag = ROM
+		}
+		available = {
+			82 = {
+				is_owned_and_controlled_by = ROM
+			}
+		}
+		visible = {
+			OR = {
+				has_completed_focus = ROM_reopen_the_steel_industry
+				has_completed_focus = ROM_nationalize_resita_enterprise
+			}
+			82 = {
+				is_owned_and_controlled_by = ROM
+			}
+		}
+		modifier = {
+			civilian_factory_use = 1
+		}
+		remove_effect = {
+			82 = {
+				add_resource = {
+					type = steel
+					amount = 4
+				}
+			}
+			custom_effect_tooltip = ROM_efi
+			add_to_variable = {
+				ROM_build_speed = 0.05
+			}
+		}
+	}
+	ROM_takeover_calan_steel_works = {
+		icon = GFX_decision_steel
+		cost = 30
+		days_remove = 50
+		fire_only_once = no
+		highlight_states = {
+			highlight_states_trigger = {
+				state = 84
+			}
+		}
+		allowed = {
+			original_tag = ROM
+		}
+		available = {
+			84 = {
+				is_owned_and_controlled_by = ROM
+			}
+		}
+		visible = {
+			has_completed_focus = ROM_reopen_the_steel_industry
+			84 = {
+				is_owned_and_controlled_by = ROM
+			}
+		}
+		modifier = {
+			civilian_factory_use = 1
+		}
+		remove_effect = {
+			84 = {
+				add_resource = {
+					type = steel
+					amount = 4
+				}
+			}
+			custom_effect_tooltip = ROM_efi
+			add_to_variable = {
+				ROM_build_speed = 0.05
+			}
 		}
 	}
 }
