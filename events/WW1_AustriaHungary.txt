@@ -292,9 +292,178 @@ news_event = {
 	}
 }
 
-# ww1_auh.5
+# Bosnian Revolt
+country_event = {
+	id = ww1_auh.5
+	title = ww1_auh.5.t
+	desc = ww1_auh.5.d
+	picture = GFX_report_event_ger_civil_war
+	trigger = {
+		tag = AUS
+		OR = {
+			has_war_with = GER
+			has_war_with = SER
+		}
+		OR = {
+			has_subject = BOS
+			AND = {
+				104 = { is_owned_or_subject_PREV_trigger = yes }
+				NOT = { country_exists = BOS }
+			}
+		}
+		OR = {
+			NOT = { has_global_flag = great_war }
+			has_global_flag = interbellum
+		}
+		NOT = { has_global_flag = bosnian_revolt }
+	}
+	fire_only_once = yes
+	mean_time_to_happen = {
+		days = 15
+		modifier = {
+			factor = 0
+			has_war_with = SER
+		}
+	}
+	immediate = {
+		hidden_effect = {
+			every_country = {
+				limit = {
+					OR = {
+						tag = GER
+						is_in_faction_with = GER
+						has_war_with = AUS
+						tag = AUS
+						is_in_faction_with = AUS
+						has_war_with = GER
+					}
+				}
+				news_event = ww1_bruderkrieg.11
+			}
+			set_global_flag = bosnian_revolt
+			BOS = {
+				clear_all_relations = yes
+				transfer_state = 104
+				promote_character = BOS_vladimir_gacinovic
+				set_politics = {
+					ruling_party = fascism
+					elections_allowed = no
+				}
+				set_popularities = {
+					democratic = 40
+					fascism = 60
+				}
+				declare_war_on = {
+					target = AUS
+					type = take_state_focus
+					generator = { 4 152 153 39 }
+				}
+				division_template = {
+					name = "Bosanski pobunjenici"
+					is_locked = yes
+					regiments = {
+						irregular_infantry = { x = 0 y = 0 }
+						irregular_infantry = { x = 0 y = 1 }
+						irregular_infantry = { x = 0 y = 2 }
+					}	
+				}	
+			}
+			104 = {
+				remove_core_of = AUS
+				add_claim_by = AUS
+				add_core_of = BOS
+				create_unit = {
+					division = "name = \"Četnički odred\" division_template = \"Bosanski pobunjenici\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
+					owner = BOS
+				}
+				create_unit = {
+					division = "name = \"Odred Mlade Bosne\" division_template = \"Bosanski pobunjenici\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
+					owner = BOS
+				}
+				create_unit = {
+					division = "name = \"Podrinjski čentički odred\" division_template = \"Bosanski pobunjenici\" start_experience_factor = 0.5 start_equipment_factor = 0.5"
+					owner = BOS
+				}
+			}
+		}
+	}
+	option = {
+		name = ww1_auh.5.a
+		effect_tooltip = {
+			release = BOS
+			BOS = {
+				declare_war_on = {
+					target = ROOT
+					type = independence_wargoal
+				}
+			}
+		}
+	}
+}
 
-# ww1_auh.6
+# Serbia Demands Bosnia
+country_event = {
+	id = ww1_auh.6
+	title = ww1_auh.6.t
+	desc = ww1_auh.6.d
+	picture = GFX_report_event_generic_conference
+	is_triggered_only = yes
+	option = {
+		name = ww1_auh.6.a
+		FROM = {
+			declare_war_on = {
+				target = ROOT
+				type = take_state_focus
+				generator = { 575 104 }
+			}
+		}
+		ai_chance = {
+			base = 75
+			modifier = {
+				factor = 0
+				surrender_progress > 0.6
+			}
+		}
+	}
+	option = {
+		name = ww1_auh.6.b
+		every_state = {
+			limit = {
+				is_owned_or_subject_trigger = yes
+				OR = {
+					state = 104
+					state = 575
+				}
+			}
+			transfer_state_to = FROM
+		}
+		FROM = {
+			annex_country = {
+				target = BOS
+			}
+		}
+		set_truce = {
+			target = FROM
+			days = 365
+		}
+		diplomatic_relation = {
+			country = FROM
+			relation = non_aggression_pact
+			active = yes
+		}
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 50
+				surrender_progress > 0.4
+			}
+			modifier = {
+				add = 200
+				surrender_progress > 0.6
+			}
+		}
+	}
+}
 
 # ww1_auh.7
 
@@ -2609,88 +2778,73 @@ country_event = {
 					autonomous_state = autonomy_free
 				}
 			}
+			AUS = {
+				release = CRO
+				set_autonomy = {
+					target = CRO
+					autonomous_state = autonomy_free
+				}
+			}
+			every_state = {
+				limit = {
+					is_owned_by = CRO
+				}
+				add_claim_by = AUS
+				add_claim_by = HUN
+			}
+			CRO = {
+				leave_faction = yes
+				clr_country_flag = monarchist_puppet
+				add_popularity = {
+					ideology = democratic
+					popularity = 0.20
+				}
+				set_politics = {
+					ruling_party = democratic
+					elections_allowed = yes
+				}
+				set_rule = {
+					can_join_factions = no
+				}
+				division_template = {
+					name = "Vojska hrvatske"
+					regiments = {
+						militia = { x = 0 y = 0 }
+						militia = { x = 0 y = 1 }
+						militia = { x = 0 y = 2 }
+						militia = { x = 1 y = 0 }
+						militia = { x = 1 y = 1 }
+						militia = { x = 1 y = 2 }
+					}
+				}
+				109 = {
+					create_unit = {
+						division = "name = \"1. Vojska hrvatske\" division_template = \"Vojska hrvatske\" start_experience_factor = 0.2 start_equipment_factor = 0.5"
+						owner = CRO
+					}
+					create_unit = {
+						division = "name = \"2. Vojska hrvatske\" division_template = \"Vojska hrvatske\" start_experience_factor = 0.2 start_equipment_factor = 0.5"
+						owner = CRO
+					}
+					create_unit = {
+						division = "name = \"3. Vojska hrvatske\" division_template = \"Vojska hrvatske\" start_experience_factor = 0.1 start_equipment_factor = 0.5"
+						owner = CRO
+					}
+				}
+				208 = {
+					create_unit = {
+						division = "name = \"4. Vojska hrvatske\" division_template = \"Vojska hrvatske\" start_experience_factor = 0.2 start_equipment_factor = 0.5"
+						owner = CRO
+					}
+					create_unit = {
+						division = "name = \"5. Vojska hrvatske\" division_template = \"Vojska hrvatske\" start_experience_factor = 0.2 start_equipment_factor = 0.5"
+						owner = CRO
+					}
+				}
+			}
 		}
-		AUS = {
+		effect_tooltip = {
 			release = CRO
-			set_autonomy = {
-				target = CRO
-				autonomous_state = autonomy_free
-			}
-		}
-		every_state = {
-			limit = {
-				is_owned_by = CRO
-			}
-			add_claim_by = AUS
-			add_claim_by = HUN
-		}
-		CRO = {
-			leave_faction = yes
-			clr_country_flag = monarchist_puppet
-			add_popularity = {
-				ideology = democratic
-				popularity = 0.20
-			}
-			set_politics = {
-				ruling_party = democratic
-				elections_allowed = yes
-			}
-			set_rule = {
-				can_join_factions = no
-			}
-			division_template = {
-				name = "Vojska hrvatske"
-				regiments = {
-					militia = {
-						x = 0
-						y = 0
-					}
-					militia = {
-						x = 0
-						y = 1
-					}
-					militia = {
-						x = 0
-						y = 2
-					}
-					militia = {
-						x = 1
-						y = 0
-					}
-					militia = {
-						x = 1
-						y = 1
-					}
-					militia = {
-						x = 1
-						y = 2
-					}
-				}
-			}
-			109 = {
-				create_unit = {
-					division = "name = \"1. Vojska hrvatske\" division_template = \"Vojska hrvatske\" start_experience_factor = 0.2 start_equipment_factor = 0.5"
-					owner = CRO
-				}
-				create_unit = {
-					division = "name = \"2. Vojska hrvatske\" division_template = \"Vojska hrvatske\" start_experience_factor = 0.2 start_equipment_factor = 0.5"
-					owner = CRO
-				}
-				create_unit = {
-					division = "name = \"3. Vojska hrvatske\" division_template = \"Vojska hrvatske\" start_experience_factor = 0.1 start_equipment_factor = 0.5"
-					owner = CRO
-				}
-			}
-			208 = {
-				create_unit = {
-					division = "name = \"4. Vojska hrvatske\" division_template = \"Vojska hrvatske\" start_experience_factor = 0.2 start_equipment_factor = 0.5"
-					owner = CRO
-				}
-				create_unit = {
-					division = "name = \"5. Vojska hrvatske\" division_template = \"Vojska hrvatske\" start_experience_factor = 0.2 start_equipment_factor = 0.5"
-					owner = CRO
-				}
-			}
 		}
 		AUS = {
 			declare_war_on = {
@@ -4494,7 +4648,7 @@ country_event = {
 		name = ww1_auh.89.a
 		trigger = {
 			NOT = {
-				has_cosmetic_tag = AUH_USGA
+				has_cosmetic_tag = AUS_USGA
 			}
 		}
 		every_owned_state = {
