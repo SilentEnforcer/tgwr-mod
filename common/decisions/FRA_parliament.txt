@@ -405,17 +405,17 @@ parliament_gui_decision_category = {
 		is_good = yes
 		timeout_effect = {
 			## historical disposition
-			set_variable = { var = SFIO value = 140 } 
-			set_variable = { var = independent_socialist value = 5 } 
+			set_variable = { var = SFIO value = 102 } 
+			set_variable = { var = independent_socialist value = 26 } 
 			set_variable = { var = democratic_republican_alliance value = 77 }
-			set_variable = { var = radical_party value = 174 } 
+			set_variable = { var = radical_party value = 192 } 
 			set_variable = { var = independent_radicals value = 66 } 
 			set_variable = { var = republicain_federation value = 88 } 
-			set_variable = { var = popular_liberal_action value = 38 } 
+			set_variable = { var = popular_liberal_action value = 50 } 
 			set_variable = { var = nationalists value = 0 }
 			set_variable = { var = vacant value = 0 }
 			set_variable = { var = conservatives value = 0 }
-			set_variable = { var = independent_republicans value = 12 }
+			set_variable = { var = independent_republicans value = 0 }
 
 			apply_focus_tree_effects = yes
 			parliament_reassign_seats = yes
@@ -2766,6 +2766,8 @@ parliament_gui_decision_category = {
 			OR = {
 				has_country_flag = FRA_ww1_socialist_mentality
 				has_country_flag = FRA_ww1_center_right_domination
+				has_country_flag = FRA_ww1_ban_far_right_leagues
+				has_country_flag = FRA_fascism_banned
 			}
 			NOT = {
 				has_country_flag = FRA_law_against_far_right_leagues
@@ -4674,6 +4676,150 @@ parliament_gui_decision_category = {
 		}
 	}
 
+	FRA_extended_citizenship_for_colonial_volunteers = {
+		icon = GFX_decision_SOV_place_hq
+		allowed = {
+			original_tag = FRA
+		}
+		cost = 25
+		visible = {
+			has_country_flag = FRA_ww1_colonial_volunteers
+			NOT = {
+				has_country_flag = FRA_extended_citizenship_for_colonial_volunteers
+			}
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = FRA_250_seats
+				check_variable = {
+					democrat_alliance > 300
+				}
+			}
+			has_idea = FRA_ww1_colonial_volunteers
+		}
+		fire_only_once = yes
+		days_remove = 21
+		remove_effect = {
+			set_country_flag = FRA_extended_citizenship_for_colonial_volunteers
+			custom_effect_tooltip = FRA_250_seats_tt
+			if = {
+				limit = {
+					check_variable = {
+						democrat_alliance < 250
+					}
+				}
+				hidden_effect = { add_stability = -0.01 }
+				custom_effect_tooltip = FRA_vote_will_fail
+				else = {
+					custom_effect_tooltip = FRA_vote_will_pass
+					hidden_effect = {
+						swap_ideas = {
+							add_idea = FRA_ww1_colonial_volunteers2
+							remove_idea = FRA_ww1_colonial_volunteers
+						}
+						far_right_hate = yes
+					}
+				}
+			}
+			custom_effect_tooltip = FRA_effect_if_law_pass
+			effect_tooltip = {
+				swap_ideas = {
+					add_idea = FRA_ww1_colonial_volunteers2
+					remove_idea = FRA_ww1_colonial_volunteers
+				}
+				far_right_hate = yes
+			}
+			custom_effect_tooltip = FRA_effect_if_law_fail
+			effect_tooltip = {
+				add_stability = -0.01
+			}
+		}
+		ai_will_do = {
+			factor = 500
+		}
+	}
+}
+
+FRA_connection_with_paris = {
+	### puppet ask for funds ! 
+	FRA_ask_french_workers_help = {
+		icon = GFX_decision_SOV_place_hq
+		allowed = {
+			always = yes
+		}
+		cost = 25
+		visible = {
+			has_capitulated = no
+			is_puppet_of = FRA
+			has_country_flag = FRA_puppet_can_ask_for_help
+		}
+		available = {
+			has_capitulated = no
+			is_puppet_of = FRA
+		}
+		fire_only_once = no
+		days_remove = 7
+		days_re_enable = 360
+		remove_effect = {
+			set_variable_to_random = {
+				var = random_funds
+				min = 850000
+				max = 2145000
+				integer = yes
+			}
+			FRA = {
+				country_event = {
+					id = ww1_france.446
+					days = 2
+				}
+			}
+			custom_effect_tooltip = back_in_360_days
+		}
+		ai_will_do = {
+			factor = 0
+		}
+	}
+	FRA_ask_for_french_rifles = {
+		icon = GFX_decision_SOV_place_hq
+		allowed = {
+			always = yes
+		}
+		cost = 25
+		visible = {
+			has_capitulated = no
+			is_puppet_of = FRA
+			has_country_flag = FRA_puppet_can_ask_for_help
+		}
+		available = {
+			has_capitulated = no
+			is_puppet_of = FRA
+		}
+		fire_only_once = no
+		days_remove = 7
+		days_re_enable = 360
+		remove_effect = {
+			set_variable_to_random = {
+				var = random_funds
+				min = 850000
+				max = 2145000
+				integer = yes
+			}
+			FRA = {
+				country_event = {
+					id = ww1_france.449
+					days = 2
+				}
+			}
+			custom_effect_tooltip = back_in_360_days
+		}
+		ai_will_do = {
+			factor = 0
+		}
+	}
+}
+
+
+parliament_gui_decision_category = {
 	FRA_sfio_are_leaving_the_coalition = {
 		icon = GFX_decision_SOV_place_hq
 		desc = FRA_leaving_the_coalition_desc
@@ -5520,84 +5666,6 @@ parliament_gui_decision_category = {
 		timeout_effect = {
 			SFIO_hate_a_lot = yes
 			add_war_support = -0.05
-		}
-	}
-}
-
-FRA_connection_with_paris = {
-	### puppet ask for funds ! 
-	FRA_ask_french_workers_help = {
-		icon = GFX_decision_SOV_place_hq
-		allowed = {
-			always = yes
-		}
-		cost = 25
-		visible = {
-			has_capitulated = no
-			is_puppet_of = FRA
-			has_country_flag = FRA_puppet_can_ask_for_help
-		}
-		available = {
-			has_capitulated = no
-			is_puppet_of = FRA
-		}
-		fire_only_once = no
-		days_remove = 7
-		days_re_enable = 360
-		remove_effect = {
-			set_variable_to_random = {
-				var = random_funds
-				min = 850000
-				max = 2145000
-				integer = yes
-			}
-			FRA = {
-				country_event = {
-					id = ww1_france.446
-					days = 2
-				}
-			}
-			custom_effect_tooltip = back_in_360_days
-		}
-		ai_will_do = {
-			factor = 0
-		}
-	}
-	FRA_ask_for_french_rifles = {
-		icon = GFX_decision_SOV_place_hq
-		allowed = {
-			always = yes
-		}
-		cost = 25
-		visible = {
-			has_capitulated = no
-			is_puppet_of = FRA
-			has_country_flag = FRA_puppet_can_ask_for_help
-		}
-		available = {
-			has_capitulated = no
-			is_puppet_of = FRA
-		}
-		fire_only_once = no
-		days_remove = 7
-		days_re_enable = 360
-		remove_effect = {
-			set_variable_to_random = {
-				var = random_funds
-				min = 850000
-				max = 2145000
-				integer = yes
-			}
-			FRA = {
-				country_event = {
-					id = ww1_france.449
-					days = 2
-				}
-			}
-			custom_effect_tooltip = back_in_360_days
-		}
-		ai_will_do = {
-			factor = 0
 		}
 	}
 }
