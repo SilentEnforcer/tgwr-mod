@@ -1,68 +1,667 @@
-add_namespace = ww1_ukraine_civil_war
+add_namespace = ww1_ukraine
 
-# FIRST ALL-UKRAINIAN CONGRESS OF SOVIETS
+# HETMANATE
 ###########
 country_event = {
-	id = ww1_ukraine_civil_war.1
-	title = ww1_ukraine_civil_war.1.t
-	desc = ww1_ukraine_civil_war.1.d
+	id = ww1_ukraine.1
+	title = ww1_ukraine.1.t
+	desc = ww1_ukraine.1.d
 	picture = GFX_report_event_yugoslavian_cavalry
 	fire_only_once = yes
 	is_triggered_only = yes
-	immediate = {
-		hidden_effect = {
-			create_USR = yes
-		}
+	trigger = {
+	 	tag = GER
+		has_subject = UKR
+		has_global_flag = ukr_ger_bread_peace 
+	 	NOT = {
+	 		has_country_flag = great_war_loser
+			has_global_flag = compiegne_armistice
+	 	}
 	}
 	option = {
-		name = ww1_ukraine_civil_war.1.a
-		UPR = {
-			start_civil_war = {
-				ideology = communism
-			}
-		}
+		name = ww1_ukraine.1.a
+		custom_effect_tooltip = historical_tt
+		UKR = { country_event = { id = ww1_ukraine.2 days = 1 } }
 		ai_chance = { factor = 100 }
+	}
+	option = {
+		name = ww1_ukraine.1.b
+		ai_chance = { factor = 0 }
 	}
 }
 
-# BOLSHEVIK COUP IN KHARKOV
-###########
+#UKRAINE - HETMANATE
+####################
 country_event = {
-	id = ww1_ukraine_civil_war.2
-	title = ww1_ukraine_civil_war.2.t
-	desc = ww1_ukraine_civil_war.2.d
+	id = ww1_ukraine.2
+	title = ww1_ukraine.2.t
+	desc = ww1_ukraine.2.d
 	picture = GFX_report_event_yugoslavian_cavalry
 	fire_only_once = yes
 	is_triggered_only = yes
 	option = {
-		name = ww1_ukraine_civil_war.2.a
-		effect_tooltip = {
-			UPR = {
-				start_civil_war = {
-					ideology = communism
+		name = ww1_ukraine.2.a
+		every_state = {
+			limit = {
+				OR = {
+					is_claimed_by = UKR
+					is_core_of = UKR
+				}
+				OR = {
+					is_owned_by = RUS
+					is_owned_by = SOV
+					is_owned_by = BLR
+					is_owned_by = POL
+					is_owned_by = GER
+				}
+				NOT = {
+					state = 237
+				}
+			}
+			transfer_state_to = UKR
+			remove_russian_claims = yes
+		}
+		UKR = {
+			set_politics = {
+				ruling_party = neutrality
+				elections_allowed = no
+			}
+			promote_character = UKR_pavlo_skoropadskyi
+			set_country_flag = ukrainian_hetmanate
+			hidden_effect = {
+				set_popularities = {
+					democratic = 35
+					fascism = 10
+					communism = 24
+					neutrality = 31
+				}
+				set_cosmetic_tag = UKR_GETMAN
+			}
+		}
+		every_possible_country = {
+			limit = {
+				has_character = RUS_aleksandr_ragoza
+			}
+			RUS_aleksandr_ragoza = {
+				promote_leader = yes
+				set_nationality = UKR		
+			}		
+		}
+		every_possible_country = {
+			limit = {
+				has_character = RUS_fyodor_keller
+			}
+			RUS_fyodor_keller = {
+				promote_leader = yes
+				set_nationality = UKR		
+			}		
+		}
+		every_possible_country = {
+			limit = {
+				has_character = RUS_nikolai_bredov
+			}
+			RUS_nikolai_bredov = {
+				set_nationality = UKR		
+			}		
+		}
+		every_possible_country = {
+			limit = {
+				has_character = RUS_nicholas_golovin
+			}
+			RUS_nicholas_golovin = {
+				set_nationality = UKR		
+			}		
+		}
+	}
+	# option = {
+	# 	name = ww1_ukraine.2.b
+	# 	GER = { country_event = { id = ww1_ukraine.3 days = 1 } }
+	# 	ai_chance = { 
+	# 		factor = 10
+	# 		modifier = {
+	# 			factor = 0
+	# 			is_historical_focus_on = yes
+	# 		} 
+	# 	}
+	# }
+}
+
+#HETMANATE - UKRAINE REFUSED
+########################
+country_event = {
+	id = ww1_ukraine.3
+	title = ww1_ukraine.3.t
+	desc = ww1_ukraine.3.d
+	picture = GFX_report_event_spr_civil_war_faction_defeated
+	fire_only_once = yes
+	is_triggered_only = yes
+	option = {
+		name = ww1_ukraine.3.a
+		GER = {
+			declare_war_on = {
+				target = UKR
+				type = puppet_wargoal_focus
+			}
+		}	
+		ai_chance = { factor = 70 }
+	}
+	option = {
+		name = ww1_ukraine.3.b
+		ai_chance = { factor = 30 }
+	}
+}
+
+#FALL OF HETMANATE
+###################
+country_event = {
+	id = ww1_ukraine.4
+	title = ww1_ukraine.4.t
+	desc = ww1_ukraine.4.d
+	fire_only_once = yes
+	trigger = {
+		tag = UKR
+		has_government = neutrality
+		has_global_flag = great_war_ends
+		has_cosmetic_tag = UKR_GETMAN
+		has_country_flag = ukrainian_hetmanate	
+		GER = {
+			OR = {
+				has_country_flag = great_war_loser
+				is_subject = yes
+				exists = no
+				has_civil_war = yes
+			}
+		}
+	}
+	picture = GFX_report_event_gathering_protest
+	mean_time_to_happen = {
+		days = 30
+	}
+	option = {
+		name = ww1_ukraine.4.a
+		GER = { end_puppet = UKR }
+		if = {
+			limit = {
+				is_in_faction_with = GER
+				is_subject = no
+			}
+			leave_faction = yes
+		}
+		set_politics = {
+			ruling_party = democratic
+			elections_allowed = yes
+		}
+		set_popularities = {
+			democratic = 50
+			fascism = 0
+			communism = 40
+			neutrality = 10
+		}
+		set_party_name = {
+			ideology = democratic
+			long_name = UKR_directory_party							
+			name = UKR_directory_party
+    	}
+		promote_character = UKR_volodymyr_vynnychenko
+    	drop_cosmetic_tag = yes
+    	clr_country_flag = ukrainian_hetmanate
+		clr_country_flag = protectorate
+    		ai_chance = { 
+    			factor = 100
+		}
+		hidden_effect = {
+			retire_character = RUS_fyodor_keller
+			RUS_nikolai_bredov = {
+				set_nationality = SRA
+			}	
+			RUS_nicholas_golovin = {
+				set_nationality = SIB
+			}
+		}
+	}
+}
+#WUK Joins
+country_event = {
+	id = ww1_ukraine.5
+	title = ww1_ukraine.5.t
+	desc = ww1_ukraine.5.d
+	is_triggered_only = yes
+	picture = GFX_report_event_generic_peaceful_annexation
+	
+	option={
+		name = ww1_ukraine.5.a
+		ai_chance = {
+			factor = 100
+		}
+		every_other_country = {
+			limit = {
+				has_war_with = FROM
+				NOT = {
+					is_ally_with = ROOT
+					is_in_faction_with = ROOT
+				}
+			}
+			ROOT = {
+				add_to_war = {
+					targeted_alliance = FROM
+					enemy = PREV
+				}
+			}
+		}
+		FROM = {
+			every_enemy_country = {
+				ROOT = {
+					add_to_war = {
+						targeted_alliance = FROM
+						enemy = PREV
+					}
+				}
+			}
+		}
+		every_owned_state = {
+			limit = { is_demilitarized_zone = yes }
+			set_demilitarized_zone = no
+		}
+		annex_country = {
+			target = FROM
+			transfer_troops = yes
+		}
+		if = {
+			limit = {
+				is_ai = no
+				FROM = { is_ai = yes }
+			}
+			FROM = { change_tag_from = ROOT }
+		}
+	}
+	option = {
+		name = ww1_ukraine.5.b
+		ai_chance = { base = 0 }
+	}
+}
+
+#President Petrushevych
+country_event = {
+	id = ww1_ukraine.6
+	title = ww1_ukraine.6.t
+	desc = ww1_ukraine.6.d
+	picture = GFX_report_event_gre_megali_conference_signing
+	trigger = {
+		tag = WUK
+		has_country_leader = {
+			character = WUK_kost_levytsky
+			ruling_only = yes
+		}
+		OR = {
+			is_subject = no
+			is_subject_of = UKR
+			OVERLORD = { has_government = democratic }
+		}
+	}
+	mean_time_to_happen = {
+		days = 77
+	}
+	fire_only_once = yes
+	option={
+		name = ww1_ukraine.6.a
+		promote_character = WUK_yevhen_petrushevych
+		if = {
+			limit = {
+				has_government = neutrality
+			}
+			set_politics = {
+				ruling_party = democratic
+				elections_allowed = no
+			}
+		}
+	}
+}
+
+# Treaty of Warsaw (Polish-Ukrainian Agreement)
+country_event = {
+	id = ww1_ukraine.13
+	title = ww1_ukraine.13.t
+	desc = ww1_ukraine.13.d
+	picture = GFX_report_event_generic_read_write
+	is_triggered_only = yes
+	option = {
+		name = ww1_ukraine.13.a
+		FROM = {
+			every_owned_state = {
+				limit = {
+					OR = {
+						is_core_of = ROOT
+						is_claimed_by = ROOT
+						state = 94
+						state = 194
+						state = 241
+						state = 808
+					}
+					NOT = { state = 237 }
+				}
+				transfer_state_to = ROOT
+			}
+			every_country = {
+				limit = {
+					OR = {
+						tag = PREV
+						is_subject_of = PREV
+						is_in_faction_with = PREV
+					}
+				}
+				set_truce = {
+					target = ROOT
+					days = 365
+				}
+				white_peace = ROOT
+			}
+		}
+		if = {
+			limit = {
+				country_exists = WUK
+			}
+			annex_country = {
+				target = WUK
+				transfer_troops = yes
+			}
+			hidden_effect = {
+				every_state = {
+					limit = { is_core_of = WUK }
+					add_core_of = ROOT
+					remove_core_of = WUK
+				}
+			}
+		}
+		if = {
+			limit = {
+				NOT = {
+					is_subject_of = SOV
+					has_war_with = SOV
+					is_in_faction_with = SOV
+					has_government = communism
+					has_global_flag = polish_soviet_war
+				}
+				FROM = { has_war_with = SOV }
+			}
+			add_to_war = {
+				targeted_alliance = FROM
+				enemy = SOV
+			}
+			hidden_effect = {
+				if = {
+					limit = {
+						has_idea = SOV_idea_influence_of_revolution
+					}
+					remove_ideas = { SOV_idea_influence_of_revolution }
+					add_ideas = POL_idea_polish_reclamation
+					add_ideas = idea_soviet_westward_offensive
+				}
+				SOV = { country_event = ww1_soviet.16 }
+				add_war_support = 0.25
+				every_state = {
+					limit = {
+						OR = {
+							state = 93
+							state = 94
+							state = 95
+							state = 773
+							state = 784
+							state = 808
+						}
+					}
+					add_core_of = PREV
+				}
+				every_other_country = {
+					limit = {
+						NOT = {
+							original_tag = RUS has_country_flag = RUS_soviet_tag
+							is_in_faction_with = SOV
+							has_war_with = PREV
+						}
+						OR = {
+							owns_state = 97
+							owns_state = 773
+							owns_state = 766
+							owns_state = 784
+							owns_state = 1071
+						}
+					}
+					every_owned_state = {
+						limit = {
+							OR = {
+								state = 97
+								state = 773
+								state = 766
+								state = 1071
+								#state = 784
+							}
+						}
+						transfer_state_to = PREV.PREV
+					}
+				}
+				every_other_country = {
+					limit = {
+						controls_state = 808
+					}
+					if = {
+						limit = {
+							NOT = {
+								has_war_with = POL
+								is_in_faction_with = SOV
+								original_tag = RUS has_country_flag = RUS_soviet_tag
+							}
+						}
+						POL = {
+							transfer_state = 808
+						}
+					}
+				}
+				FRA = {
+					if = {
+						limit = {
+							has_country_flag = great_war_winner
+							NOT = {
+								has_government = communism
+							}
+						}
+						hidden_effect = {
+							set_rule = {
+								can_send_volunteers = yes
+							}
+							add_ai_strategy = {
+								id = PREV
+								type = send_volunteers_desire
+								value = 100
+							}
+						}
+					}
+				}
+				if = {
+					limit = {
+						has_army_size = {
+							size < 20
+						}
+					}
+					division_template = {
+						name = "Dywizja Strzelców Polskich"
+						division_names_group = POL_INF_01
+						regiments = {
+							infantry = { x = 0 y = 0 }
+							infantry = { x = 0 y = 1 }
+							infantry = { x = 0 y = 2 }
+							infantry = { x = 1 y = 0 }
+							infantry = { x = 1 y = 1 }
+							infantry = { x = 1 y = 2 }
+							infantry = { x = 2 y = 0 }
+							infantry = { x = 2 y = 1 }
+							infantry = { x = 2 y = 2 }
+						}
+						support = {
+							engineer = { x = 0 y = 0 }
+							recon = { x = 0 y = 1 }
+						}
+					}
+					capital_scope = {
+						create_unit = {
+							division = "name = \"1. Dywizja Strzelców Polskich\" division_template = \"Dywizja Strzelców Polskich\" start_experience_factor = 0.4" 
+							owner = POL
+						}
+						create_unit = {
+							division = "name = \"2. Dywizja Strzelców Polskich\" division_template = \"Dywizja Strzelców Polskich\" start_experience_factor = 0.4" 
+							owner = POL
+						}
+						create_unit = {
+							division = "name = \"3. Dywizja Strzelców Polskich\" division_template = \"Dywizja Strzelców Polskich\" start_experience_factor = 0.4" 
+							owner = POL
+						}
+						create_unit = {
+							division = "name = \"4. Dywizja Strzelców Polskich\" division_template = \"Dywizja Strzelców Polskich\" start_experience_factor = 0.4" 
+							owner = POL
+						}
+						create_unit = {
+							division = "name = \"5. Dywizja Strzelców Polskich\" division_template = \"Dywizja Strzelców Polskich\" start_experience_factor = 0.4" 
+							owner = POL
+						}
+						create_unit = {
+							division = "name = \"6. Dywizja Strzelców Polskich\" division_template = \"Dywizja Strzelców Polskich\" start_experience_factor = 0.4" 
+							owner = POL
+						}
+						create_unit = {
+							division = "name = \"7. Dywizja Strzelców Polskich\" division_template = \"Dywizja Strzelców Polskich\" start_experience_factor = 0.4" 
+							owner = POL
+						}
+					}
 				}
 			}
 		}
 	}
+	option = {
+		name = ww1_ukraine.13.b
+		add_political_power = -100
+		ai_chance = { factor = 0 }
+	}
 }
 
-# DONETSK-KRIVOY ROG SR
-###########
+# Soviet Ukraine moves capital in Kyiv
 country_event = {
-	id = ww1_ukraine_civil_war.3
-	title = ww1_ukraine_civil_war.3.t
-	desc = ww1_ukraine_civil_war.3.d
-	picture = GFX_report_event_yugoslavian_cavalry
-	fire_only_once = yes
-	is_triggered_only = yes
+	id = ww1_ukraine.14
+	title = ww1_ukraine.14.t
+	desc = ww1_ukraine.14.d
+	picture = GFX_report_event_generic_peaceful_annexation
+	trigger = {
+		original_tag = UKR
+		202 = {
+			is_owned_and_controlled_by = ROOT
+			is_capital = no
+		}
+	}
 	immediate = {
 		hidden_effect = {
-			create_DKR = yes
+			set_capital = {
+				state = 202
+			}
+		}
+	}
+	mean_time_to_happen = { days = 0 }
+	option = {
+		name = ww1_ukraine.14.a
+		effect_tooltip = {
+			set_capital = {
+				state = 202
+			}
+		}		
+	}
+}
+
+# Habsburger Kingdom collapses
+country_event = {
+	id = ww1_ukraine.15
+	title = ww1_ukraine.15.t
+	desc = ww1_ukraine.15.d
+	fire_only_once = yes
+	trigger = {
+		original_tag = UKR
+		has_cosmetic_tag = UKR_KNG
+		AUS = { has_country_flag = great_war_loser }
+	}
+	mean_time_to_happen = { days = 10 }
+	immediate = {
+		hidden_effect = {
+			every_possible_country = {
+				limit = {
+					has_character = GER_albert_wilhelm_heinrich
+				}
+				retire_character = GER_albert_wilhelm_heinrich
+			}
+			retire_character = BLR_genrikh
+			BLR_uladzimir = {
+				add_country_leader_role = {
+					promote_leader = yes
+					country_leader = {
+						ideology = semi_constitutional_monarchy
+					}
+				}
+			}
 		}
 	}
 	option = {
-		name = ww1_ukraine_civil_war.3.a
-		effect_tooltip = {
+		name = ww1_ukraine.15.a
+		add_stability = -0.5
+		if = {
+			limit = {
+				is_subject = yes
+				OVERLORD = { has_country_flag = great_war_loser }
+			}
+			OVERLORD = { end_puppet = ROOT }
+		}
+		drop_cosmetic_tag = yes
+		meta_effect = {
+			text = {
+				set_politics = {
+					ruling_party = yes
+					long_name = UKR_directory_party
+					name = UKR_directory_party
+					last_election = "[CURRENT_DATE]"
+					elections_allowed = yes
+				}
+			}
+			CURRENT_DATE = "[?global.date.GetDateStringNoHour]"
+		}
+		set_popularities = {
+			democratic = 50
+			fascism = 0
+			communism = 40
+			neutrality = 10
+		}
+		promote_character = UKR_volodymyr_vynnychenko
+		hidden_effect = {
+			UKR_vasyl_i = {
+				remove_country_leader_role = {
+					ideology = semi_constitutional_monarchy
+				}
+			}
+		}
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 30
+				is_historical_focus_on = no
+			}
+		}
+	}
+	option = {
+		name = ww1_ukraine.15.b
+		add_political_power = -70
+		add_popularity = {
+			ideology = communism
+			popularity = 0.08
+		}
+		add_popularity = {
+			ideology = fascism
+			popularity = 0.03
+		}
+		ai_chance = {
+			base = 70
 		}
 	}
 }
