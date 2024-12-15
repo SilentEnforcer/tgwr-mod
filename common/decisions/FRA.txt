@@ -117,47 +117,97 @@ debug_decisions = {
 		}
 	}
 }
-FRA_front_populaire = {
-	vote_three_hardline_sfio_laws = {
-		icon = generic_civil_support
+FRA_ai_only_decision = {
+	FRA_emergency_mobilization = {
 		allowed = {
 			tag = FRA
 		}
-		activation = {
-			has_country_flag = FRA_communist_want_more_reforms
+		available = {
+			is_ai = yes
+			date > 1914.5.10
+			is_historical_focus_on = yes
+			has_start_date < 1914.1.1	
 			NOT = {
-				has_country_flag = vote_controversal_sfio_law
+				has_country_flag = FRA_emergency_mobilization
 			}
 		}
-		available = {
-			custom_trigger_tooltip = {
-				tooltip = FRA_three_hardline_sfio_law_to_pass
-				check_variable = { 
-					var = SFIO_law_passed
-					value = 3
-					compare = greater_than_or_equals
+		visible = {
+			is_ai = yes
+		}
+		fire_only_once = no
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			set_country_flag = FRA_emergency_mobilization
+			division_template = {
+				name = "Division d'Infanterie"	
+				division_names_group = FRA_INF_01
+				regiments = {
+					infantry = { x = 0 y = 0 }
+					infantry = { x = 0 y = 1 }
+					infantry = { x = 0 y = 2 }
+					infantry = { x = 1 y = 0 }
+					infantry = { x = 1 y = 1 }
+					infantry = { x = 1 y = 2 }
+					infantry = { x = 2 y = 0 }
+					infantry = { x = 2 y = 1 }
+					infantry = { x = 2 y = 2 }
+					infantry = { x = 3 y = 0 }
+					infantry = { x = 3 y = 1 }
+					infantry = { x = 3 y = 2 }
+					artillery_brigade = { x = 3 y = 3 }
+				}
+				support = {
+					recon = { x = 0 y = 0 }
+					engineer = { x = 0 y = 1 }
 				}
 			}
-		}
-		days_mission_timeout = 360
-		is_good = no
-
-		complete_effect = {
-			add_stability = 0.01
-			set_country_flag = vote_controversal_sfio_law
-		}
-
-		timeout_effect = {
-			set_temp_variable = {
-				v = 0	#the party id
+			if = {
+				limit = {
+					has_army_manpower = {
+						size < 1500000
+					}
+				}
+				24 = {
+					create_unit = {
+						division = "division_template = \"Division d'Infanterie\"	start_experience_factor = 0.1	start_equipment_factor = 0.1"
+						owner = FRA
+						allow_spawning_on_enemy_provs = no
+						count = 14
+					}
+				}
 			}
-			set_temp_variable = {
-				loyalty_lose = 20	#how much they lose
+			if = {
+				limit = {
+					has_army_manpower = {
+						size < 1400000
+					}
+				}
+				24 = {
+					create_unit = {
+						division = "division_template = \"Division d'Infanterie\"	start_experience_factor = 0.1	start_equipment_factor = 0.1"
+						owner = FRA
+						allow_spawning_on_enemy_provs = no
+						count = 14
+					}
+				}
 			}
-			setup_loser_tooltip = yes
-
-			custom_effect_tooltip = party_coalition_lose_loyalty 
-			add_war_support = -0.05
+			if = {
+				limit = {
+					has_army_manpower = {
+						size < 1200000
+					}
+				}
+				24 = {
+					create_unit = {
+						division = "division_template = \"Division d'Infanterie\"	start_experience_factor = 0.1	start_equipment_factor = 0.1"
+						owner = FRA
+						allow_spawning_on_enemy_provs = no
+						count = 14
+					}
+				}
+			}
 		}
 	}
 }
@@ -540,6 +590,108 @@ GER_great_war = {
 					controls_state = 780
 				}
 			}
+		}
+	}
+	FRA_restore_order_in_tunisia = {
+		icon = GFX_decision_fra_advisors
+		fire_only_once = no
+		allowed = {
+			original_tag = FRA
+		}
+		visible = {
+			NOT = { has_country_flag = great_war_loser }
+			FROM = {
+				exists = yes
+				NOT = {
+					is_subject_of = ROOT
+				}
+			}
+		}
+		custom_cost_trigger = {
+			command_power > 9
+		}
+		custom_cost_text = decision_cost_CP_10
+		target_trigger = {
+			FROM = {
+				original_tag = TUN
+			}
+		}
+		available = {
+			TUN = {
+				has_war = no
+				is_subject = no
+			}
+			NOT = {
+				has_idea = idea_army_restrictions
+				has_idea = FRA_interim_government
+			}
+			has_country_flag = FRA_intervention_in_tunisia
+			NOT = {
+				has_country_flag = france_intervention_started
+			}
+		}
+		ai_will_do = {
+			factor = 10
+		}
+		days_remove = 14
+		war_with_on_remove = TUN
+		complete_effect = {
+			add_ai_strategy = {
+				type = prepare_for_war
+				id = TUN
+				value = 25
+			}
+		}
+		remove_effect = {
+			set_country_flag = france_intervention_started
+			FRA = {
+				declare_war_on = {
+					target = TUN
+					type = annex_everything
+				} 
+			}
+			activate_mission= FRA_tunisia_war_timer
+		}
+	}
+	FRA_tunisia_war_timer = {
+		icon = generic_prepare_civil_war
+		days_mission_timeout = 180
+		allowed = {
+			OR = {
+				original_tag = FRA
+				original_tag = TUN
+			}
+		}
+		visible = {
+			hidden_trigger = {
+				OR = {
+					has_war_with = TUN
+					has_war_with = FRA
+				}
+				NOT = {
+					has_global_flag = france_tunisia_war_end
+				}
+			}
+		}
+		available = {
+			hidden_trigger = {
+				NOT = {
+					has_war_with = TUN
+					has_war_with = FRA
+				}
+				has_global_flag = france_tunisia_war_end
+			}
+		}
+		cancel_if_not_visible = yes
+		fixed_random_seed = no
+		is_good = no
+		fire_only_once = yes
+		timeout_effect = {
+			FRA = {
+				add_war_support = -0.05
+				white_peace = TUN
+			}
+			set_country_flag = france_lost_tunisia
 		}
 	}
 	FRA_send_janin_to_russia = {
@@ -1420,6 +1572,7 @@ FRA_defense_of_france = {
 			19 = {
 				is_owned_and_controlled_by = ROOT
 			}
+			controls_province = 9737
 			NOT = {
 				capital_scope = {
 					state = 19
@@ -1440,19 +1593,22 @@ FRA_defense_of_france = {
 		}
 		visible = {
 			tag = FRA
+			has_civil_war = no
 			NOT = {
+				any_enemy_country = {
+					original_tag = FRA
+				}
 				has_global_flag = great_war_ends
-			}
-			any_enemy_country = {
-				is_major = yes
-			}
-			NOT = {
 				capital_scope = {
 					state = 19
 				}
 			}
+			any_enemy_country = {
+				is_major = yes
+			}
 		}
-
+		fire_only_once = no
+		days_re_enable = 70
 		complete_effect = {
 			set_capital = { state = 19 }
 		}
@@ -1465,29 +1621,20 @@ FRA_defense_of_france = {
 		}
 		cost = 25
 		available = {
-			capital_scope = {
-				any_neighbor_state = {
-					NOT = {
-						is_fully_controlled_by = ROOT
-					}
-				}
-			}
-			any_enemy_country = {
-				is_major = yes
-			}
 			16 = {
 				is_owned_and_controlled_by = ROOT
 			}
-			NOT = {
-				capital_scope = {
-					state = 16
-				}
-			}
+			controls_province = 11506
 		}
 		ai_will_do = {
 			base = 500
 			modifier = {
 				surrender_progress > 0.10
+				factor = 0
+			}
+			modifier = {
+				has_global_flag = great_war
+				NOT = { has_global_flag = great_war_ends }
 				factor = 0
 			}
 		}
@@ -1498,19 +1645,20 @@ FRA_defense_of_france = {
 		}
 		visible = {
 			tag = FRA
+			has_civil_war = no
+			owns_state = 16
 			NOT = {
-				has_global_flag = great_war_ends
-			}
-			any_enemy_country = {
-				is_major = yes
-			}
-			NOT = {
+				any_enemy_country = {
+					original_tag = FRA
+				}
 				capital_scope = {
 					state = 16
 				}
+				has_country_flag = FRA_nationalist_france_flag
 			}
 		}
-
+		fire_only_once = no
+		days_re_enable = 70
 		complete_effect = {
 			set_capital = { state = 16 }
 		}
