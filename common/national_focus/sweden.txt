@@ -342,13 +342,13 @@ focus_tree = {
 		completion_reward = {
 			add_popularity = {
 				ideology = democratic
-				popularity = 0.03
+				popularity = 0.02
 			}
 			add_popularity = {
 				ideology = communism
-				popularity = 0.03
+				popularity = 0.02
 			}
-			add_stability = 0.05
+			add_stability = 0.03
 			custom_effect_tooltip = adjust_emigration_problem_tt
 			add_to_variable = {
 				tooltip = monthly_population_tt
@@ -460,7 +460,7 @@ focus_tree = {
 		y = 1
 		
 		available = {
-			threat > 0.25
+			threat > 0.15
 			has_country_leader = {
 				character = SWE_karl_staaff
 				ruling_only = yes
@@ -470,14 +470,10 @@ focus_tree = {
 		search_filters = { FOCUS_FILTER_INTERNAL_AFFAIRS }
 		
 		completion_reward = {
-			add_war_support = 0.03
+			add_war_support = 0.02
 			add_timed_idea = {
 				idea = SWE_military_budget_adjustment
 				days = 365
-			}
-			add_power_balance_value = {
-				id = SWE_staaf_approval
-				value = -0.1
 			}
 		}
 	}
@@ -516,7 +512,7 @@ focus_tree = {
 			custom_effect_tooltip = upon_selection_will_extend_question_by_seventy_days
 			add_power_balance_value = {
 				id = SWE_staaf_approval
-				value = -0.05
+				value = -0.07
 			}
 			add_days_mission_timeout = {
 				mission = SWE_f_baten_question
@@ -618,7 +614,6 @@ focus_tree = {
 		continue_if_invalid = yes
 		
 		completion_reward = {
-			
 			add_power_balance_value = {
 				id = SWE_staaf_approval
 				value = 0.10
@@ -924,7 +919,7 @@ focus_tree = {
 			add_to_variable = {
 				tooltip = monthly_population_tt
 				var = SWE_emigration_monthly_population
-				value = -0.05
+				value = 0.05
 			}
 		}
 	}
@@ -1036,9 +1031,83 @@ focus_tree = {
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		
 		completion_reward = {
-			add_stability = -0.15
-			add_war_support -0.05
+			custom_effect_tooltip = penalty_based_on_non_democatic_support
+			set_temp_variable = { democratic_temp = party_popularity@fascism }
+			add_to_temp_variable = { democratic_temp = party_popularity@neutrality }
+			add_to_temp_variable = { democratic_temp = party_popularity@communism }
+			multiply_temp_variable = { democratic_temp = -0.2 }
+			add_stability = democratic_temp
+			multiply_temp_variable = { democratic_temp = 0.5 }
+			add_war_support = democratic_temp
+			reverse_add_opinion_modifier = {
+				modifier = small_increase
+				target = FRA
+			}
+			reverse_add_opinion_modifier = {
+				modifier = small_increase
+				target = ENG
+			}
+			reverse_add_opinion_modifier = {
+				modifier = small_increase
+				target = RUS
+			}
 			add_ideas = SWE_pro_entente_minority
+		}
+	}
+	focus = {
+		id = SWE_french_ties
+		icon = GFX_focus_spr_masters_of_our_own_fate
+		prerequisite = { focus = SWE_pro_entente_stance }
+		relative_position_id = SWE_pro_entente_stance
+		cost = 5.00
+		x = -1
+		y = 1
+		
+		available = {
+			FRA = {
+				exists = yes
+				is_subject = no
+				has_government = democratic
+				NOT = { has_war_with = ROOT }
+				NOT = { has_country_flag = great_war_loser }
+			}
+		}
+		
+		completion_reward = {
+			add_opinion_modifier = {
+				modifier = small_increase
+				target = FRA
+			}
+			reverse_add_opinion_modifier = {
+				modifier = small_increase
+				target = FRA
+			}
+			if = {
+				limit = {
+					has_idea = SWE_gustaf_v_dis
+				}
+				swap_ideas = {
+					add_idea = SWE_gustaf_v
+					remove_idea = SWE_gustaf_v_dis
+				}
+			}
+		}
+	}
+	focus = {
+		id = SWE_entente_corridor_for_food_security
+		icon = GFX_focus_spr_masters_of_our_own_fate
+		prerequisite = { focus = SWE_pro_entente_stance }
+		relative_position_id = SWE_pro_entente_stance
+		cost = 5.00
+		x = 1
+		y = 1
+		
+		available = {
+			
+		}
+		
+		completion_reward = {
+			
 		}
 	}
 	# Historical
@@ -1190,7 +1259,7 @@ focus_tree = {
 		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_INTERNAL_AFFAIRS }
 		
 		completion_reward = {
-			add_stability = 0.05
+			add_ideas = SWE_rally_to_neutrality
 			# Some bonus that lasts until you join faction mayhaps
 		}
 	}
@@ -1200,7 +1269,7 @@ focus_tree = {
 		prerequisite = { focus = SWE_rally_to_neutrality }
 		relative_position_id = SWE_rally_to_neutrality
 		cost = 5.00
-		x = 1
+		x = 0
 		y = 1
 		
 		available = {
@@ -1208,10 +1277,16 @@ focus_tree = {
 			is_in_faction = no
 		}
 		
-		search_filters = { FOCUS_FILTER_HISTORICAL }
+		search_filters = { FOCUS_FILTER_HISTORICAL FOCUS_FILTER_INDUSTRY FOCUS_FILTER_WAR_SUPPORT }
 		
 		completion_reward = {
 			add_war_support = 0.05
+			custom_effect_tooltip = adjust_swe_military_tt
+			add_to_variable = {
+				tooltip = industrial_capacity_factory_tt
+				var = SWE_mil_industrial_capacity_factory
+				value = 0.03
+			}
 		}
 	}
 	focus = {
@@ -1220,7 +1295,7 @@ focus_tree = {
 		prerequisite = { focus = SWE_defensive_posturing }
 		relative_position_id = SWE_rally_to_neutrality
 		cost = 7.00
-		x = 1
+		x = 0
 		y = 2
 		
 		available = {
@@ -1242,7 +1317,7 @@ focus_tree = {
 			focus = SWE_rally_to_neutrality
 		}
 		relative_position_id = SWE_rally_to_neutrality
-		x = -3
+		x = -4
 		y = 1
 		
 		cost = 3
@@ -1350,17 +1425,14 @@ focus_tree = {
 		prerequisite = { focus = SWE_rally_to_neutrality }
 		relative_position_id = SWE_rally_to_neutrality
 		cost = 10.00
-		x = -1
+		x = -2
 		y = 1
 		
 		available = {
 			has_civil_war = no
 			has_government = democratic
 			NOT = {
-				has_country_leader = {
-					character = SWE_ernst_trygger
-					ruling_only = yes
-				}
+				has_idea = SWE_unpopular_riksdag
 			}
 			has_global_flag = great_war
 			NOT = { has_global_flag = great_war_ends }
@@ -1369,7 +1441,11 @@ focus_tree = {
 		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_INTERNAL_AFFAIRS }
 		
 		completion_reward = {
-			add_political_power = 120
+			add_political_power = 100
+			swap_ideas = {
+				add_idea = SWE_rally_to_neutrality_borgfred
+				remove_idea = SWE_rally_to_neutrality
+			}
 			custom_effect_tooltip = will_stop_negative_neutrality_events_for_six_months
 			set_country_flag = {
 				flag = pause_between_neutrality_events
@@ -1407,14 +1483,6 @@ focus_tree = {
 				remove_ideas = SWE_forsvarsvasendet
 			}
 			if = {
-				limit = { has_idea = SWE_military_budget_cuts }
-				remove_ideas = SWE_military_budget_cuts
-			}
-			if = {
-				limit = { has_idea = SWE_military_budget_status_quo }
-				remove_ideas = SWE_military_budget_status_quo
-			}
-			if = {
 				limit = {
 					has_idea = volunteer_only
 				}
@@ -1433,6 +1501,12 @@ focus_tree = {
 				}
 			}
 			custom_effect_tooltip = enables_further_riksdag_decisions
+			custom_effect_tooltip = adjust_swe_military_tt
+			add_to_variable = {
+				tooltip = industrial_capacity_factory_tt
+				var = SWE_mil_industrial_capacity_factory
+				value = 0.03
+			}
 		}
 	}
 	# Reactionary Government
@@ -1577,7 +1651,7 @@ focus_tree = {
 		}
 	}
 	focus = {
-		id = SWE_volunteers_for_the_german_cause
+		id = SWE_german_military_mission
 		icon = GFX_focus_spr_masters_of_our_own_fate
 		prerequisite = { focus = SWE_strengthen_german_relations }
 		relative_position_id = SWE_strengthen_german_relations
@@ -1585,32 +1659,41 @@ focus_tree = {
 		x = -1
 		y = 1
 		
-		available = {
-			OR = {
-				has_country_leader = {
-					character = SWE_ernst_trygger
-					ruling_only = yes
-				}
-				AND = {
-					has_country_flag = pact_with_germany
-					has_country_leader_ideology = conservatism
-				}
-			}
-			GER = {
-				exists = yes
-				NOT = {
-					has_government = communism
-					has_country_leader_ideology = social_democracy
-				}
-				NOT = { has_war_with = ROOT }
-				NOT = { has_country_flag = great_war_loser }
-			}
-			NOT = {
-				is_in_faction_with = ENG
-				is_in_faction_with = FRA
-				is_in_faction_with = RUS
+		completion_reward = {
+			custom_effect_tooltip = lose_stability_based_on_socialist_support
+			set_temp_variable = { communism_temp = party_popularity@communism }
+			multiply_temp_variable = { communism_temp = -0.3 }
+			add_stability = communism_temp
+			add_ideas = SWE_german_military_mission
+			custom_effect_tooltip = adjust_swe_military_tt
+			add_to_variable = {
+				tooltip = planning_speed_tt
+				var = SWE_mil_planning_speed
+				value = 0.03
 			}
 		}
+	}
+	focus = {
+		id = SWE_support_finnish_resistance
+		icon = GFX_focus_spr_masters_of_our_own_fate
+		prerequisite = { focus = SWE_german_military_mission }
+		relative_position_id = SWE_strengthen_german_relations
+		cost = 10.00
+		x = -2
+		y = 2
+		
+		completion_reward = {
+			# Unlock decision to train Finnish for outbreak of war with Russia
+		}
+	}
+	focus = {
+		id = SWE_endorse_pro_german_press
+		icon = GFX_focus_spr_masters_of_our_own_fate
+		prerequisite = { focus = SWE_strengthen_german_relations }
+		relative_position_id = SWE_strengthen_german_relations
+		cost = 5.00
+		x = 1
+		y = 1
 		
 		completion_reward = {
 			reverse_add_opinion_modifier = {
@@ -1625,34 +1708,8 @@ focus_tree = {
 				modifier = small_decrease
 				target = RUS
 			}
-			reverse_add_opinion_modifier = {
-				modifier = small_increase
-				target = GER
-			}
-			add_relation_rule_override = {
-				target = GER
-				trigger = SWE_isnt_socialist
-				usage_desc = isnt_socialist_volunteers_will_be_enabled
-				can_send_volunteers = yes
-			}
-		}
-	}
-	focus = {
-		id = SWE_endorse_pro_german_press
-		icon = GFX_focus_spr_masters_of_our_own_fate
-		prerequisite = { focus = SWE_strengthen_german_relations }
-		relative_position_id = SWE_strengthen_german_relations
-		cost = 5.00
-		x = 1
-		y = 1
-		
-		available = {
-			fascism > 0.1
-		}
-		
-		completion_reward = {
-			add_stability = -0.05
-			add_war_support = 0.05
+			add_stability = -0.025
+			add_war_support = 0.04
 			add_popularity = {
 				ideology = democratic
 				popularity = -0.03
@@ -1663,7 +1720,20 @@ focus_tree = {
 			}
 		}
 	}
-	# Add focuses to join German Faction vs Protect Neutrality (aka remove it from diplo tree)
+	focus = {
+		id = SWE_prepare_entry_into_the_conflicts
+		icon = GFX_focus_spr_masters_of_our_own_fate
+		prerequisite = { focus = SWE_german_military_mission }
+		prerequisite = { focus = SWE_endorse_pro_german_press }
+		relative_position_id = SWE_strengthen_german_relations
+		cost = 10.00
+		x = 0
+		y = 3
+		
+		completion_reward = {
+			# Joins Central Powers
+		}
+	}
 	focus = {
 		id = SWE_eliminate_leftist_opposition
 		icon = GFX_focus_spr_masters_of_our_own_fate
@@ -1675,7 +1745,7 @@ focus_tree = {
 		
 		available = {
 			has_idea = SWE_liberal_opposition
-			has_country_leader_ideology = conservatism
+			has_stability > 0.5
 		}
 		
 		search_filters = { FOCUS_FILTER_POLITICAL }
@@ -1761,7 +1831,7 @@ focus_tree = {
 		completion_reward = {
 			add_popularity = {
 				ideology = fascism
-				popularity = 0.1
+				popularity = 0.05
 			}
 			set_party_name = {
 				ideology = fascism
@@ -1829,16 +1899,29 @@ focus_tree = {
 		available = {
 			has_government = neutrality
 		}
-		bypass = {
-			NOT = { has_idea = SWE_conservative_army_leadership }
-		}
 		
 		completion_reward = {
-			add_war_support = 0.1
-			add_political_power = 50
-			swap_ideas = {
-				add_idea = SWE_conservative_army_leadership_mon
-				remove_idea = SWE_conservative_army_leadership
+			add_war_support = 0.10
+			custom_effect_tooltip = adjust_swe_military_tt
+			add_to_variable = {
+				tooltip = army_defence_factor_tt
+				var = SWE_mil_army_defence_factor
+				value = 0.03
+			}
+			add_to_variable = {
+				tooltip = max_planning_factor_tt
+				var = SWE_mil_max_planning_factor
+				value = 0.05
+			}
+			add_to_variable = {
+				tooltip = experience_gain_army_factor_tt
+				var = SWE_mil_experience_gain_army_factor
+				value = -0.05
+			}
+			add_to_variable = {
+				tooltip = planning_speed_tt
+				var = SWE_mil_planning_speed
+				value = -0.05
 			}
 		}
 	}
@@ -1934,14 +2017,14 @@ focus_tree = {
 				elections_allowed = no
 			}
 			custom_effect_tooltip = will_block_neutrality_events_for_a_year_tt
-			hidden_effect = {
-				promote_character = SWE_gustaf_v
-				set_party_name = {
-					ideology = neutrality
-					long_name = SWE_neutrality_party_long
-					name = SWE_neutrality_party
-				}
-			}
+			#hidden_effect = {
+			#	promote_character = SWE_gustaf_v
+			#	set_party_name = {
+			#		ideology = neutrality
+			#		long_name = SWE_neutrality_party_long
+			#		name = SWE_neutrality_party
+			#	}
+			#}
 		}
 	}
 	focus = {
@@ -1968,6 +2051,17 @@ focus_tree = {
 		
 		completion_reward = {
 			add_ideas = SWE_paramilitarism
+			custom_effect_tooltip = adjust_swe_military_tt
+			add_to_variable = {
+				tooltip = training_time_factor_tt
+				var = SWE_mil_training_time_factor
+				value = -0.05
+			}
+			add_to_variable = {
+				tooltip = mobilization_speed_tt
+				var = SWE_mil_mobilization_speed
+				value = 0.12
+			}
 		}
 	}
 	focus = {
@@ -2062,6 +2156,12 @@ focus_tree = {
 		completion_reward = {
 			add_ideas = SWE_krigsforberedelser_idea
 			custom_effect_tooltip = will_be_removed_at_end_of_emergency
+			custom_effect_tooltip = adjust_swe_military_tt
+			add_to_variable = {
+				tooltip = industrial_capacity_factory_tt
+				var = SWE_mil_industrial_capacity_factory
+				value = 0.02
+			}
 		}
 	}
 	focus = {
@@ -2087,7 +2187,7 @@ focus_tree = {
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		
 		completion_reward = {
-			add_stability = -0.1
+			add_stability = -0.15
 			if = {
 				limit = { has_idea = SWE_temporary_state_of_ermegency }
 				remove_ideas = SWE_temporary_state_of_ermegency
@@ -2126,14 +2226,6 @@ focus_tree = {
 			}
 			add_political_power = 40
 			country_event = { id = ww_sverige.19 }
-			custom_effect_tooltip = enables_further_riksdag_decisions
-			hidden_effect = {
-				# Decision to help restore stability post-civil-war
-				activate_targeted_decision = {
-					target = SWE
-					decision = SWE_fund_campaign_of_unity
-				}
-			}
 		}
 	}
 	focus = {
