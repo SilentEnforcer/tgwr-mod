@@ -3,11 +3,11 @@ POR_parliament_gui_initial = {
 	# Put simply an array stores a list of things, used here to store the list of parties and list of seats.
 
 	# POR_parliament_seat_array stores the list of seat numbers for each party
-	add_to_array = { POR_parliament_seat_array = regenerator_party } # Regenerator Party = 62 seats
-	add_to_array = { POR_parliament_seat_array = progressive_party } # Progressive Party = 58 seats
 	add_to_array = { POR_parliament_seat_array = progressive_dissidents } # Progressive Dissidents = 7 seats
+	add_to_array = { POR_parliament_seat_array = progressive_party } # Progressive Party = 58 seats
 	add_to_array = { POR_parliament_seat_array = portuguese_republican_party } # Portuguese Republican Party = 7 seats
 	add_to_array = { POR_parliament_seat_array = liberal_regenerator_party } # Liberal Regenerator Party = 3 seats
+	add_to_array = { POR_parliament_seat_array = regenerator_party } # Regenerator Party = 62 seats
 	add_to_array = { POR_parliament_seat_array = nationalist_party } # Nationalist Party = 1 seats
 	add_to_array = { POR_parliament_seat_array = independents } # Independents = 10 seats
 
@@ -35,11 +35,11 @@ POR_reload_parliament_gui = {
 	# Clears what's currently on the gui, if there's anything there.
 	clear_array = POR_parliament_main_array
 
-	# The array temp_seat is duplicated from the array POR_parliament_seat_array.
+	# The array POR_temp_seat is duplicated from the array POR_parliament_seat_array.
 	for_each_loop = {
 		array = POR_parliament_seat_array
 
-		add_to_array = { temp_seat = POR_parliament_seat_array^i }
+		add_to_array = { POR_temp_seat = POR_parliament_seat_array^i }
 	}
 
 	# It's a suprise tool for later
@@ -47,18 +47,18 @@ POR_reload_parliament_gui = {
 	set_temp_variable = { temp_index_2 = 1 }
 
 	# Set temp_size as the highest index in the array, highest index is the highest value x in temp_array^x.
-	set_temp_variable = { temp_size = temp_seat^num }
+	set_temp_variable = { temp_size = POR_temp_seat^num }
 	subtract_from_temp_variable = { temp_size = 1 }
 
-	# What this does is loop through the temp_seat array, adding the current value to the next value on the list.
-	# temp_seat^0 is the first value on the list, temp_seat^1 is the next and so forth.
+	# What this does is loop through the POR_temp_seat array, adding the current value to the next value on the list.
+	# POR_temp_seat^0 is the first value on the list, POR_temp_seat^1 is the next and so forth.
 	# the loop ends when temp_index_1 is equal to the size of the array - 1 (basically the max index).
 	while_loop_effect = {
 		limit = {
 			check_variable = { temp_index_1 < temp_size }
 		}
-		# The suprise tool starts out as temp_seat^0 and temp_seat^1 and then is incremented every loop , adding the current value to the next value on the list.
-		add_to_variable = { temp_seat^temp_index_2 = temp_seat^temp_index_1 }
+		# The suprise tool starts out as POR_temp_seat^0 and POR_temp_seat^1 and then is incremented every loop , adding the current value to the next value on the list.
+		add_to_variable = { POR_temp_seat^temp_index_2 = POR_temp_seat^temp_index_1 }
 		add_to_temp_variable = { temp_index_1 = 1 }
 		add_to_temp_variable = { temp_index_2 = 1 }
 	}
@@ -68,36 +68,36 @@ POR_reload_parliament_gui = {
 	# 1,1,1,1,1,1,1,...(repeated 90 times),2,2,2,2,2,2,2(repeated 35 times),3,3,3.. etc.
 	for_loop_effect = {
 		start = 0
-		end = temp_seat^num
+		end = POR_temp_seat^num
 
-		resize_array = { array = POR_parliament_main_array value = POR_parliament_member_array^v size = temp_seat^v }
+		resize_array = { array = POR_parliament_main_array value = POR_parliament_member_array^v size = POR_temp_seat^v }
 	}
 
-	# Clear the temp_seat array used previously since it's not needed anymore.
-	clear_array = temp_seat
+	# Clear the POR_temp_seat array used previously since it's not needed anymore.
+	clear_array = POR_temp_seat
 }
 
 # Bonus code for adding/subtracting seats
 modify_parliament_seat = {
-	subtract_from_temp_variable = { temp_member = 1 }
+	subtract_from_temp_variable = { POR_POR_temp_member = 1 }
 
 	# check to see if result overflows
-	set_temp_variable = { temp = POR_parliament_seat_array^temp_member }
-	add_to_temp_variable = { temp = temp_seats }
+	set_temp_variable = { temp = POR_parliament_seat_array^POR_POR_temp_member }
+	add_to_temp_variable = { temp = POR_temp_seats }
 
 	if = {
 		limit = {
 			check_variable = { temp > POR_parliament_main_array^num }
 		}
 		subtract_from_temp_variable = { temp = POR_parliament_main_array^num }
-		subtract_from_temp_variable = { temp_seats = temp }
+		subtract_from_temp_variable = { POR_temp_seats = temp }
 	}
 	else_if = {
 		limit = {
 			check_variable = { temp < 0 }
 		}
 		multiply_temp_variable = { temp = -1 }
-		subtract_from_temp_variable = { temp_seats = temp }
+		subtract_from_temp_variable = { POR_temp_seats = temp }
 	}
 
 	# adds all parties to temp_array
@@ -109,20 +109,20 @@ modify_parliament_seat = {
 	}
 
 	# remove from list of parties the party to be added/subtracted
-	remove_from_temp_array = { array = temp_array value = temp_member }
+	remove_from_temp_array = { array = temp_array value = POR_POR_temp_member }
 
 	# give party new seat value
-	add_to_variable = { POR_parliament_seat_array^temp_member = temp_seats }
+	add_to_variable = { POR_parliament_seat_array^POR_POR_temp_member = POR_temp_seats }
 
 	# if its add
 	if = {
 		limit = {
-			check_variable = { temp_seats > 0 }
+			check_variable = { POR_temp_seats > 0 }
 		}
 		# loop until seats to be added is 0
 		while_loop_effect = {
 			limit = {
-				check_variable = { temp_seats > 0 }
+				check_variable = { POR_temp_seats > 0 }
 			}
 
 			# loops through remaining parties, subtracting 1 seat each time
@@ -133,10 +133,10 @@ modify_parliament_seat = {
 				if = {
 					limit = {
 						check_variable = { POR_parliament_seat_array^temp_array^v > 0 } # party must have more than 0 seats to be subtracted
-						check_variable = { temp_seats > 0 } # seats to be added is bigger than 0 currently
+						check_variable = { POR_temp_seats > 0 } # seats to be added is bigger than 0 currently
 					}
 					subtract_from_variable = { POR_parliament_seat_array^temp_array^v = 1 } # subtract from party 1 seat
-					subtract_from_temp_variable = { temp_seats = 1 } # subtract from seats to be added
+					subtract_from_temp_variable = { POR_temp_seats = 1 } # subtract from seats to be added
 				}
 			}
 		}
@@ -144,12 +144,12 @@ modify_parliament_seat = {
 	# if its subtract
 	else_if = {
 		limit = {
-			check_variable = { temp_seats < 0 }
+			check_variable = { POR_temp_seats < 0 }
 		}
 		# loop until seats to be subtracted is 0
 		while_loop_effect = {
 			limit = {
-				check_variable = { temp_seats < 0 }
+				check_variable = { POR_temp_seats < 0 }
 			}
 
 			# loops through remaining parties, adding 1 seat each time
@@ -160,10 +160,10 @@ modify_parliament_seat = {
 				if = {
 					limit = {
 						check_variable = { POR_parliament_seat_array^temp_array^v < POR_parliament_main_array^num } # party must have less than max seats to be added
-						check_variable = { temp_seats < 0 } # seats to be subtracted is less than 0 currently
+						check_variable = { POR_temp_seats < 0 } # seats to be subtracted is less than 0 currently
 					}
 					add_to_variable = { POR_parliament_seat_array^temp_array^v = 1 } # add to party 1 seat
-					add_to_temp_variable = { temp_seats = 1 } # add to seats to be subtracted
+					add_to_temp_variable = { POR_temp_seats = 1 } # add to seats to be subtracted
 				}
 			}
 		}
@@ -497,40 +497,40 @@ POR_clear_all_alliance = {
 }
 
 POR_recalculate_parliament_alliance = {
-    set_variable = { var = progressive_alliance value = 0 } 
+    set_variable = { var = coalition_alliance value = 0 } 
 	if = {
         limit = {
             has_country_flag = progressive_party_allied
         }
-        add_to_variable = { var = progressive_alliance value = progressive_party }
+        add_to_variable = { var = coalition_alliance value = progressive_party }
     }
     if = {
         limit = {
             has_country_flag = progressive_dissidents_allied
         }
-        add_to_variable = { var = progressive_alliance value = progressive_dissidents }
+        add_to_variable = { var = coalition_alliance value = progressive_dissidents }
     }
     if = {
         limit = {
             has_country_flag = portuguese_republican_party_allied
         }
-        add_to_variable = { var = progressive_alliance value = portuguese_republican_party }
+        add_to_variable = { var = coalition_alliance value = portuguese_republican_party }
     }
     if = {
         limit = {
             has_country_flag = independents_allied
         }
-        add_to_variable = { var = progressive_alliance value = independents }
+        add_to_variable = { var = coalition_alliance value = independents }
     }	
 	set_variable = {
-		var = progressive_alliance_percent
-		value = progressive_alliance
+		var = coalition_alliance_percent
+		value = coalition_alliance
 	}
 	multiply_variable = {
-		progressive_alliance_percent = 100
+		coalition_alliance_percent = 100
 	}
 	divide_variable = {
-		progressive_alliance_percent = seatNumbers
+		coalition_alliance_percent = seatNumbers
 	}
     POR_reload_parliament_gui = yes
 }
